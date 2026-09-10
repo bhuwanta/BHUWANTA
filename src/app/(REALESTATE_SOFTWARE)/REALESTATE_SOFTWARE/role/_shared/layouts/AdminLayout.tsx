@@ -98,7 +98,7 @@ export default function AdminLayout({ children, basePath, roleLabel, showModules
       >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:flex items-center justify-center w-7 h-7 absolute -right-3.5 top-6 bg-white border border-[#e8ecf2] rounded-full text-[#5a6a82] hover:text-[#c4a55a] hover:border-[#c4a55a] hover:shadow-md transition-all shadow-sm z-50"
+          className="hidden md:flex items-center justify-center w-7 h-7 absolute right-2 top-[62px] bg-white border border-[#e8ecf2] rounded-full text-[#5a6a82] hover:text-[#c4a55a] hover:border-[#c4a55a] hover:shadow-md transition-all shadow-sm z-50"
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4 ml-0.5" /> : <ChevronLeft className="w-4 h-4 mr-0.5" />}
@@ -107,14 +107,14 @@ export default function AdminLayout({ children, basePath, roleLabel, showModules
         <div className={`p-4 border-b border-[#e8ecf2] flex items-center h-[76px] ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
           {isCollapsed ? (
             <img
-              src="/logo.png"
+              src="/logo-icon.png"
               alt="Bhuwanta"
               title="Bhuwanta"
-              className="w-10 h-10 rounded-lg object-cover object-left animate-in fade-in duration-300"
+              className="w-10 h-10 object-contain brightness-0 animate-in fade-in duration-300"
             />
           ) : (
-            <div className="overflow-hidden whitespace-nowrap animate-in fade-in duration-300">
-              <img src="/logo.png" alt="Bhuwanta Developers" className="h-9 w-auto object-contain" />
+            <div className="overflow-hidden whitespace-nowrap animate-in fade-in duration-300 text-center">
+              <img src="/logo.png" alt="Bhuwanta Developers" className="h-9 w-auto object-contain mx-auto" />
               <p className="text-[10px] text-[#5a6a82] mt-1 font-bold uppercase tracking-widest">Role : {roleLabel}</p>
             </div>
           )}

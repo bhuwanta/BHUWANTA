@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Blocks, Users, Key, Network, KeyRound, ClipboardPlus, ClipboardList, Wallet, LayoutDashboard, Map, Landmark, Settings, Building2, IndianRupee, FileText, Phone } from 'lucide-react';
 import { getModulesAction, ensurePasswordsModuleExists, ensureUserManagementModuleExists, ensureHierarchyModuleExists, ensureBulkPasswordResetModuleExists, ensureNewRegistrationModuleExists, ensureRegistrationStatusModuleExists, ensureWalletModuleExists, ensurePageModulesExist } from './actions';
 import { ModuleCard } from './ModuleCard';
+import { CustomerModuleGroup } from './CustomerModuleGroup';
 
 export default function ModulesPage() {
   const [modules, setModules] = useState<any[]>([]);
@@ -112,21 +113,22 @@ export default function ModulesPage() {
           {modules.find((m) => m.module_key === 'wallet') && (
             <ModuleCard mod={modules.find((m) => m.module_key === 'wallet')} icon={Wallet} onUpdate={loadModules} />
           )}
-          {modules.find((m) => m.module_key === 'customer_payment') && (
-            <ModuleCard mod={modules.find((m) => m.module_key === 'customer_payment')} icon={IndianRupee} onUpdate={loadModules} audience="customer" />
-          )}
-          {modules.find((m) => m.module_key === 'customer_documents') && (
-            <ModuleCard mod={modules.find((m) => m.module_key === 'customer_documents')} icon={FileText} onUpdate={loadModules} audience="customer" />
-          )}
-          {modules.find((m) => m.module_key === 'customer_registration_status') && (
-            <ModuleCard mod={modules.find((m) => m.module_key === 'customer_registration_status')} icon={ClipboardList} onUpdate={loadModules} audience="customer" />
-          )}
-          {modules.find((m) => m.module_key === 'customer_contact') && (
-            <ModuleCard mod={modules.find((m) => m.module_key === 'customer_contact')} icon={Phone} onUpdate={loadModules} audience="customer" />
-          )}
-          {modules.find((m) => m.module_key === 'customer_settings') && (
-            <ModuleCard mod={modules.find((m) => m.module_key === 'customer_settings')} icon={Settings} onUpdate={loadModules} audience="customer" />
-          )}
+          {(() => {
+            const customerEntries = [
+              { key: 'customer_payment', icon: IndianRupee, label: 'Payment' },
+              { key: 'customer_documents', icon: FileText, label: 'Documents' },
+              { key: 'customer_registration_status', icon: ClipboardList, label: 'Registration Status' },
+              { key: 'customer_contact', icon: Phone, label: 'Contact' },
+              { key: 'customer_settings', icon: Settings, label: 'Settings' },
+            ]
+              .map(({ key, icon, label }) => {
+                const mod = modules.find((m) => m.module_key === key);
+                return mod ? { mod, icon, label } : null;
+              })
+              .filter((e): e is { mod: any; icon: typeof IndianRupee; label: string } => e !== null);
+
+            return customerEntries.length > 0 ? <CustomerModuleGroup entries={customerEntries} onUpdate={loadModules} /> : null;
+          })()}
           {modules
             .filter(
               (m) =>
