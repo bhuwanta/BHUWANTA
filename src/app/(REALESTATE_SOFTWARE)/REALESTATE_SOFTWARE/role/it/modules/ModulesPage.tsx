@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Blocks, Users, Key, Network, KeyRound, ClipboardPlus, ClipboardList, Wallet, LayoutDashboard, Map, Landmark, Settings, Building2, IndianRupee, FileText, Phone } from 'lucide-react';
-import { getModulesAction, ensurePasswordsModuleExists, ensureUserManagementModuleExists, ensureHierarchyModuleExists, ensureBulkPasswordResetModuleExists, ensureNewRegistrationModuleExists, ensureRegistrationStatusModuleExists, ensureWalletModuleExists, ensurePageModulesExist } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/modules/actions';
-import { ModuleCard } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/modules/ModuleCard';
-import { CustomerModuleGroup } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/modules/CustomerModuleGroup';
+import { getModulesAction, ensurePasswordsModuleExists, ensureUserManagementModuleExists, ensureHierarchyModuleExists, ensureBulkPasswordResetModuleExists, ensureNewRegistrationModuleExists, ensureRegistrationStatusModuleExists, ensureWalletModuleExists, ensurePageModulesExist } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/it/modules/actions';
+import { ModuleCard } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/it/modules/ModuleCard';
+import { CustomerModuleGroup } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/it/modules/CustomerModuleGroup';
 
 export default function ModulesPage() {
   const [modules, setModules] = useState<any[]>([]);

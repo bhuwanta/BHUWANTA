@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CheckCircle2, ShieldAlert, Users, X, type LucideIcon } from 'lucide-react';
-import { toggleModuleRoleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/modules/actions';
+import { toggleModuleRoleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/it/modules/actions';
 
 interface CustomerModuleEntry {
   mod: any;
