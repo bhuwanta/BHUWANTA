@@ -99,7 +99,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // REALESTATE_SOFTWARE RBAC — defense-in-depth alongside each page's own
-  // requireRole() call (role/_shared/auth.ts). That per-page check is the
+  // requireRole() call (role/platform/auth/auth.ts). That per-page check is the
   // primary guard; this is a second, independent layer at the edge so a
   // page that ever forgot to call it wouldn't be silently unprotected.
   // Uses the anon-key client (already built above with the visitor's own

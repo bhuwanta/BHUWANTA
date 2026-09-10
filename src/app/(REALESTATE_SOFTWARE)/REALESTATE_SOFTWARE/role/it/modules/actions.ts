@@ -76,7 +76,7 @@ export async function ensureHierarchyModuleExists() {
     if (!existing) {
       // Opt-in, default off — IT and Operation Manager already see the
       // hierarchy visualizer unconditionally (requireCanViewHierarchy in
-      // role/_shared/admin/hierarchy/actions.ts), this only extends that
+      // role/modules/hierarchy/actions.ts), this only extends that
       // same read-only view to whichever sales-tier roles IT chooses.
       await supabaseAdmin.from('s_modules').insert({
         module_key: 'hierarchy_visualizer',

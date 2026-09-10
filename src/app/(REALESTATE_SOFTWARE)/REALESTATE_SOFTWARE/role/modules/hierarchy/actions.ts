@@ -33,11 +33,11 @@ export interface HierarchyNode {
 // IT and Operation Manager both always have this: IT owns the plain
 // hierarchy view, and Operation Manager gets the per-transaction
 // "Visualize" button on the Payouts page
-// (role/_shared/admin/payouts/PayoutsPage.tsx) — same read-only
+// (role/modules/payouts/PayoutsPage.tsx) — same read-only
 // visibility isCanViewPayouts already grants them over the payout queue
 // itself. Beyond those two, access is opt-in per role via the
 // "Visualize Hierarchy" module (S_modules, module_key
-// 'hierarchy_visualizer' — role/_shared/admin/modules), same pattern as
+// 'hierarchy_visualizer' — role/it/modules), same pattern as
 // the User Management and Passwords modules: IT toggles which
 // sales-tier roles get this, off by default. Note this check backs
 // BOTH role/hierarchy (the plain org chart) and role/payouts-visualize
