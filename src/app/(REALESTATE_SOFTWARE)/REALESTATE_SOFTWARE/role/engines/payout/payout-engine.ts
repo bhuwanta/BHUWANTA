@@ -8,9 +8,9 @@
 // row per participant.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { getUplineChain } from './downline'
-import { computeCommissionBreakdown, computePool, type CommissionRatesMap } from './commission'
-import type { RealEstateRole } from './permissions'
+import { getUplineChain } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/org/downline'
+import { computeCommissionBreakdown, computePool, type CommissionRatesMap } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/engines/payout/commission'
+import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions'
 
 type ServiceClient = ReturnType<typeof createServiceClient>
 

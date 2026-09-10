@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import RegistrationsPage from './RegistrationsPage';
-import { requireCanViewRegistrations } from './actions';
-import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import RegistrationsPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/RegistrationsPage';
+import { requireCanViewRegistrations } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 /** Registration Status behind its module gate. Every role's route file
  * renders this rather than RegistrationsPage directly — each of the

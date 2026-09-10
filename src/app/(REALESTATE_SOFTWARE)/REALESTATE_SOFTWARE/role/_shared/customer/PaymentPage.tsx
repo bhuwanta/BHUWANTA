@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { IndianRupee, Loader2, CheckCircle2, AlertCircle, Ban, Search, ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
-import { getMyRegistrationsAction } from './actions';
+import { getMyRegistrationsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/data/customer-registrations';
 import { markPaymentPaidAction, cancelRegistrationAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
-import { STATUS_LABEL } from './status';
+import { STATUS_LABEL } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/status-badges';
 
 const PAGE_SIZE = 10;
 

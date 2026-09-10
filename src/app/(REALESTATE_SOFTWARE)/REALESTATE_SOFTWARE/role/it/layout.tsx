@@ -1,4 +1,4 @@
-import AdminLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/layouts/AdminLayout';
+import AdminLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/layouts/AdminLayout';
 
 export default function ITLayout({ children }: { children: React.ReactNode }) {
   return (

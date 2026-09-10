@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, Landmark, CheckCircle2, Loader2 } from 'lucide-react';
-import { getOperationManagerDashboardStatsAction } from './actions';
+import { getOperationManagerDashboardStatsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/operation-manager/actions';
 
 export default function OperationManagerDashboard() {
   const [stats, setStats] = useState<Awaited<ReturnType<typeof getOperationManagerDashboardStatsAction>> | null>(null);

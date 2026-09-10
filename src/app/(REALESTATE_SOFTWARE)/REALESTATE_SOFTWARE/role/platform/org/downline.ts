@@ -5,7 +5,7 @@
 // reimplemented per caller.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { isSalesRole, getSalesRoleOrder, type RealEstateRole } from './permissions'
+import { isSalesRole, getSalesRoleOrder, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions'
 
 type ServiceClient = ReturnType<typeof createServiceClient>
 

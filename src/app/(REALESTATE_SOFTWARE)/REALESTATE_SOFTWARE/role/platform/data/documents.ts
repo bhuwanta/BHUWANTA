@@ -7,8 +7,8 @@
 // admin/areas-projects/actions.ts and is not duplicated here.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from './auth'
-import { requirePageModule } from './nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/auth/auth'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules'
 
 export async function getDocumentsForProjectsAction(projectIds: string[]) {
   try {

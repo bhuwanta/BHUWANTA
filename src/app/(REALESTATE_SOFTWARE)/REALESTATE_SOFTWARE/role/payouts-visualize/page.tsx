@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { requireAnyRole, verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import { requireAnyRole, verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/auth/auth';
 import { checkHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
-import VisualizePayoutClient from './VisualizePayoutClient';
+import VisualizePayoutClient from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/payouts-visualize/VisualizePayoutClient';
 
 export default async function VisualizePayoutPage({
   searchParams,

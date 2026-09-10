@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
-import { requirePageModule, getMyNavModulesAction } from './nav-modules';
-import { PAGE_MODULES } from './page-modules';
+import { requirePageModule, getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/page-modules';
 
 /** Wraps a page in its module gate. Every role's route file renders
  * this rather than the page component directly — the per-role literal

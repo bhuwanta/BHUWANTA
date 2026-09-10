@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Settings, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { changeOwnPasswordAction } from './actions';
+import { changeOwnPasswordAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/settings/actions';
 
 export default function SelfSettingsPage() {
   const [password, setPassword] = useState('');

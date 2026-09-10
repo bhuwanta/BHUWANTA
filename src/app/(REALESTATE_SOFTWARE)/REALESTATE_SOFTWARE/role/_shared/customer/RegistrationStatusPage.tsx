@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, Loader2, Check, Clock, Ban } from 'lucide-react';
-import { getMyRegistrationsAction } from './actions';
-import { STATUS_BADGE, STATUS_LABEL } from './status';
+import { getMyRegistrationsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/data/customer-registrations';
+import { STATUS_BADGE, STATUS_LABEL } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/status-badges';
 
 const STEPS = ['Submitted', 'Payment', 'Registration Done'];
 

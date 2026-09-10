@@ -10,8 +10,8 @@ import {
   getPreviewRolesAction,
   getDirectorGcAssignmentsAction,
   setDirectorGcAction,
-} from './actions';
-import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/SearchableSelect';
+} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payout-rules/actions';
+import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/components/SearchableSelect';
 
 type Scope = 'chain' | 'company_wide' | 'director_assigned' | 'company_wide_split';
 type Message = { type: 'success' | 'error'; text: string } | null;

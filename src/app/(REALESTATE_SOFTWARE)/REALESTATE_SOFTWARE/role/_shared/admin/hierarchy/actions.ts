@@ -17,8 +17,8 @@
 // ever pays for the nodes actually expanded on screen.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
-import { ROLE_LABELS, getSalesRoleOrder, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/auth/auth'
+import { ROLE_LABELS, getSalesRoleOrder, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions'
 
 type ServiceClient = ReturnType<typeof createServiceClient>
 

@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Landmark, Loader2, Clock, CheckCircle2, RefreshCw, XCircle, User, MapPin, ShoppingBag, Search, Calendar, Network, Maximize2, X, Building2 } from 'lucide-react';
-import { getAllPayoutsAction, markPayoutCompletedAction, type SaleTotals } from './actions';
-import MultiSelectFilter from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/MultiSelectFilter';
+import { getAllPayoutsAction, markPayoutCompletedAction, type SaleTotals } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payouts/actions';
+import MultiSelectFilter from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/components/MultiSelectFilter';
 import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
 import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
-import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 const STATUS_META: Record<string, { label: string; className: string; icon: any }> = {
   pending: { label: 'Pending', className: 'bg-amber-50 text-amber-600', icon: Clock },

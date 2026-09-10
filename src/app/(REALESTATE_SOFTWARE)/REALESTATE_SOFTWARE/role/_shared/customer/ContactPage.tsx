@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Phone, Loader2, User, PhoneCall } from 'lucide-react';
-import { getMyRegistrationsAction } from './actions';
+import { getMyRegistrationsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/data/customer-registrations';
 
 export default function ContactPage() {
   const [registrations, setRegistrations] = useState<any[]>([]);

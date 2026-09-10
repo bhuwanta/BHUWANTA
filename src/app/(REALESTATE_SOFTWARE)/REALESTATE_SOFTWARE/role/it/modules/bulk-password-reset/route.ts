@@ -13,7 +13,7 @@
 
 import { after } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/password-policy'
+import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/policies/password-policy'
 import { sendBulkPasswordChangeNotifications, requireBulkPasswordAccess } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/user-management/actions'
 
 export async function POST(req: Request) {

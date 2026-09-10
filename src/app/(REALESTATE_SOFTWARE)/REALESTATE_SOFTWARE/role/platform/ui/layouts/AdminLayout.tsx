@@ -3,40 +3,49 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ClipboardPlus, ClipboardList, Users, Building2, Map, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { getPendingRegistrationCountAction, checkMyRegistrationModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
-import { checkMyWalletModuleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/actions';
-import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules';
-import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/page-modules';
-import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations-notify';
+import { LayoutDashboard, Users, Building2, Percent, Scale, ClipboardList, ClipboardPlus, Landmark, Blocks, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
+import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/page-modules';
 
-interface SalesLayoutProps {
+interface AdminLayoutProps {
   children: React.ReactNode;
-  /** URL base for this role's shell, e.g. "/REALESTATE_SOFTWARE/role/director" —
-   * every sales tier shares an identical page set (HIERARCHY.md §8), only
-   * scope/data differs. */
+  /** URL base for this role's shell, e.g. "/REALESTATE_SOFTWARE/role/it" —
+   * every role using this layout has an identical page set (HIERARCHY.md
+   * §7), only the base path and label differ. */
   basePath: string;
   roleLabel: string;
-  /** LIA has no downline, so its User Management page doesn't exist at
-   * all (§8h) — not shown empty, dropped from the nav entirely. */
-  showUserManagement: boolean;
+  /** Defaults to true (IT/Governing Council). CEO drops this page —
+   * not relevant to their workflow. */
+  showModules?: boolean;
+  /** Defaults to false. Only CEO/Governing Council earn commission
+   * (§3a) — IT never gets this page since it'd always be empty. */
+  showWallet?: boolean;
+  /** Defaults to false. CEO-only exception: the sole admin peer who can
+   * submit a sale directly (createRegistrationAction/getMyProjectsAction
+   * both special-case caller.role === 'ceo' for this). IT and Governing
+   * Council never get this page — company-wide oversight only, same as
+   * before. */
+  showNewRegistration?: boolean;
+  /** Defaults to false — IT only. Payout Rules configures WHO earns on a
+   * sale (S_payout_rules / earns_commission, migration 010), which is
+   * money-critical and deliberately kept to the single technical-owner
+   * role rather than shared with the other admin peers. CEO/Governing
+   * Council still manage the rates themselves on Roles / Commissions. */
+  showPayoutRules?: boolean;
 }
 
-export default function SalesLayout({ children, basePath, roleLabel, showUserManagement }: SalesLayoutProps) {
+export default function AdminLayout({ children, basePath, roleLabel, showModules = true, showWallet = false, showNewRegistration = false, showPayoutRules = false }: AdminLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  // Both default true so the links don't visibly flash out on every
-  // page load for the (usual) case where they're enabled. The real
-  // gate is server-side, so an optimistic render costs nothing.
-  const [regModules, setRegModules] = useState({ newRegistration: true, registrationStatus: true });
-  const [walletEnabled, setWalletEnabled] = useState(true);
+  // Defaults to {} so an absent key reads as enabled — the link stays
+  // drawn until the check says otherwise, rather than flashing out.
   const [pageModules, setPageModules] = useState<Record<string, boolean>>({});
   const pathname = usePathname() || '';
 
   useEffect(() => {
-    checkMyRegistrationModulesAction().then(setRegModules);
-    checkMyWalletModuleAction().then(setWalletEnabled);
     getMyNavModulesAction().then(setPageModules);
   }, []);
 
@@ -53,14 +62,17 @@ export default function SalesLayout({ children, basePath, roleLabel, showUserMan
   }, [pathname]);
 
   const navItems = [
-    ...(pageModules[PAGE_MODULES.dashboard] !== false ? [{ path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true }] : []),
-    ...(regModules.newRegistration ? [{ path: '/new-registration', label: 'New Registration', icon: ClipboardPlus }] : []),
-    ...(regModules.registrationStatus ? [{ path: '/registrations', label: 'Registration Status', icon: ClipboardList }] : []),
-    ...(showUserManagement ? [{ path: '/users', label: 'User Management', icon: Users }] : []),
-    ...(pageModules[PAGE_MODULES.areasProjects] !== false ? [{ path: '/areas-projects', label: 'Areas & Projects', icon: Map }] : []),
-    ...(pageModules[PAGE_MODULES.myProjects] !== false ? [{ path: '/projects', label: 'My Projects', icon: Building2 }] : []),
-    ...(walletEnabled ? [{ path: '/wallet', label: 'My Wallet', icon: Wallet }] : []),
-    ...(pageModules[PAGE_MODULES.settings] !== false ? [{ path: '/settings', label: 'Settings', icon: Settings }] : []),
+    { path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    { path: '/users', label: 'User Management', icon: Users },
+    { path: '/areas-projects', label: 'Areas & Projects', icon: Building2 },
+    { path: '/commission-rates', label: 'Roles & Commission', icon: Percent },
+    ...(showPayoutRules ? [{ path: '/payout-rules', label: 'Payout Rules', icon: Scale }] : []),
+    ...(showNewRegistration ? [{ path: '/new-registration', label: 'New Registration', icon: ClipboardPlus }] : []),
+    { path: '/registrations', label: 'Registration Status', icon: ClipboardList },
+    ...(pageModules[PAGE_MODULES.payouts] !== false ? [{ path: '/payouts', label: 'Payouts', icon: Landmark }] : []),
+    ...(showWallet ? [{ path: '/wallet', label: 'My Wallet', icon: Wallet }] : []),
+    ...(showModules ? [{ path: '/modules', label: 'Modules', icon: Blocks }] : []),
+    { path: '/settings', label: 'Settings', icon: Settings },
   ];
 
   const isActive = (path: string, exact?: boolean) => {
@@ -144,7 +156,6 @@ export default function SalesLayout({ children, basePath, roleLabel, showUserMan
               </Link>
             );
           })}
-
         </nav>
 
         <div className="p-3 border-t border-[#e8ecf2] shrink-0 flex flex-col gap-2">

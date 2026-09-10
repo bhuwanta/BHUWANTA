@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Percent, Loader2, Edit2, Check, X, AlertCircle, Trash2, Plus, Download, Search, ArrowUp, ArrowDown, ArrowUpDown, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getCommissionRatesAction, updateCommissionRateAction, createCommissionRateAction, deleteCommissionRateAction, getSalesRoleOrderAction, createSalesRoleAction, renameSalesRoleAction } from './actions';
-import { getFixedRoleLabelsAction, renameFixedRoleAction } from './fixed-role-actions';
-import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import { getCommissionRatesAction, updateCommissionRateAction, createCommissionRateAction, deleteCommissionRateAction, getSalesRoleOrderAction, createSalesRoleAction, renameSalesRoleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
+import { getFixedRoleLabelsAction, renameFixedRoleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
+import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 interface RateRow {
   percentage: number;

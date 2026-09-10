@@ -24,7 +24,7 @@
 // 14000.000000000002 instead of 14000 — this is the more rigorous fix,
 // not just a cleanup pass after the fact).
 
-import type { RealEstateRole } from './permissions';
+import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 export type CommissionRatesMap = Partial<Record<RealEstateRole, number>>;
 

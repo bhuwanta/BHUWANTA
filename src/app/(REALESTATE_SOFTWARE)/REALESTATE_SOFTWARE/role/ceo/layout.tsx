@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/server';
-import AdminLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/layouts/AdminLayout';
-import { getFixedRoleLabel } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import AdminLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/layouts/AdminLayout';
+import { getFixedRoleLabel } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 export default async function CEOLayout({ children }: { children: React.ReactNode }) {
   // Read live rather than hardcoding "CEO": this role is relabelled

@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Building2, Loader2, MapPin, FileText, Search, X } from 'lucide-react';
-import { getMyProjectsAction } from './actions';
-import { getDocumentsForProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/documents';
-import MultiSelectFilter from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/MultiSelectFilter';
+import { getMyProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/my-projects/actions';
+import { getDocumentsForProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/data/documents';
+import MultiSelectFilter from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/components/MultiSelectFilter';
 
 export default function MyProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, MapPin, Building2, ClipboardList, Clock, CheckCircle2, Ban, IndianRupee, Percent, Loader2, Network } from 'lucide-react';
-import { getAdminDashboardStatsAction, getMyEarningsAction } from './actions';
-import { isCommissionEligible, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import { getAdminDashboardStatsAction, getMyEarningsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/dashboard/actions';
+import { isCommissionEligible, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 interface AdminDashboardProps {
   currentUserRole: RealEstateRole;

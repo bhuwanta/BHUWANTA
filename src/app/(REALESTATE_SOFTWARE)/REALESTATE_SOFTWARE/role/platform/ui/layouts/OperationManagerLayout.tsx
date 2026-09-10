@@ -3,36 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules';
-import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/page-modules';
-import { IndianRupee, FileText, ClipboardList, Phone, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Landmark, Map, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
 
-/** Every Customer page is switchable from the Modules page. Settings
- * included — note that switching it off also removes their only way to
- * change their own password. */
+const BASE_PATH = '/REALESTATE_SOFTWARE/role/OperationManager';
+
 const NAV_ITEMS = [
-  { path: '/payment', label: 'Payment', icon: IndianRupee, exact: true, moduleKey: PAGE_MODULES.customerPayment },
-  { path: '/documents', label: 'Documents', icon: FileText, moduleKey: PAGE_MODULES.customerDocuments },
-  { path: '/registration-status', label: 'Registration Status', icon: ClipboardList, moduleKey: PAGE_MODULES.customerRegistrationStatus },
-  { path: '/contact', label: 'Contact', icon: Phone, moduleKey: PAGE_MODULES.customerContact },
-  { path: '/settings', label: 'Settings', icon: Settings, moduleKey: PAGE_MODULES.customerSettings },
+  { path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { path: '/registrations', label: 'Registration Status', icon: ClipboardList },
+  { path: '/payouts', label: 'Payouts', icon: Landmark },
+  { path: '/areas-projects', label: 'Areas & Projects', icon: Map },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function CustomerLayout({ children }: { children: React.ReactNode }) {
+export default function OperationManagerLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [pageModules, setPageModules] = useState<Record<string, boolean>>({});
+  const [pendingCount, setPendingCount] = useState(0);
   const pathname = usePathname() || '';
 
   useEffect(() => {
-    getMyNavModulesAction().then(setPageModules);
-  }, []);
-
-  const navItems = NAV_ITEMS.filter((i) => !i.moduleKey || pageModules[i.moduleKey] !== false);
-  const basePath = '/REALESTATE_SOFTWARE/role/Customer';
+    const refresh = () => {
+      getPendingRegistrationCountAction().then((res) => {
+        if (res.success) setPendingCount(res.count);
+      });
+    };
+    refresh();
+    return onRegistrationsChanged(refresh);
+  }, [pathname]);
 
   const isActive = (path: string, exact?: boolean) => {
-    const full = `${basePath}${path}`;
+    const full = `${BASE_PATH}${path}`;
     return exact ? pathname === full : pathname.startsWith(full);
   };
 
@@ -71,28 +73,44 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
           ) : (
             <div className="overflow-hidden whitespace-nowrap animate-in fade-in duration-300 text-center">
               <img src="/logo.png" alt="Bhuwanta Developers" className="h-9 w-auto object-contain mx-auto" />
-              <p className="text-[10px] text-[#5a6a82] mt-1 font-bold uppercase tracking-widest">Role : Customer</p>
+              <p className="text-[10px] text-[#5a6a82] mt-1 font-bold uppercase tracking-widest">Role : Operation Manager</p>
             </div>
           )}
         </div>
 
         <nav className="flex-1 p-3 space-y-2 overflow-y-auto mt-2">
-          {navItems.map((item) => {
+          {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const href = `${basePath}${item.path}`;
+            const href = `${BASE_PATH}${item.path}`;
             const active = isActive(item.path, item.exact);
             return (
               <Link
                 key={item.path}
                 href={href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors group ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors group relative ${
                   active ? 'text-[#1e3a5f] bg-[#1e3a5f]/10' : 'text-[#5a6a82] hover:bg-[#f3f5f8]'
                 }`}
-                title={item.label}
+                title={item.path === '/registrations' && pendingCount > 0 ? `${item.label} — ${pendingCount} pending` : item.label}
                 onClick={() => setIsMobileOpen(false)}
               >
-                <Icon className="w-5 h-5 shrink-0" />
-                {!isCollapsed && <span>{item.label}</span>}
+                <span className="relative shrink-0">
+                  <Icon className="w-5 h-5" />
+                  {isCollapsed && item.path === '/registrations' && pendingCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center">
+                      {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                  )}
+                </span>
+                {!isCollapsed && (
+                  <span className="flex-1 flex items-center justify-between">
+                    {item.label}
+                    {item.path === '/registrations' && pendingCount > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+                        {pendingCount > 99 ? '99+' : pendingCount}
+                      </span>
+                    )}
+                  </span>
+                )}
               </Link>
             );
           })}

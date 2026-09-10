@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/auth/auth';
 import { checkHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
-import HierarchyPageClient from './HierarchyPageClient';
+import HierarchyPageClient from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/hierarchy/HierarchyPageClient';
 
 export default async function HierarchyPage() {
   // Not requireRole/requireAnyRole: this page's audience isn't a fixed

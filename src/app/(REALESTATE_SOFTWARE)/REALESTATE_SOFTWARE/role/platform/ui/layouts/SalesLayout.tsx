@@ -3,25 +3,42 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ClipboardList, Landmark, Map, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
-import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations-notify';
+import { LayoutDashboard, ClipboardPlus, ClipboardList, Users, Building2, Map, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { getPendingRegistrationCountAction, checkMyRegistrationModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { checkMyWalletModuleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/actions';
+import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/page-modules';
+import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
 
-const BASE_PATH = '/REALESTATE_SOFTWARE/role/OperationManager';
+interface SalesLayoutProps {
+  children: React.ReactNode;
+  /** URL base for this role's shell, e.g. "/REALESTATE_SOFTWARE/role/director" —
+   * every sales tier shares an identical page set (HIERARCHY.md §8), only
+   * scope/data differs. */
+  basePath: string;
+  roleLabel: string;
+  /** LIA has no downline, so its User Management page doesn't exist at
+   * all (§8h) — not shown empty, dropped from the nav entirely. */
+  showUserManagement: boolean;
+}
 
-const NAV_ITEMS = [
-  { path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { path: '/registrations', label: 'Registration Status', icon: ClipboardList },
-  { path: '/payouts', label: 'Payouts', icon: Landmark },
-  { path: '/areas-projects', label: 'Areas & Projects', icon: Map },
-  { path: '/settings', label: 'Settings', icon: Settings },
-];
-
-export default function OperationManagerLayout({ children }: { children: React.ReactNode }) {
+export default function SalesLayout({ children, basePath, roleLabel, showUserManagement }: SalesLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  // Both default true so the links don't visibly flash out on every
+  // page load for the (usual) case where they're enabled. The real
+  // gate is server-side, so an optimistic render costs nothing.
+  const [regModules, setRegModules] = useState({ newRegistration: true, registrationStatus: true });
+  const [walletEnabled, setWalletEnabled] = useState(true);
+  const [pageModules, setPageModules] = useState<Record<string, boolean>>({});
   const pathname = usePathname() || '';
+
+  useEffect(() => {
+    checkMyRegistrationModulesAction().then(setRegModules);
+    checkMyWalletModuleAction().then(setWalletEnabled);
+    getMyNavModulesAction().then(setPageModules);
+  }, []);
 
   useEffect(() => {
     const refresh = () => {
@@ -30,11 +47,24 @@ export default function OperationManagerLayout({ children }: { children: React.R
       });
     };
     refresh();
+    // Also refreshes the instant a registration is submitted/marked
+    // done/cancelled anywhere on the page — not just on navigation.
     return onRegistrationsChanged(refresh);
   }, [pathname]);
 
+  const navItems = [
+    ...(pageModules[PAGE_MODULES.dashboard] !== false ? [{ path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true }] : []),
+    ...(regModules.newRegistration ? [{ path: '/new-registration', label: 'New Registration', icon: ClipboardPlus }] : []),
+    ...(regModules.registrationStatus ? [{ path: '/registrations', label: 'Registration Status', icon: ClipboardList }] : []),
+    ...(showUserManagement ? [{ path: '/users', label: 'User Management', icon: Users }] : []),
+    ...(pageModules[PAGE_MODULES.areasProjects] !== false ? [{ path: '/areas-projects', label: 'Areas & Projects', icon: Map }] : []),
+    ...(pageModules[PAGE_MODULES.myProjects] !== false ? [{ path: '/projects', label: 'My Projects', icon: Building2 }] : []),
+    ...(walletEnabled ? [{ path: '/wallet', label: 'My Wallet', icon: Wallet }] : []),
+    ...(pageModules[PAGE_MODULES.settings] !== false ? [{ path: '/settings', label: 'Settings', icon: Settings }] : []),
+  ];
+
   const isActive = (path: string, exact?: boolean) => {
-    const full = `${BASE_PATH}${path}`;
+    const full = `${basePath}${path}`;
     return exact ? pathname === full : pathname.startsWith(full);
   };
 
@@ -73,15 +103,15 @@ export default function OperationManagerLayout({ children }: { children: React.R
           ) : (
             <div className="overflow-hidden whitespace-nowrap animate-in fade-in duration-300 text-center">
               <img src="/logo.png" alt="Bhuwanta Developers" className="h-9 w-auto object-contain mx-auto" />
-              <p className="text-[10px] text-[#5a6a82] mt-1 font-bold uppercase tracking-widest">Role : Operation Manager</p>
+              <p className="text-[10px] text-[#5a6a82] mt-1 font-bold uppercase tracking-widest">Role : {roleLabel}</p>
             </div>
           )}
         </div>
 
         <nav className="flex-1 p-3 space-y-2 overflow-y-auto mt-2">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
-            const href = `${BASE_PATH}${item.path}`;
+            const href = `${basePath}${item.path}`;
             const active = isActive(item.path, item.exact);
             return (
               <Link
@@ -114,6 +144,7 @@ export default function OperationManagerLayout({ children }: { children: React.R
               </Link>
             );
           })}
+
         </nav>
 
         <div className="p-3 border-t border-[#e8ecf2] shrink-0 flex flex-col gap-2">

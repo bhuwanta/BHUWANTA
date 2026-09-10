@@ -1,6 +1,6 @@
 import { createServiceClient } from '@/lib/supabase/server';
-import { getSalesRoleLabel } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
-import SalesLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/layouts/SalesLayout';
+import { getSalesRoleLabel } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
+import SalesLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/layouts/SalesLayout';
 
 export default async function RMLayout({ children }: { children: React.ReactNode }) {
   const roleLabel = await getSalesRoleLabel(createServiceClient(), 'rm');
