@@ -16,7 +16,7 @@ import {
   getDocumentsAction,
   uploadDocumentAction,
   deleteDocumentAction,
-} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/areas-projects/actions';
+} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/areas-projects/actions';
 
 type Message = { type: 'success' | 'error'; text: string } | null;
 

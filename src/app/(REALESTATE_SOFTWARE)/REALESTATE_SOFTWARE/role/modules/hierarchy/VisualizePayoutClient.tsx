@@ -14,8 +14,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Loader2, Coins, AlertCircle } from 'lucide-react';
-import HierarchyGraph from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/HierarchyGraph';
-import { getPayoutLineageForRegistrationAction, getMySaleLineageAction, type SaleFinancials } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payouts/actions';
+import HierarchyGraph from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/hierarchy/HierarchyGraph';
+import { getPayoutLineageForRegistrationAction, getMySaleLineageAction, type SaleFinancials } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/payouts/actions';
 
 interface VisualizePayoutClientProps {
   registrationId: string | null;

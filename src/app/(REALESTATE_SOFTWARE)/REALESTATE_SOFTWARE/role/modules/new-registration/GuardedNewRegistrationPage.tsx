@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import NewRegistrationPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/new-registration/NewRegistrationPage';
+import NewRegistrationPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/new-registration/NewRegistrationPage';
 import { requireCanCreateRegistration } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
 
 /** New Registration behind its module gate — same reasoning as

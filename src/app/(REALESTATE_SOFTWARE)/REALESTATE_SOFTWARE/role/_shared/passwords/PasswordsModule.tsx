@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Settings, Key, Eye, EyeOff, ShieldAlert, CheckCircle2, Loader2 } from 'lucide-react';
-import { checkPasswordsModuleStatusAction, updatePasswordAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/passwords/actions';
+import { checkPasswordsModuleStatusAction, updatePasswordAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/passwords/actions';
 
 interface PasswordsModuleProps {
   role: string;

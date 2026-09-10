@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Loader2, Clock, CheckCircle2, XCircle, RefreshCw, User, Search, ArrowUp, ArrowDown, ArrowUpDown, Network } from 'lucide-react';
 import { getMyPayoutsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/wallet/actions';
-import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
-import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
-import { checkMyHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
+import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/actions';
+import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/fixed-role-actions';
+import { checkMyHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/hierarchy/actions';
 import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 const STATUS_META: Record<string, { label: string; className: string; icon: any }> = {

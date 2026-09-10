@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShieldAlert, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
-import { resetPasswordByEmailAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/settings/actions';
+import { resetPasswordByEmailAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/admin-settings/actions';
 
 export default function SettingsPage() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);

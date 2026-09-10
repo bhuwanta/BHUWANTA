@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { ClipboardList, Loader2, CheckCircle2, Clock, Ban, AlertCircle, Search, ArrowUp, ArrowDown, ArrowUpDown, BellOff, XCircle, Trash2, Undo2 } from 'lucide-react';
 import { getRegistrationsAction, markRegistrationDoneAction, cancelRegistrationAction, markRegistrationsReadAction, markOneRegistrationReadAction, deleteRegistrationAction, undoRegistrationDoneAction, undoPaymentAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
 import { notifyRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
-import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
-import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
+import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/actions';
+import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/fixed-role-actions';
 import { ROLE_LABELS, isSalesRole, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 interface RegistrationsPageProps {
