@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, ClipboardPlus, ClipboardList, Users, Building2, Map, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { getPendingRegistrationCountAction, checkMyRegistrationModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
-import { checkMyWalletModuleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/actions';
+import { checkMyWalletModuleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/wallet-access';
 import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules';
 import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/page-modules';
 import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';

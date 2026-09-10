@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Wallet, Loader2, Clock, CheckCircle2, XCircle, RefreshCw, User, Search, ArrowUp, ArrowDown, ArrowUpDown, Network } from 'lucide-react';
-import { getMyPayoutsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/actions';
+import { getMyPayoutsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/wallet/actions';
 import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
 import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
 import { checkMyHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
