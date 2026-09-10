@@ -1,4 +1,4 @@
-import AdminLayout from '../_shared/layouts/AdminLayout';
+import AdminLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/layouts/AdminLayout';
 
 export default function GoverningCouncilLayout({ children }: { children: React.ReactNode }) {
   return (

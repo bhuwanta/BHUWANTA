@@ -1,5 +1,5 @@
-import { requireRole } from '../../_shared/auth';
-import WalletPage from '../../_shared/wallet/WalletPage';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import WalletPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/WalletPage';
 
 export default async function CEOWalletPage() {
   await requireRole('ceo');

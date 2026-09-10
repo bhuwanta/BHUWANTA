@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Building2, Percent, Scale, ClipboardList, ClipboardPlus, Landmark, Blocks, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { getPendingRegistrationCountAction } from '../registrations/actions';
-import { onRegistrationsChanged } from '../registrations-notify';
-import { getMyNavModulesAction } from '../nav-modules';
-import { PAGE_MODULES } from '../page-modules';
+import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations-notify';
+import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/page-modules';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

@@ -1,6 +1,6 @@
-import { requireRole } from '../../_shared/auth';
-import RegistrationStatusPage from '../../_shared/customer/RegistrationStatusPage';
-import PageModuleGuard from '../../_shared/PageModuleGuard';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import RegistrationStatusPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/customer/RegistrationStatusPage';
+import PageModuleGuard from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/PageModuleGuard';
 
 export default async function CustomerRegistrationStatusPage() {
   await requireRole('customer');

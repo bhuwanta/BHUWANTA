@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getMyNavModulesAction } from '../nav-modules';
-import { PAGE_MODULES } from '../page-modules';
+import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/page-modules';
 import { IndianRupee, FileText, ClipboardList, Phone, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 
 /** Every Customer page is switchable from the Modules page. Settings

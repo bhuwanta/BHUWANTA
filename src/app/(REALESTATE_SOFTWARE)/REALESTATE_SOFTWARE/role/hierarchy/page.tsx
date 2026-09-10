@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { verifyCaller } from '../_shared/auth';
-import { checkHierarchyModuleStatusAction } from '../_shared/admin/hierarchy/actions';
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import { checkHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
 import HierarchyPageClient from './HierarchyPageClient';
 
 export default async function HierarchyPage() {

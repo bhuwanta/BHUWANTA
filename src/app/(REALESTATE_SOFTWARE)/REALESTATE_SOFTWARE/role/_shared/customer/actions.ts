@@ -1,8 +1,8 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../auth'
-import { computePool } from '../commission'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { computePool } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/commission'
 
 /** HIERARCHY.md §9: every Customer Dashboard section (Dashboard, Payment,
  * Registration Status, Contact) is really just a different view over the

@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, ClipboardPlus, ClipboardList, Users, Building2, Map, Wallet, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { getPendingRegistrationCountAction, checkMyRegistrationModulesAction } from '../registrations/actions';
-import { checkMyWalletModuleAction } from '../wallet/actions';
-import { getMyNavModulesAction } from '../nav-modules';
-import { PAGE_MODULES } from '../page-modules';
-import { onRegistrationsChanged } from '../registrations-notify';
+import { getPendingRegistrationCountAction, checkMyRegistrationModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { checkMyWalletModuleAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/actions';
+import { getMyNavModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules';
+import { PAGE_MODULES } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/page-modules';
+import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations-notify';
 
 interface SalesLayoutProps {
   children: React.ReactNode;

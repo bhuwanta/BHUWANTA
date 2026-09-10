@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Loader2, Download } from 'lucide-react';
 import { getMyRegistrationsAction } from './actions';
-import { getDocumentsForProjectsAction } from '../documents';
+import { getDocumentsForProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/documents';
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<any[]>([]);

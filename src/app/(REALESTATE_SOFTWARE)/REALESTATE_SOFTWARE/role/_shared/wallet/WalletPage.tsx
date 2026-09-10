@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Loader2, Clock, CheckCircle2, XCircle, RefreshCw, User, Search, ArrowUp, ArrowDown, ArrowUpDown, Network } from 'lucide-react';
 import { getMyPayoutsAction } from './actions';
-import { getSalesRoleOrderAction } from '../admin/commission-rates/actions';
-import { getFixedRoleLabelsAction } from '../admin/commission-rates/fixed-role-actions';
-import { checkMyHierarchyModuleStatusAction } from '../admin/hierarchy/actions';
-import { ROLE_LABELS, type RealEstateRole } from '../permissions';
+import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
+import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
+import { checkMyHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/actions';
+import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
 
 const STATUS_META: Record<string, { label: string; className: string; icon: any }> = {
   pending: { label: 'Pending', className: 'bg-amber-50 text-amber-600', icon: Clock },

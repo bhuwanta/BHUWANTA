@@ -1,10 +1,10 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer, isOperationManager } from '../../permissions'
-import { computePool } from '../../commission'
-import { requirePageModule } from '../../nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer, isOperationManager } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { computePool } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/commission'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /** IT/CEO/Governing Council keep read-only company-wide visibility into
  * the payout queue (oversight, same as Registrations §7), but ONLY

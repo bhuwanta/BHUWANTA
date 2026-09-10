@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import NewRegistrationPage from './NewRegistrationPage';
-import { requireCanCreateRegistration } from '../../registrations/actions';
+import { requireCanCreateRegistration } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
 
 /** New Registration behind its module gate — same reasoning as
  * GuardedRegistrationsPage: the per-role literal routes outrank

@@ -11,7 +11,7 @@ import {
   getDirectorGcAssignmentsAction,
   setDirectorGcAction,
 } from './actions';
-import SearchableSelect from '../../components/SearchableSelect';
+import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/SearchableSelect';
 
 type Scope = 'chain' | 'company_wide' | 'director_assigned' | 'company_wide_split';
 type Message = { type: 'success' | 'error'; text: string } | null;

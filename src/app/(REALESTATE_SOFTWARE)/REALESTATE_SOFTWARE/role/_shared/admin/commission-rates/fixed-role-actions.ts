@@ -11,8 +11,8 @@
 // override with no rank concept at all.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer, ROLE_LABELS, type RealEstateRole } from '../../permissions'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer, ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
 
 const RENAMEABLE_FIXED_ROLES: RealEstateRole[] = ['ceo', 'governing_council']
 

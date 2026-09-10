@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { ROLE_LABELS, getSalesRoleOrder } from '../../permissions'
-import { requirePageModule } from '../../nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { ROLE_LABELS, getSalesRoleOrder } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /** CEO/GC earn commission (§3a); IT doesn't, so IT's dashboard skips
  * this call entirely (see AdminDashboard.tsx). Deliberately takes no

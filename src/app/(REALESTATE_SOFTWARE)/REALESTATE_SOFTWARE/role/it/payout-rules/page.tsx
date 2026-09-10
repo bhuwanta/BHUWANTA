@@ -1,5 +1,5 @@
-import { requireRole } from '../../_shared/auth';
-import PayoutRulesPage from '../../_shared/admin/payout-rules/PayoutRulesPage';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import PayoutRulesPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payout-rules/PayoutRulesPage';
 
 export default async function ITPayoutRulesPage() {
   await requireRole('it');

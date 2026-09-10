@@ -1,13 +1,13 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../auth'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
 import { sendSetupPasswordEmail } from '@/lib/emails/resend'
-import { isAdminPeer, isSalesRole, isOperationManager } from '../permissions'
-import { getDownlineIds, findUplineDirectorId } from '../downline'
-import { runCommissionPayout } from '../payout-engine'
-import { computeRatePerSqyd, computePool } from '../commission'
-import { requirePageModule } from '../nav-modules'
+import { isAdminPeer, isSalesRole, isOperationManager } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { getDownlineIds, findUplineDirectorId } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/downline'
+import { runCommissionPayout } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/payout-engine'
+import { computeRatePerSqyd, computePool } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/commission'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /** A "table doesn't exist" error, however it's reported: PostgREST
  * surfaces it as a PGRST205 schema-cache miss, raw Postgres as 42P01.

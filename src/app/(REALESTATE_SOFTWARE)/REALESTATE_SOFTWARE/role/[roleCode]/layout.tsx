@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/server';
-import { getSalesRoleOrder } from '../_shared/permissions';
-import SalesLayout from '../_shared/layouts/SalesLayout';
+import { getSalesRoleOrder } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import SalesLayout from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/layouts/SalesLayout';
 
 // Serves any sales-tier role NOT covered by a static role/<name>/ folder
 // — i.e. a role created via the Commission Rates page (migration 008 /

@@ -1,6 +1,6 @@
-import { requireRole } from '../../_shared/auth';
-import GuardedRegistrationsPage from '../../_shared/registrations/GuardedRegistrationsPage';
-import type { RealEstateRole } from '../../_shared/permissions';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import GuardedRegistrationsPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/GuardedRegistrationsPage';
+import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
 
 export default async function DynamicRoleRegistrationsPage({ params }: { params: Promise<{ roleCode: string }> }) {
   const { roleCode } = await params;

@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer } from '../../permissions'
-import { validatePassword } from '../../password-policy'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/password-policy'
 
 /**
  * Force-reset a user's password by email. Fixed version of the original

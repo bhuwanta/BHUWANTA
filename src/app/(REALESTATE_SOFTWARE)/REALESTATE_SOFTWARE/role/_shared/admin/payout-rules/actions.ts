@@ -12,10 +12,10 @@
 // file moves real money.
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer, isCommissionEligible, getSalesRoleOrder, ROLE_LABELS, type RealEstateRole } from '../../permissions'
-import { getUplineChain, getSubtreePendingSales } from '../../downline'
-import { computeCommissionBreakdown, computePool, type CommissionRatesMap } from '../../commission'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer, isCommissionEligible, getSalesRoleOrder, ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { getUplineChain, getSubtreePendingSales } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/downline'
+import { computeCommissionBreakdown, computePool, type CommissionRatesMap } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/commission'
 
 type PayoutScope = 'chain' | 'company_wide' | 'director_assigned' | 'company_wide_split'
 

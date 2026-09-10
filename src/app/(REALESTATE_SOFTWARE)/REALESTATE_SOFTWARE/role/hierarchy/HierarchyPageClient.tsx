@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Network } from 'lucide-react';
-import HierarchyGraph from '../_shared/admin/hierarchy/HierarchyGraph';
+import HierarchyGraph from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/hierarchy/HierarchyGraph';
 
 export default function HierarchyPageClient() {
   return (

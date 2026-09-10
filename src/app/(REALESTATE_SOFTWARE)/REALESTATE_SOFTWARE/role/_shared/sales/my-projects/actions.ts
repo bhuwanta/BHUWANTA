@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { findUplineDirectorId } from '../../downline'
-import { requirePageModule } from '../../nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { findUplineDirectorId } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/downline'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /**
  * §5: "A Director's whole downline inherits his Project assignments."

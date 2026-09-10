@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { validatePassword } from '../../password-policy'
-import { requirePageModule } from '../../nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/password-policy'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /** Self-service password change — every sales tier and Customer gets
  * this (§8/§9's "Settings" page, same pattern everywhere). Not the

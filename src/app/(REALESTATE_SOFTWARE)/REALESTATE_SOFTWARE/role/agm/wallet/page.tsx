@@ -1,5 +1,5 @@
-import { requireRole } from '../../_shared/auth';
-import WalletPage from '../../_shared/wallet/GuardedWalletPage';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import WalletPage from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/wallet/GuardedWalletPage';
 
 export default async function AGMWalletPage() {
   await requireRole('agm');

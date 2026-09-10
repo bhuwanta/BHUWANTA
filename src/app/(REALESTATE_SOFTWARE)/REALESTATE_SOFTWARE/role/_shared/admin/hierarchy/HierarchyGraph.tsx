@@ -24,7 +24,7 @@ import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
 import { Loader2, ChevronRight, Building2, Users as UsersIcon, UserRound } from 'lucide-react';
 import { getHierarchyChildrenAction, getHierarchyNodeAction, type HierarchyNode } from './actions';
-import type { SaleFinancials } from '../payouts/actions';
+import type { SaleFinancials } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payouts/actions';
 
 const formatINR = (v: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v);
 

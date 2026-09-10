@@ -1,7 +1,7 @@
-import { requireRole } from '../_shared/auth';
-import SalesDashboard from '../_shared/sales/dashboard/SalesDashboard';
-import type { RealEstateRole } from '../_shared/permissions';
-import PageModuleGuard from '../_shared/PageModuleGuard';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import SalesDashboard from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/dashboard/SalesDashboard';
+import type { RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import PageModuleGuard from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/PageModuleGuard';
 
 export default async function DynamicRoleDashboardPage({ params }: { params: Promise<{ roleCode: string }> }) {
   const { roleCode } = await params;

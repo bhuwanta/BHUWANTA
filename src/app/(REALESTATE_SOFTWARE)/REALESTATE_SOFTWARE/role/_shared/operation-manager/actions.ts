@@ -1,8 +1,8 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../auth'
-import { isOperationManager } from '../permissions'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isOperationManager } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
 
 /** §7d: Operation Manager's dashboard — a simple company-wide "what
  * needs my attention" view. No team, no commission, so no downline or

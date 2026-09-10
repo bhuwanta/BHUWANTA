@@ -1,5 +1,5 @@
-import { requireRole } from '../../_shared/auth';
-import UserManagementModule from '../../_shared/user-management/UserManagementModule';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import UserManagementModule from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/user-management/UserManagementModule';
 
 export default async function ITUsersPage() {
   const { userId, role } = await requireRole('it');

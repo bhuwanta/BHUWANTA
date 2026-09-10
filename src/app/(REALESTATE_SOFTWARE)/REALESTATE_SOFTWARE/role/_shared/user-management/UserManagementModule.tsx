@@ -17,11 +17,11 @@ import {
   getSingletonRoleCountsAction,
   type BulkPasswordUser,
 } from './actions';
-import { getDirectorGcAssignmentsAction, setDirectorGcAction } from '../admin/payout-rules/actions';
-import { getSalesRoleOrderAction } from '../admin/commission-rates/actions';
-import { getFixedRoleLabelsAction } from '../admin/commission-rates/fixed-role-actions';
-import { ROLE_LABELS, type RealEstateRole } from '../permissions';
-import SearchableSelect from '../components/SearchableSelect';
+import { getDirectorGcAssignmentsAction, setDirectorGcAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/payout-rules/actions';
+import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/actions';
+import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/commission-rates/fixed-role-actions';
+import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
+import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/SearchableSelect';
 
 interface PendingSaleInfo {
   registrationId: string;

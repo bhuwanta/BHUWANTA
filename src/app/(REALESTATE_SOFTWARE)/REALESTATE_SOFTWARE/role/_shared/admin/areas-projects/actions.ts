@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer } from '../../permissions'
-import { requirePageModule } from '../../nav-modules'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/nav-modules'
 
 /** Areas & Projects is viewable by every non-Customer role (IT through
  * LIA), but only IT/CEO/Governing Council — the same admin-peer set that

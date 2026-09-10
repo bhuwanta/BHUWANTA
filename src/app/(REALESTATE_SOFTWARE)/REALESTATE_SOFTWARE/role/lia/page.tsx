@@ -1,6 +1,6 @@
-import { requireRole } from '../_shared/auth';
-import SalesDashboard from '../_shared/sales/dashboard/SalesDashboard';
-import PageModuleGuard from '../_shared/PageModuleGuard';
+import { requireRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth';
+import SalesDashboard from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/dashboard/SalesDashboard';
+import PageModuleGuard from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/PageModuleGuard';
 
 export default async function LIADashboardPage() {
   const { role } = await requireRole('lia');

@@ -1,9 +1,9 @@
 'use server'
 
 import { createServiceClient } from '@/lib/supabase/server'
-import { verifyCaller } from '../../auth'
-import { isAdminPeer, getSalesRoleOrder } from '../../permissions'
-import { removeRoleFromAllModulesAction } from '../modules/actions'
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/auth'
+import { isAdminPeer, getSalesRoleOrder } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions'
+import { removeRoleFromAllModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/modules/actions'
 
 /** Client-callable wrapper around permissions.ts's getSalesRoleOrder —
  * client components (this page, PayoutsPage, ModuleCard) can't query

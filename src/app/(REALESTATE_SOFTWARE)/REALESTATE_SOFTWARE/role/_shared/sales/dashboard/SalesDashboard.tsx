@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, ClipboardList, Clock, CheckCircle2, Ban, IndianRupee, Percent, Loader2 } from 'lucide-react';
 import { getSalesDashboardStatsAction } from './actions';
-import { getMyEarningsAction } from '../../admin/dashboard/actions';
-import { ROLE_LABELS, type RealEstateRole } from '../../permissions';
+import { getMyEarningsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/dashboard/actions';
+import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/permissions';
 
 interface SalesDashboardProps {
   currentUserRole: RealEstateRole;

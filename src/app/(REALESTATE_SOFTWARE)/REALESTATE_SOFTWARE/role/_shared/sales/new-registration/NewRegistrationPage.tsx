@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ClipboardPlus, Loader2, AlertCircle, CheckCircle2, IndianRupee, Search, UserRound, X } from 'lucide-react';
-import { getMyProjectsAction } from '../my-projects/actions';
-import { createRegistrationAction, searchCustomersAction } from '../../registrations/actions';
-import { notifyRegistrationsChanged } from '../../registrations-notify';
-import SearchableSelect from '../../components/SearchableSelect';
+import { getMyProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/my-projects/actions';
+import { createRegistrationAction, searchCustomersAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { notifyRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations-notify';
+import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/components/SearchableSelect';
 import { calculateReferenceTotalAction } from './actions';
 
 export default function NewRegistrationPage() {
