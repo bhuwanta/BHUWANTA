@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, ClipboardList, Clock, CheckCircle2, Ban, IndianRupee, Percent, Loader2 } from 'lucide-react';
-import { getSalesDashboardStatsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/sales/dashboard/actions';
-import { getMyEarningsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/admin/dashboard/actions';
+import { getSalesDashboardStatsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/dashboard/sales-actions';
+import { getMyEarningsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/dashboard/admin-actions';
 import { ROLE_LABELS, type RealEstateRole } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/permissions';
 
 interface SalesDashboardProps {

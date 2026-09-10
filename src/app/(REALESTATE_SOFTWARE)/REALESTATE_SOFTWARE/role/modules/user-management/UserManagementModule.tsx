@@ -12,11 +12,13 @@ import {
   getFilterableRolesAction,
   getReportsToCandidatesAction,
   reassignReportsToAction,
+  getSingletonRoleCountsAction,
+} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/user-management/actions';
+import {
   getUsersForBulkPasswordAction,
   checkBulkPasswordModuleStatusAction,
-  getSingletonRoleCountsAction,
   type BulkPasswordUser,
-} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/user-management/actions';
+} from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/bulk-password-reset/actions';
 import { getDirectorGcAssignmentsAction, setDirectorGcAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/payout-rules/actions';
 import { getSalesRoleOrderAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/actions';
 import { getFixedRoleLabelsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/commission-rates/fixed-role-actions';
