@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, ClipboardList, Landmark, Map, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { getPendingRegistrationCountAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/registrations-access';
 import { onRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
 
 const BASE_PATH = '/REALESTATE_SOFTWARE/role/OperationManager';

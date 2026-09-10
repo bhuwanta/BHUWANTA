@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ClipboardPlus, Loader2, AlertCircle, CheckCircle2, IndianRupee, Search, UserRound, X } from 'lucide-react';
 import { getMyProjectsAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/my-projects/actions';
-import { createRegistrationAction, searchCustomersAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/_shared/registrations/actions';
+import { createRegistrationAction, searchCustomersAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/registration-status/actions';
 import { notifyRegistrationsChanged } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/events/registrations-notify';
 import SearchableSelect from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/ui/components/SearchableSelect';
 import { calculateReferenceTotalAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/new-registration/actions';
