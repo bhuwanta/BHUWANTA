@@ -45,3 +45,6 @@ DB_Schemas.sql
 
 # Ignore local doubts
 src/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/Doubts/
+
+# ngrok runtime log — regenerated on every tunnel, nothing depends on it
+ngrok.log
