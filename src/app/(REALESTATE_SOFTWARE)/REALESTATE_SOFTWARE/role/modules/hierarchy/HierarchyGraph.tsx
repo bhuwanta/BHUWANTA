@@ -215,10 +215,55 @@ function JunctionNode() {
 
 const nodeTypes = { org: OrgNode, junction: JunctionNode, customer: CustomerNode };
 
+/** Past this many childless siblings, they get gridded instead of put in
+ * a row. dagre lays every sibling on one rank, so 500 leaves means a
+ * 130,000px-wide canvas — fitView would want 0.011x zoom, below minZoom,
+ * so you would see about a tenth of a row of unreadable specks. Wrapping
+ * them into a block keeps the canvas roughly screen-shaped at any width. */
+const WIDE_LEAF_THRESHOLD = 8;
+/** Column cap keeps a very large block from becoming a wide ribbon again:
+ * 500 leaves lands at 16 x 32 (~4,200 x 2,700px) rather than 500 x 1. */
+const MAX_GRID_COLS = 16;
+const GRID_H_GAP = 40;
+const GRID_V_GAP = 24;
+
+function gridShape(count: number) {
+  const cols = Math.max(1, Math.min(MAX_GRID_COLS, Math.ceil(Math.sqrt(count * 1.4))));
+  const rows = Math.ceil(count / cols);
+  return {
+    cols,
+    rows,
+    width: cols * NODE_WIDTH + (cols - 1) * GRID_H_GAP,
+    height: rows * NODE_HEIGHT + (rows - 1) * GRID_V_GAP,
+  };
+}
+
 function layout(nodes: Node[], edges: Edge[]): Node[] {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 90 });
+
+  // Childless children, grouped by parent. Only leaves are eligible:
+  // gridding a node that has its own subtree would tear that subtree away
+  // from it, and the wide case in practice is hundreds of bottom-tier
+  // people under one manager, who are leaves by definition.
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const hasOwnChildren = new Set(edges.map((e) => e.source));
+  const leafKids = new Map<string, string[]>();
+  for (const e of edges) {
+    const child = byId.get(e.target);
+    if (!child || hasOwnChildren.has(e.target)) continue;
+    if (e.target === CUSTOMER_NODE_ID || e.target === JUNCTION_ID) continue;
+    const list = leafKids.get(e.source) || [];
+    list.push(e.target);
+    leafKids.set(e.source, list);
+  }
+  // Parent id -> the leaves being gridded under it.
+  const gridded = new Map<string, string[]>();
+  for (const [parentId, kids] of leafKids) {
+    if (kids.length > WIDE_LEAF_THRESHOLD) gridded.set(parentId, kids);
+  }
+  const griddedIds = new Set([...gridded.values()].flat());
 
   // Keyed by node object, not just id — a payee's card is wider/taller
   // to fit its explanatory sentence, and "is this a payee" only lives
@@ -231,15 +276,55 @@ function layout(nodes: Node[], edges: Edge[]): Node[] {
       : (n.data as OrgNodeData).financialDetail
       ? { width: PAYEE_NODE_WIDTH, height: PAYEE_NODE_HEIGHT }
       : { width: NODE_WIDTH, height: NODE_HEIGHT };
-  nodes.forEach((n) => g.setNode(n.id, dims(n)));
-  edges.forEach((e) => g.setEdge(e.source, e.target));
+  // Gridded leaves are hidden from dagre and replaced by one placeholder
+  // sized to the whole block, so dagre reserves the right space without
+  // ever laying 500 nodes on a single rank.
+  nodes.forEach((n) => {
+    if (griddedIds.has(n.id)) return;
+    g.setNode(n.id, dims(n));
+  });
+  for (const [parentId, kids] of gridded) {
+    const { width, height } = gridShape(kids.length);
+    g.setNode(`${parentId}__grid`, { width, height });
+  }
+  edges.forEach((e) => {
+    if (griddedIds.has(e.target)) return;
+    g.setEdge(e.source, e.target);
+  });
+  for (const parentId of gridded.keys()) g.setEdge(parentId, `${parentId}__grid`);
+
   dagre.layout(g);
 
-  return nodes.map((n) => {
+  const positioned: Node[] = [];
+  for (const n of nodes) {
+    if (griddedIds.has(n.id)) continue;
     const pos = g.node(n.id);
+    if (!pos) continue;
     const { width, height } = dims(n);
-    return { ...n, position: { x: pos.x - width / 2, y: pos.y - height / 2 } };
-  });
+    positioned.push({ ...n, position: { x: pos.x - width / 2, y: pos.y - height / 2 } });
+  }
+
+  // Fill each reserved block with its real cards, row by row.
+  for (const [parentId, kids] of gridded) {
+    const box = g.node(`${parentId}__grid`);
+    if (!box) continue;
+    const { cols, width, height } = gridShape(kids.length);
+    const left = box.x - width / 2;
+    const top = box.y - height / 2;
+    kids.forEach((id, i) => {
+      const n = byId.get(id);
+      if (!n) return;
+      positioned.push({
+        ...n,
+        position: {
+          x: left + (i % cols) * (NODE_WIDTH + GRID_H_GAP),
+          y: top + Math.floor(i / cols) * (NODE_HEIGHT + GRID_V_GAP),
+        },
+      });
+    });
+  }
+
+  return positioned;
 }
 
 interface HierarchyGraphProps {
