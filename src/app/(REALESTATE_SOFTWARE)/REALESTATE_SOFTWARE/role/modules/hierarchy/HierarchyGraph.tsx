@@ -657,6 +657,13 @@ export default function HierarchyGraph({ highlightIds, expandPath, autoExpandAll
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.1}
         maxZoom={4}
+        // Only mount the cards currently in the viewport. Depth is already
+        // cheap (the chain comes back in one query), but width is not: one
+        // person with 300 direct reports means 300 React components, and
+        // every pan re-renders them. Safe to switch on here because dagre
+        // gives every node an explicit size up front, so nothing has to be
+        // measured before it can be culled.
+        onlyRenderVisibleElements
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#e8ecf2" gap={20} />
