@@ -3,7 +3,15 @@ import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/ro
 import { checkHierarchyModuleStatusAction } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/hierarchy/actions';
 import HierarchyPageClient from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/hierarchy/HierarchyPageClient';
 
-export default async function HierarchyPage() {
+export default async function HierarchyPage({
+  searchParams,
+}: {
+  // ?focus=<userId> opens the same graph expanded down to one person,
+  // linked from User Management's actions column. No new route, so the
+  // URL segment middleware.ts pins ('hierarchy') is untouched.
+  searchParams: Promise<{ focus?: string }>;
+}) {
+  const { focus } = await searchParams;
   // Not requireRole/requireAnyRole: this page's audience isn't a fixed
   // role list any more. IT and Operation Manager always have it; every
   // other role is opt-in through the "Visualize Hierarchy" module
@@ -19,5 +27,5 @@ export default async function HierarchyPage() {
     if (!moduleStatus.isEnabled) redirect('/REALESTATE_SOFTWARE/login');
   }
 
-  return <HierarchyPageClient />;
+  return <HierarchyPageClient focusUserId={focus} />;
 }

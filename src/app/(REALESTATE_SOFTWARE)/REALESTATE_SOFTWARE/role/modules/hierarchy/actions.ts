@@ -265,3 +265,91 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
     return { success: false, error: error.message || 'Failed to load hierarchy.', nodes: [] }
   }
 }
+
+/**
+ * Everything needed to open the org chart focused on ONE person: their
+ * ancestor path (so the graph can auto-expand straight down to them) and
+ * the list of who sits above them, which is the readable answer to
+ * "which wing is this person in?".
+ *
+ * Walks parent_id upward, exactly like getUplineChain does for payouts —
+ * but this is a plain structural walk, deliberately NOT the payout chain:
+ * it does not skip non-earning roles, does not apply payout scopes, and
+ * does not append company-wide roles. Someone can be structurally above a
+ * person without earning a rupee on their sales, and for "where does this
+ * person sit" that is exactly what should be shown.
+ *
+ * The depth cap is a cycle guard. parent_id has no DB-level constraint
+ * preventing a loop, and the reassignment UI is what currently keeps them
+ * out (getReportsToCandidatesAction excludes the target's own downline).
+ * A bad row must not hang the page.
+ */
+export async function getWingLineageAction(userId: string): Promise<{
+  success: boolean
+  error?: string
+  /** Root-first ids to expand, ending at the user's parent. */
+  expandPath: string[]
+  /** Nearest-first: parent, grandparent, ... */
+  ancestors: { id: string; full_name: string; role: string; roleLabel: string }[]
+  self: { id: string; full_name: string; role: string; roleLabel: string } | null
+  directReportCount: number
+}> {
+  const empty = { expandPath: [], ancestors: [], self: null, directReportCount: 0 }
+  try {
+    const verified = await requireCanViewHierarchy()
+    if (!verified.ok) return { success: false, error: verified.error, ...empty }
+
+    const supabaseAdmin = createServiceClient()
+    const labelMap = await getLabelMap(supabaseAdmin)
+    const shape = (r: any) => ({
+      id: r.id as string,
+      full_name: (r.full_name as string) || 'Unnamed',
+      role: r.role as string,
+      roleLabel: labelMap.get(r.role as string) || (r.role as string),
+    })
+
+    const { data: selfRow } = await supabaseAdmin
+      .from('s_realestate_users')
+      .select('id, full_name, role, parent_id')
+      .eq('id', userId)
+      .maybeSingle()
+    if (!selfRow) return { success: false, error: 'User not found.', ...empty }
+
+    const ancestors: { id: string; full_name: string; role: string; roleLabel: string }[] = []
+    const seen = new Set<string>([userId])
+    let cursor = selfRow.parent_id as string | null
+    let depth = 0
+
+    while (cursor && depth < 25) {
+      if (seen.has(cursor)) break // cycle — stop rather than loop forever
+      seen.add(cursor)
+      const { data: parent } = await supabaseAdmin
+        .from('s_realestate_users')
+        .select('id, full_name, role, parent_id')
+        .eq('id', cursor)
+        .maybeSingle()
+      if (!parent) break
+      ancestors.push(shape(parent))
+      cursor = parent.parent_id as string | null
+      depth++
+    }
+
+    const { count } = await supabaseAdmin
+      .from('s_realestate_users')
+      .select('id', { count: 'exact', head: true })
+      .eq('parent_id', userId)
+      .eq('is_active', true)
+
+    return {
+      success: true,
+      // ancestors is nearest-first; the graph expands from the root down.
+      expandPath: ancestors.map((a) => a.id).reverse(),
+      ancestors,
+      self: shape(selfRow),
+      directReportCount: count || 0,
+    }
+  } catch (error: any) {
+    console.error('Error loading wing lineage:', error)
+    return { success: false, error: error.message || 'Failed to load lineage.', ...empty }
+  }
+}

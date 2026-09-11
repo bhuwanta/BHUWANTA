@@ -590,12 +590,44 @@ export async function deleteExecutiveAction(
       return { success: false, error: "You cannot delete your own account." }
     }
 
-    // Delete from profile table first. If this person still has
-    // descendants (their downline's parent_id points at them), the FK
-    // constraint on parent_id blocks the delete — surfaced below as a
-    // friendly error rather than a raw DB error, since silently
-    // cascading a delete through someone's whole downline would be far
-    // more destructive than refusing it.
+    // Work out what (if anything) actually blocks the delete BEFORE
+    // trying it, so the message can name the real reason.
+    //
+    // Roughly thirty tables point a foreign key at s_realestate_users —
+    // parent_id, submitted_by, payee_id, created_by, cancelled_by,
+    // actor_id and so on. Only parent_id is a downline. This used to
+    // attempt the delete and report *any* 23503 as "this person still
+    // has people in their downline", which is wrong for every other FK:
+    // a bottom-tier LIA who can't have a downline at all still got told
+    // they had one, when what really blocked them was a completed sale
+    // and a payout row.
+    const [{ count: downlineCount }, { count: registrationCount }, { count: payoutCount }] = await Promise.all([
+      supabaseAdmin.from('s_realestate_users').select('id', { count: 'exact', head: true }).eq('parent_id', id),
+      supabaseAdmin.from('s_new_registrations').select('id', { count: 'exact', head: true }).eq('submitted_by', id),
+      supabaseAdmin.from('s_sales_payouts').select('id', { count: 'exact', head: true }).eq('payee_id', id),
+    ]);
+
+    if ((downlineCount || 0) > 0) {
+      return {
+        success: false,
+        error: `This person still has ${downlineCount} person(s) reporting to them. Reassign those first (Edit User → Reports To), then delete.`,
+      };
+    }
+
+    // A sale or a payout is financial history, not a tree link. Deleting
+    // the person would orphan a real registration or a real commission
+    // row, so refuse and point at deactivation, which is what that
+    // situation actually wants.
+    if ((registrationCount || 0) > 0 || (payoutCount || 0) > 0) {
+      const parts = [];
+      if (registrationCount) parts.push(`${registrationCount} registration(s) they submitted`);
+      if (payoutCount) parts.push(`${payoutCount} commission payout(s) paid to them`);
+      return {
+        success: false,
+        error: `This person has financial history — ${parts.join(' and ')} — so their account cannot be deleted without destroying those records. Deactivate them instead: they keep their history, lose all access, and stop appearing as an assignable person.`,
+      };
+    }
+
     const { error: profileError } = await supabaseAdmin
       .from('s_realestate_users')
       .delete()
@@ -604,7 +636,13 @@ export async function deleteExecutiveAction(
     if (profileError) {
       console.error('Error deleting profile:', profileError);
       if (profileError.code === '23503') {
-        return { success: false, error: 'This person still has people in their downline. Reassign or remove them first.' };
+        // Some other FK we didn't pre-check (e.g. they approved or
+        // cancelled someone else's registration). Say so honestly rather
+        // than guessing at a cause.
+        return {
+          success: false,
+          error: 'This account is still referenced by other records (an approval, a cancellation, or a profile they created), so it cannot be deleted. Deactivate them instead.',
+        };
       }
       return { success: false, error: profileError.message };
     }

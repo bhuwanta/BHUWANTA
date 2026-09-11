@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { UserPlus, UserCheck, Loader2, AlertCircle, Search, ChevronLeft, ChevronRight, X, Eye, EyeOff, Edit2, Trash2, CheckCircle2, Users, GitBranch, Clock, KeyRound, ShieldAlert } from 'lucide-react';
+import { UserPlus, UserCheck, Loader2, AlertCircle, Search, ChevronLeft, ChevronRight, X, Eye, EyeOff, Network, Edit2, Trash2, CheckCircle2, Users, GitBranch, Clock, KeyRound, ShieldAlert } from 'lucide-react';
 import {
   createExecutiveAction,
   getExecutivesAction,
@@ -608,6 +608,15 @@ export default function UserManagementModule({ currentUserRole, currentUserId }:
                       })()}
                     </td>
                     <td className="py-4 px-5 text-right whitespace-nowrap space-x-1">
+                      <a
+                        href={`/REALESTATE_SOFTWARE/role/hierarchy?focus=${user.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#5a6a82] hover:text-[#c4a55a] hover:bg-[#f3f5f8] p-2 rounded transition-colors inline-block"
+                        title={`View ${user.full_name}'s reporting line — who is above and below them`}
+                      >
+                        <Network className="w-4 h-4" />
+                      </a>
                       <button onClick={() => openEditModal(user)} className="text-[#5a6a82] hover:text-[#0f1d33] hover:bg-[#f3f5f8] p-2 rounded transition-colors inline-block" title="Edit User">
                         <Edit2 className="w-4 h-4" />
                       </button>
