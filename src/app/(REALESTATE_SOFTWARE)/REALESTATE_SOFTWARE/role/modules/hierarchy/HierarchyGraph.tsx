@@ -89,7 +89,7 @@ function OrgNode({ id, data }: NodeProps) {
     <div
       className={`rounded-xl border shadow-sm px-3 py-2 text-left transition-all ${
         !d.isActive
-          ? `bg-[#f3f5f8] border-dashed ${d.highlighted ? 'border-emerald-400 ring-2 ring-emerald-300' : 'border-[#c9d2e0]'}`
+          ? `bg-amber-50 border-dashed ${d.highlighted ? 'border-amber-500 ring-2 ring-amber-300' : 'border-amber-300'}`
           : d.highlighted
           ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300'
           : isSpecial
@@ -106,7 +106,7 @@ function OrgNode({ id, data }: NodeProps) {
       <p className="text-[11px] text-[#5a6a82] mt-0.5 flex items-center gap-1.5 min-w-0">
         <span className="truncate">{d.roleLabel}</span>
         {!d.isActive && (
-          <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-[#5a6a82] bg-[#e8ecf2] border border-[#c9d2e0] rounded px-1 py-px">
+          <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-amber-700 bg-amber-100 border border-amber-300 rounded px-1 py-px">
             Inactive
           </span>
         )}
@@ -650,7 +650,11 @@ export default function HierarchyGraph({ highlightIds, expandPath, autoExpandAll
       >
         <Background color="#e8ecf2" gap={20} />
         <Controls />
-        <MiniMap pannable zoomable nodeColor={(n) => ((n.data as OrgNodeData)?.highlighted ? '#10b981' : '#c9d2e0')} />
+        <MiniMap pannable zoomable nodeColor={(n) => {
+            const nd = n.data as OrgNodeData;
+            if (nd?.isActive === false) return '#f59e0b';
+            return nd?.highlighted ? '#10b981' : '#c9d2e0';
+          }} />
       </ReactFlow>
     </div>
   );
