@@ -582,12 +582,23 @@ export default function HierarchyGraph({ highlightIds, expandPath, autoExpandAll
         return next;
       });
 
-      for (const id of path) {
-        if (cancelled) return;
-        if (!childrenCache.current.has(id)) await loadChildren(id);
-        if (cancelled) return;
-        setExpandedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
-      }
+      // Fetched in parallel, not one level at a time. These are
+      // independent lookups — each asks "who are this id's children" and
+      // none depends on the answer to the one before, because the path
+      // itself already came from the server. Awaiting them in sequence
+      // cost one full round trip per level (~170ms each), which is the
+      // bulk of the wait when focusing someone deep in the tree.
+      const toLoad = path.filter((id) => !childrenCache.current.has(id));
+      if (toLoad.length > 0) await Promise.all(toLoad.map((id) => loadChildren(id)));
+      if (cancelled) return;
+
+      // One state update rather than one per level, so the graph lays out
+      // once instead of re-running for every rung of the chain.
+      setExpandedIds((prev) => {
+        const next = new Set(prev);
+        path.forEach((id) => next.add(id));
+        return next;
+      });
     })();
     return () => {
       cancelled = true;

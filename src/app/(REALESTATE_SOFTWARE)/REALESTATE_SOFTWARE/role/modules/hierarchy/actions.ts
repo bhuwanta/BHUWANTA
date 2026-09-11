@@ -69,7 +69,22 @@ async function requireCanViewHierarchy() {
  * S_role_labels (Company/Governing Council renames, migration 011) —
  * into one lookup, same precedence used everywhere else in this app:
  * dynamic override first, static default as the fallback. */
+// Role labels are the same for every node on the page and change only
+// when someone edits a role, yet getLabelMap ran on every single
+// getHierarchyChildrenAction call — two queries each, ten calls to expand
+// one wing, twenty round trips for data that never moved. Cached for a
+// few seconds so one page load pays for it once.
+//
+// Deliberately short: a module-level cache is per server instance, so a
+// label edit would otherwise look unapplied on whichever instance held a
+// stale copy. Seconds is long enough to cover a page load and short
+// enough that nobody notices.
+const LABEL_CACHE_MS = 15_000
+let labelCache: { at: number; map: Map<string, string> } | null = null
+
 async function getLabelMap(supabaseAdmin: ServiceClient): Promise<Map<string, string>> {
+  if (labelCache && Date.now() - labelCache.at < LABEL_CACHE_MS) return labelCache.map
+
   const [roleOrder, { data: fixedLabelRows }] = await Promise.all([
     getSalesRoleOrder(supabaseAdmin),
     supabaseAdmin.from('s_role_labels').select('role_code, label'),
@@ -78,6 +93,7 @@ async function getLabelMap(supabaseAdmin: ServiceClient): Promise<Map<string, st
   const map = new Map<string, string>(Object.entries(ROLE_LABELS))
   roleOrder.forEach((r) => map.set(r.role_code, r.label))
   ;(fixedLabelRows || []).forEach((r: any) => map.set(r.role_code as string, r.label as string))
+  labelCache = { at: Date.now(), map }
   return map
 }
 
@@ -319,23 +335,59 @@ export async function getWingLineageAction(userId: string): Promise<{
       .maybeSingle()
     if (!selfRow) return { success: false, error: 'User not found.', ...empty }
 
-    const ancestors: { id: string; full_name: string; role: string; roleLabel: string }[] = []
-    const seen = new Set<string>([userId])
-    let cursor = selfRow.parent_id as string | null
-    let depth = 0
+    // One round trip via the recursive CTE (migration 015). The old
+    // version walked parent_id in a loop — one query per level, ~170ms
+    // each, so an LIA eight deep spent ~1.9s waiting before anything drew.
+    // Depth is bounded by the hierarchy, not headcount, so this is flat
+    // whether there are 50 people or 50,000.
+    type ChainRow = { id: string; full_name: string; role: string; is_active: boolean; depth: number }
+    let ancestorRows: ChainRow[] | null = null
+    const { data: rpcRows, error: rpcError } = await supabaseAdmin.rpc('get_ancestor_chain', { p_user_id: userId })
+    if (!rpcError && Array.isArray(rpcRows)) {
+      ancestorRows = rpcRows as ChainRow[]
+    }
 
-    while (cursor && depth < 25) {
-      if (seen.has(cursor)) break // cycle — stop rather than loop forever
-      seen.add(cursor)
-      const { data: parent } = await supabaseAdmin
-        .from('s_realestate_users')
-        .select('id, full_name, role, parent_id')
-        .eq('id', cursor)
-        .maybeSingle()
-      if (!parent) break
-      ancestors.push(shape(parent))
-      cursor = parent.parent_id as string | null
-      depth++
+    const ancestors: { id: string; full_name: string; role: string; roleLabel: string }[] = []
+
+    if (ancestorRows) {
+      // depth 0 is the user themselves; the rest are ancestors, nearest first.
+      ancestors.push(
+        ...ancestorRows
+          .filter((r: ChainRow) => r.depth > 0)
+          .sort((a: ChainRow, b: ChainRow) => a.depth - b.depth)
+          .map(shape)
+      )
+    } else {
+      // Migration 015 not applied yet. Fall back to fetching the id ->
+      // parent_id edges once and walking them in memory: two round trips
+      // instead of one per level, so this is still far better than the
+      // original loop while the migration is pending.
+      const { data: edges } = await supabaseAdmin.from('s_realestate_users').select('id, parent_id')
+      const parentOf = new Map<string, string | null>((edges || []).map((e: any) => [e.id as string, (e.parent_id as string) || null]))
+
+      const chainIds: string[] = []
+      const seen = new Set<string>([userId])
+      let cursor = parentOf.get(userId) || null
+      let depth = 0
+      while (cursor && depth < 25 && !seen.has(cursor)) {
+        seen.add(cursor)
+        chainIds.push(cursor)
+        cursor = parentOf.get(cursor) || null
+        depth++
+      }
+
+      if (chainIds.length > 0) {
+        const { data: rows } = await supabaseAdmin
+          .from('s_realestate_users')
+          .select('id, full_name, role, is_active')
+          .in('id', chainIds)
+        const byId = new Map((rows || []).map((r: any) => [r.id as string, r]))
+        // chainIds is already nearest-first; preserve that order.
+        chainIds.forEach((id) => {
+          const row = byId.get(id)
+          if (row) ancestors.push(shape(row))
+        })
+      }
     }
 
     const { count } = await supabaseAdmin
