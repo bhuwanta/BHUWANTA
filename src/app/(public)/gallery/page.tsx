@@ -6,6 +6,7 @@ import { JsonLd, buildBreadcrumbSchema, buildImageGallerySchema } from '@/compon
 import { GalleryGrid } from './GalleryGrid'
 import { PageBanner } from '../../../components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('gallery', 'Gallery', 'See the land for yourself. Every photo is real — no renderings, no stock images. Browse site views, layouts, and development progress.')
@@ -87,7 +88,7 @@ export default async function GalleryPage() {
     console.error("Gallery fetch error:", error)
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Gallery', url: `${siteUrl}/gallery` },

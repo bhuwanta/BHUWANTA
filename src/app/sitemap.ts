@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next'
 import { sanityFetch, blogListQuery, projectSlugsQuery } from '@/lib/sanity'
+import { getSiteUrl } from '@/lib/site-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
 
   const routes: MetadataRoute.Sitemap = [
     // ── Core pages ──

@@ -5,6 +5,7 @@ import { PostHogProvider } from '@/lib/posthog'
 import { Toaster } from 'sonner'
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/next"
+import { getSiteUrl } from '@/lib/site-url'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     template: '%s | Bhuwanta',
   },
   description: 'Experience unparalleled luxury with Bhuwanta. Discover exclusive residential projects and premium properties designed for the modern lifestyle.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'),
+  metadataBase: new URL(getSiteUrl()),
   openGraph: {
     type: 'website',
     siteName: 'Bhuwanta',

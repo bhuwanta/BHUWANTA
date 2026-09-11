@@ -1,3 +1,4 @@
+import { getSiteUrl } from '@/lib/site-url'
 import { Resend } from 'resend';
 
 // Initialize Resend
@@ -9,7 +10,7 @@ const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@bhuwanta.com';
 // robots.ts, sitemap.ts, etc.) — falls back to the real production domain,
 // never localhost, so a stray missing env var never leaks a dev URL into an
 // email a real person receives.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com';
+const siteUrl = getSiteUrl();
 // The logo must always use the public production URL; otherwise email clients (Gmail, Outlook) 
 // will fail to load it when testing locally because they cannot resolve localhost.
 const logoUrl = `https://bhuwanta.com/logo.png`;

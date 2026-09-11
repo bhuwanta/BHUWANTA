@@ -6,6 +6,7 @@ import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd'
 
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
@@ -83,7 +84,7 @@ export default async function AboutPage() {
     storyImage: data?.storyImage
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'About Us', url: `${siteUrl}/about` },

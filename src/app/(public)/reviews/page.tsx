@@ -5,6 +5,7 @@ import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd'
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ReviewsGrid } from './ReviewsGrid'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('reviews', 'Customer Reviews', 'Hear directly from our customers about their experiences with Bhuwanta.')
@@ -30,7 +31,7 @@ export default async function ReviewsPage() {
     console.error("Reviews fetch error:", error)
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Reviews', url: `${siteUrl}/reviews` },

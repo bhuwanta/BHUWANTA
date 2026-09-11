@@ -2,6 +2,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendRecoveryEmail } from '@/lib/emails/resend'
+import { getSetPasswordUrl } from '@/lib/site-url'
 
 export async function sendRecoveryEmailAction(email: string) {
   try {
@@ -32,7 +33,7 @@ export async function sendRecoveryEmailAction(email: string) {
       type: 'recovery',
       email: email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password`
+        redirectTo: getSetPasswordUrl()
       }
     })
 

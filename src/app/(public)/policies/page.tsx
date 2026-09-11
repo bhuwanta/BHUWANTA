@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { Shield, FileText } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo'
 import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('policies', 'Terms & Privacy', 'Privacy policy and terms of service for Bhuwanta.')
@@ -9,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function PoliciesPage() {
   const lastUpdated = 'April 2026'
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Terms & Privacy', url: `${siteUrl}/policies` },

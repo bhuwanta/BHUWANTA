@@ -1,3 +1,4 @@
+import { getSiteUrl } from '@/lib/site-url'
 import { MetadataRoute } from 'next'
 
 const AI_CRAWLER_AGENTS = [
@@ -14,7 +15,7 @@ const AI_CRAWLER_AGENTS = [
 ]
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
 
   const allowRules = ['/']
   const disallowRules = ['/dashboard', '/api', '/studio', '/crm', '/thank-you']
