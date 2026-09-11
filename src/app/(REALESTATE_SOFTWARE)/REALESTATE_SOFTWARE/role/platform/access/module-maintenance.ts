@@ -7,6 +7,7 @@
 // from shared modules.
 
 import { createServiceClient } from '@/lib/supabase/server';
+import { requireAdminPeer } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/admin-access';
 
 /** Strips a role code out of every module's enabled_roles. Call this
  * whenever a role stops existing — a leftover code is a grant pointing
@@ -14,6 +15,8 @@ import { createServiceClient } from '@/lib/supabase/server';
  * would silently inherit the old one's access. */
 export async function removeRoleFromAllModulesAction(roleCode: string) {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return { success: false, cleaned: 0, error: _gate.error };
     const supabaseAdmin = createServiceClient();
     const { data: rows } = await supabaseAdmin.from('s_modules').select('id, enabled_roles');
     const stale = (rows || []).filter((r: any) => ((r.enabled_roles as string[]) || []).includes(roleCode));

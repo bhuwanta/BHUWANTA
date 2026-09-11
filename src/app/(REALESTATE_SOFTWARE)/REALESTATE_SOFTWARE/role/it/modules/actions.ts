@@ -2,6 +2,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { requireAdminPeer } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/admin-access';
 
 export async function getModulesAction() {
   try {
@@ -21,6 +22,8 @@ export async function getModulesAction() {
 
 export async function toggleModuleRoleAction(moduleId: string, roles: string[]) {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return { success: false, error: _gate.error };
     const supabaseAdmin = createServiceClient();
     const { error } = await supabaseAdmin
       .from('s_modules')
