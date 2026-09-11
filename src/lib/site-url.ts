@@ -19,7 +19,18 @@ function isLocal(url: string): boolean {
 }
 
 export function getSiteUrl(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, '')
+  // SITE_URL is preferred and NEXT_PUBLIC_SITE_URL is the legacy name.
+  //
+  // Every consumer of this value is server-side — emails, sitemap, robots,
+  // canonical tags, metadataBase — so it never needs to reach the browser and
+  // does not need the NEXT_PUBLIC_ prefix. Vercel flags that prefix because it
+  // ships the value to the client; here that is simply unnecessary rather than
+  // dangerous, since the value is the public domain either way.
+  //
+  // Both are read so the prefix can be dropped in hosting without a
+  // coordinated deploy, and so an existing NEXT_PUBLIC_SITE_URL keeps working.
+  const raw = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL
+  const configured = raw?.trim().replace(/\/+$/, '')
 
   if (process.env.NODE_ENV === 'production' && (!configured || isLocal(configured))) {
     // VERCEL_PROJECT_PRODUCTION_URL is injected by Vercel and is the real
