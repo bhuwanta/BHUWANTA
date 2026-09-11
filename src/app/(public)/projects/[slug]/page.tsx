@@ -6,6 +6,7 @@ import { JsonLd, buildBreadcrumbSchema, buildRealEstateListingSchema, buildFaqSc
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectDetailActions } from '@/components/ui/ProjectDetailActions'
+import { getSiteUrl } from '@/lib/site-url'
 
 interface ProjectDetail {
   name: string
@@ -110,7 +111,7 @@ export async function generateMetadata({
 
   if (!project) return { title: 'Project Not Found' }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const title = { absolute: `${project.name} — ${project.location} | Bhuwanta Developers` }
   const description = `${project.name} in ${project.location}${project.approvalBadge ? `, ${project.approvalBadge}` : ''}. ${project.description?.slice(0, 130) || 'Explore plot sizes, approvals, and pricing.'}`
 
@@ -141,7 +142,7 @@ export default async function ProjectDetailPage({
 
   if (!project) return notFound()
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/projects/${slug}`
 
   const breadcrumb = buildBreadcrumbSchema([

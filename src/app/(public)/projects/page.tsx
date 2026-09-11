@@ -5,6 +5,7 @@ import { JsonLd, buildBreadcrumbSchema, buildRealEstateListingSchema } from '@/c
 import { PageBanner } from '../../../components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectsFilterClient } from '@/components/ui/ProjectsFilterClient'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('projects', 'Our Projects', 'Explore Bhuwanta\'s HMDA-approved, Vastu-aligned plot developments in Hyderabad\'s high-growth corridors.')
@@ -64,7 +65,7 @@ export default async function ProjectsPage() {
     ]
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Projects', url: `${siteUrl}/projects` },

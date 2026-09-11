@@ -9,6 +9,7 @@ import { formatDate } from '@/lib/utils'
 import { PageBanner } from '../../../components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { NewsletterForm } from '@/components/ui/NewsletterForm'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('blog', 'Blog', 'Practical advice on buying land, understanding approvals, Vastu principles, and building wealth through real estate.')
@@ -164,7 +165,7 @@ export default async function BlogPage() {
     vianVallyImage = vianVally?.images?.[0] || null
   } catch { /* fallback */ }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Blog', url: `${siteUrl}/blog` },

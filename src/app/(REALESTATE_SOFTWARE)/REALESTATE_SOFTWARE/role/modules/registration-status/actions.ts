@@ -10,6 +10,7 @@ import { computeRatePerSqyd, computePool } from '@/app/(REALESTATE_SOFTWARE)/REA
 import { requirePageModule } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/nav-modules'
 import { requireCanViewRegistrations, requireCanCreateRegistration } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/access/registrations-access'
 import { isMissingTableError, getVisiblePendingRegistrationIds } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/data/registrations-scope'
+import { getSetPasswordUrl } from '@/lib/site-url'
 
 /** Clears this user's Registrations badge by marking every pending
  * registration currently visible to them as read. Purely a per-user
@@ -633,7 +634,7 @@ export async function createRegistrationAction(input: {
       const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email: input.customerEmail!,
-        options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password` },
+        options: { redirectTo: getSetPasswordUrl() },
       })
       if (linkData?.properties?.action_link) {
         await sendSetupPasswordEmail(input.customerEmail!, input.customerName!, linkData.properties.action_link)

@@ -6,6 +6,7 @@ import { JsonLd, buildBreadcrumbSchema, buildFaqSchema } from '@/components/seo/
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { WhatsAppInlineCta } from '@/components/ui/WhatsAppInlineCta'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
@@ -62,7 +63,7 @@ const projects = [
 ]
 
 export default function WhyBhuwantaPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Why Bhuwanta', url: `${siteUrl}/why-bhuwanta` },

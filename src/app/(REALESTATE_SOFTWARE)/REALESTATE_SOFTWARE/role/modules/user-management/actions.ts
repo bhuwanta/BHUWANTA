@@ -7,6 +7,7 @@ import { canCreateRoleDynamic, canManageRoleDynamic, canViewRole, isAdminPeer, i
 import { normalizePhone, validatePhone } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/policies/phone-policy'
 import { getDownlineIds, getSubtreePendingSales } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/org/downline'
 import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/policies/password-policy'
+import { getSetPasswordUrl } from '@/lib/site-url'
 
 export async function checkUserManagementModuleStatusAction(role: RealEstateRole) {
   try {
@@ -211,7 +212,7 @@ export async function createExecutiveAction(
       type: 'recovery',
       email: data.email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password`
+        redirectTo: getSetPasswordUrl()
       }
     });
 

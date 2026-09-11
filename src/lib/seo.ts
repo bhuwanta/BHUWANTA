@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { getSiteUrl } from '@/lib/site-url'
 
 // Builds full title/description/canonical/OG/Twitter metadata for hand-authored
 // static pages (articles, comparison pages, lead magnets) that have no
@@ -122,7 +123,7 @@ export async function generatePageMetadata(
   }
   const description = settings?.meta_description || defaultDescription || global.default_description
   const ogImage = settings?.og_image || global.default_og_image
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
 
   const metadata: Metadata = {
     title,

@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { sanityFetch, blogPostQuery } from '@/lib/sanity'
 import { JsonLd, buildBreadcrumbSchema, buildArticleSchema, buildFaqSchema } from '@/components/seo/JsonLd'
 import { formatDate, calculateReadingTime } from '@/lib/utils'
+import { getSiteUrl } from '@/lib/site-url'
 
 interface BlogPostData {
   title: string
@@ -42,7 +43,7 @@ export async function generateMetadata({
     // Only trust it when it actually points at this post's current URL —
     // otherwise fall back to the live slug so the canonical can never point
     // at an old/renamed URL.
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+    const siteUrl = getSiteUrl()
     const liveUrl = `${siteUrl}/blog/${slug}`
     const canonical = post.canonicalUrl?.endsWith(`/blog/${slug}`) ? post.canonicalUrl : liveUrl
 
@@ -88,7 +89,7 @@ export default async function BlogPostPage({
     .join(' ') || ''
   calculateReadingTime(bodyText)
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
     { name: 'Blog', url: `${siteUrl}/blog` },

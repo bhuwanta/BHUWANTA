@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
+import { getSiteUrl } from '@/lib/site-url'
 
 // Ensure RESEND_API_KEY is available in the environment
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     }
 
     const bccEmails = subscribers.map((sub: any) => sub.email)
-    const blogUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/blog/${slug}`
+    const blogUrl = `${getSiteUrl()}/blog/${slug}`
 
     // Industry Standard Email Template Design
     const emailHtml = `

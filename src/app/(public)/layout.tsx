@@ -4,13 +4,14 @@ import { DynamicClientComponents } from '@/components/ui/DynamicClientComponents
 import { JsonLd, buildWebSiteSchema, buildLocalBusinessSchema } from '@/components/seo/JsonLd'
 import Script from 'next/script'
 import { sanityFetch, siteSettingsQuery, projectsQuery } from '@/lib/sanity'
+import { getSiteUrl } from '@/lib/site-url'
 
 export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'
+  const siteUrl = getSiteUrl()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let settings: any = null
