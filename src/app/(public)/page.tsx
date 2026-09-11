@@ -80,11 +80,17 @@ export default async function HomePage({
   ]
 
   // 1.5 Stats Bar Data
+  //
+  // Ongoing Projects is counted from the live Sanity project list rather than
+  // typed in — it had drifted to "4+" while six projects were published, and a
+  // hand-typed number silently goes stale every time one is added. The other
+  // three are marketing claims with no source of truth in the CMS, so they stay
+  // as they are.
   const statsData = [
     { label: 'Years of Experience', value: '20+' },
     { label: 'Projects Completed', value: '15' },
     { label: 'Happy Customers', value: '1000+' },
-    { label: 'Ongoing Projects', value: '4+' },
+    { label: 'Ongoing Projects', value: `${projectEntries.length}+` },
   ]
 
 
