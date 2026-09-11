@@ -12,10 +12,10 @@ import logoFallback from '@/images/logo.png'
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
-  { href: '/projects', label: 'Projects' },
   { href: '/why-bhuwanta', label: 'Why Bhuwanta' },
-  { href: '#', label: 'Reviews' },
+  { href: '/projects', label: 'Projects' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/reviews', label: 'Reviews' },
   { href: '/blog', label: 'Blog' },
 ]
 
@@ -171,7 +171,7 @@ export function Navbar() {
       <div
         className={cn(
           'md:hidden overflow-hidden transition-all duration-500',
-          isOpen ? 'max-h-[400px] border-t border-[#e8ecf2] bg-white' : 'max-h-0'
+          isOpen ? 'max-h-[600px] border-t border-[#e8ecf2] bg-white' : 'max-h-0'
         )}
       >
         <div className="px-4 py-4 space-y-1">

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: '%s | Bhuwanta',
   },
   description: 'Experience unparalleled luxury with Bhuwanta. Discover exclusive residential projects and premium properties designed for the modern lifestyle.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'),
   openGraph: {
     type: 'website',
     siteName: 'Bhuwanta',

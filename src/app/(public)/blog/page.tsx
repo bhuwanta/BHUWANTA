@@ -48,6 +48,22 @@ const ogImage = (title: string, subtitle: string) =>
 // concern either way.
 const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
+    href: '/blog/best-areas-open-plots-near-hyderabad-2026',
+    title: 'Best Areas to Buy Open Plots Near Hyderabad — 2026 Guide',
+    excerpt: 'A 2026 guide comparing Hyderabad\'s three main open-plot growth corridors — NH-44 South, Mumbai Highway West, and Warangal Highway East — with a due-diligence checklist for buyers.',
+    fallbackImage: ogImage('Best Areas to Buy Open Plots Near Hyderabad', '2026 Guide'),
+    tag: 'Investment Guide',
+    publishDate: '2026-08-19',
+  },
+  {
+    href: '/blog/nri-open-plots-hyderabad-guide',
+    title: 'NRI Guide to Buying Open Plots in Hyderabad (2026)',
+    excerpt: 'A general guide for NRIs buying open plots near Hyderabad — FEMA eligibility, NRE/NRO/FCNR payment routing, the Power of Attorney process, and how to verify RERA/DTCP/HMDA approval before you buy.',
+    fallbackImage: ogImage('NRI Guide to Buying Open Plots in Hyderabad', '2026 Guide'),
+    tag: 'NRI Guide',
+    publishDate: '2026-08-19',
+  },
+  {
     href: '/blog/best-real-estate-investment-telangana-andhra-pradesh',
     title: 'Best Real Estate Investment Options in Telangana & Andhra Pradesh: 2026 Guide',
     excerpt: 'A 2026 guide to investing in Telangana and Andhra Pradesh real estate — why HMDA/DTCP-approved open plots near growth corridors are drawing investor interest, and what to check before you buy.',

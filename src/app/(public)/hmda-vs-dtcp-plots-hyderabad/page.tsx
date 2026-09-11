@@ -58,8 +58,8 @@ export default function HmdaVsDtcpPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <p className="text-base sm:text-lg text-[#5a6a82] leading-relaxed mb-12">
             HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, offering stricter infrastructure standards, wider roads, and typically 10-20% higher resale value. DTCP (Directorate of Town and Country Planning) approves layouts outside HMDA jurisdiction, in emerging growth corridors, usually at a more affordable entry price with strong long-term appreciation potential as infrastructure catches up. Both approvals are legally valid and bank-loan eligible when RERA registered. Buyers prioritizing immediate infrastructure and faster appreciation typically choose HMDA-approved plots; buyers prioritizing affordability and long-term growth in emerging corridors typically choose DTCP-approved plots. Bhuwanta Developers offers both:{' '}
-            <Link href="/projects" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">TJR Township</Link> (HMDA) at Sangareddy Junction and{' '}
-            <Link href="/projects" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Vaibhav County</Link> (DTCP) in Sadashivpet, both RERA registered with clear legal documentation.
+            <Link href="/projects/tjr-township" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">TJR Township</Link> (HMDA) at Sangareddy Junction and{' '}
+            <Link href="/projects/vaibhav-county" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Vaibhav County</Link> (DTCP) in Sadashivpet, both RERA registered with clear legal documentation. Bhuwanta&apos;s <Link href="/projects/sv-kanaka-maple-homes" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">S.V. Kanaka Maple Homes</Link> project (DTCP), on the Warangal Highway near Yadagirigutta, is a third example of the DTCP approval type in practice.
           </p>
 
           <div className="overflow-x-auto mb-16 rounded-xl border border-[#e8ecf2]">
@@ -94,6 +94,15 @@ export default function HmdaVsDtcpPage() {
               </div>
             ))}
           </div>
+
+          <p className="mt-10 text-sm text-[#5a6a82]">
+            See these approval types on the ground in our corridor guides for{' '}
+            <Link href="/sangareddy-open-plots" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Sangareddy</Link>,{' '}
+            <Link href="/sadashivpet-open-plots" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Sadashivpet</Link>, and{' '}
+            <Link href="/yadagirigutta-open-plots" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">near Yadagirigutta</Link>, or read our{' '}
+            <Link href="/blog/best-areas-open-plots-near-hyderabad-2026" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">2026 guide to the best areas for open plots near Hyderabad</Link>{' '}
+            for a full corridor-by-corridor comparison.
+          </p>
         </div>
       </section>
 

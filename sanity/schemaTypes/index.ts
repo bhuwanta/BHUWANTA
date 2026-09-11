@@ -8,6 +8,7 @@ import { siteSettingsSchema } from './siteSettings'
 import { autoresponderSchema } from './autoresponder'
 import { leadSchema } from './lead'
 import { projectCategorySchema } from './projectCategory'
+import { reviewsSchema } from './reviews'
 
 export const schemaTypes = [
   siteSettingsSchema,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   projectsSchema,
   blogSchema,
   gallerySchema,
+  reviewsSchema,
 ]

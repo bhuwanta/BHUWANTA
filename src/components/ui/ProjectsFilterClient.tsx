@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { MapPin, Crown, Check, CreditCard, Download } from 'lucide-react'
+import { MapPin, Crown, Check, Download } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
 
@@ -181,10 +181,6 @@ export function ProjectsFilterClient({ projects, categories = [] }: { projects: 
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">{project.approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
                               </button>
                             </div>
-                            <div className="mt-4 pt-4 border-t border-[#e8ecf2] flex items-center gap-2 text-xs font-semibold text-[#5a6a82]">
-                             <CreditCard className="w-4 h-4 text-[#5a6a82]" />
-                             Ready for Construction
-                           </div>
                          </div>
                       </div>
                     </div>

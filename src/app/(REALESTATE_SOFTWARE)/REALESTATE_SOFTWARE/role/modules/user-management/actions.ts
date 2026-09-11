@@ -211,7 +211,7 @@ export async function createExecutiveAction(
       type: 'recovery',
       email: data.email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/REALESTATE_SOFTWARE/password/set-password`
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password`
       }
     });
 

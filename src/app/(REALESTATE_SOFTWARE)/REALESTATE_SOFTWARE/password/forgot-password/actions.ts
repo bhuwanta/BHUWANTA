@@ -32,7 +32,7 @@ export async function sendRecoveryEmailAction(email: string) {
       type: 'recovery',
       email: email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/REALESTATE_SOFTWARE/password/set-password`
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password`
       }
     })
 

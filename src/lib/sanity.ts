@@ -299,3 +299,9 @@ export const autoresponderQuery = `*[_type == "autoresponder"][0]{
   "attachmentFilename": attachmentFile.asset->originalFilename
 }
 `
+
+export const reviewsQuery = `*[_type == "reviews"][0]{
+  pageHeading,
+  "reviewVideos": reviewVideos[].asset->url,
+  reviewYoutubeUrls
+}`

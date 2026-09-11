@@ -633,7 +633,7 @@ export async function createRegistrationAction(input: {
       const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery',
         email: input.customerEmail!,
-        options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/REALESTATE_SOFTWARE/password/set-password` },
+        options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://bhuwanta.com'}/REALESTATE_SOFTWARE/password/set-password` },
       })
       if (linkData?.properties?.action_link) {
         await sendSetupPasswordEmail(input.customerEmail!, input.customerName!, linkData.properties.action_link)

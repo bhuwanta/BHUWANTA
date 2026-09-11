@@ -101,6 +101,16 @@ export default defineConfig({
                           .documentId('gallery')
                           .title('Gallery Page — Standalone Photos & Videos')
                       ),
+                    S.listItem()
+                      .title('Customer Reviews Page')
+                      .id('reviews-page')
+                      .icon(BulbOutlineIcon)
+                      .child(
+                        S.document()
+                          .schemaType('reviews')
+                          .documentId('customerReviewsPage')
+                          .title('Reviews Page — Customer Review Videos')
+                      ),
                   ])
               ),
 
