@@ -10,6 +10,7 @@ interface Person {
   full_name: string;
   role: string;
   roleLabel: string;
+  is_active?: boolean;
 }
 
 /**
@@ -26,6 +27,11 @@ export default function HierarchyPageClient({ focusUserId }: { focusUserId?: str
   const [self, setSelf] = useState<Person | null>(null);
   const [reportCount, setReportCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  // Held in state, never built inline in JSX. HierarchyGraph keys its
+  // rebuild useCallback on this identity and its render effect depends on
+  // both — so a fresh Set every render means new callback, effect refires,
+  // re-render, forever. Same reason VisualizePayoutClient keeps it in state.
+  const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!focusUserId) return;
@@ -38,6 +44,7 @@ export default function HierarchyPageClient({ focusUserId }: { focusUserId?: str
         setAncestors(res.ancestors);
         setSelf(res.self);
         setReportCount(res.directReportCount);
+        if (res.self) setHighlightIds(new Set([res.self.id]));
       } else {
         setError(res.error || 'Could not load this person.');
       }
@@ -94,13 +101,18 @@ export default function HierarchyPageClient({ focusUserId }: { focusUserId?: str
             <span className="ml-3 text-[#5a6a82] border-l border-[#e8ecf2] pl-3">
               {reportCount === 0 ? 'No one reports to them' : `${reportCount} direct report${reportCount === 1 ? '' : 's'}`}
             </span>
+            {self.is_active === false && (
+              <span className="ml-3 text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+                Inactive — their line above is shown here, but the chart below draws active people only
+              </span>
+            )}
           </div>
         </div>
       )}
 
       <div className="flex-1 min-h-0">
         {focusUserId ? (
-          !loading && self && <HierarchyGraph expandPath={expandPath} highlightIds={new Set([self.id])} />
+          !loading && self && <HierarchyGraph expandPath={expandPath} highlightIds={highlightIds} />
         ) : (
           <HierarchyGraph autoExpandAll />
         )}

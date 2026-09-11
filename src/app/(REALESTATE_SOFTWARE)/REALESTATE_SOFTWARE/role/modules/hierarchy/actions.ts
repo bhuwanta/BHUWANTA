@@ -291,7 +291,7 @@ export async function getWingLineageAction(userId: string): Promise<{
   expandPath: string[]
   /** Nearest-first: parent, grandparent, ... */
   ancestors: { id: string; full_name: string; role: string; roleLabel: string }[]
-  self: { id: string; full_name: string; role: string; roleLabel: string } | null
+  self: { id: string; full_name: string; role: string; roleLabel: string; is_active: boolean } | null
   directReportCount: number
 }> {
   const empty = { expandPath: [], ancestors: [], self: null, directReportCount: 0 }
@@ -310,7 +310,7 @@ export async function getWingLineageAction(userId: string): Promise<{
 
     const { data: selfRow } = await supabaseAdmin
       .from('s_realestate_users')
-      .select('id, full_name, role, parent_id')
+      .select('id, full_name, role, parent_id, is_active')
       .eq('id', userId)
       .maybeSingle()
     if (!selfRow) return { success: false, error: 'User not found.', ...empty }
@@ -345,7 +345,7 @@ export async function getWingLineageAction(userId: string): Promise<{
       // ancestors is nearest-first; the graph expands from the root down.
       expandPath: ancestors.map((a) => a.id).reverse(),
       ancestors,
-      self: shape(selfRow),
+      self: { ...shape(selfRow), is_active: selfRow.is_active !== false },
       directReportCount: count || 0,
     }
   } catch (error: any) {
