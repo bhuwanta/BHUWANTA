@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
       case 'projects':
         safeRevalidateTag('projects')
         revalidatePath('/projects')
+        // The homepage reads the same project list — its categories section
+        // and its "Ongoing Projects" count, which is derived from the number
+        // of published projects. Without this, publishing a project left the
+        // homepage showing the old count until its own 60s revalidate window
+        // expired. The tag above already covers the data fetch; this makes
+        // the page itself regenerate rather than relying on that alone.
+        revalidatePath('/')
         break
       case 'blog':
         safeRevalidateTag('blog')
