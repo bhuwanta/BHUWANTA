@@ -48,3 +48,25 @@ src/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/Doubts/
 
 # ngrok runtime log — regenerated on every tunnel, nothing depends on it
 ngrok.log
+
+# one-off debug/migration scripts run by hand from the repo root
+# (add_email_col.js, scratch.ts, test_query.ts and friends). Nothing
+# imports them and they tend to hold ad-hoc DB pokes, so keep new ones
+# out of the repo rather than re-committing the same clutter.
+/scratch*.js
+/scratch*.ts
+/test_*.ts
+/test_*.js
+/add_*.js
+/add_*.ts
+*.log
+
+# Internal-only docs and AI tooling. Private company project: these stay on
+# local disk and must never reach the remote. NOTE: they were already
+# pushed before this rule existed, so they remain in the remote's HISTORY
+# until it is rewritten — untracking only stops future commits.
+AGENTS.md
+CLAUDE.md
+PROJECT_SPECIFICATION.md
+.agents/
+graphify-out/
