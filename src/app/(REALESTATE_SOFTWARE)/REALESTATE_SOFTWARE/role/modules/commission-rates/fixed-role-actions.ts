@@ -32,6 +32,8 @@ async function requireAdminPeer() {
  * lookup on every page just starts working for CEO/GC too. */
 export async function getFixedRoleLabelsAction(): Promise<{ success: boolean; data: { role_code: string; label: string }[] }> {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, data: [] };
     const supabaseAdmin = createServiceClient()
     const { data } = await supabaseAdmin.from('s_role_labels').select('role_code, label')
     const overrides = new Map((data || []).map((r: any) => [r.role_code as string, r.label as string]))

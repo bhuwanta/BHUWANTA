@@ -14,7 +14,8 @@
 import { after } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/policies/password-policy'
-import { sendBulkPasswordChangeNotifications, requireBulkPasswordAccess } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/bulk-password-reset/actions'
+import { requireBulkPasswordAccess } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/bulk-password-reset/actions'
+import { sendBulkPasswordChangeNotifications } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/modules/bulk-password-reset/notifications'
 
 export async function POST(req: Request) {
   // Full company-wide reach for IT; a module-enabled sales-tier role is

@@ -10,6 +10,8 @@ import { validatePassword } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWAR
 
 export async function checkUserManagementModuleStatusAction(role: RealEstateRole) {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, isEnabled: false };
     const supabaseAdmin = createServiceClient();
 
     const { data: moduleData } = await supabaseAdmin
@@ -667,6 +669,8 @@ export async function deleteExecutiveAction(
  * static SALES_RANK_ORDER — a newly created role shows up here the
  * moment it exists, no code change needed. */
 export async function getCreatableRolesAction(callerRole: RealEstateRole): Promise<RealEstateRole[]> {
+  const _caller = await verifyCaller();
+  if (!_caller) return [];
   const supabaseAdmin = createServiceClient()
   const rankOrder = await getSalesRoleOrder(supabaseAdmin)
   const salesRoleCodes = rankOrder.map((r) => r.role_code) as RealEstateRole[]

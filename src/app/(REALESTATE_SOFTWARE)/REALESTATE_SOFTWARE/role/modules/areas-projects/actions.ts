@@ -115,6 +115,8 @@ export async function getAreasAction() {
 /** Directors available to assign to a project — role='director' only. */
 export async function getDirectorsListAction() {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, data: [] };
     const supabaseAdmin = createServiceClient()
     const { data, error } = await supabaseAdmin
       .from('s_realestate_users')

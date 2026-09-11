@@ -105,6 +105,8 @@ async function getLabelMap(supabaseAdmin: ServiceClient): Promise<Map<string, st
  * session on every real data call) is. */
 export async function checkHierarchyModuleStatusAction(role: RealEstateRole) {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, isEnabled: false };
     const supabaseAdmin = createServiceClient()
     const { data: moduleData } = await supabaseAdmin.from('s_modules').select('enabled_roles').eq('module_key', 'hierarchy_visualizer').maybeSingle()
     if (!moduleData) return { success: true, isEnabled: false }

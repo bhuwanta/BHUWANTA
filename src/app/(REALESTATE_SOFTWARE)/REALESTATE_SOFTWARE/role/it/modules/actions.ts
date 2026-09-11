@@ -6,6 +6,8 @@ import { requireAdminPeer } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWAR
 
 export async function getModulesAction() {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return { success: false, data: [] };
     const supabaseAdmin = createServiceClient();
     const { data, error } = await supabaseAdmin
       .from('s_modules')
@@ -45,6 +47,8 @@ export async function toggleModuleRoleAction(moduleId: string, roles: string[]) 
 
 export async function ensurePasswordsModuleExists() {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return undefined;
     const supabaseAdmin = createServiceClient();
 
     const { data: existing } = await supabaseAdmin
@@ -95,6 +99,8 @@ export async function ensureHierarchyModuleExists() {
 
 export async function ensureBulkPasswordResetModuleExists() {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return undefined;
     const supabaseAdmin = createServiceClient();
 
     const { data: existing } = await supabaseAdmin
@@ -126,6 +132,8 @@ export async function ensureBulkPasswordResetModuleExists() {
 
 export async function ensureUserManagementModuleExists() {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return undefined;
     const supabaseAdmin = createServiceClient();
 
     const { data: existing } = await supabaseAdmin
@@ -201,6 +209,8 @@ export async function ensureRegistrationStatusModuleExists() {
 }
 
 export async function ensureWalletModuleExists() {
+  const _gate = await requireAdminPeer();
+  if (!_gate.ok) return undefined;
   await seedModuleForAllSalesTiers(
     'wallet',
     'My Wallet',
@@ -245,6 +255,8 @@ export async function ensurePageModulesExist() {
  * yet, which callers read as "not configured, nothing locked". */
 export async function getModuleEnabledRolesAction(moduleKey: string): Promise<string[] | null> {
   try {
+    const _gate = await requireAdminPeer();
+    if (!_gate.ok) return null;
     const supabaseAdmin = createServiceClient();
     const { data } = await supabaseAdmin.from('s_modules').select('enabled_roles').eq('module_key', moduleKey).maybeSingle();
     if (!data) return null;

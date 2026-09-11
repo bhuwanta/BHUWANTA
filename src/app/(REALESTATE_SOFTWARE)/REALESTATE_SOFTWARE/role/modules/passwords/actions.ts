@@ -1,9 +1,12 @@
 'use server';
 
 import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { verifyCaller } from '@/app/(REALESTATE_SOFTWARE)/REALESTATE_SOFTWARE/role/platform/auth/auth';
 
 export async function checkPasswordsModuleStatusAction(role: string) {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, isEnabled: false };
     const supabaseAdmin = createServiceClient();
     const { data, error } = await supabaseAdmin
       .from('s_modules')

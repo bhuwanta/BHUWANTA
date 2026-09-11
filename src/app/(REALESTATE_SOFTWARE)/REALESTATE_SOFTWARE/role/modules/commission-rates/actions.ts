@@ -12,6 +12,8 @@ import { removeRoleFromAllModulesAction } from '@/app/(REALESTATE_SOFTWARE)/REAL
  * importing the old static SALES_RANK_ORDER array. */
 export async function getSalesRoleOrderAction() {
   try {
+    const _caller = await verifyCaller();
+    if (!_caller) return { success: false, data: [] as { role_code: string; label: string }[] };
     const supabaseAdmin = createServiceClient()
     const order = await getSalesRoleOrder(supabaseAdmin)
     return { success: true, data: order }
