@@ -28,6 +28,11 @@ export interface HierarchyNode {
   role: string
   roleLabel: string
   hasChildren: boolean
+  /** Deactivated people are still drawn, greyed out. Hiding them made the
+   * chart lie about the shape of the org — a whole wing could vanish
+   * because one person in the middle was deactivated, and a deactivated
+   * person could not be located at all. */
+  is_active: boolean
 }
 
 // IT and Operation Manager both always have this: IT owns the plain
@@ -106,11 +111,11 @@ export async function getHierarchyNodeAction(id: string): Promise<{ success: boo
     const supabaseAdmin = createServiceClient()
     const [labelMap, { data }] = await Promise.all([
       getLabelMap(supabaseAdmin),
-      supabaseAdmin.from('s_realestate_users').select('id, full_name, role').eq('id', id).maybeSingle(),
+      supabaseAdmin.from('s_realestate_users').select('id, full_name, role, is_active').eq('id', id).maybeSingle(),
     ])
     if (!data) return { success: false, error: 'Node not found.', node: null }
 
-    const { count } = await supabaseAdmin.from('s_realestate_users').select('id', { count: 'exact', head: true }).eq('parent_id', id).eq('is_active', true)
+    const { count } = await supabaseAdmin.from('s_realestate_users').select('id', { count: 'exact', head: true }).eq('parent_id', id)
 
     return {
       success: true,
@@ -120,6 +125,7 @@ export async function getHierarchyNodeAction(id: string): Promise<{ success: boo
         role: data.role as string,
         roleLabel: labelMap.get(data.role as string) || (data.role as string),
         hasChildren: (count || 0) > 0,
+        is_active: (data as any).is_active !== false,
       },
     }
   } catch (error: any) {
@@ -160,14 +166,13 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
     if (parentId === null) {
       const { data } = await supabaseAdmin
         .from('s_realestate_users')
-        .select('id, full_name, role')
+        .select('id, full_name, role, is_active')
         .eq('role', 'ceo')
-        .eq('is_active', true)
         .order('created_at', { ascending: true })
       rawNodes = data || []
     } else if (parentId === UNASSIGNED_NODE_ID) {
       const [{ data: directors }, { data: assigned }] = await Promise.all([
-        supabaseAdmin.from('s_realestate_users').select('id, full_name, role').eq('role', 'director').eq('is_active', true),
+        supabaseAdmin.from('s_realestate_users').select('id, full_name, role, is_active').eq('role', 'director'),
         supabaseAdmin.from('s_director_gc').select('director_id'),
       ])
       const assignedIds = new Set((assigned || []).map((a: any) => a.director_id as string))
@@ -180,9 +185,8 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
       if (parentRole === 'ceo') {
         const { data } = await supabaseAdmin
           .from('s_realestate_users')
-          .select('id, full_name, role')
+          .select('id, full_name, role, is_active')
           .eq('role', 'governing_council')
-          .eq('is_active', true)
           .order('created_at', { ascending: true })
         rawNodes = data || []
       } else if (parentRole === 'governing_council') {
@@ -191,18 +195,16 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
         if (directorIds.length > 0) {
           const { data } = await supabaseAdmin
             .from('s_realestate_users')
-            .select('id, full_name, role')
+            .select('id, full_name, role, is_active')
             .in('id', directorIds)
-            .eq('is_active', true)
             .order('full_name', { ascending: true })
           rawNodes = data || []
         }
       } else {
         const { data } = await supabaseAdmin
           .from('s_realestate_users')
-          .select('id, full_name, role')
+          .select('id, full_name, role, is_active')
           .eq('parent_id', parentId)
-          .eq('is_active', true)
           .order('created_at', { ascending: true })
         rawNodes = data || []
       }
@@ -212,7 +214,7 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
 
     const plainIds = rawNodes.filter((n) => n.role !== 'ceo' && n.role !== 'governing_council').map((n) => n.id)
     if (plainIds.length > 0) {
-      const { data: childRows } = await supabaseAdmin.from('s_realestate_users').select('parent_id').in('parent_id', plainIds).eq('is_active', true)
+      const { data: childRows } = await supabaseAdmin.from('s_realestate_users').select('parent_id').in('parent_id', plainIds)
       const withChildren = new Set((childRows || []).map((r: any) => r.parent_id as string))
       plainIds.forEach((id) => hasChildrenMap.set(id, withChildren.has(id)))
     }
@@ -236,6 +238,7 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
       role: n.role,
       roleLabel: labelMap.get(n.role) || n.role,
       hasChildren: hasChildrenMap.get(n.id) || false,
+      is_active: (n as any).is_active !== false,
     }))
 
     // The Unassigned-Directors bucket rides alongside Governing Council
@@ -243,7 +246,7 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
     // actually a gap to surface.
     if (parentRole === 'ceo') {
       const [{ data: directors }, { data: assigned }] = await Promise.all([
-        supabaseAdmin.from('s_realestate_users').select('id').eq('role', 'director').eq('is_active', true),
+        supabaseAdmin.from('s_realestate_users').select('id').eq('role', 'director'),
         supabaseAdmin.from('s_director_gc').select('director_id'),
       ])
       const assignedIds = new Set((assigned || []).map((a: any) => a.director_id as string))
@@ -255,6 +258,7 @@ export async function getHierarchyChildrenAction(parentId: string | null): Promi
           role: 'unassigned',
           roleLabel: 'Not yet assigned',
           hasChildren: true,
+          is_active: true,
         })
       }
     }

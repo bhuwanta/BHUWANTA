@@ -63,6 +63,10 @@ interface OrgNodeData extends Record<string, unknown> {
   expanded: boolean;
   loading: boolean;
   highlighted: boolean;
+  /** Deactivated people are drawn, not hidden — greyed, dashed and
+   * labelled, so the org's real shape stays visible and a deactivated
+   * person can still be found. */
+  isActive: boolean;
   onExpand: (id: string) => void;
   /** This person's own cut on the sale being visualized — only ever set
    * for someone who's a REAL payee (looked up straight from
@@ -84,7 +88,9 @@ function OrgNode({ id, data }: NodeProps) {
   return (
     <div
       className={`rounded-xl border shadow-sm px-3 py-2 text-left transition-all ${
-        d.highlighted
+        !d.isActive
+          ? `bg-[#f3f5f8] border-dashed ${d.highlighted ? 'border-emerald-400 ring-2 ring-emerald-300' : 'border-[#c9d2e0]'}`
+          : d.highlighted
           ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300'
           : isSpecial
           ? 'bg-[#1e3a5f]/5 border-[#1e3a5f]/30'
@@ -95,9 +101,16 @@ function OrgNode({ id, data }: NodeProps) {
       <Handle type="target" position={Position.Top} className="!bg-[#c4a55a] !w-2 !h-2" />
       <div className="flex items-center gap-2 min-w-0">
         {d.role === 'ceo' ? <Building2 className="w-3.5 h-3.5 text-[#1e3a5f] shrink-0" /> : <UsersIcon className="w-3.5 h-3.5 text-[#5a6a82] shrink-0" />}
-        <p className="text-sm font-semibold text-[#0f1d33] truncate">{d.full_name}</p>
+        <p className={`text-sm font-semibold truncate ${d.isActive ? 'text-[#0f1d33]' : 'text-[#5a6a82]'}`}>{d.full_name}</p>
       </div>
-      <p className="text-[11px] text-[#5a6a82] mt-0.5">{d.roleLabel}</p>
+      <p className="text-[11px] text-[#5a6a82] mt-0.5 flex items-center gap-1.5 min-w-0">
+        <span className="truncate">{d.roleLabel}</span>
+        {!d.isActive && (
+          <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide text-[#5a6a82] bg-[#e8ecf2] border border-[#c9d2e0] rounded px-1 py-px">
+            Inactive
+          </span>
+        )}
+      </p>
 
       {fd && (
         <div className="mt-1.5 pt-1.5 border-t border-emerald-200">
@@ -328,6 +341,7 @@ export default function HierarchyGraph({ highlightIds, expandPath, autoExpandAll
             expanded: expanded.has(id),
             loading: loadingId === id,
             highlighted: highlightIds?.has(id) || false,
+            isActive: raw.is_active !== false,
             onExpand: toggleExpand,
             financialDetail: payee && { ...payee, previousRoleLabel: previousRoleLabelById.get(id) || null },
           } as OrgNodeData,

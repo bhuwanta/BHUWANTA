@@ -607,24 +607,37 @@ export default function UserManagementModule({ currentUserRole, currentUserId }:
                         );
                       })()}
                     </td>
-                    <td className="py-4 px-5 text-right whitespace-nowrap space-x-1">
-                      <a
-                        href={`/REALESTATE_SOFTWARE/role/hierarchy?focus=${user.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#5a6a82] hover:text-[#c4a55a] hover:bg-[#f3f5f8] p-2 rounded transition-colors inline-block"
-                        title={`View ${user.full_name}'s reporting line — who is above and below them`}
-                      >
-                        <Network className="w-4 h-4" />
-                      </a>
-                      <button onClick={() => openEditModal(user)} className="text-[#5a6a82] hover:text-[#0f1d33] hover:bg-[#f3f5f8] p-2 rounded transition-colors inline-block" title="Edit User">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      {!user.is_active && !(user.role === 'it' && currentUserRole !== 'it') && (
-                        <button onClick={() => handleDeleteUser(user.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors inline-block" title="Delete User Permanently">
-                          <Trash2 className="w-4 h-4" />
+                    {/* flex, not inline-block: an <a> and a <button> sit on
+                        different baselines in an inline row, which left the
+                        three icons visibly stepping up and down. */}
+                    <td className="py-4 px-5 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
+                        <a
+                          href={`/REALESTATE_SOFTWARE/role/hierarchy?focus=${user.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center text-[#5a6a82] hover:text-[#c4a55a] hover:bg-[#f3f5f8] p-2 rounded transition-colors"
+                          title={`View ${user.full_name}'s reporting line — who is above and below them`}
+                        >
+                          <Network className="w-4 h-4" />
+                        </a>
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="flex items-center justify-center text-[#5a6a82] hover:text-[#0f1d33] hover:bg-[#f3f5f8] p-2 rounded transition-colors"
+                          title="Edit User"
+                        >
+                          <Edit2 className="w-4 h-4" />
                         </button>
-                      )}
+                        {!user.is_active && !(user.role === 'it' && currentUserRole !== 'it') && (
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors"
+                            title="Delete User Permanently"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
