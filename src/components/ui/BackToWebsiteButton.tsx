@@ -14,7 +14,7 @@ export function BackToWebsiteButton() {
   return (
     <Link
       href="/"
-      className="absolute top-4 left-4 sm:top-6 sm:left-6 inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8ecf2] text-[#1e3a5f] text-sm font-semibold rounded-lg shadow-sm hover:border-[#c4a55a] hover:text-[#c4a55a] hover:shadow-md transition-all"
+      className="absolute top-6 left-4 sm:top-8 sm:left-6 inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8ecf2] text-[#1e3a5f] text-sm font-semibold rounded-lg shadow-sm hover:border-[#c4a55a] hover:text-[#c4a55a] hover:shadow-md transition-all"
     >
       <ArrowLeft className="w-4 h-4 text-[#c4a55a]" /> Back to Website
     </Link>

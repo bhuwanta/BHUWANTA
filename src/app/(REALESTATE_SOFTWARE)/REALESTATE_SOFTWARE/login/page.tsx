@@ -37,7 +37,7 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-[80vh] flex-col items-center justify-center p-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#f7f8fa] px-4 pt-28 pb-16">
       <BackToWebsiteButton />
 
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
