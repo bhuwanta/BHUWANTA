@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import {
   CheckCircle2,
   ArrowLeft,
-  MessageCircle,
   Mail,
   PhoneCall,
   CalendarCheck,
@@ -17,31 +16,30 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { fireLeadConversion } from '@/lib/gtag'
+import { WhatsAppInlineCta } from '@/components/ui/WhatsAppInlineCta'
 
-// WhatsApp only — Bhuwanta deliberately does not publish a phone number, so
-// there is no tel: link anywhere on the site.
-const WHATSAPP_NUMBER = '919666504405'
+// WhatsApp and email only — Bhuwanta deliberately does not publish a phone
+// number, so there is no tel: link anywhere on the site.
 const EMAIL = 'info@bhuwanta.com'
 
 /**
- * Works out what to honestly promise, in IST, rather than always claiming a
- * call "within 2 hours" — a form filled at 11pm on Saturday would otherwise
- * set an expectation the team cannot meet. Business hours: Mon–Sat, 10–7.
+ * The promise is a call within 24 hours, which holds on any working day. It
+ * does not hold when those 24 hours land on a closed day — Sunday, or after
+ * Saturday's close — so those two cases say Monday instead of quietly
+ * promising something the team cannot deliver. Business hours: Mon–Sat, 10–7.
  */
 function getResponseMessage(now: Date): string {
   const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }))
-  const day = ist.getDay() // 0 = Sunday
+  const day = ist.getDay() // 0 = Sunday, 6 = Saturday
   const hour = ist.getHours()
 
   const isSunday = day === 0
-  const withinHours = !isSunday && hour >= 10 && hour < 19
+  const isAfterSaturdayClose = day === 6 && hour >= 19
 
-  if (withinHours) return 'Our team will call you within 2 hours.'
-  if (isSunday) return 'Our team will call you on Monday morning, as soon as we open at 10 AM.'
-  if (hour < 10) return 'Our team will call you this morning, as soon as we open at 10 AM.'
-  return day === 6
-    ? 'Our team will call you on Monday morning, as soon as we open at 10 AM.'
-    : 'Our team will call you tomorrow morning, as soon as we open at 10 AM.'
+  if (isSunday || isAfterSaturdayClose) {
+    return 'Our team will call you on Monday, as soon as we open at 10 AM.'
+  }
+  return 'Our team will call you within 24 hours.'
 }
 
 const NEXT_STEPS = [
@@ -71,11 +69,6 @@ const WHILE_YOU_WAIT = [
 
 export default function ThankYouPage() {
   const router = useRouter()
-  const waMessage = encodeURIComponent(
-    'Hi Bhuwanta, I just submitted an enquiry on your website — could we speak sooner on WhatsApp?'
-  )
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`
-
   // Rendered only after mount: the message depends on the visitor's clock, and
   // computing it during render would mismatch the server's HTML.
   const [responseMessage, setResponseMessage] = useState<string | null>(null)
@@ -115,7 +108,7 @@ export default function ThankYouPage() {
 
           <p className="text-xs font-bold uppercase tracking-widest text-[#c4a55a] mb-3">Enquiry Received</p>
           <h1 className="text-3xl sm:text-4xl font-bold text-[#0f1d33] mb-4">
-            Thank You — We&apos;ll Be In Touch
+            Thank You, We&apos;ll Be In Touch
           </h1>
 
           <p className="text-[#5a6a82] leading-relaxed max-w-xl mx-auto">
@@ -127,14 +120,14 @@ export default function ThankYouPage() {
           <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
             <p className="text-sm font-semibold text-[#0f1d33] mb-4">Would you rather not wait?</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white font-semibold rounded-lg shadow-lg shadow-[#25D366]/20 hover:scale-105 transition-premium"
-              >
-                <MessageCircle className="w-4 h-4" /> WhatsApp Us Now
-              </a>
+              <WhatsAppInlineCta
+                context="my enquiry"
+                label="Chat on WhatsApp"
+                message="Hi Bhuwanta, I just submitted an enquiry on your website — could we speak sooner on WhatsApp?"
+                className="w-full sm:w-auto"
+                // The conversion already fired on mount for this page.
+                trackConversion={false}
+              />
               <a
                 href={`mailto:${EMAIL}`}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] transition-premium"

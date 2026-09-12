@@ -38,8 +38,14 @@ interface BlogCard {
   publishDate: string
 }
 
+// Relative on purpose. These URLs are rendered through next/image, and an
+// absolute https://bhuwanta.com/... one is treated as a remote host, which
+// next/image refuses unless the domain is listed in remotePatterns. /api/og is
+// this app's own route, so a same-origin path is both allowed and correct —
+// locally it renders from localhost instead of fetching the live site.
+// (Metadata elsewhere still needs the absolute form: OG tags must be absolute.)
 const ogImage = (title: string, subtitle: string) =>
-  `https://bhuwanta.com/api/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(subtitle)}`
+  `/api/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(subtitle)}`
 
 // Guides about a specific project use that project's real photo instead of
 // the generated placeholder — more genuine, and matches how project/landing
@@ -221,6 +227,12 @@ export default async function BlogPage() {
                         alt={`${card.title} — cover image`}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        // /api/og renders a finished 1200x630 image, so there is
+                        // nothing for the optimizer to improve — and it cannot
+                        // process it anyway: a local src carrying a query string
+                        // is rejected outright. Sanity images still go through
+                        // the optimizer as usual.
+                        unoptimized={card.image.startsWith('/api/og')}
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
