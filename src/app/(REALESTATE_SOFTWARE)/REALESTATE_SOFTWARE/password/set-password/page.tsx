@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import logoFallback from '@/images/logo.png'
 import { createClient } from '@/lib/supabase/client'
+import { BackToWebsiteButton } from '@/components/ui/BackToWebsiteButton'
 
 export default function SetPassword() {
   const router = useRouter()
@@ -140,7 +141,9 @@ export default function SetPassword() {
 
   if (verifyingSession) {
     return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
+      <div className="relative flex min-h-[80vh] flex-col items-center justify-center p-4">
+      <BackToWebsiteButton />
+
         <Loader2 className="w-8 h-8 animate-spin text-[#c4a55a]" />
         <p className="mt-4 text-[#5a6a82] text-sm">Verifying secure link...</p>
       </div>
@@ -148,7 +151,9 @@ export default function SetPassword() {
   }
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
+    <div className="relative flex min-h-[80vh] flex-col items-center justify-center p-4">
+      <BackToWebsiteButton />
+
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
         
         <div className="flex justify-center mb-6">

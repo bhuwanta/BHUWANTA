@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react'
 import logoFallback from '@/images/logo.png'
 import { sendRecoveryEmailAction } from './actions'
+import { BackToWebsiteButton } from '@/components/ui/BackToWebsiteButton'
 
 export default function ForgotPassword() {
   const router = useRouter()
@@ -30,7 +31,9 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
+    <div className="relative flex min-h-[80vh] flex-col items-center justify-center p-4">
+      <BackToWebsiteButton />
+
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
         
         <div className="flex justify-center mb-6">

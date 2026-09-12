@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import { signup } from './actions'
+import { BackToWebsiteButton } from '@/components/ui/BackToWebsiteButton'
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -21,7 +22,9 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#f7f8fa]">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#f7f8fa]">
+      <BackToWebsiteButton />
+
       <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-10 shadow-sm border border-[#e8ecf2]">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-[#0f1d33]">

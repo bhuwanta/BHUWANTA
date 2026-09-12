@@ -143,7 +143,7 @@ export function Navbar() {
               </Link>
 
               <Link
-                href="/REALESTATE_SOFTWARE/login"
+                href="/login"
                 id="nav-login"
                 className="hidden sm:inline-flex px-5 py-2.5 text-sm font-semibold rounded-lg transition-premium hover:scale-105 glow-gold gradient-gold text-white"
               >
@@ -205,7 +205,7 @@ export function Navbar() {
           </Link>
 
           <Link
-            href="/REALESTATE_SOFTWARE/login"
+            href="/login"
             onClick={() => setIsOpen(false)}
             className="block px-4 py-3 text-sm font-semibold text-center rounded-lg gradient-gold text-white mt-3"
           >
