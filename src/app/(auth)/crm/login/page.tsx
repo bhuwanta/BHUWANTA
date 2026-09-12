@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-[#0f1d33] mb-2">
-            Login
+            CRM Login
           </h1>
           <p className="text-[#5a6a82] text-sm">
             Enter your Email and Password to login
