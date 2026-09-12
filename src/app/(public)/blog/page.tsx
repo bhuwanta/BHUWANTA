@@ -187,7 +187,17 @@ export default async function BlogPage() {
     image: (VIAN_VALLY_HREFS.has(guide.href) && vianVallyImage) || fallbackImage,
   }))
 
-  const allCards = [...postCards, ...guideCards]
+  // Two CMS documents can carry the same slug — publishing the same article
+  // twice is a couple of clicks in Studio — which produced two cards with the
+  // same href and a duplicate-key warning from React. The first card for a
+  // given href wins: posts are ordered newest first, and they come ahead of
+  // the hand-authored guides here.
+  const seenHrefs = new Set<string>()
+  const allCards = [...postCards, ...guideCards].filter((card) => {
+    if (seenHrefs.has(card.href)) return false
+    seenHrefs.add(card.href)
+    return true
+  })
 
   return (
     <>
