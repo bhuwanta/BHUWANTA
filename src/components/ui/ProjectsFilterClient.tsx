@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Crown, Check, Download, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
+import { OverviewDownloadButton } from '@/components/ui/OverviewDownloadButton'
 
 export interface ProjectEntry {
   name: string
@@ -63,15 +65,38 @@ export function ProjectsFilterClient({
   overviewUrls?: string[] | null
   overviewButtonLabel?: string
 }) {
-  const [activeFilter, setActiveFilter] = useState<string>('all')
+  // Deep link from the homepage category cards: /projects?category=<slug>
+  // opens that filter directly instead of dropping the visitor on "All".
+  const searchParams = useSearchParams()
+  const requestedCategory = searchParams.get('category')
+  const isKnownCategory = Boolean(requestedCategory && categories.some((c) => c.id === requestedCategory))
+
+  // Derived rather than synced: the URL decides unless the visitor has clicked
+  // a filter for this particular URL. Remembering which param a manual choice
+  // was made against means arriving from a different homepage card still opens
+  // the right filter, without an effect writing state on every render.
+  const [userChoice, setUserChoice] = useState<{ forParam: string | null; id: string } | null>(null)
+  const activeFilter =
+    userChoice && userChoice.forParam === requestedCategory
+      ? userChoice.id
+      : isKnownCategory
+        ? (requestedCategory as string)
+        : 'all'
   const filterRef = useRef<HTMLDivElement>(null)
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; projectName: string; documentType: string } | null>(null)
 
-  // overviewPdf[].asset->url yields null, not [], when nothing is uploaded.
-  const hasOverview = Boolean(overviewUrls && overviewUrls.length > 0)
+  // Follow the param when it changes (clicking a second homepage card, or
+  // using the back button), and bring the filter row into view.
+  useEffect(() => {
+    if (!isKnownCategory) return
+    const el = filterRef.current
+    if (!el) return
+    const y = el.getBoundingClientRect().top + window.scrollY - 100
+    window.scrollTo({ top: y, behavior: 'smooth' })
+  }, [requestedCategory, isKnownCategory])
 
   const handleFilterClick = (catId: string) => {
-    setActiveFilter(catId)
+    setUserChoice({ forParam: requestedCategory, id: catId })
     setTimeout(() => {
       if (filterRef.current) {
         // Adjust scroll offset to account for navbar height
@@ -123,22 +148,7 @@ export function ProjectsFilterClient({
             {/* Not a filter — an action. Solid gold so it doesn't read as a
                 seventh category tab. Reuses the same OTP download popup as the
                 project brochures, so it captures a lead the same way. */}
-            <button
-              type="button"
-              disabled={!hasOverview}
-              title={hasOverview ? undefined : 'Coming soon'}
-              onClick={() =>
-                setDownloadQueue({
-                  urls: overviewUrls as string[],
-                  projectName: 'Bhuwanta Projects',
-                  documentType: overviewButtonLabel || 'Projects Overview',
-                })
-              }
-              className="lg:flex-none flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 lg:px-5 py-2 rounded-full transition-all duration-300 whitespace-nowrap gradient-gold text-white shadow-md enabled:hover:scale-105 enabled:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <Download className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-              <span>{overviewButtonLabel || 'Download Projects Overview'}</span>
-            </button>
+            <OverviewDownloadButton urls={overviewUrls} label={overviewButtonLabel} variant="pill" />
           </div>
         </div>
       </div>

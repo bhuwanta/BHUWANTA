@@ -74,6 +74,12 @@ function VideoCard({ video }: { video: ProjectVideo }) {
                 controls
                 autoPlay
                 playsInline
+                // Hides the download item in the browser's native video menu.
+                // It only removes the obvious route — the file URL is still
+                // public, so this is tidiness, not protection.
+                controlsList="nodownload noplaybackrate"
+                disablePictureInPicture
+                onContextMenu={(e) => e.preventDefault()}
                 className="w-full h-full object-contain"
               />
             ) : (

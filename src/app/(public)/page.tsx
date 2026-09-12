@@ -15,6 +15,7 @@ import dynamic from 'next/dynamic'
 const ContactForm = dynamic(() => import('@/components/ui/ContactForm').then(mod => mod.ContactForm))
 const AnimatedCounter = dynamic(() => import('@/components/ui/AnimatedCounter').then(mod => mod.AnimatedCounter))
 import { HeroSlider } from '@/components/ui/HeroSlider'
+import { OverviewDownloadButton } from '@/components/ui/OverviewDownloadButton'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('home', 'HMDA Approved Plots in Hyderabad', 'Own HMDA-approved, Vastu-aligned plots in Hyderabad\'s fastest-growing corridors, built for homebuilders and smart investors. Book a free site visit.')
@@ -97,7 +98,7 @@ export default async function HomePage({
   // 2. Premium Categories — only show categories of projects that have real data (image or video)
   const fallbackImage = 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
   
-  const uniqueCategoriesMap = new Map<string, string>()
+  const uniqueCategoriesMap = new Map<string, { image: string; slug: string }>()
   
   ;(projectEntries).forEach((p) => {
     const images = p.images as string[] | undefined
@@ -120,12 +121,19 @@ export default async function HomePage({
           }
         }
         
-        uniqueCategoriesMap.set(p.categoryTitle as string, previewImage)
+        uniqueCategoriesMap.set(p.categoryTitle as string, {
+          image: previewImage,
+          // The slug the /projects filter uses as its category id.
+          slug: (p.category as string) || '',
+        })
       }
     }
   })
 
-  const premiumCategories: { name: string; image: string }[] = Array.from(uniqueCategoriesMap, ([name, image]) => ({ name, image }))
+  const premiumCategories: { name: string; image: string; slug: string }[] = Array.from(
+    uniqueCategoriesMap,
+    ([name, { image, slug }]) => ({ name: name.trim(), image, slug })
+  )
 
   // 3. Journey Steps
   const journeyStepsData = [
@@ -329,7 +337,11 @@ export default async function HomePage({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {premiumCategories.map((category, index) => (
-              <Link href="/projects" key={index} className="group block">
+              <Link
+                href={category.slug ? `/projects?category=${category.slug}` : '/projects'}
+                key={index}
+                className="group block"
+              >
                 <div className="relative overflow-hidden rounded-2xl shadow-md aspect-[4/3] border border-[#e8ecf2] transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-[#c4a55a]/50">
                   <SanityImage 
                     src={category.image} 
@@ -367,17 +379,26 @@ export default async function HomePage({
             </Link>
           </div>
 
-          <div className="mt-12 sm:mt-16 flex flex-col items-center">
+          <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/projects"
-              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl bg-[#022F3A] text-white transition-all hover:bg-[#022F3A]/90 hover:shadow-xl hover:-translate-y-0.5 overflow-hidden"
+              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl bg-[#022F3A] text-white transition-all hover:bg-[#022F3A]/90 hover:shadow-xl hover:-translate-y-0.5 overflow-hidden w-full sm:w-auto"
             >
               <span className="relative z-10 flex items-center gap-2">
                 View All Projects
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
+            <OverviewDownloadButton
+              urls={projectsData?.overviewUrls as string[] | undefined}
+              label={projectsData?.overviewButtonLabel as string | undefined}
+              variant="solid"
+              className="w-full sm:w-auto"
+            />
           </div>
+          <p className="mt-4 text-center text-xs text-[#5a6a82]">
+            One PDF covering every Bhuwanta project — locations, plot sizes and approvals.
+          </p>
         </div>
       </section>
       )}

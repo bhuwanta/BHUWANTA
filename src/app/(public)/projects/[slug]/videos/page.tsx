@@ -165,7 +165,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               were actually on. */}
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#5a6a82] hover:text-[#c4a55a] transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#c4a55a] hover:text-[#b59853] transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" /> Back to All Projects
           </Link>
