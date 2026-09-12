@@ -363,20 +363,6 @@ export default async function HomePage({
               </Link>
             ))}
 
-            {/* Explore More Card */}
-            <Link href="/projects" className="group block">
-              <div className="relative overflow-hidden rounded-2xl shadow-sm border border-[#e8ecf2] bg-[#f7f8fa] transition-all duration-500 hover:shadow-md hover:-translate-y-1 hover:border-[#c4a55a]/50 flex flex-col items-center justify-center p-8 text-center aspect-[4/3]">
-                <div className="w-16 h-16 rounded-full bg-[#1e3a5f]/5 flex items-center justify-center mb-6 group-hover:bg-gradient-to-tr group-hover:from-[#c4a55a] group-hover:to-[#d4b872] group-hover:shadow-lg group-hover:shadow-[#c4a55a]/30 transition-all duration-500">
-                  <ArrowRight className="w-8 h-8 text-[#0f1d33] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-500" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0f1d33] mb-3 group-hover:text-[#c4a55a] transition-colors duration-300">
-                  Explore More
-                </h3>
-                <p className="text-sm text-[#5a6a82] leading-relaxed">
-                  Discover all our premium open plot projects across Hyderabad.
-                </p>
-              </div>
-            </Link>
           </div>
 
           <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4">
