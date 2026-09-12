@@ -63,10 +63,10 @@ const NEXT_STEPS = [
 ]
 
 const WHILE_YOU_WAIT = [
-  { href: '/projects', icon: Building2, label: 'Our Projects', desc: 'HMDA & DTCP approved layouts' },
-  { href: '/reviews', icon: Star, label: 'Customer Reviews', desc: 'Hear from our buyers' },
-  { href: '/gallery', icon: Images, label: 'Gallery', desc: 'Photos and site visits' },
-  { href: '/blog', icon: BookOpen, label: 'Buyer Guides', desc: 'Know before you buy' },
+  { href: '/projects', icon: Building2, label: 'Projects', desc: 'Approved layouts' },
+  { href: '/reviews', icon: Star, label: 'Reviews', desc: 'From our buyers' },
+  { href: '/gallery', icon: Images, label: 'Gallery', desc: 'Photos & visits' },
+  { href: '/blog', icon: BookOpen, label: 'Guides', desc: 'Before you buy' },
 ]
 
 export default function ThankYouPage() {
@@ -167,21 +167,23 @@ export default function ThankYouPage() {
         {/* While you wait */}
         <section className="mt-10">
           <h2 className="text-xl font-bold text-[#0f1d33] text-center mb-6">While You Wait</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* One row of four from sm up; two columns on the narrowest phones,
+              where four would leave each card too thin to read. */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {WHILE_YOU_WAIT.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="group bg-white border border-[#e8ecf2] rounded-xl p-5 shadow-sm hover:border-[#c4a55a] hover:shadow-md transition-premium flex items-center gap-4"
+                className="group bg-white border border-[#e8ecf2] rounded-xl p-4 sm:p-5 shadow-sm hover:border-[#c4a55a] hover:shadow-md transition-premium flex flex-col items-center text-center gap-2"
               >
                 <div className="w-11 h-11 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0 group-hover:bg-[#c4a55a]/10 transition-colors">
                   <link.icon className="w-5 h-5 text-[#c4a55a]" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 w-full">
                   <p className="font-bold text-[#0f1d33] group-hover:text-[#c4a55a] transition-colors truncate">
                     {link.label}
                   </p>
-                  <p className="text-sm text-[#5a6a82] truncate">{link.desc}</p>
+                  <p className="text-xs text-[#5a6a82] truncate">{link.desc}</p>
                 </div>
               </Link>
             ))}
