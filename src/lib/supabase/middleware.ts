@@ -85,6 +85,30 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // CRM membership, enforced at the edge as well as at login.
+  //
+  // The check above only asks "is there a session", and both portals share one
+  // Supabase auth project — so a signed-in BDCP user could previously reach
+  // /crm by URL, and the `user_metadata?.role || 'Admin'` default below would
+  // treat them as a CRM Admin. Membership is the `profiles` table, so ask it.
+  //
+  // Uses the anon-key client built above with the visitor's own cookies,
+  // against the "Users can view their own profile" policy (auth.uid() = id) —
+  // the same shape as the S_realestate_users check further down, and for the
+  // same reason: Edge middleware cannot run the service-role client.
+  if (
+    user &&
+    request.nextUrl.pathname.startsWith('/crm') &&
+    request.nextUrl.pathname !== '/crm/login'
+  ) {
+    const { data: crmProfile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle()
+    if (!crmProfile) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/crm/login'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // RBAC for Telecallers: Restrict to /crm/leads
   if (
     user &&

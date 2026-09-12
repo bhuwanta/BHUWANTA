@@ -48,16 +48,29 @@ export async function addAdminUser(formData: FormData) {
     })
   }
 
-  // 3. Update the profiles table separately (this might fail if the check constraint doesn't allow Telecaller, but we catch it)
+  // 3. Write the profiles row. Upsert, not update.
+  //
+  // This used to UPDATE, assuming the on_auth_user_created trigger in
+  // supabase/schema.sql had already inserted the row. That trigger is not live
+  // — profiles holds a single row against 1,000+ auth users — so the UPDATE
+  // matched nothing and the miss was merely logged, leaving CRM users with an
+  // auth account and no profiles row.
+  //
+  // That was harmless while nothing checked membership. Now that `profiles` is
+  // what grants CRM access, a missing row means the account cannot log in, so
+  // this has to create the row rather than assume something else did.
   if (data?.user) {
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
-      .update({ role: role, name: name })
-      .eq('id', data.user.id)
-      
+      .upsert({ id: data.user.id, email, role: role, name: name }, { onConflict: 'id' })
+
     if (updateError) {
-      console.error("Failed to update profiles table (likely due to check constraint):", updateError.message)
-      // We don't return an error here because the user was created successfully in auth.users
+      // Now fatal: without this row the account exists in auth but has no CRM
+      // access, which is a confusing half-created user. Roll the auth user back
+      // so the admin can correct the input and retry cleanly.
+      console.error('Failed to write profiles row, rolling back auth user:', updateError.message)
+      await supabaseAdmin.auth.admin.deleteUser(data.user.id)
+      return { error: `Could not grant CRM access: ${updateError.message}` }
     }
 
     // Send credentials email
@@ -80,23 +93,49 @@ export async function listAdminUsers() {
     }
   )
 
+  // Driven by `profiles` — the CRM's own membership table — not by
+  // auth.admin.listUsers().
+  //
+  // Both portals share one Supabase auth project, and every BDCP profile is
+  // backed by an auth user, so listUsers() returned all ~1,000 BDCP people
+  // alongside the handful of real CRM users. Auth is still read, but only to
+  // enrich the accounts `profiles` already names.
+  const { data: crmProfiles, error: profilesError } = await supabaseAdmin
+    .from('profiles')
+    .select('id, email, role, name, created_at')
+    .order('created_at', { ascending: true })
+
+  if (profilesError) {
+    return { error: profilesError.message }
+  }
+
   const { data, error } = await supabaseAdmin.auth.admin.listUsers()
-  
+
   if (error) {
     return { error: error.message }
   }
 
-  return { 
-    success: true, 
-    users: data.users.map(u => ({
-      id: u.id,
-      email: u.email,
-      created_at: u.created_at,
-      last_sign_in_at: u.last_sign_in_at,
-      is_disabled: u.user_metadata?.is_disabled || false,
-      role: u.user_metadata?.role || 'admin',
-      name: u.user_metadata?.full_name || ''
-    })) 
+  const authById = new Map(data.users.map((u) => [u.id, u]))
+
+  return {
+    success: true,
+    users: (crmProfiles || []).map((p) => {
+      const u = authById.get(p.id)
+      return {
+        id: p.id,
+        email: p.email || u?.email,
+        // profiles.created_at as the fallback: a profiles row whose auth user
+        // is missing is a broken account, but it should still be listed so an
+        // admin can see and remove it rather than have it silently disappear.
+        created_at: u?.created_at ?? p.created_at ?? '',
+        last_sign_in_at: u?.last_sign_in_at,
+        is_disabled: u?.user_metadata?.is_disabled || false,
+        // profiles.role is the CRM's own record; user_metadata is the copy the
+        // middleware reads, so fall back to it rather than assuming 'admin'.
+        role: p.role || u?.user_metadata?.role || 'admin',
+        name: p.name || u?.user_metadata?.full_name || '',
+      }
+    }),
   }
 }
 
