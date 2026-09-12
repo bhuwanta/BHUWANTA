@@ -37,18 +37,18 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md mb-4">
-        {/* A plain link to the public site, not history.back(): staff reach
-            this page from a bookmark or after being bounced here by
-            requireRole(), so there is often nothing useful to go back to. */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#c4a55a] hover:text-[#b59853] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Website
-        </Link>
-      </div>
+    <div className="relative flex min-h-[80vh] flex-col items-center justify-center p-4">
+      {/* Pinned to the page's top-left corner — this layout has no header, so
+          the corner is free. A plain link to the public site, not
+          history.back(): staff reach this page from a bookmark or after being
+          bounced here by requireRole(), so there is often nothing useful to go
+          back to. */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#e8ecf2] text-[#1e3a5f] text-sm font-semibold rounded-lg shadow-sm hover:border-[#c4a55a] hover:text-[#c4a55a] hover:shadow-md transition-all"
+      >
+        <ArrowLeft className="w-4 h-4 text-[#c4a55a]" /> Back to Website
+      </Link>
 
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
         
