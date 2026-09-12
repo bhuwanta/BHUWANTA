@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import {
   CheckCircle2,
   ArrowLeft,
-  Phone,
   MessageCircle,
   Mail,
   PhoneCall,
@@ -19,8 +18,9 @@ import {
 } from 'lucide-react'
 import { fireLeadConversion } from '@/lib/gtag'
 
+// WhatsApp only — Bhuwanta deliberately does not publish a phone number, so
+// there is no tel: link anywhere on the site.
 const WHATSAPP_NUMBER = '919666504405'
-const CALL_NUMBER = '+919666504405'
 const EMAIL = 'info@bhuwanta.com'
 
 /**
@@ -134,12 +134,6 @@ export default function ThankYouPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white font-semibold rounded-lg shadow-lg shadow-[#25D366]/20 hover:scale-105 transition-premium"
               >
                 <MessageCircle className="w-4 h-4" /> WhatsApp Us Now
-              </a>
-              <a
-                href={`tel:${CALL_NUMBER}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium"
-              >
-                <Phone className="w-4 h-4" /> Call Us
               </a>
               <a
                 href={`mailto:${EMAIL}`}

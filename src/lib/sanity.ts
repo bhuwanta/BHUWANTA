@@ -62,7 +62,6 @@ export const homeQuery = `*[_type == "home"][0]{
   // Hero
   heroPrimaryCta,
   heroSecondaryCta,
-  heroPhoneNumber,
   heroImages[] {
     image {
       asset->{
@@ -314,7 +313,6 @@ export const siteSettingsQuery = `*[_type == "siteSettings"][0]{
   footerAddress,
   footerAddressLabel,
   googleMapsUrl,
-  footerPhone,
   footerEmail,
   copyrightText,
   metaTitleTemplate,

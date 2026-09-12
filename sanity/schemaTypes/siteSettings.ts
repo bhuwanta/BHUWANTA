@@ -100,12 +100,6 @@ export const siteSettingsSchema = defineType({
       group: 'footer',
     }),
     defineField({
-      name: 'footerPhone',
-      type: 'string',
-      title: 'Phone Number',
-      group: 'footer',
-    }),
-    defineField({
       name: 'footerEmail',
       type: 'string',
       title: 'Email Address',

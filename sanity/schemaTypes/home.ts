@@ -30,13 +30,6 @@ export const homeSchema = defineType({
       description: 'e.g. "Call Now"',
     }),
     defineField({
-      name: 'heroPhoneNumber',
-      type: 'string',
-      title: 'Phone Number (for Call Now button)',
-      group: 'hero',
-      description: 'e.g. +919666504405',
-    }),
-    defineField({
       name: 'heroImages',
       type: 'array',
       title: 'Hero Background Images with Text',

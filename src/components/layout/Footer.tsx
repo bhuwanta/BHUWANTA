@@ -47,7 +47,6 @@ interface FooterSettings {
   footerAddress?: string
   footerAddressLabel?: string
   googleMapsUrl?: string
-  footerPhone?: string
   footerEmail?: string
   copyrightText?: string
   socialLinks?: {
@@ -66,7 +65,7 @@ export function Footer() {
     client.fetch(`*[_type == "siteSettings"][0]{
       siteName, tagline, navLinks[]{ label, href },
       footerAddress, footerAddressLabel, googleMapsUrl,
-      footerPhone, footerEmail, copyrightText, socialLinks
+      footerEmail, copyrightText, socialLinks
     }`).then((data: FooterSettings) => {
       if (data) setSettings(data)
     }).catch(() => {})
@@ -79,7 +78,6 @@ export function Footer() {
   const address = settings.footerAddress || 'Alluri Trade Center, Floor #5 , Unit #406 , KPHB, Near KPHB Metro Station (opposite to pillar number # 761), hyderabad, telangana - 500072'
   const addressLabel = settings.footerAddressLabel || 'Headquarters'
   const mapsUrl = settings.googleMapsUrl || 'https://maps.app.goo.gl/USjC2iYeGiXbZ5U16'
-  const _phone = (settings.footerPhone && settings.footerPhone !== '+91 XXXXX XXXXX') ? settings.footerPhone : null
   const email = settings.footerEmail || 'info@bhuwanta.com'
   const copyright = settings.copyrightText || 'Bhuwanta. All rights reserved.'
 

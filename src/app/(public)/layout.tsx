@@ -43,7 +43,9 @@ export default async function PublicLayout({
     state: 'Telangana',
     postalCode: '500072',
     country: 'IN',
-    ...(settings?.footerPhone && settings.footerPhone !== '+91 XXXXX XXXXX' ? { phone: settings.footerPhone } : {}),
+    // No telephone: the business is contacted through WhatsApp and email, and
+    // publishing a number in structured data would surface one in search
+    // results even though the site never shows it.
     email: settings?.footerEmail || 'info@bhuwanta.com',
     website: siteUrl,
     sameAsLinks: [
