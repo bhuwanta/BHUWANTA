@@ -30,7 +30,7 @@ function formatRecordedAt(date?: string): string | null {
  * players on load would spend it on visitors who never press play. So each
  * card shows a poster until clicked, and <video> carries preload="none".
  */
-function VideoCard({ video, fallbackPoster }: { video: ProjectVideo; fallbackPoster?: string }) {
+function VideoCard({ video }: { video: ProjectVideo }) {
   const [isPlaying, setIsPlaying] = useState(false)
   // YouTube only generates maxresdefault for videos uploaded above 720p, so it
   // 404s on plenty of them. hqdefault always exists — fall back on error.
@@ -50,37 +50,42 @@ function VideoCard({ video, fallbackPoster }: { video: ProjectVideo; fallbackPos
   // the video file itself would cost bandwidth for visitors who never press
   // play. Falling back to the project's own photo keeps the card looking like
   // the cards on /projects instead of a black rectangle.
-  const poster = video.thumbnailUrl || youtubePoster || fallbackPoster
+  const poster = video.thumbnailUrl || youtubePoster
 
   const recorded = formatRecordedAt(video.recordedAt)
 
   return (
     <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden flex flex-col transition-premium hover:shadow-md">
-      <div className="relative aspect-video bg-[#0f1d33]">
+      <div className="relative aspect-video bg-black overflow-hidden">
         {!playable ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/70">
             <Film className="w-8 h-8" />
             <span className="text-xs font-medium">Video unavailable</span>
           </div>
         ) : isPlaying ? (
-          isUpload ? (
-            <video
-              src={video.videoUrl}
-              controls
-              autoPlay
-              playsInline
-              preload="none"
-              className="w-full h-full object-contain bg-black"
-            />
-          ) : (
-            <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
-              title={video.title}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          )
+          // Absolutely positioned, exactly like ProjectImageCarousel on
+          // /projects. A plain h-full child resolves its height against an
+          // auto height and falls back to the video's intrinsic size, which
+          // stretched the card for portrait footage.
+          <div className="absolute inset-0 w-full h-full bg-black">
+            {isUpload ? (
+              <video
+                src={video.videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <iframe
+                src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                title={video.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
         ) : (
           <button
             type="button"
@@ -94,8 +99,21 @@ function VideoCard({ video, fallbackPoster }: { video: ProjectVideo; fallbackPos
                 alt={video.title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover"
+                className="object-contain"
                 onError={() => setPosterFailed(true)}
+              />
+            ) : isUpload && video.videoUrl ? (
+              // The real first frame of the actual video, rather than an
+              // unrelated project photo. #t=0.1 makes the browser seek to and
+              // paint that frame; preload="metadata" fetches only the header
+              // and that one frame, not the whole file.
+              <video
+                src={`${video.videoUrl}#t=0.1`}
+                preload="metadata"
+                muted
+                playsInline
+                tabIndex={-1}
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
               />
             ) : (
               <div className="absolute inset-0 bg-[#0f1d33]" />
@@ -124,18 +142,11 @@ function VideoCard({ video, fallbackPoster }: { video: ProjectVideo; fallbackPos
   )
 }
 
-export function ProjectVideosGrid({
-  videos,
-  fallbackPoster,
-}: {
-  videos: ProjectVideo[]
-  /** The project's own photo, used when a video has no thumbnail of its own. */
-  fallbackPoster?: string
-}) {
+export function ProjectVideosGrid({ videos }: { videos: ProjectVideo[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
       {videos.map((video, idx) => (
-        <VideoCard key={`${video.title}-${idx}`} video={video} fallbackPoster={fallbackPoster} />
+        <VideoCard key={`${video.title}-${idx}`} video={video} />
       ))}
     </div>
   )

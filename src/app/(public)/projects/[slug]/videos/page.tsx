@@ -185,7 +185,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
           )}
 
           {videos.length > 0 ? (
-            <ProjectVideosGrid videos={videos} fallbackPoster={project.images?.[0]} />
+            <ProjectVideosGrid videos={videos} />
           ) : (
             <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
               <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">
