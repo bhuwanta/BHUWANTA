@@ -382,9 +382,6 @@ export default async function HomePage({
               className="w-full sm:w-auto"
             />
           </div>
-          <p className="mt-4 text-center text-xs text-[#5a6a82]">
-            One PDF covering every Bhuwanta project — locations, plot sizes and approvals.
-          </p>
         </div>
       </section>
       )}
