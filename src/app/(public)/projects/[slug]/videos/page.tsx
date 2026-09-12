@@ -160,11 +160,15 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
 
       <div className="py-12 lg:py-16 bg-[#f7f8fa] min-h-[50vh]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back goes to the listing, not to /projects/<slug>: visitors reach
+              this page from the Videos button on a project card, and for two
+              projects the CMS slug is a different spelling from the page they
+              were actually on. */}
           <Link
-            href={`/projects/${slug}`}
+            href="/projects"
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#5a6a82] hover:text-[#c4a55a] transition-colors mb-8"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to {name}
+            <ArrowLeft className="w-4 h-4" /> Back to All Projects
           </Link>
 
           {/* Optional editorial slot. Both fields are optional in Sanity and
