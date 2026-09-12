@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { X, Download } from 'lucide-react'
 import Image from 'next/image'
@@ -23,6 +23,28 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
   const [otp, setOtp] = useState('')
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   const [error, setError] = useState('')
+
+  // Owned by this component instance rather than shared through
+  // window.recaptchaVerifier. That global is also used by ContactForm,
+  // LeadPopup and GatedResource, each binding it to a different container —
+  // so whichever closed last would call .clear() on a verifier another form
+  // still owned, and that form's next attempt built a fresh widget onto a
+  // container holding a dead one. Firebase rejects the resulting token as
+  // auth/invalid-app-credential.
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+
+  const clearRecaptcha = () => {
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.clear()
+      } catch {
+        // already torn down
+      }
+      recaptchaRef.current = null
+    }
+    const container = document.getElementById('download-recaptcha-container')
+    if (container) container.innerHTML = ''
+  }
 
   const [formData, setFormData] = useState({
     name: '',
@@ -49,12 +71,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     } else {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('download-recaptcha-container')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
     }
     
     return () => {
@@ -74,25 +91,22 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     setError('')
 
     try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'download-recaptcha-container', {
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(auth, 'download-recaptcha-container', {
           size: 'invisible',
         })
       }
-      
+
       const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier)
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
     } catch (err: unknown) {
       console.error(err)
       setError((err instanceof Error ? err.message : null) || 'Failed to send OTP.')
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('download-recaptcha-container')
-        if (container) container.innerHTML = ''
-      }
+      // A failed attempt leaves a spent widget behind; the next try must build
+      // a fresh one or it fails the same way.
+      clearRecaptcha()
     } finally {
       setIsSubmitting(false)
     }
