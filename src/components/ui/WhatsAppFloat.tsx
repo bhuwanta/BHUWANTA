@@ -42,7 +42,7 @@ export function WhatsAppFloat() {
           fireLeadConversion()
           window.open(whatsappUrl, '_blank')
         }}
-        aria-label="Chat on WhatsApp"
+        aria-label="Chat With Us on WhatsApp"
         className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 hover:shadow-xl hover:shadow-[#25D366]/40 transition-all duration-300 cursor-pointer border-none outline-none"
       >
         <WhatsAppIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />

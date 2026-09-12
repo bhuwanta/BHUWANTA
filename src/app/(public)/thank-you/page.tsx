@@ -122,7 +122,6 @@ export default function ThankYouPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <WhatsAppInlineCta
                 context="my enquiry"
-                label="Chat on WhatsApp"
                 message="Hi Bhuwanta, I just submitted an enquiry on your website — could we speak sooner on WhatsApp?"
                 className="w-full sm:w-auto"
                 // The conversion already fired on mount for this page.

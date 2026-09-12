@@ -6,7 +6,7 @@ const WHATSAPP_NUMBER = '919666504405'
 
 export function WhatsAppInlineCta({
   context,
-  label = 'Chat on WhatsApp',
+  label = 'Chat With Us on WhatsApp',
   message: customMessage,
   className = '',
   trackConversion = true,
