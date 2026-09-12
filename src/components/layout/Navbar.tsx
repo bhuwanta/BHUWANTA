@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { LoginDropdown } from '@/components/ui/LoginDropdown'
 import { client, urlFor } from '@/lib/sanity'
 import logoFallback from '@/images/logo.png'
 
@@ -143,10 +142,13 @@ export function Navbar() {
                 {ctaText}
               </Link>
 
-              <LoginDropdown
-                variant="desktop"
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold rounded-lg transition-premium hover:scale-105 glow-gold gradient-gold text-white"
-              />
+              <Link
+                href="/REALESTATE_SOFTWARE/login"
+                id="nav-login"
+                className="hidden sm:inline-flex px-5 py-2.5 text-sm font-semibold rounded-lg transition-premium hover:scale-105 glow-gold gradient-gold text-white"
+              >
+                Login
+              </Link>
 
               {/* Mobile hamburger */}
               <button
@@ -202,11 +204,14 @@ export function Navbar() {
             {ctaText}
           </Link>
 
-          <LoginDropdown
-            variant="mobile"
-            className="flex w-full items-center justify-center gap-1.5 px-4 py-3 text-sm font-semibold rounded-lg gradient-gold text-white"
-            onNavigate={() => setIsOpen(false)}
-          />
+          <Link
+            href="/REALESTATE_SOFTWARE/login"
+            id="nav-mobile-login"
+            onClick={() => setIsOpen(false)}
+            className="block px-4 py-3 text-sm font-semibold text-center rounded-lg gradient-gold text-white mt-3"
+          >
+            Login
+          </Link>
         </div>
       </div>
     </nav>
