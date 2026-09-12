@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Download, CreditCard } from 'lucide-react'
+import { MapPin, Download, CreditCard, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
 import { fireLeadConversion } from '@/lib/gtag'
@@ -18,6 +18,10 @@ interface ProjectDetailActionsProps {
   reraUrls?: string[]
   hmdaDtcpUrls?: string[]
   approvalCertificateLabel?: string
+  /** Slug this project is served at — needed to link to its videos page. */
+  slug?: string
+  /** count() in GROQ returns null (not 0) when the field was never set. */
+  videoCount?: number | null
 }
 
 export function ProjectDetailActions({
@@ -31,8 +35,15 @@ export function ProjectDetailActions({
   reraUrls,
   hmdaDtcpUrls,
   approvalCertificateLabel,
+  slug,
+  videoCount,
 }: ProjectDetailActionsProps) {
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; documentType: string } | null>(null)
+  const showVideos = (videoCount ?? 0) > 0 && Boolean(slug)
+  // Mobile grid is 2 columns; two buttons here are conditional, so whether the
+  // last one must span both columns to sit flush depends on the count.
+  const buttonCount = 6 + (googleMapsUrl ? 1 : 0) + (showVideos ? 1 : 0)
+  const lastButtonSpan = buttonCount % 2 === 0 ? 'col-span-1' : 'col-span-2'
 
   return (
     <>
@@ -66,6 +77,14 @@ export function ProjectDetailActions({
             <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">View Location</span>
           </a>
         )}
+        {showVideos && (
+          <Link
+            href={`/projects/${slug}/videos`}
+            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
+          >
+            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Videos</span>
+          </Link>
+        )}
         <button
           type="button"
           onClick={() => setDownloadQueue({ urls: brochureUrls!, documentType: 'Brochure' })}
@@ -94,7 +113,7 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: hmdaDtcpUrls!, documentType: approvalCertificateLabel || 'HMDA/DTCP Approved' })}
           disabled={!hmdaDtcpUrls || hmdaDtcpUrls.length === 0}
-          className="w-full col-span-2 md:col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed`}
         >
           <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">{approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
         </button>

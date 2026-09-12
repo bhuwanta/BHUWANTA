@@ -73,3 +73,8 @@ graphify-out/
 
 # supabase CLI scratch
 supabase/.temp/
+
+# Internal implementation plans — local working notes, never shipped.
+# Lives under src/app/(public) for convenience; holds only .md files, so
+# Next creates no route from it (a folder becomes a route only via page.tsx).
+src/app/(public)/implementation-plan/

@@ -30,14 +30,22 @@ interface ProjectEntry {
   approvalCertificateLabel?: string
   hmdaDtcpUrls?: string[]
   description: string
+  videoCount?: number | null
 }
 
 export default async function ProjectsPage() {
   let projects: ProjectEntry[] = []
   let categories: { id: string; title: string; label: string; order?: number }[] = []
+  let overviewUrls: string[] | null = null
+  let overviewButtonLabel: string | undefined
 
   try {
-    const sanityData = await sanityFetch<{ pageHeading?: string; projectEntries?: ProjectEntry[] }>({
+    const sanityData = await sanityFetch<{
+      pageHeading?: string
+      projectEntries?: ProjectEntry[]
+      overviewUrls?: string[] | null
+      overviewButtonLabel?: string
+    }>({
       query: projectsQuery,
       tags: ['projects'],
     })
@@ -47,6 +55,8 @@ export default async function ProjectsPage() {
     })
     
     if (sanityCategories) categories = sanityCategories.filter((c) => c.title.toLowerCase() !== 'farmlands' && c.label.toLowerCase() !== 'farmlands')
+    if (sanityData?.overviewUrls) overviewUrls = sanityData.overviewUrls
+    if (sanityData?.overviewButtonLabel) overviewButtonLabel = sanityData.overviewButtonLabel
     if (sanityData?.projectEntries) projects = sanityData.projectEntries.map((p: ProjectEntry) => ({ ...p, description: p.description || '' }))
     if (sanityData?.pageHeading) { /* pageHeading available from CMS if needed */ }
   } catch { /* fallback */ }
@@ -88,7 +98,12 @@ export default async function ProjectsPage() {
         title={<>Our <span className="text-[#c4a55a]">Projects</span></>}
       />
 
-      <ProjectsFilterClient projects={projects} categories={categories} />
+      <ProjectsFilterClient
+        projects={projects}
+        categories={categories}
+        overviewUrls={overviewUrls}
+        overviewButtonLabel={overviewButtonLabel}
+      />
 
       <CtaSection />
     </>

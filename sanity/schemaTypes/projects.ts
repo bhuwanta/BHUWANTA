@@ -12,6 +12,20 @@ export const projectsSchema = defineType({
       description: 'e.g. "Our Projects"',
     }),
     defineField({
+      name: 'overviewButtonLabel',
+      type: 'string',
+      title: 'Overview Button Label',
+      description: 'Text on the download button in the filter row of the Projects page. Defaults to "Download Projects Overview".',
+      initialValue: 'Download Projects Overview',
+    }),
+    defineField({
+      name: 'overviewPdf',
+      type: 'array',
+      title: 'Projects Overview PDF',
+      of: [{ type: 'file', options: { accept: '.pdf' } }],
+      description: 'The combined overview document offered at the top of the Projects page. Visitors enter their details and verify by OTP before it opens, exactly like a project brochure. Leave empty to hide the button.',
+    }),
+    defineField({
       name: 'projectEntries',
       type: 'array',
       title: 'Project Entries',
@@ -78,6 +92,26 @@ export const projectsSchema = defineType({
               title: 'Additional YouTube Video URLs',
               of: [{ type: 'url' }],
               description: 'Provide multiple YouTube links. The first link (or legacy link) will be shown on the Projects page, but all will show in the Gallery.'
+            }),
+            defineField({
+              name: 'projectVideos',
+              type: 'array',
+              title: 'Project Videos',
+              of: [{ type: 'projectVideo' }],
+              description: 'Videos for this project, each with its own title. They appear on the project\'s own videos page at /projects/<slug>/videos, in the order listed here — drag to reorder. A "Videos" button appears on the project automatically once there is at least one.',
+            }),
+            defineField({
+              name: 'videosPageHeading',
+              type: 'string',
+              title: 'Videos Page — Heading (optional)',
+              description: 'Optional heading shown above the videos. Leave empty and the page just shows the videos.',
+            }),
+            defineField({
+              name: 'videosPageIntro',
+              type: 'text',
+              rows: 4,
+              title: 'Videos Page — Intro Text (optional)',
+              description: 'Optional paragraph shown under the heading, above the videos.',
             }),
             defineField({
               name: 'brochure',

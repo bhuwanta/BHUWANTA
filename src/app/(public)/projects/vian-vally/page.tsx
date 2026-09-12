@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const config: ProjectLandingConfig = {
-  sanityName: 'VIAN VALLY',
+  sanityName: 'VIAN VALLEY',
   slug: 'vian-vally',
   displayName: 'Vian Vally',
   corridorLabel: 'Shabad, NH-44 Bangalore Highway',

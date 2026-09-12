@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { MapPin, Crown, Check, Download } from 'lucide-react'
+import { MapPin, Crown, Check, Download, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
 
@@ -27,6 +27,8 @@ export interface ProjectEntry {
   youtubeUrl?: string
   videoUrls?: string[]
   youtubeUrls?: string[]
+  // count() in GROQ returns null (not 0) when the field was never set.
+  videoCount?: number | null
 }
 
 // Fallback slugs for the hand-authored /projects/<slug> pages, keyed by the
@@ -36,17 +38,37 @@ const KNOWN_PROJECT_SLUGS: Record<string, string> = {
   'S.V.KANAKA MAPLE HOMES': 'sv-kanaka-maple-homes',
   'TJR TownShip': 'tjr-township',
   'VAIBHAV COUNTY': 'vaibhav-county',
-  'VIAN VALLY': 'vian-vally',
+  'VIAN VALLEY': 'vian-vally',
 }
 
 function getKnownSlug(name: string): string | undefined {
   return KNOWN_PROJECT_SLUGS[name] || KNOWN_PROJECT_SLUGS[name.trim()]
 }
 
-export function ProjectsFilterClient({ projects, categories = [] }: { projects: ProjectEntry[], categories?: { id: string; title: string; label: string; order?: number }[] }) {
+// Resolve the slug the same way the "View Project" link does, so the Videos
+// button never sends someone to a different spelling of the project they are
+// already looking at.
+function getProjectSlug(project: ProjectEntry): string | undefined {
+  return project.slug?.current || getKnownSlug(project.name)
+}
+
+export function ProjectsFilterClient({
+  projects,
+  categories = [],
+  overviewUrls,
+  overviewButtonLabel,
+}: {
+  projects: ProjectEntry[]
+  categories?: { id: string; title: string; label: string; order?: number }[]
+  overviewUrls?: string[] | null
+  overviewButtonLabel?: string
+}) {
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const filterRef = useRef<HTMLDivElement>(null)
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; projectName: string; documentType: string } | null>(null)
+
+  // overviewPdf[].asset->url yields null, not [], when nothing is uploaded.
+  const hasOverview = Boolean(overviewUrls && overviewUrls.length > 0)
 
   const handleFilterClick = (catId: string) => {
     setActiveFilter(catId)
@@ -97,6 +119,26 @@ export function ProjectsFilterClient({ projects, categories = [] }: { projects: 
                 <span className="capitalize">{cat.label}</span>
               </button>
             ))}
+
+            {/* Not a filter — an action. Solid gold so it doesn't read as a
+                seventh category tab. Reuses the same OTP download popup as the
+                project brochures, so it captures a lead the same way. */}
+            {hasOverview && (
+              <button
+                type="button"
+                onClick={() =>
+                  setDownloadQueue({
+                    urls: overviewUrls as string[],
+                    projectName: 'Bhuwanta Projects',
+                    documentType: overviewButtonLabel || 'Projects Overview',
+                  })
+                }
+                className="lg:flex-none flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 lg:px-5 py-2 rounded-full transition-all duration-300 whitespace-nowrap gradient-gold text-white shadow-md hover:scale-105 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                <span>{overviewButtonLabel || 'Download Projects Overview'}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -114,7 +156,15 @@ export function ProjectsFilterClient({ projects, categories = [] }: { projects: 
               
               <div className="grid grid-cols-1 gap-8">
                 {projects.filter(p => p.category === category.id).length > 0 ? (
-                  projects.filter(p => p.category === category.id).map((project, idx) => (
+                  projects.filter(p => p.category === category.id).map((project, idx) => {
+                    const projectSlug = getProjectSlug(project)
+                    const showVideos = (project.videoCount ?? 0) > 0 && Boolean(projectSlug)
+                    // The mobile button grid is 2 columns. Two of the buttons are
+                    // conditional, so whether the last one has to span both
+                    // columns to sit flush depends on how many are showing.
+                    const buttonCount = 6 + (projectSlug ? 1 : 0) + (showVideos ? 1 : 0)
+                    const lastButtonSpan = buttonCount % 2 === 0 ? 'col-span-1' : 'col-span-2'
+                    return (
                     <div key={idx} className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden flex flex-col lg:flex-row transition-premium hover:shadow-md group">
                       
                       {/* Left: Image Area */}
@@ -160,14 +210,19 @@ export function ProjectsFilterClient({ projects, categories = [] }: { projects: 
                               <Link href={`/#book-visit?project=${encodeURIComponent(project.name)}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
                                 Enquire Now
                               </Link>
-                              {(project.slug?.current || getKnownSlug(project.name)) && (
-                                <Link href={`/projects/${project.slug?.current || getKnownSlug(project.name)}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                              {projectSlug && (
+                                <Link href={`/projects/${projectSlug}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
                                   View Project
                                 </Link>
                               )}
                               <button type="button" onClick={() => project.googleMapsUrl && window.open(project.googleMapsUrl, '_blank')} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer">
                                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">View Location</span>
                               </button>
+                              {showVideos && (
+                                <Link href={`/projects/${projectSlug}/videos`} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2">
+                                  <Play className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Videos</span>
+                                </Link>
+                              )}
                               <button type="button" onClick={() => setDownloadQueue({ urls: project.brochureUrls!, projectName: project.name, documentType: 'Brochure' })} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.brochureUrls || project.brochureUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Brochure</span>
                               </button>
@@ -177,14 +232,15 @@ export function ProjectsFilterClient({ projects, categories = [] }: { projects: 
                               <button type="button" onClick={() => setDownloadQueue({ urls: project.reraUrls!, projectName: project.name, documentType: 'RERA Documents' })} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.reraUrls || project.reraUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">RERA <span className="hidden md:inline">Documents</span><span className="md:hidden">Docs</span></span>
                               </button>
-                              <button type="button" onClick={() => setDownloadQueue({ urls: project.hmdaDtcpUrls!, projectName: project.name, documentType: project.approvalCertificateLabel || 'HMDA/DTCP Approved' })} className="w-full col-span-2 md:col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.hmdaDtcpUrls || project.hmdaDtcpUrls.length === 0}>
+                              <button type="button" onClick={() => setDownloadQueue({ urls: project.hmdaDtcpUrls!, projectName: project.name, documentType: project.approvalCertificateLabel || 'HMDA/DTCP Approved' })} className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer`} disabled={!project.hmdaDtcpUrls || project.hmdaDtcpUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">{project.approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
                               </button>
                             </div>
                          </div>
                       </div>
                     </div>
-                  ))
+                    )
+                  })
                 ) : (
                   <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
                     <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">

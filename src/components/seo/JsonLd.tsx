@@ -296,3 +296,34 @@ export function buildImageGallerySchema(images: Array<{ url: string; caption?: s
     })),
   }
 }
+
+// One per video on /projects/<slug>/videos. This is what makes those pages
+// eligible for video rich results and Google's Videos tab — without it the
+// page is just an embed grid as far as search is concerned.
+export function buildVideoObjectSchema(video: {
+  name: string
+  description?: string
+  thumbnailUrl?: string
+  contentUrl?: string
+  embedUrl?: string
+  uploadDate?: string
+  pageUrl: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: video.name,
+    description: video.description || video.name,
+    // uploadDate is required by Google for video rich results; editors often
+    // leave the date blank, so fall back rather than emit an invalid object.
+    uploadDate: video.uploadDate || new Date().toISOString().split('T')[0],
+    ...(video.thumbnailUrl ? { thumbnailUrl: [video.thumbnailUrl] } : {}),
+    ...(video.contentUrl ? { contentUrl: video.contentUrl } : {}),
+    ...(video.embedUrl ? { embedUrl: video.embedUrl } : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: 'Bhuwanta',
+    },
+    mainEntityOfPage: video.pageUrl,
+  }
+}

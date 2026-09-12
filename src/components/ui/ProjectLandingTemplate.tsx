@@ -9,6 +9,7 @@ import { CtaSection } from '@/components/ui/CtaSection'
 
 interface ProjectData {
   name: string
+  slug?: { current: string }
   location: string
   googleMapsUrl?: string
   description: string
@@ -24,6 +25,7 @@ interface ProjectData {
   approvalCertificateLabel?: string
   hmdaDtcpUrls?: string[]
   approvalBadge?: string
+  videoCount?: number | null
 }
 
 export interface ProjectLandingConfig {
@@ -81,21 +83,14 @@ export async function buildProjectPageMetadata(
 }
 
 export async function ProjectLandingTemplate({ config }: { config: ProjectLandingConfig }) {
-  // Some Sanity entries have trailing whitespace in their name field.
-  // Try exact match first, then retry with a trailing space appended.
-  let project = await sanityFetch<ProjectData | null>({
+  // Several Sanity entries have a trailing space in their name field, so an
+  // exact match misses them. projectByNameQuery now matches on a name prefix
+  // (GROQ has no string::trim), which covers those without a second request.
+  const project = await sanityFetch<ProjectData | null>({
     query: projectByNameQuery,
     params: { name: config.sanityName },
     tags: ['projects'],
   }).catch(() => null)
-
-  if (!project) {
-    project = await sanityFetch<ProjectData | null>({
-      query: projectByNameQuery,
-      params: { name: config.sanityName + ' ' },
-      tags: ['projects'],
-    }).catch(() => null)
-  }
 
   const siteUrl = 'https://bhuwanta.com'
   const pageUrl = `${siteUrl}/projects/${config.slug}`
@@ -137,6 +132,13 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
               reraUrls={project?.reraUrls}
               hmdaDtcpUrls={project?.hmdaDtcpUrls}
               approvalCertificateLabel={project?.approvalCertificateLabel}
+              // The videos page resolves projects by their Sanity slug, which
+              // for two projects is spelled differently from the folder this
+              // page is served at (s-v-kanaka-maple-homes vs sv-kanaka-maple-homes,
+              // vian-valley vs vian-vally). Link with the CMS spelling or the
+              // link 404s; see B2 in the implementation plan.
+              slug={project?.slug?.current || config.slug}
+              videoCount={project?.videoCount}
             />
 
             {/* The Opportunity */}

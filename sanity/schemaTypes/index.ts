@@ -2,6 +2,7 @@ import { homeSchema } from './home'
 import { aboutSchema } from './about'
 
 import { projectsSchema } from './projects'
+import { projectVideoSchema } from './projectVideo'
 import { blogSchema } from './blog'
 import { gallerySchema } from './gallery'
 import { siteSettingsSchema } from './siteSettings'
@@ -11,6 +12,7 @@ import { projectCategorySchema } from './projectCategory'
 import { reviewsSchema } from './reviews'
 
 export const schemaTypes = [
+  projectVideoSchema,
   siteSettingsSchema,
   projectCategorySchema,
   autoresponderSchema,

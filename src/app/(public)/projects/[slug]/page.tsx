@@ -25,6 +25,7 @@ interface ProjectDetail {
   approvalCertificateLabel?: string
   hmdaDtcpUrls?: string[]
   approvalBadge?: string
+  videoCount?: number | null
 }
 
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
@@ -196,6 +197,8 @@ export default async function ProjectDetailPage({
               reraUrls={project.reraUrls}
               hmdaDtcpUrls={project.hmdaDtcpUrls}
               approvalCertificateLabel={project.approvalCertificateLabel}
+              slug={slug}
+              videoCount={project.videoCount}
             />
 
             {project.description && (

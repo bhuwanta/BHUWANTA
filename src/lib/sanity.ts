@@ -157,6 +157,8 @@ export const galleryQuery = `{
 
 export const projectsQuery = `*[_type == "projects"][0]{
   pageHeading,
+  overviewButtonLabel,
+  "overviewUrls": overviewPdf[].asset->url,
   projectEntries[]{
     name,
     "category": category->slug.current,
@@ -176,7 +178,8 @@ export const projectsQuery = `*[_type == "projects"][0]{
     "reraUrls": reraCertificate[].asset->url,
     approvalCertificateLabel,
     "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
-    approvalBadge
+    approvalBadge,
+    "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
   }
 }`
 
@@ -185,7 +188,7 @@ export const projectSlugsQuery = `*[_type == "projects"][0].projectEntries[defin
 // Looks a project up by its display name rather than its Sanity slug — used by
 // the static /projects/<name-slug> pages, which exist as hand-authored routes
 // independent of whether an editor has set the CMS slug field yet.
-export const projectByNameQuery = `*[_type == "projects"][0].projectEntries[name == $name][0]{
+export const projectByNameQuery = `*[_type == "projects"][0].projectEntries[string::startsWith(name, $name)][0]{
   name,
   "category": category->slug.current,
   "categoryTitle": category->title,
@@ -204,7 +207,8 @@ export const projectByNameQuery = `*[_type == "projects"][0].projectEntries[name
   "reraUrls": reraCertificate[].asset->url,
   approvalCertificateLabel,
   "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
-  approvalBadge
+  approvalBadge,
+  "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
 }`
 
 export const projectBySlugQuery = `*[_type == "projects"][0].projectEntries[slug.current == $slug][0]{
@@ -224,8 +228,41 @@ export const projectBySlugQuery = `*[_type == "projects"][0].projectEntries[slug
   "reraUrls": reraCertificate[].asset->url,
   approvalCertificateLabel,
   "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
-  approvalBadge
+  approvalBadge,
+  "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
 }`
+
+// Everything the /projects/<slug>/videos page needs. Kept separate from
+// projectBySlugQuery so the detail page doesn't pull down a video list it
+// never renders.
+export const projectVideosBySlugQuery = `*[_type == "projects"][0].projectEntries[slug.current == $slug][0]{
+  name,
+  slug,
+  location,
+  "categoryTitle": category->title,
+  googleMapsUrl,
+  "images": images[].asset->url,
+  videosPageHeading,
+  videosPageIntro,
+  projectVideos[]{
+    title,
+    description,
+    source,
+    youtubeUrl,
+    recordedAt,
+    "videoUrl": videoFile.asset->url,
+    "thumbnailUrl": thumbnail.asset->url
+  },
+  "legacyVideoUrls": videoFiles[].asset->url,
+  "legacyYoutubeUrls": youtubeUrls,
+  "legacyVideoUrl": videoFile.asset->url,
+  "legacyYoutubeUrl": youtubeUrl
+}`
+
+// Slugs of projects that actually have at least one video — used to keep empty
+// videos pages out of the sitemap.
+export const projectSlugsWithVideosQuery = `*[_type == "projects"][0].projectEntries[coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0) > 0][defined(slug.current)][].slug.current`
+
 
 export const projectCategoriesQuery = `*[_type == "projectCategory"] | order(order asc){
   "id": slug.current,

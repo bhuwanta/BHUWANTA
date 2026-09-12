@@ -35,6 +35,11 @@ export async function POST(request: NextRequest) {
       case 'projects':
         safeRevalidateTag('projects')
         revalidatePath('/projects')
+        // Each project's own pages, including /projects/<slug>/videos. The tag
+        // above covers the data fetch; these make the pages regenerate rather
+        // than waiting out their own 60s window.
+        revalidatePath('/projects/[slug]', 'page')
+        revalidatePath('/projects/[slug]/videos', 'page')
         // The homepage reads the same project list — its categories section
         // and its "Ongoing Projects" count, which is derived from the number
         // of published projects. Without this, publishing a project left the

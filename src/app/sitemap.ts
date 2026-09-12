@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { sanityFetch, blogListQuery, projectSlugsQuery } from '@/lib/sanity'
+import { sanityFetch, blogListQuery, projectSlugsQuery, projectSlugsWithVideosQuery } from '@/lib/sanity'
 import { getSiteUrl } from '@/lib/site-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -72,6 +72,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         }
       })
     }
+  } catch { /* Ignore fetching errors for sitemap */ }
+
+  // Videos pages — only for projects that actually have videos, so empty
+  // pages aren't submitted to Search Console.
+  try {
+    const videoSlugs = await sanityFetch<string[]>({
+      query: projectSlugsWithVideosQuery,
+      tags: ['projects'],
+    })
+
+    ;(videoSlugs || []).forEach((slug) => {
+      if (slug) {
+        routes.push({
+          url: `${siteUrl}/projects/${slug}/videos`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        })
+      }
+    })
   } catch { /* Ignore fetching errors for sitemap */ }
 
   // Add dynamic project slugs
