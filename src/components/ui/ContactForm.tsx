@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
@@ -14,6 +14,27 @@ declare global {
 export function ContactForm({ projectsList = [], locationNames = [], initialProject }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  // Scoped to this component instead of window.recaptchaVerifier. That global
+  // was shared by every OTP form while each bound it to a different container,
+  // so whichever form ran its teardown last destroyed a verifier another form
+  // still owned. The next attempt then built a fresh widget onto a container
+  // holding a dead one, and Firebase rejected the token with
+  // auth/invalid-app-credential.
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+
+  const clearRecaptcha = () => {
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.clear()
+      } catch {
+        // already torn down
+      }
+      recaptchaRef.current = null
+    }
+    const container = document.getElementById('recaptcha-container')
+    if (container) container.innerHTML = ''
+  }
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [step, setStep] = useState<1 | 2>(1)
@@ -78,14 +99,14 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
     setError('')
 
     try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
         })
       }
 
       const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier)
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
     } catch (err: unknown) {
@@ -96,12 +117,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
         fullError: err,
       })
       setError(firebaseErr.message || 'Failed to send OTP. Please try again.')
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('recaptcha-container')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
     } finally {
       setLoading(false)
     }
@@ -140,12 +156,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
         throw new Error(data.error || 'Failed to send message.')
       }
 
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('recaptcha-container')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
 
       router.push('/thank-you')
     } catch (err: unknown) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Lock, Printer } from 'lucide-react'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
@@ -16,6 +16,27 @@ export function GatedResource({
   children: React.ReactNode
 }) {
   const [unlocked, setUnlocked] = useState(false)
+
+  // Scoped to this component instead of window.recaptchaVerifier. That global
+  // was shared by every OTP form while each bound it to a different container,
+  // so whichever form ran its teardown last destroyed a verifier another form
+  // still owned. The next attempt then built a fresh widget onto a container
+  // holding a dead one, and Firebase rejected the token with
+  // auth/invalid-app-credential.
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+
+  const clearRecaptcha = () => {
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.clear()
+      } catch {
+        // already torn down
+      }
+      recaptchaRef.current = null
+    }
+    const container = document.getElementById('gated-recaptcha-container')
+    if (container) container.innerHTML = ''
+  }
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
@@ -27,10 +48,7 @@ export function GatedResource({
 
   useEffect(() => {
     return () => {
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-      }
+      clearRecaptcha()
     }
   }, [])
 
@@ -44,25 +62,20 @@ export function GatedResource({
     setError('')
 
     try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'gated-recaptcha-container', {
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(auth, 'gated-recaptcha-container', {
           size: 'invisible',
         })
       }
 
       const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier)
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
     } catch (err: unknown) {
       console.error('Firebase OTP Error:', err)
       setError((err instanceof Error ? err.message : null) || 'Failed to send OTP. Please try again.')
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('gated-recaptcha-container')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
     } finally {
       setLoading(false)
     }
@@ -94,10 +107,7 @@ export function GatedResource({
       setUnlocked(true)
       fireLeadConversion()
 
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-      }
+      clearRecaptcha()
     } catch (err: unknown) {
       console.error(err)
       setError('Invalid OTP or submission error.')

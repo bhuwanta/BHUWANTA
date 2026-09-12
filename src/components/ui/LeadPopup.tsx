@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
@@ -17,6 +17,27 @@ declare global {
 
 export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsList?: { name: string, location: string }[], locationNames?: string[] }) {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Scoped to this component instead of window.recaptchaVerifier. That global
+  // was shared by every OTP form while each bound it to a different container,
+  // so whichever form ran its teardown last destroyed a verifier another form
+  // still owned. The next attempt then built a fresh widget onto a container
+  // holding a dead one, and Firebase rejected the token with
+  // auth/invalid-app-credential.
+  const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+
+  const clearRecaptcha = () => {
+    if (recaptchaRef.current) {
+      try {
+        recaptchaRef.current.clear()
+      } catch {
+        // already torn down
+      }
+      recaptchaRef.current = null
+    }
+    const container = document.getElementById('recaptcha-container-popup')
+    if (container) container.innerHTML = ''
+  }
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -69,25 +90,20 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
     setError('')
 
     try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container-popup', {
+      if (!recaptchaRef.current) {
+        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-popup', {
           size: 'invisible',
         })
       }
 
       const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier)
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
     } catch (err: unknown) {
       console.error('Firebase OTP Error:', err)
       setError((err instanceof Error ? err.message : null) || 'Failed to send OTP. Please try again.')
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('recaptcha-container-popup')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
     } finally {
       setIsSubmitting(false)
     }
@@ -120,12 +136,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
         throw new Error('Failed to send message.')
       }
 
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear()
-        window.recaptchaVerifier = null
-        const container = document.getElementById('recaptcha-container-popup')
-        if (container) container.innerHTML = ''
-      }
+      clearRecaptcha()
     } catch (err: unknown) {
       console.error(err)
       setError('Invalid OTP or error submitting form. Please try again.')
