@@ -22,9 +22,13 @@ export const projectVideoSchema = defineType({
       name: 'title',
       type: 'string',
       title: 'Video Title',
-      description: 'Shown on the website directly below this video. e.g. "Drone Tour — October 2026"',
-      validation: (Rule) =>
+      description:
+        'Shown on the website directly below this video. Maximum 40 characters, so it always fits on a single line in the video card. e.g. "Drone Tour — October 2026" (25 characters)',
+      validation: (Rule) => [
         Rule.required().error('Every video needs a title — it is displayed under the video on the website.'),
+        Rule.max(40).error('Keep the title to 40 characters or fewer so it fits on one line on the website.'),
+        Rule.max(32).warning('Titles under about 32 characters look best on smaller screens.'),
+      ],
     }),
     defineField({
       name: 'source',

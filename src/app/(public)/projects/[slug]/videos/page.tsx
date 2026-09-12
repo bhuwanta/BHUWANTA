@@ -39,19 +39,18 @@ function withLegacyFallback(project: ProjectVideosData): ProjectVideo[] {
   const videos = (project.projectVideos || []).filter((v) => v && v.title)
   if (videos.length > 0) return videos
 
-  const name = project.name.trim()
   const legacy: ProjectVideo[] = []
   const seen = new Set<string>()
 
   const addYoutube = (url?: string | null) => {
     if (!url || seen.has(url)) return
     seen.add(url)
-    legacy.push({ title: `${name} — Video ${legacy.length + 1}`, source: 'youtube', youtubeUrl: url })
+    legacy.push({ title: `Video ${legacy.length + 1}`, source: 'youtube', youtubeUrl: url })
   }
   const addUpload = (url?: string | null) => {
     if (!url || seen.has(url)) return
     seen.add(url)
-    legacy.push({ title: `${name} — Video ${legacy.length + 1}`, source: 'upload', videoUrl: url })
+    legacy.push({ title: `Video ${legacy.length + 1}`, source: 'upload', videoUrl: url })
   }
 
   // Both the singular legacy fields (what the project card carousel plays) and
@@ -186,7 +185,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
           )}
 
           {videos.length > 0 ? (
-            <ProjectVideosGrid videos={videos} />
+            <ProjectVideosGrid videos={videos} fallbackPoster={project.images?.[0]} />
           ) : (
             <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
               <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">

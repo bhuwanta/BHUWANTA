@@ -30,7 +30,7 @@ function formatRecordedAt(date?: string): string | null {
  * players on load would spend it on visitors who never press play. So each
  * card shows a poster until clicked, and <video> carries preload="none".
  */
-function VideoCard({ video }: { video: ProjectVideo }) {
+function VideoCard({ video, fallbackPoster }: { video: ProjectVideo; fallbackPoster?: string }) {
   const [isPlaying, setIsPlaying] = useState(false)
   // YouTube only generates maxresdefault for videos uploaded above 720p, so it
   // 404s on plenty of them. hqdefault always exists — fall back on error.
@@ -46,7 +46,11 @@ function VideoCard({ video }: { video: ProjectVideo }) {
   const youtubePoster = youtubeId
     ? `https://img.youtube.com/vi/${youtubeId}/${posterFailed ? 'hqdefault' : 'maxresdefault'}.jpg`
     : null
-  const poster = video.thumbnailUrl || youtubePoster
+  // Uploaded videos have no auto-generated poster frame, and pulling one from
+  // the video file itself would cost bandwidth for visitors who never press
+  // play. Falling back to the project's own photo keeps the card looking like
+  // the cards on /projects instead of a black rectangle.
+  const poster = video.thumbnailUrl || youtubePoster || fallbackPoster
 
   const recorded = formatRecordedAt(video.recordedAt)
 
@@ -108,19 +112,30 @@ function VideoCard({ video }: { video: ProjectVideo }) {
 
       {/* The title sits directly beneath the video — this is the point of the page. */}
       <div className="p-5 flex flex-col gap-1.5">
-        <h3 className="text-lg font-bold text-[#0f1d33] leading-snug">{video.title}</h3>
-        {video.description && <p className="text-sm text-[#5a6a82] leading-relaxed">{video.description}</p>}
+        <h3 className="text-lg font-bold text-[#0f1d33] leading-snug truncate" title={video.title}>
+          {video.title}
+        </h3>
+        {video.description && (
+          <p className="text-sm text-[#5a6a82] leading-relaxed line-clamp-2">{video.description}</p>
+        )}
         {recorded && <p className="text-xs font-semibold text-[#c4a55a] uppercase tracking-wider mt-1">{recorded}</p>}
       </div>
     </div>
   )
 }
 
-export function ProjectVideosGrid({ videos }: { videos: ProjectVideo[] }) {
+export function ProjectVideosGrid({
+  videos,
+  fallbackPoster,
+}: {
+  videos: ProjectVideo[]
+  /** The project's own photo, used when a video has no thumbnail of its own. */
+  fallbackPoster?: string
+}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
       {videos.map((video, idx) => (
-        <VideoCard key={`${video.title}-${idx}`} video={video} />
+        <VideoCard key={`${video.title}-${idx}`} video={video} fallbackPoster={fallbackPoster} />
       ))}
     </div>
   )

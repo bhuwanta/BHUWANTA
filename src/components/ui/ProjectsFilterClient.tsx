@@ -123,22 +123,22 @@ export function ProjectsFilterClient({
             {/* Not a filter — an action. Solid gold so it doesn't read as a
                 seventh category tab. Reuses the same OTP download popup as the
                 project brochures, so it captures a lead the same way. */}
-            {hasOverview && (
-              <button
-                type="button"
-                onClick={() =>
-                  setDownloadQueue({
-                    urls: overviewUrls as string[],
-                    projectName: 'Bhuwanta Projects',
-                    documentType: overviewButtonLabel || 'Projects Overview',
-                  })
-                }
-                className="lg:flex-none flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 lg:px-5 py-2 rounded-full transition-all duration-300 whitespace-nowrap gradient-gold text-white shadow-md hover:scale-105 cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                <span>{overviewButtonLabel || 'Download Projects Overview'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              disabled={!hasOverview}
+              title={hasOverview ? undefined : 'Coming soon'}
+              onClick={() =>
+                setDownloadQueue({
+                  urls: overviewUrls as string[],
+                  projectName: 'Bhuwanta Projects',
+                  documentType: overviewButtonLabel || 'Projects Overview',
+                })
+              }
+              className="lg:flex-none flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 lg:px-5 py-2 rounded-full transition-all duration-300 whitespace-nowrap gradient-gold text-white shadow-md enabled:hover:scale-105 enabled:cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Download className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+              <span>{overviewButtonLabel || 'Download Projects Overview'}</span>
+            </button>
           </div>
         </div>
       </div>
