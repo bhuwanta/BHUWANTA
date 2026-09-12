@@ -66,8 +66,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is trying to access login or signup but already logged in, redirect to admin
-  // Unless they are disabled, in which case we sign them out and redirect to login
+  // CRM membership is the `profiles` table, not "has an auth account". Both
+  // portals share one Supabase auth project on purpose — the same person may
+  // hold an account in each — so each portal has to ask its own table.
+  //
+  // Resolved ONCE here, before any redirect, because the two decisions below
+  // depend on it and disagreeing produces a loop: bouncing a signed-in visitor
+  // off /crm/login into /crm, only for /crm to bounce them back for not being a
+  // member, is ERR_TOO_MANY_REDIRECTS rather than a rejection.
+  //
+  // Uses the anon-key client built above with the visitor's own cookies,
+  // against the "Users can view their own profile" policy (auth.uid() = id) —
+  // the same shape as the S_realestate_users check further down, and for the
+  // same reason: Edge middleware cannot run the service-role client.
+  let isCrmMember = false
+  if (user && request.nextUrl.pathname.startsWith('/crm')) {
+    const { data: crmProfile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle()
+    isCrmMember = Boolean(crmProfile)
+  }
+
+  // Disabled accounts are shown the door regardless of membership.
   if (user && user.user_metadata?.is_disabled) {
     if (request.nextUrl.pathname.startsWith('/crm')) {
       await supabase.auth.signOut()
@@ -77,11 +95,24 @@ export async function updateSession(request: NextRequest) {
     }
   } else if (
     user &&
+    isCrmMember &&
     (request.nextUrl.pathname === '/crm/login' || request.nextUrl.pathname === '/crm/signup')
   ) {
+    // Already a CRM user sitting on the login page — send them inside.
     const userRole = user.user_metadata?.role || 'Admin'
     const url = request.nextUrl.clone()
     url.pathname = userRole === 'Telecaller' ? '/crm/leads' : '/crm'
+    return NextResponse.redirect(url)
+  } else if (
+    user &&
+    !isCrmMember &&
+    request.nextUrl.pathname.startsWith('/crm') &&
+    request.nextUrl.pathname !== '/crm/login'
+  ) {
+    // Signed in, but not a CRM user — most likely a BDCP session. Send them to
+    // the login page and let it render, rather than bouncing them back here.
+    const url = request.nextUrl.clone()
+    url.pathname = '/crm/login'
     return NextResponse.redirect(url)
   }
 

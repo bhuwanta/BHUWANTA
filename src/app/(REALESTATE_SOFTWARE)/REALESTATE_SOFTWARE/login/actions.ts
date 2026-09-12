@@ -73,8 +73,16 @@ export async function loginAction(email: string, password: string) {
           redirectPath = `/REALESTATE_SOFTWARE/role/${userData.role}`;
       }
     } else {
-      // Fallback for some reason, maybe they are just an auth user with no profile yet
-      redirectPath = '/REALESTATE_SOFTWARE/role/it'
+      // No S_realestate_users row means this account is not a BDCP user —
+      // most likely a CRM-only account signing in at the wrong portal, since
+      // both portals share one Supabase auth project by design.
+      //
+      // This used to fall through to '/REALESTATE_SOFTWARE/role/it', pointing
+      // a non-member at the IT dashboard. requireRole('it') did bounce them
+      // back, so nothing leaked — but the rejection was accidental rather than
+      // intended. Refuse here instead, and say why.
+      await supabase.auth.signOut()
+      return { success: false, error: 'This account does not have BDCP access.' }
     }
 
     return { success: true, redirectPath }
