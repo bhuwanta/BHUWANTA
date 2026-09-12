@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-10 shadow-sm border border-[#e8ecf2]">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-[#0f1d33]">
-            Admin Login
+            Login
           </h2>
           <p className="mt-2 text-sm text-[#5a6a82]">
             Welcome back to the Bhuwanta CRM
