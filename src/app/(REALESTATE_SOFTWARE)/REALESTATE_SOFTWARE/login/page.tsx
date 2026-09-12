@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
+import Link from 'next/link'
+import { Eye, EyeOff, Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
 import logoFallback from '@/images/logo.png'
 import { loginAction } from './actions'
 
@@ -37,6 +38,18 @@ export default function Login() {
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md mb-4">
+        {/* A plain link to the public site, not history.back(): staff reach
+            this page from a bookmark or after being bounced here by
+            requireRole(), so there is often nothing useful to go back to. */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-[#c4a55a] hover:text-[#b59853] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Website
+        </Link>
+      </div>
+
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
         
         <div className="flex justify-center mb-6">
