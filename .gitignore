@@ -22,7 +22,32 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+
+# secrets / credentials — never commit, even by accident
+*.key
+*.p12
+*.pfx
+*.jks
+.env.keys
+.sentryclirc
+*service-account*.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+credentials.json
+secrets.json
+
+# editors & local AI tooling
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.claude/
+
+# sanity local build output
+/dist
+.sanity/
 
 # debug
 npm-debug.log*
