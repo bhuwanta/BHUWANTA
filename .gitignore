@@ -22,7 +22,32 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+
+# secrets / credentials — never commit, even by accident
+*.key
+*.p12
+*.pfx
+*.jks
+.env.keys
+.sentryclirc
+*service-account*.json
+*serviceAccount*.json
+*firebase-adminsdk*.json
+credentials.json
+secrets.json
+
+# editors & local AI tooling
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.claude/
+
+# sanity local build output
+/dist
+.sanity/
 
 # debug
 npm-debug.log*
@@ -73,3 +98,8 @@ graphify-out/
 
 # supabase CLI scratch
 supabase/.temp/
+
+# Internal implementation plans — local working notes, never shipped.
+# Lives under src/app/(public) for convenience; holds only .md files, so
+# Next creates no route from it (a folder becomes a route only via page.tsx).
+src/app/(public)/implementation-plan/
