@@ -12,8 +12,15 @@ export interface ProjectHighlightImage {
   dimensions?: { width?: number; height?: number; aspectRatio?: number }
 }
 
-/** How many photos are shown before the "Show all" button appears. */
-const INITIAL_COUNT = 12
+/**
+ * How many photos load before the "Show all" button appears.
+ *
+ * Kept low on purpose: this panel is not mounted until the Images tab is
+ * clicked, so every photo in it starts downloading at that instant. Twelve at
+ * roughly 190KB each meant ~2.3MB and a visible wait on the click; six fills
+ * the first screen and the rest arrive on demand.
+ */
+const INITIAL_COUNT = 6
 
 export function ProjectHighlightImages({
   images,
@@ -116,7 +123,14 @@ export function ProjectHighlightImages({
           const width = img.dimensions?.width
           const height = img.dimensions?.height
           const blur = img.lqip ? { placeholder: 'blur' as const, blurDataURL: img.lqip } : {}
-          const sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+          // Capped at the real column width rather than 33vw: the columns never
+          // exceed ~420px, so an unbounded vw let high-DPR screens pull a
+          // 1200px file to paint into 400px.
+          const sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px'
+          // Above the fold on the tab click. priority drops the lazy flag and
+          // emits a preload, so these three are not queued behind photos the
+          // visitor has not scrolled to yet.
+          const isAboveFold = idx < 3
 
           return (
             <figure
@@ -142,6 +156,7 @@ export function ProjectHighlightImages({
                     height={height}
                     sizes={sizes}
                     className="w-full h-auto"
+                    {...(isAboveFold ? { priority: true } : { loading: 'lazy' as const })}
                     {...blur}
                   />
                 ) : (
@@ -154,6 +169,7 @@ export function ProjectHighlightImages({
                       fill
                       sizes={sizes}
                       className="object-contain"
+                      {...(isAboveFold ? { priority: true } : { loading: 'lazy' as const })}
                       {...blur}
                     />
                   </span>

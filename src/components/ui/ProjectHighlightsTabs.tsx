@@ -1,12 +1,43 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import { getImageProps } from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Play, ImageIcon } from 'lucide-react'
 import { ProjectVideosGrid, type ProjectVideo } from '@/components/ui/ProjectVideosGrid'
 import { ProjectHighlightImages, type ProjectHighlightImage } from '@/components/ui/ProjectHighlightImages'
 
 type Tab = 'videos' | 'images'
+
+/**
+ * Starts the first few photo downloads before the Images tab is opened.
+ *
+ * The URLs come from getImageProps rather than being assembled by hand, so they
+ * are byte-identical to what <Image> will request and the warmed copies are
+ * actually reused instead of fetched a second time.
+ */
+function warmFirstPhotos(images: ProjectHighlightImage[]) {
+  for (const img of images.slice(0, 3)) {
+    const width = img.dimensions?.width
+    const height = img.dimensions?.height
+    // The no-dimensions entries render through a different (fill) branch, so
+    // warming them here would fetch a size the grid never asks for.
+    if (!img.url || !width || !height) continue
+
+    const { props } = getImageProps({
+      src: img.url,
+      alt: '',
+      width,
+      height,
+      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px',
+    })
+
+    const preloader = new window.Image()
+    if (props.sizes) preloader.sizes = props.sizes
+    if (props.srcSet) preloader.srcset = props.srcSet
+    preloader.src = props.src
+  }
+}
 
 export function ProjectHighlightsTabs({
   videos,
@@ -44,6 +75,23 @@ export function ProjectHighlightsTabs({
       : requestedTab || (hasVideos ? 'videos' : 'images')
 
   const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({ videos: null, images: null })
+
+  // The Images panel is not mounted until it is selected, so without this every
+  // photo starts downloading at the instant of the click and the visitor waits
+  // in front of blur placeholders. Hovering or tab-focusing the Images button
+  // is enough intent to start the first few early.
+  const warmed = useRef(false)
+  const warmImages = useCallback(() => {
+    if (warmed.current || typeof window === 'undefined') return
+    warmed.current = true
+    // Warming is an optimisation, never a requirement: if getImageProps ever
+    // throws, the tab must still open and load its photos normally.
+    try {
+      warmFirstPhotos(usableImages)
+    } catch {
+      /* the tab still works without it */
+    }
+  }, [usableImages])
 
   const available: Tab[] = [...(hasVideos ? ['videos' as const] : []), ...(hasImages ? ['images' as const] : [])]
 
@@ -109,6 +157,9 @@ export function ProjectHighlightsTabs({
               tabRefs.current.images = el
             }}
             onClick={() => selectTab('images')}
+            onMouseEnter={warmImages}
+            onFocus={warmImages}
+            onTouchStart={warmImages}
             className={tabClass('images')}
           >
             <ImageIcon className={`w-4 h-4 ${activeTab === 'images' ? 'text-white' : 'text-[#c4a55a]'}`} />
