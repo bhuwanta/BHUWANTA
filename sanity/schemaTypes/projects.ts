@@ -105,7 +105,7 @@ export const projectsSchema = defineType({
               type: 'array',
               title: 'Project Highlights — Images',
               of: [{ type: 'projectHighlightImage' }],
-              description: 'Photos for this project. They appear under the "Images" tab on the project\'s Project Highlights page, in the order listed here — drag to reorder. This is NOT the bullet-point list further down ("Project Highlights — Bullet Points"), and it is separate from "Project Images", which are the photos shown on the project card.',
+              description: 'Photos for this project, shown under the "Images" tab on its Project Highlights page. Drag several photos in at once, or use Select and pick multiple files — they upload together. Drag to reorder; captions are optional and live under "Edit details" on each photo. This is NOT the bullet-point list further down ("Project Highlights — Bullet Points"), and it is separate from "Project Images", which are the photos on the project card.',
             }),
             defineField({
               name: 'videosPageHeading',

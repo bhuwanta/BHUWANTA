@@ -161,7 +161,7 @@ const videoCountExpr = `coalesce(count(projectVideos), 0) + coalesce(count(video
 
 // Empty rows are excluded: an editor who adds a row and never uploads the photo
 // would otherwise put a Project Highlights button on a page with nothing in it.
-const highlightImageCountExpr = `coalesce(count(highlightImages[defined(image.asset._ref)]), 0)`
+const highlightImageCountExpr = `coalesce(count(highlightImages[defined(asset._ref)]), 0)`
 
 // videoCount still exists on its own because the card carousel reasons about
 // videos specifically. highlightCount is what gates the Project Highlights
@@ -267,12 +267,12 @@ export const projectVideosBySlugQuery = `*[_type == "projects"][0].projectEntrie
     "videoUrl": videoFile.asset->url,
     "thumbnailUrl": thumbnail.asset->url
   },
-  highlightImages[defined(image.asset._ref)]{
+  highlightImages[defined(asset._ref)]{
     caption,
     alt,
-    "url": image.asset->url,
-    "lqip": image.asset->metadata.lqip,
-    "dimensions": image.asset->metadata.dimensions
+    "url": asset->url,
+    "lqip": asset->metadata.lqip,
+    "dimensions": asset->metadata.dimensions
   },
   "legacyVideoUrls": videoFiles[].asset->url,
   "legacyYoutubeUrls": youtubeUrls,
