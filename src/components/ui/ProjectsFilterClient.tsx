@@ -31,6 +31,8 @@ export interface ProjectEntry {
   youtubeUrls?: string[]
   // count() in GROQ returns null (not 0) when the field was never set.
   videoCount?: number | null
+  /** Videos + highlight photos. Gates the Project Highlights button. */
+  highlightCount?: number | null
 }
 
 // Fallback slugs for the hand-authored /projects/<slug> pages, keyed by the
@@ -47,9 +49,9 @@ function getKnownSlug(name: string): string | undefined {
   return KNOWN_PROJECT_SLUGS[name] || KNOWN_PROJECT_SLUGS[name.trim()]
 }
 
-// Resolve the slug the same way the "View Project" link does, so the Videos
-// button never sends someone to a different spelling of the project they are
-// already looking at.
+// Resolve the slug the same way the "View Project" link does, so the Project
+// Highlights button never sends someone to a different spelling of the project
+// they are already looking at.
 function getProjectSlug(project: ProjectEntry): string | undefined {
   return project.slug?.current || getKnownSlug(project.name)
 }
@@ -168,11 +170,11 @@ export function ProjectsFilterClient({
                 {projects.filter(p => p.category === category.id).length > 0 ? (
                   projects.filter(p => p.category === category.id).map((project, idx) => {
                     const projectSlug = getProjectSlug(project)
-                    const showVideos = (project.videoCount ?? 0) > 0 && Boolean(projectSlug)
+                    const showHighlights = (project.highlightCount ?? project.videoCount ?? 0) > 0 && Boolean(projectSlug)
                     // The mobile button grid is 2 columns. Two of the buttons are
                     // conditional, so whether the last one has to span both
                     // columns to sit flush depends on how many are showing.
-                    const buttonCount = 6 + (projectSlug ? 1 : 0) + (showVideos ? 1 : 0)
+                    const buttonCount = 6 + (projectSlug ? 1 : 0) + (showHighlights ? 1 : 0)
                     const lastButtonSpan = buttonCount % 2 === 0 ? 'col-span-1' : 'col-span-2'
                     return (
                     <div key={idx} className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden flex flex-col lg:flex-row transition-premium hover:shadow-md group">
@@ -228,9 +230,10 @@ export function ProjectsFilterClient({
                               <button type="button" onClick={() => project.googleMapsUrl && window.open(project.googleMapsUrl, '_blank')} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer">
                                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">View Location</span>
                               </button>
-                              {showVideos && (
+                              {showHighlights && (
                                 <Link href={`/projects/${projectSlug}/videos`} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2">
-                                  <Play className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Videos</span>
+                                  <Play className="w-3 h-3 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" />{' '}
+                                  <span className="truncate"><span className="hidden sm:inline">Project </span>Highlights</span>
                                 </Link>
                               )}
                               <button type="button" onClick={() => setDownloadQueue({ urls: project.brochureUrls!, projectName: project.name, documentType: 'Brochure' })} className="w-full col-span-1 px-2 py-2 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.brochureUrls || project.brochureUrls.length === 0}>

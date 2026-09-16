@@ -96,22 +96,29 @@ export const projectsSchema = defineType({
             defineField({
               name: 'projectVideos',
               type: 'array',
-              title: 'Project Videos',
+              title: 'Project Highlights — Videos',
               of: [{ type: 'projectVideo' }],
-              description: 'Videos for this project, each with its own title. They appear on the project\'s own videos page at /projects/<slug>/videos, in the order listed here — drag to reorder. A "Videos" button appears on the project automatically once there is at least one.',
+              description: 'Videos for this project, each with its own title. They appear under the "Videos" tab on the project\'s Project Highlights page, in the order listed here — drag to reorder. A "Project Highlights" button appears on the project automatically once there is at least one video or one photo.',
+            }),
+            defineField({
+              name: 'highlightImages',
+              type: 'array',
+              title: 'Project Highlights — Images',
+              of: [{ type: 'projectHighlightImage' }],
+              description: 'Photos for this project. They appear under the "Images" tab on the project\'s Project Highlights page, in the order listed here — drag to reorder. This is NOT the bullet-point list further down ("Project Highlights — Bullet Points"), and it is separate from "Project Images", which are the photos shown on the project card.',
             }),
             defineField({
               name: 'videosPageHeading',
               type: 'string',
-              title: 'Videos Page — Heading (optional)',
-              description: 'Optional heading shown above the videos. Leave empty and the page just shows the videos.',
+              title: 'Project Highlights — Heading (optional)',
+              description: 'Optional heading shown above the videos and photos. Leave empty and the page just shows them.',
             }),
             defineField({
               name: 'videosPageIntro',
               type: 'text',
               rows: 4,
-              title: 'Videos Page — Intro Text (optional)',
-              description: 'Optional paragraph shown under the heading, above the videos.',
+              title: 'Project Highlights — Intro Text (optional)',
+              description: 'Optional paragraph shown under the heading, above the videos and photos.',
             }),
             defineField({
               name: 'brochure',
@@ -156,9 +163,9 @@ export const projectsSchema = defineType({
             defineField({
               name: 'projectHighlights',
               type: 'array',
-              title: 'Project Highlights',
+              title: 'Project Highlights — Bullet Points (shown on the project card)',
               of: [{ type: 'string' }],
-              description: 'Add bullet points like "100% Vaastu Compliant", "Underground Drainage", etc.',
+              description: 'Add bullet points like "100% Vaastu Compliant", "Underground Drainage", etc. These are the text bullets on the project card — for photos, use "Project Highlights — Images" above.',
               initialValue: [
                 "HMDA & RERA Approved Layout",
                 "100% Vaastu Compliant",

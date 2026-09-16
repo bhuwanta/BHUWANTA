@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { sanityFetch, blogListQuery, projectSlugsQuery, projectSlugsWithVideosQuery } from '@/lib/sanity'
+import { sanityFetch, blogListQuery, projectSlugsQuery, projectSlugsWithHighlightsQuery } from '@/lib/sanity'
 import { getSiteUrl } from '@/lib/site-url'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -74,15 +74,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch { /* Ignore fetching errors for sitemap */ }
 
-  // Videos pages — only for projects that actually have videos, so empty
-  // pages aren't submitted to Search Console.
+  // Project Highlights pages — only for projects that actually have a video or
+  // a photo, so empty pages aren't submitted to Search Console. The path stays
+  // /videos: renaming it would break every URL already indexed.
   try {
-    const videoSlugs = await sanityFetch<string[]>({
-      query: projectSlugsWithVideosQuery,
+    const highlightSlugs = await sanityFetch<string[]>({
+      query: projectSlugsWithHighlightsQuery,
       tags: ['projects'],
     })
 
-    ;(videoSlugs || []).forEach((slug) => {
+    ;(highlightSlugs || []).forEach((slug) => {
       if (slug) {
         routes.push({
           url: `${siteUrl}/projects/${slug}/videos`,

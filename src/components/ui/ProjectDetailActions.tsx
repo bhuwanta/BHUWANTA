@@ -18,10 +18,12 @@ interface ProjectDetailActionsProps {
   reraUrls?: string[]
   hmdaDtcpUrls?: string[]
   approvalCertificateLabel?: string
-  /** Slug this project is served at — needed to link to its videos page. */
+  /** Slug this project is served at — needed to link to its highlights page. */
   slug?: string
   /** count() in GROQ returns null (not 0) when the field was never set. */
   videoCount?: number | null
+  /** Videos + highlight photos. Gates the Project Highlights button. */
+  highlightCount?: number | null
 }
 
 export function ProjectDetailActions({
@@ -37,12 +39,13 @@ export function ProjectDetailActions({
   approvalCertificateLabel,
   slug,
   videoCount,
+  highlightCount,
 }: ProjectDetailActionsProps) {
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; documentType: string } | null>(null)
-  const showVideos = (videoCount ?? 0) > 0 && Boolean(slug)
+  const showHighlights = (highlightCount ?? videoCount ?? 0) > 0 && Boolean(slug)
   // Mobile grid is 2 columns; two buttons here are conditional, so whether the
   // last one must span both columns to sit flush depends on the count.
-  const buttonCount = 6 + (googleMapsUrl ? 1 : 0) + (showVideos ? 1 : 0)
+  const buttonCount = 6 + (googleMapsUrl ? 1 : 0) + (showHighlights ? 1 : 0)
   const lastButtonSpan = buttonCount % 2 === 0 ? 'col-span-1' : 'col-span-2'
 
   return (
@@ -77,12 +80,13 @@ export function ProjectDetailActions({
             <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">View Location</span>
           </a>
         )}
-        {showVideos && (
+        {showHighlights && (
           <Link
             href={`/projects/${slug}/videos`}
             className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
           >
-            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Videos</span>
+            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" />{' '}
+            <span className="truncate"><span className="hidden sm:inline">Project </span>Highlights</span>
           </Link>
         )}
         <button
