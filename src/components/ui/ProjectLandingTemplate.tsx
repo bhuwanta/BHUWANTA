@@ -26,6 +26,7 @@ interface ProjectData {
   hmdaDtcpUrls?: string[]
   approvalBadge?: string
   videoCount?: number | null
+  highlightCount?: number | null
 }
 
 export interface ProjectLandingConfig {
@@ -139,6 +140,7 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
               // link 404s; see B2 in the implementation plan.
               slug={project?.slug?.current || config.slug}
               videoCount={project?.videoCount}
+              highlightCount={project?.highlightCount}
             />
 
             {/* The Opportunity */}

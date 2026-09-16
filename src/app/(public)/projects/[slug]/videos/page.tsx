@@ -1,12 +1,15 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Film, MessageCircle } from 'lucide-react'
 import { sanityFetch, projectVideosBySlugQuery, projectSlugsQuery } from '@/lib/sanity'
-import { JsonLd, buildBreadcrumbSchema, buildVideoObjectSchema } from '@/components/seo/JsonLd'
+import { JsonLd, buildBreadcrumbSchema, buildVideoObjectSchema, buildImageGallerySchema } from '@/components/seo/JsonLd'
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectVideosGrid, type ProjectVideo } from '@/components/ui/ProjectVideosGrid'
+import { ProjectHighlightImages, type ProjectHighlightImage } from '@/components/ui/ProjectHighlightImages'
+import { ProjectHighlightsTabs } from '@/components/ui/ProjectHighlightsTabs'
 import { extractYouTubeId } from '@/lib/utils'
 import { getSiteUrl } from '@/lib/site-url'
 
@@ -19,6 +22,7 @@ interface ProjectVideosData {
   videosPageHeading?: string
   videosPageIntro?: string
   projectVideos?: ProjectVideo[]
+  highlightImages?: ProjectHighlightImage[]
   legacyVideoUrls?: string[]
   legacyYoutubeUrls?: string[]
   legacyVideoUrl?: string
@@ -64,6 +68,11 @@ function withLegacyFallback(project: ProjectVideosData): ProjectVideo[] {
   return legacy
 }
 
+/** Drops rows an editor added but never uploaded a photo into. */
+function usableImages(project: ProjectVideosData): ProjectHighlightImage[] {
+  return (project.highlightImages || []).filter((img) => img && img.url)
+}
+
 async function getProject(slug: string): Promise<ProjectVideosData | null> {
   return sanityFetch<ProjectVideosData | null>({
     query: projectVideosBySlugQuery,
@@ -89,12 +98,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = project.name.trim()
   const siteUrl = getSiteUrl()
   const videos = withLegacyFallback(project)
-  const title = `${name} Videos | Bhuwanta`
+  const images = usableImages(project)
+  const title = `${name} Project Highlights | Bhuwanta`
+
+  // Describes what the page actually holds, so a photos-only project doesn't
+  // advertise videos it does not have.
+  const parts: string[] = []
+  if (videos.length > 0) parts.push(`${videos.length} video${videos.length === 1 ? '' : 's'}`)
+  if (images.length > 0) parts.push(`${images.length} photo${images.length === 1 ? '' : 's'}`)
   const description =
     project.videosPageIntro?.slice(0, 155) ||
-    `Watch ${videos.length > 0 ? `${videos.length} video${videos.length === 1 ? '' : 's'}` : 'videos'} of ${name}${project.location ? ` in ${project.location}` : ''} — site walkthroughs and drone tours from Bhuwanta.`
+    `${parts.length > 0 ? `See ${parts.join(' and ')} of` : 'Project highlights for'} ${name}${project.location ? ` in ${project.location}` : ''} — site walkthroughs, drone tours and photographs from Bhuwanta.`
 
-  const firstThumb = videos.find((v) => v.thumbnailUrl)?.thumbnailUrl || project.images?.[0]
+  const firstThumb = videos.find((v) => v.thumbnailUrl)?.thumbnailUrl || images[0]?.url || project.images?.[0]
 
   return {
     title: { absolute: title },
@@ -121,6 +137,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
 
   const name = project.name.trim()
   const videos = withLegacyFallback(project)
+  const images = usableImages(project)
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/projects/${slug}/videos`
 
@@ -128,7 +145,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
     { name: 'Home', url: siteUrl },
     { name: 'Projects', url: `${siteUrl}/projects` },
     { name, url: `${siteUrl}/projects/${slug}` },
-    { name: 'Videos', url: pageUrl },
+    { name: 'Project Highlights', url: pageUrl },
   ])
 
   const videoSchemas = videos.map((video) => {
@@ -144,14 +161,19 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
     })
   })
 
+  const gallerySchema =
+    images.length > 0
+      ? [buildImageGallerySchema(images.map((img) => ({ url: img.url as string, caption: img.caption })))]
+      : []
+
   return (
     <>
-      <JsonLd data={[breadcrumb, ...videoSchemas]} />
+      <JsonLd data={[breadcrumb, ...videoSchemas, ...gallerySchema]} />
 
       <PageBanner
         title={
           <>
-            {name} <span className="text-[#c4a55a]">Videos</span>
+            {name} <span className="text-[#c4a55a]">Project Highlights</span>
           </>
         }
         subtitle={project.location || project.categoryTitle}
@@ -184,17 +206,32 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
             </div>
           )}
 
-          {videos.length > 0 ? (
-            <ProjectVideosGrid videos={videos} />
+          {videos.length > 0 || images.length > 0 ? (
+            /* The tabs read ?tab= from the URL, which needs a Suspense boundary
+               on a statically rendered page. The fallback is the default tab
+               rendered on the server, so the static HTML already carries the
+               content — search engines and a slow hydrate both see photos or
+               videos, never an empty box. */
+            <Suspense
+              fallback={
+                videos.length > 0 ? (
+                  <ProjectVideosGrid videos={videos} />
+                ) : (
+                  <ProjectHighlightImages images={images} projectName={name} />
+                )
+              }
+            >
+              <ProjectHighlightsTabs videos={videos} images={images} projectName={name} />
+            </Suspense>
           ) : (
             <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
               <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">
                 <Film className="w-8 h-8 text-[#1e3a5f]/40" />
               </div>
-              <h3 className="text-xl font-bold text-[#0f1d33] mb-2">Videos Coming Soon</h3>
+              <h3 className="text-xl font-bold text-[#0f1d33] mb-2">Highlights Coming Soon</h3>
               <p className="text-[#5a6a82] mb-6">
-                We&apos;re preparing site walkthroughs and drone footage for {name}. In the meantime, our team can walk
-                you through the layout directly.
+                We&apos;re preparing site walkthroughs, drone footage and photographs for {name}. In the meantime, our
+                team can walk you through the layout directly.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
@@ -213,7 +250,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
             </div>
           )}
 
-          {videos.length > 0 && (
+          {(videos.length > 0 || images.length > 0) && (
             <div className="mt-12 bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h3 className="text-lg font-bold text-[#0f1d33]">Want to see {name} in person?</h3>
@@ -227,7 +264,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
                   Enquire Now
                 </Link>
                 <a
-                  href={`https://wa.me/919666504405?text=${encodeURIComponent(`Hi Bhuwanta, I just watched the ${name} videos. Please share more details.`)}`}
+                  href={`https://wa.me/919666504405?text=${encodeURIComponent(`Hi Bhuwanta, I just viewed the ${name} project highlights. Please share more details.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-6 py-3 bg-[#25D366] text-white font-semibold rounded-lg hover:opacity-90 transition-all text-sm text-center flex items-center justify-center gap-2"

@@ -154,6 +154,21 @@ export const galleryQuery = `{
   }
 }`
 
+// How many videos a project has, across the titled `projectVideos` entries and
+// the legacy singular/plural fields. Kept in one place because it is needed by
+// every project query and by the sitemap — four copies drifted apart before.
+const videoCountExpr = `coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)`
+
+// Empty rows are excluded: an editor who adds a row and never uploads the photo
+// would otherwise put a Project Highlights button on a page with nothing in it.
+const highlightImageCountExpr = `coalesce(count(highlightImages[defined(image.asset._ref)]), 0)`
+
+// videoCount still exists on its own because the card carousel reasons about
+// videos specifically. highlightCount is what gates the Project Highlights
+// button — a project with photos and no videos must still get one.
+const highlightCountsProjection = `"videoCount": ${videoCountExpr},
+    "highlightCount": ${videoCountExpr} + ${highlightImageCountExpr}`
+
 export const projectsQuery = `*[_type == "projects"][0]{
   pageHeading,
   overviewButtonLabel,
@@ -178,7 +193,7 @@ export const projectsQuery = `*[_type == "projects"][0]{
     approvalCertificateLabel,
     "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
     approvalBadge,
-    "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
+    ${highlightCountsProjection}
   }
 }`
 
@@ -207,7 +222,7 @@ export const projectByNameQuery = `*[_type == "projects"][0].projectEntries[stri
   approvalCertificateLabel,
   "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
   approvalBadge,
-  "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
+  ${highlightCountsProjection}
 }`
 
 export const projectBySlugQuery = `*[_type == "projects"][0].projectEntries[slug.current == $slug][0]{
@@ -228,7 +243,7 @@ export const projectBySlugQuery = `*[_type == "projects"][0].projectEntries[slug
   approvalCertificateLabel,
   "hmdaDtcpUrls": hmdaDtcpCertificate[].asset->url,
   approvalBadge,
-  "videoCount": coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0)
+  ${highlightCountsProjection}
 }`
 
 // Everything the /projects/<slug>/videos page needs. Kept separate from
@@ -252,15 +267,22 @@ export const projectVideosBySlugQuery = `*[_type == "projects"][0].projectEntrie
     "videoUrl": videoFile.asset->url,
     "thumbnailUrl": thumbnail.asset->url
   },
+  highlightImages[defined(image.asset._ref)]{
+    caption,
+    alt,
+    "url": image.asset->url,
+    "lqip": image.asset->metadata.lqip,
+    "dimensions": image.asset->metadata.dimensions
+  },
   "legacyVideoUrls": videoFiles[].asset->url,
   "legacyYoutubeUrls": youtubeUrls,
   "legacyVideoUrl": videoFile.asset->url,
   "legacyYoutubeUrl": youtubeUrl
 }`
 
-// Slugs of projects that actually have at least one video — used to keep empty
-// videos pages out of the sitemap.
-export const projectSlugsWithVideosQuery = `*[_type == "projects"][0].projectEntries[coalesce(count(projectVideos), 0) + coalesce(count(videoFiles[defined(asset._ref)]), 0) + coalesce(count(youtubeUrls[defined(@)]), 0) + select(defined(videoFile.asset._ref) => 1, 0) + select(defined(youtubeUrl) => 1, 0) > 0][defined(slug.current)][].slug.current`
+// Slugs of projects that actually have at least one video or photo — used to
+// keep empty Project Highlights pages out of the sitemap.
+export const projectSlugsWithHighlightsQuery = `*[_type == "projects"][0].projectEntries[${videoCountExpr} + ${highlightImageCountExpr} > 0][defined(slug.current)][].slug.current`
 
 
 export const projectCategoriesQuery = `*[_type == "projectCategory"] | order(order asc){

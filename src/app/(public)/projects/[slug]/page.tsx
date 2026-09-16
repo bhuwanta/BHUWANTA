@@ -26,6 +26,7 @@ interface ProjectDetail {
   hmdaDtcpUrls?: string[]
   approvalBadge?: string
   videoCount?: number | null
+  highlightCount?: number | null
 }
 
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
@@ -199,6 +200,7 @@ export default async function ProjectDetailPage({
               approvalCertificateLabel={project.approvalCertificateLabel}
               slug={slug}
               videoCount={project.videoCount}
+              highlightCount={project.highlightCount}
             />
 
             {project.description && (

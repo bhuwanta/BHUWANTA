@@ -31,6 +31,7 @@ interface ProjectEntry {
   hmdaDtcpUrls?: string[]
   description: string
   videoCount?: number | null
+  highlightCount?: number | null
 }
 
 export default async function ProjectsPage() {
