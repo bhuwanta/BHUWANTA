@@ -107,44 +107,70 @@ export function ProjectHighlightImages({
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-        {visible.map((img, idx) => (
-          <figure
-            key={`${img.url}-${idx}`}
-            className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden flex flex-col transition-premium hover:shadow-md"
-          >
-            <button
-              type="button"
-              ref={(el) => {
-                thumbRefs.current[idx] = el
-              }}
-              onClick={() => open(idx)}
-              aria-label={`Open ${altFor(img, idx)} full size`}
-              // A fixed ratio rather than the photo's own: the grid stays even
-              // whatever mix of portrait and landscape the editor uploads, and
-              // nothing shifts while the images load.
-              className="group relative w-full aspect-[4/3] bg-[#f3f5f8] cursor-zoom-in"
+      {/* Columns, not a grid: every photo keeps its own aspect ratio, so
+          nothing is cropped and nothing is letterboxed. A fixed 4:3 tile with
+          object-cover cut the top and bottom off portrait shots; the same tile
+          with object-contain would have padded them with grey bars. */}
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 lg:gap-6">
+        {visible.map((img, idx) => {
+          const width = img.dimensions?.width
+          const height = img.dimensions?.height
+          const blur = img.lqip ? { placeholder: 'blur' as const, blurDataURL: img.lqip } : {}
+          const sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+
+          return (
+            <figure
+              key={`${img.url}-${idx}`}
+              className="mb-4 lg:mb-6 break-inside-avoid bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden transition-premium hover:shadow-md"
             >
-              <Image
-                src={img.url as string}
-                alt={altFor(img, idx)}
-                fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                {...(img.lqip ? { placeholder: 'blur' as const, blurDataURL: img.lqip } : {})}
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-            </button>
-            {img.caption && (
-              <figcaption
-                className="px-4 py-3 text-sm font-semibold text-[#0f1d33] leading-snug truncate"
-                title={img.caption}
+              <button
+                type="button"
+                ref={(el) => {
+                  thumbRefs.current[idx] = el
+                }}
+                onClick={() => open(idx)}
+                aria-label={`Open ${altFor(img, idx)} full size`}
+                className="group relative block w-full bg-[#f3f5f8] cursor-zoom-in"
               >
-                {img.caption}
-              </figcaption>
-            )}
-          </figure>
-        ))}
+                {width && height ? (
+                  // The real dimensions give the browser the ratio up front, so
+                  // the column does not reflow as each photo loads.
+                  <Image
+                    src={img.url as string}
+                    alt={altFor(img, idx)}
+                    width={width}
+                    height={height}
+                    sizes={sizes}
+                    className="w-full h-auto"
+                    {...blur}
+                  />
+                ) : (
+                  // Older entries have no dimensions metadata. Contain rather
+                  // than cover, so an unknown photo is still shown whole.
+                  <span className="relative block w-full aspect-[4/3]">
+                    <Image
+                      src={img.url as string}
+                      alt={altFor(img, idx)}
+                      fill
+                      sizes={sizes}
+                      className="object-contain"
+                      {...blur}
+                    />
+                  </span>
+                )}
+                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+              </button>
+              {img.caption && (
+                <figcaption
+                  className="px-4 py-3 text-sm font-semibold text-[#0f1d33] leading-snug"
+                  title={img.caption}
+                >
+                  {img.caption}
+                </figcaption>
+              )}
+            </figure>
+          )
+        })}
       </div>
 
       {hiddenCount > 0 && (

@@ -81,7 +81,7 @@ export function ProjectHighlightsTabs({
   return (
     <div>
       {showTabs && (
-        <div role="tablist" aria-label="Project highlights" onKeyDown={onKeyDown} className="flex flex-wrap gap-3 mb-8">
+        <div role="tablist" aria-label="Project highlights" onKeyDown={onKeyDown} className="flex flex-wrap justify-center gap-3 mb-8">
           <button
             type="button"
             role="tab"
