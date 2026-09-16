@@ -4,37 +4,31 @@ import { defineType, defineField } from 'sanity'
  * A single photo in a project's highlights gallery, shown under the "Images"
  * tab on /projects/<slug>/videos.
  *
- * An object type rather than a bare `image[]` so each photo can carry its own
- * caption and alt text. The project's existing `images` field stays what it has
- * always been — the card carousel / thumbnail set — because those photos are
- * picked to work as a 16:10 cover, not as a gallery.
+ * Declared as `type: 'image'` with extra fields rather than as an object that
+ * contains an image. That distinction is the whole reason this file exists:
+ * Studio only offers the multi-file drop zone ("Select" several photos at once,
+ * or drag a folder in) when the array member is itself an image or file type.
+ * An array of plain objects can only be filled one "Add item" at a time, which
+ * is unusable for a gallery of twenty site photos.
+ *
+ * The caption and alt fields live under "Edit details" on each uploaded photo,
+ * so bulk upload stays a single drag and captions are added afterwards, only
+ * where they are wanted.
  */
 export const projectHighlightImageSchema = defineType({
   name: 'projectHighlightImage',
-  type: 'object',
-  title: 'Highlight Image',
+  type: 'image',
+  title: 'Highlight Photo',
+  options: { hotspot: true },
   fields: [
-    defineField({
-      name: 'image',
-      type: 'image',
-      title: 'Photo',
-      options: { hotspot: true },
-      description:
-        'Upload the photo. Large phone photos are fine — the website resizes them automatically.',
-      validation: (Rule) =>
-        Rule.custom((value: { asset?: unknown } | undefined) =>
-          value?.asset ? true : 'Upload a photo, or delete this empty row.'
-        ),
-    }),
     defineField({
       name: 'caption',
       type: 'string',
       title: 'Caption (optional)',
       description:
         'Shown under the photo on the website. Keep it to 60 characters or fewer so it fits on one line. e.g. "Entrance arch — October 2026"',
-      validation: (Rule) => [
+      validation: (Rule) =>
         Rule.max(60).error('Keep the caption to 60 characters or fewer so it fits under the photo.'),
-      ],
     }),
     defineField({
       name: 'alt',
@@ -49,7 +43,7 @@ export const projectHighlightImageSchema = defineType({
     select: {
       caption: 'caption',
       alt: 'alt',
-      media: 'image',
+      media: 'asset',
     },
     prepare({ caption, alt, media }) {
       return {
