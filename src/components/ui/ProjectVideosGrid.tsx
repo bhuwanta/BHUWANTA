@@ -55,7 +55,7 @@ function VideoCard({ video }: { video: ProjectVideo }) {
   const recorded = formatRecordedAt(video.recordedAt)
 
   return (
-    <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden flex flex-col transition-premium hover:shadow-md">
+    <div className="bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden flex flex-col transition-premium hover:shadow-md">
       <div className="relative aspect-video bg-black overflow-hidden">
         {!playable ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/70">
@@ -122,7 +122,7 @@ function VideoCard({ video }: { video: ProjectVideo }) {
                 className="absolute inset-0 w-full h-full object-contain pointer-events-none"
               />
             ) : (
-              <div className="absolute inset-0 bg-[#0f1d33]" />
+              <div className="absolute inset-0 bg-brand-ink" />
             )}
             <div className="absolute inset-0 bg-black/25 group-hover:bg-black/10 transition-colors" />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -136,13 +136,13 @@ function VideoCard({ video }: { video: ProjectVideo }) {
 
       {/* The title sits directly beneath the video — this is the point of the page. */}
       <div className="p-5 flex flex-col gap-1.5">
-        <h3 className="text-lg font-bold text-[#0f1d33] leading-snug truncate" title={video.title}>
+        <h3 className="text-lg font-bold text-brand-ink leading-snug truncate" title={video.title}>
           {video.title}
         </h3>
         {video.description && (
-          <p className="text-sm text-[#5a6a82] leading-relaxed line-clamp-2">{video.description}</p>
+          <p className="text-sm text-brand-muted leading-relaxed line-clamp-2">{video.description}</p>
         )}
-        {recorded && <p className="text-xs font-semibold text-[#c4a55a] uppercase tracking-wider mt-1">{recorded}</p>}
+        {recorded && <p className="text-xs font-semibold text-brand-accent uppercase tracking-wider mt-1">{recorded}</p>}
       </div>
     </div>
   )

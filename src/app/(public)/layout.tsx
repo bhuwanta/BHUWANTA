@@ -3,8 +3,18 @@ import { Footer } from '@/components/layout/Footer'
 import { DynamicClientComponents } from '@/components/ui/DynamicClientComponents'
 import { JsonLd, buildWebSiteSchema, buildLocalBusinessSchema } from '@/components/seo/JsonLd'
 import Script from 'next/script'
-import { sanityFetch, siteSettingsQuery, projectsQuery } from '@/lib/sanity'
+import { sanityFetch, siteSettingsQuery } from '@/lib/sanity'
 import { getSiteUrl } from '@/lib/site-url'
+
+interface PublicSiteSettings {
+  siteName?: string
+  footerAddress?: string
+  footerEmail?: string
+  googleAnalyticsId?: string
+  googleTagManagerId?: string
+  metaPixelId?: string
+  socialLinks?: { linkedin?: string; facebook?: string; instagram?: string; youtube?: string }
+}
 
 export default async function PublicLayout({
   children,
@@ -13,22 +23,10 @@ export default async function PublicLayout({
 }) {
   const siteUrl = getSiteUrl()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let settings: any = null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let projectsData: Record<string, unknown> | null = null
+  let settings: PublicSiteSettings | null = null
   try {
-    settings = (await sanityFetch({ query: siteSettingsQuery, tags: ['siteSettings'] })) as any
-    projectsData = await sanityFetch({ query: projectsQuery, tags: ['projects'] })
+    settings = await sanityFetch<PublicSiteSettings | null>({ query: siteSettingsQuery, tags: ['siteSettings'] })
   } catch { /* fallback */ }
-
-  const projectEntries = (projectsData?.projectEntries || []) as Array<Record<string, unknown>>
-  const projectsList = projectEntries.map((p) => ({
-    name: p.name as string,
-    location: (p.categoryTitle as string) || '',
-  })).filter((p) => p.name)
-
-  const uniqueLocations = Array.from(new Set(projectsList.map((p) => p.location).filter(Boolean))) as string[]
 
   const websiteSchema = buildWebSiteSchema({
     name: 'Bhuwanta',
@@ -51,7 +49,7 @@ export default async function PublicLayout({
     sameAsLinks: [
       settings?.socialLinks?.linkedin || 'https://www.linkedin.com/in/bhuwanta-developer-043591405/',
       settings?.socialLinks?.facebook || 'https://www.facebook.com/bhuwantadevelopers',
-      settings?.socialLinks?.instagram || 'https://www.instagram.com/bhuwantadevelopers/',
+      settings?.socialLinks?.instagram || 'https://www.instagram.com/bhuwanta_developers/',
       settings?.socialLinks?.youtube || 'https://www.youtube.com/@BhuwantaDevelopers',
     ],
     areaServed: [
@@ -129,10 +127,12 @@ export default async function PublicLayout({
         </Script>
       )}
 
-      <Navbar />
-      <main className="flex-1 flex flex-col">{children}</main>
-      <Footer />
-      <DynamicClientComponents projectsList={projectsList} locationNames={uniqueLocations} />
+      <div className="public-site flex min-h-screen flex-1 flex-col">
+        <Navbar />
+        <main className="flex-1 flex flex-col">{children}</main>
+        <Footer />
+        <DynamicClientComponents />
+      </div>
     </>
   )
 }

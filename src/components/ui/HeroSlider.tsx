@@ -53,8 +53,8 @@ export function HeroSlider({ images }: { images: { url: string; text?: string }[
               className="object-cover object-center"
             />
             {/* Overlays to ensure text remains readable */}
-            <div className="absolute inset-0 bg-[#0f1d33]/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f1d33]/80 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-brand-ink/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-ink/80 via-transparent to-transparent" />
             
             {/* Dynamic Text Overlay */}
             {img.text && (

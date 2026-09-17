@@ -298,6 +298,7 @@ export const projectCategoriesQuery = `*[_type == "projectCategory"] | order(ord
 }`
 
 export const blogListQuery = `*[_type == "blog"] | order(publishDate desc){
+  _updatedAt,
   title,
   slug,
   excerpt,

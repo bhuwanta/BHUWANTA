@@ -96,28 +96,28 @@ export default async function AboutPage() {
     <>
       <JsonLd data={breadcrumb} />
 
-      <PageBanner 
-        title={<>About <span className="text-[#c4a55a]">Bhuwanta Developers</span></>} 
+      <PageBanner
+        title={<>About <span className="text-brand-accent">Bhuwanta Developers</span></>}
         subtitle={d.pageSubtitle}
       />
-      
+
       <div className="flex-1 bg-white">
-        
+
         {/* 2. Our Story */}
         <section className="py-12 sm:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-12 sm:mb-16">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs font-semibold uppercase tracking-widest mb-4 border border-[#1e3a5f]/20">
+              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-primary/20">
                 Our Story
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.2rem] xl:text-[2.6rem] 2xl:text-5xl font-bold text-[#0f1d33] leading-tight mx-auto w-full xl:whitespace-nowrap tracking-tight">
-                The Best Real Estate Service With <span className="text-[#c4a55a]">20+ Years of Excellence</span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.2rem] xl:text-[2.6rem] 2xl:text-5xl font-bold text-brand-ink leading-tight mx-auto w-full xl:whitespace-nowrap tracking-tight">
+                The Best Real Estate Service With <span className="text-brand-accent">20+ Years of Excellence</span>
               </h2>
             </div>
 
             <div className="max-w-4xl mx-auto">
               {/* Content */}
-              <div className="space-y-6 text-base sm:text-lg text-[#5a6a82] leading-relaxed text-justify sm:text-center">
+              <div className="space-y-6 text-base sm:text-lg text-brand-muted leading-relaxed text-justify sm:text-center">
                 {storyParagraphs.map((p: string, i: number) => (
                   <p key={i}>{p}</p>
                 ))}
@@ -127,34 +127,34 @@ export default async function AboutPage() {
         </section>
 
         {/* 3. Mission & Vision */}
-        <section className="bg-[#022F3A] py-12 sm:py-20">
+        <section className="bg-brand-deep py-12 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest mb-4 border border-[#B69A4E]/20">
+              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-gold/20">
                 Our Guiding Principles
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">Our <span className="text-[#c4a55a]">Vision & Mission</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">Our <span className="text-brand-accent">Vision & Mission</span></h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
               {/* Mission */}
               <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
-                <div className="w-14 h-14 bg-[#1e3a5f]/10 rounded-xl flex items-center justify-center mb-6 text-[#1e3a5f] group-hover:scale-110 group-hover:bg-[#1e3a5f] group-hover:text-white transition-all duration-300">
+                <div className="w-14 h-14 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-6 text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
                   <Target className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#0f1d33] mb-4">Our <span className="text-[#c4a55a]">Mission</span></h3>
-                <p className="text-[#5a6a82] leading-relaxed">
+                <h3 className="text-2xl font-bold text-brand-ink mb-4">Our <span className="text-brand-accent">Mission</span></h3>
+                <p className="text-brand-muted leading-relaxed">
                   {d.missionBody}
                 </p>
               </div>
 
               {/* Vision */}
               <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
-                <div className="w-14 h-14 bg-[#c4a55a]/10 rounded-xl flex items-center justify-center mb-6 text-[#c4a55a] group-hover:scale-110 group-hover:bg-[#c4a55a] group-hover:text-white transition-all duration-300">
+                <div className="w-14 h-14 bg-brand-gold/10 rounded-xl flex items-center justify-center mb-6 text-brand-accent group-hover:scale-110 group-hover:bg-brand-gold group-hover:text-brand-ink transition-all duration-300">
                   <Eye className="w-7 h-7" />
                 </div>
-                <h3 className="text-2xl font-bold text-[#0f1d33] mb-4">Our <span className="text-[#c4a55a]">Vision</span></h3>
-                <p className="text-[#5a6a82] leading-relaxed">
+                <h3 className="text-2xl font-bold text-brand-ink mb-4">Our <span className="text-brand-accent">Vision</span></h3>
+                <p className="text-brand-muted leading-relaxed">
                   {d.visionBody}
                 </p>
               </div>
@@ -163,25 +163,25 @@ export default async function AboutPage() {
         </section>
 
         {/* 4. Our Core Values */}
-        <section className="bg-[#f7f8fa] py-12 sm:py-20">
+        <section className="bg-brand-paper py-12 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs font-semibold uppercase tracking-widest mb-4 border border-[#1e3a5f]/20">
+              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-primary/20">
                 Our Core Values
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0f1d33]">What <span className="text-[#c4a55a]">Drives Us</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-brand-ink">What <span className="text-brand-accent">Drives Us</span></h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {coreValues.map((value: { title: string; description: string }, i: number) => {
                 const Icon = valueIcons[i % valueIcons.length]
                 return (
                   <div key={i} className="text-center group">
-                    <div className="w-20 h-20 mx-auto bg-white shadow-sm border border-[#e8ecf2] rounded-full flex items-center justify-center mb-6 text-[#c4a55a] group-hover:bg-[#c4a55a] group-hover:text-white transition-all duration-300">
+                    <div className="w-20 h-20 mx-auto bg-white shadow-sm border border-brand-border rounded-full flex items-center justify-center mb-6 text-brand-accent group-hover:bg-brand-gold group-hover:text-brand-ink transition-all duration-300">
                       <Icon className="w-10 h-10" />
                     </div>
-                    <h3 className="text-xl font-bold text-[#0f1d33] mb-3">{value.title}</h3>
-                    <p className="text-[#5a6a82] leading-relaxed">{value.description}</p>
+                    <h3 className="text-xl font-bold text-brand-ink mb-3">{value.title}</h3>
+                    <p className="text-brand-muted leading-relaxed">{value.description}</p>
                   </div>
                 )
               })}
@@ -190,21 +190,21 @@ export default async function AboutPage() {
         </section>
 
         {/* 5. Leadership Profile */}
-        <section className="bg-[#022F3A] py-12 sm:py-20">
+        <section className="bg-brand-deep py-12 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest mb-4 border border-[#B69A4E]/20">
+              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-gold/20">
                 Our Leadership
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white">The Minds Behind <span className="text-[#c4a55a]">Bhuwanta Developers</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white">The Minds Behind <span className="text-brand-accent">Bhuwanta Developers</span></h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
               {leaders.map((leader: { name: string; role: string; bio: string }, i: number) => (
                 <div key={i} className="bg-white/5 p-8 sm:p-10 rounded-2xl border border-white/10 hover:border-white/20 transition-all">
                   <div className="mb-6">
                     <h3 className="text-2xl font-bold text-white mb-1">{leader.name}</h3>
-                    <p className="text-[#B69A4E] font-medium">{leader.role}</p>
+                    <p className="text-brand-accent font-medium">{leader.role}</p>
                   </div>
                   <p className="text-white/80 leading-relaxed text-justify sm:text-left">
                     {leader.bio}
@@ -219,20 +219,20 @@ export default async function AboutPage() {
         <section className="bg-white py-12 sm:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-16">
-              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs font-semibold uppercase tracking-widest mb-4 border border-[#1e3a5f]/20">
+              <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-primary/20">
                 Our Strengths
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#0f1d33]">Why Bhuwanta Developers <span className="text-[#c4a55a]">Stands Out</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-brand-ink">Why Bhuwanta Developers <span className="text-brand-accent">Stands Out</span></h2>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
               {strengths.map((item: { title: string; description: string }, i: number) => {
                 const Icon = strengthIcons[i % strengthIcons.length]
                 return (
-                  <div key={i} className="bg-white p-8 rounded-xl border border-[#e8ecf2] shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group">
-                    <Icon className="w-8 h-8 text-[#c4a55a] mb-4 group-hover:scale-110 transition-transform duration-300" />
-                    <h3 className="text-lg font-bold text-[#0f1d33] mb-2">{item.title}</h3>
-                    <p className="text-sm text-[#5a6a82] leading-relaxed">{item.description}</p>
+                  <div key={i} className="bg-white p-8 rounded-xl border border-brand-border shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group">
+                    <Icon className="w-8 h-8 text-brand-accent mb-4 group-hover:scale-110 transition-transform duration-300" />
+                    <h3 className="text-lg font-bold text-brand-ink mb-2">{item.title}</h3>
+                    <p className="text-sm text-brand-muted leading-relaxed">{item.description}</p>
                   </div>
                 )
               })}
@@ -241,10 +241,10 @@ export default async function AboutPage() {
         </section>
 
       </div>
-      
+
       {/* 7. CTA Banner */}
-      <CtaSection 
-        title={<>Ready to Invest in Your <br className="hidden lg:block" /><span className="text-[#c4a55a]">Dream Property in Hyderabad?</span></>}
+      <CtaSection
+        title={<>Ready to Invest in Your <br className="hidden lg:block" /><span className="text-brand-accent">Dream Property in Hyderabad?</span></>}
         description={d.ctaDescription}
         primaryButtonText="Contact Us"
         primaryButtonLink="/#book-visit"

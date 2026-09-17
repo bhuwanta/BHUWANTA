@@ -106,11 +106,11 @@ export default function BestInvestmentTelanganaApPage() {
         available on request. Here&apos;s how each one fits into the corridors discussed above.
       </p>
 
-      <h3>Vian Vally — Shabad</h3>
+      <h3>Vian Valley — Shabad</h3>
       <p>
-        Located in Shabad, Telangana, directly on the NH-44 Bangalore Highway — one of Hyderabad&apos;s
+        Located in Shabad, Telangana, southwest of Hyderabad — one of Hyderabad&apos;s
         established growth corridors. HMDA and RERA approved. Best suited for highway-facing investors looking
-        for NH-44 connectivity. <Link href="/projects/vian-vally">View Vian Vally</Link>.
+        for NH-44 connectivity. <Link href="/projects/vian-vally">View Vian Valley</Link>.
       </p>
 
       <h3>S.V. Kanaka Maple Homes — Yadagirigutta / Warangal Highway</h3>
@@ -133,10 +133,10 @@ export default function BestInvestmentTelanganaApPage() {
         buyers seeking Mumbai Highway access. <Link href="/projects/vaibhav-county">View Vaibhav County</Link>.
       </p>
 
-      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-[#e8ecf2]">
+      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-brand-border">
         <table className="w-full text-sm text-left">
           <thead>
-            <tr className="bg-[#f7f8fa] text-[#1e3a5f]">
+            <tr className="bg-brand-paper text-brand-primary">
               <th className="px-4 py-3 font-bold">Project</th>
               <th className="px-4 py-3 font-bold">Location</th>
               <th className="px-4 py-3 font-bold">Highway / Corridor</th>
@@ -144,30 +144,30 @@ export default function BestInvestmentTelanganaApPage() {
               <th className="px-4 py-3 font-bold">Best Suited For</th>
             </tr>
           </thead>
-          <tbody className="text-[#5a6a82]">
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Vian Vally</td>
+          <tbody className="text-brand-muted">
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Vian Valley</td>
               <td className="px-4 py-3">Shabad</td>
               <td className="px-4 py-3">NH-44 Bangalore Highway</td>
               <td className="px-4 py-3">HMDA &amp; RERA</td>
               <td className="px-4 py-3">Highway-facing investors</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">S.V. Kanaka Maple Homes</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">S.V. Kanaka Maple Homes</td>
               <td className="px-4 py-3">Yadagirigutta</td>
               <td className="px-4 py-3">Warangal Highway</td>
               <td className="px-4 py-3">DTCP &amp; RERA</td>
               <td className="px-4 py-3">Temple-corridor buyers</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">TJR Township</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">TJR Township</td>
               <td className="px-4 py-3">Sangareddy</td>
               <td className="px-4 py-3">Mumbai Highway / near RRR</td>
               <td className="px-4 py-3">HMDA &amp; RERA</td>
               <td className="px-4 py-3">RRR-focused investors</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Vaibhav County</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Vaibhav County</td>
               <td className="px-4 py-3">Sadashivpet</td>
               <td className="px-4 py-3">Mumbai Highway</td>
               <td className="px-4 py-3">DTCP &amp; RERA</td>

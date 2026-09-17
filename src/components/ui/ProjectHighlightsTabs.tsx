@@ -122,8 +122,8 @@ export function ProjectHighlightsTabs({
   const tabClass = (tab: Tab) =>
     `px-5 sm:px-7 py-3 font-semibold text-sm rounded-lg transition-premium flex items-center gap-2 ${
       activeTab === tab
-        ? 'gradient-gold text-white shadow-lg shadow-[#c4a55a]/20'
-        : 'bg-white border border-[#e8ecf2] text-[#1e3a5f] hover:border-[#c4a55a] hover:shadow-md'
+        ? 'gradient-gold shadow-lg shadow-brand-gold/20'
+        : 'bg-white border border-brand-border text-brand-primary hover:border-brand-gold hover:shadow-md'
     }`
 
   return (
@@ -143,7 +143,7 @@ export function ProjectHighlightsTabs({
             onClick={() => selectTab('videos')}
             className={tabClass('videos')}
           >
-            <Play className={`w-4 h-4 ${activeTab === 'videos' ? 'text-white' : 'text-[#c4a55a]'}`} />
+            <Play className={`w-4 h-4 ${activeTab === 'videos' ? '' : 'text-brand-accent'}`} />
             Videos <span className="opacity-70">({videos.length})</span>
           </button>
           <button
@@ -162,7 +162,7 @@ export function ProjectHighlightsTabs({
             onTouchStart={warmImages}
             className={tabClass('images')}
           >
-            <ImageIcon className={`w-4 h-4 ${activeTab === 'images' ? 'text-white' : 'text-[#c4a55a]'}`} />
+            <ImageIcon className={`w-4 h-4 ${activeTab === 'images' ? '' : 'text-brand-accent'}`} />
             Images <span className="opacity-70">({usableImages.length})</span>
           </button>
         </div>

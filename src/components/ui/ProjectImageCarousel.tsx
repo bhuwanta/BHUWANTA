@@ -66,15 +66,15 @@ export function ProjectImageCarousel({ images, projectName, videoUrl, youtubeUrl
   // Handle No Media Fallback
   if (!images || images.length === 0) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-[#f3f5f8]">
-        <MapPin className="w-10 h-10 text-[#1e3a5f]/20 relative z-20" />
+      <div className="absolute inset-0 flex items-center justify-center bg-brand-soft">
+        <MapPin className="w-10 h-10 text-brand-primary/20 relative z-20" />
       </div>
     )
   }
 
   // Handle Image Carousel
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#f3f5f8]">
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-brand-soft">
       {images.map((imgUrl, i) => (
         <div
           key={i}

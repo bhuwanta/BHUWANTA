@@ -1,6 +1,6 @@
 'use client'
 
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackWhatsAppClick } from '@/lib/gtag'
 
 // Thin client wrapper so server-component pages can drop a tracked WhatsApp
 // link in with their own bespoke styling, without needing to convert the
@@ -15,7 +15,7 @@ export function TrackedWhatsAppAnchor({
   children: React.ReactNode
 }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" onClick={fireLeadConversion} className={className}>
+    <a href={href} target="_blank" rel="noopener noreferrer" onClick={trackWhatsAppClick} className={className}>
       {children}
     </a>
   )

@@ -7,7 +7,7 @@ import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
 export async function generateMetadata(): Promise<Metadata> {
   const vianVally = await sanityFetch<{ images?: string[] } | null>({
     query: projectByNameQuery,
-    params: { name: 'VIAN VALLY' },
+    params: { name: 'VIAN VALLEY' },
     tags: ['projects'],
   }).catch(() => null)
 
@@ -28,7 +28,7 @@ const faqs = [
   },
   {
     question: 'Does Bhuwanta have HMDA or DTCP approved plots near Shadnagar?',
-    answer: 'Bhuwanta\'s nearest live project to Shadnagar is Vian Vally in Shabad, on the same NH-44 corridor, which is HMDA approved and RERA registered.',
+    answer: 'Bhuwanta\'s nearest live project to Shadnagar is Vian Valley in Shabad, southwest of Hyderabad, which is HMDA approved and RERA registered.',
   },
 ]
 
@@ -39,7 +39,7 @@ export default function DtcpVsHmdaShadnagarPage() {
       title="DTCP vs HMDA Approved Plots in Shadnagar: Complete Buyer's Guide (2026)"
       description="DTCP vs HMDA approved plots in the Shadnagar area — what applies where, how to verify either approval type, and where Bhuwanta's nearest verified project fits in."
       tag="Shadnagar"
-      whatsappContext="plots near Shadnagar and Vian Vally in Shabad"
+      whatsappContext="plots near Shadnagar and Vian Valley in Shabad"
       publishDate="2026-07-13"
       faqs={faqs}
       relatedLinks={[
@@ -62,7 +62,7 @@ export default function DtcpVsHmdaShadnagarPage() {
 
       <h2>Which Applies Where in the Shadnagar / Shabad Belt</h2>
       <p>
-        Shadnagar and the surrounding NH-44 corridor — including neighboring Shabad — is a mixed belt: some layouts
+        Shadnagar and the wider region, including Shabad, contain a variety of layouts: some layouts
         fall under DTCP, others under HMDA, depending on the specific parcel&apos;s location relative to the HMDA
         boundary. There is no single blanket answer for &quot;is Shadnagar HMDA or DTCP&quot; — it depends on the exact
         layout. This is exactly why buyers in this belt need to verify approval type per-project rather than
@@ -81,7 +81,7 @@ export default function DtcpVsHmdaShadnagarPage() {
       <h2>Where Bhuwanta Fits</h2>
       <p>
         Bhuwanta doesn&apos;t currently have inventory in Shadnagar itself. Our nearest live, verified project on this
-        corridor is <Link href="/projects/vian-vally">Vian Vally</Link>, in neighboring Shabad — HMDA approved and
+        corridor is <Link href="/projects/vian-vally">Vian Valley</Link>, in neighboring Shabad — HMDA approved and
         RERA registered, on the same NH-44 highway corridor. If you&apos;re specifically evaluating Shadnagar, see our{' '}
         <Link href="/blog/open-plots-shadnagar-growth-story-2026">Shadnagar growth story guide</Link>{' '}
         alongside this one before deciding.

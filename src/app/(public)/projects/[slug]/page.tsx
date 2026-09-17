@@ -32,16 +32,16 @@ interface ProjectDetail {
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
   'vian-vally': [
     {
-      question: 'Where is Vian Vally located?',
-      answer: 'Vian Vally is located in Shabad, Telangana, on the NH-44 Bangalore Highway, one of Hyderabad’s established growth corridors.',
+      question: 'Where is Vian Valley located?',
+      answer: 'Vian Valley is located in Shabad, Telangana, southwest of Hyderabad, one of Hyderabad’s established growth corridors.',
     },
     {
-      question: 'Are there open plots for sale in Shabad on the NH-44 highway?',
-      answer: 'Yes. Vian Vally offers HMDA approved open plots in Shabad, directly on the NH-44 Bangalore Highway corridor, with clear legal documentation and RERA registration.',
+      question: 'Are there open plots for sale in Shabad?',
+      answer: 'Yes. Vian Valley offers HMDA approved open plots in Shabad, southwest of Hyderabad, with clear legal documentation and RERA registration.',
     },
     {
       question: 'What is the difference between HMDA and DTCP approval?',
-      answer: 'HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, while DTCP (Directorate of Town and Country Planning) approves layouts elsewhere in Telangana. Both indicate a legally sanctioned layout with proper infrastructure. Vian Vally is HMDA approved.',
+      answer: 'HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, while DTCP (Directorate of Town and Country Planning) approves layouts elsewhere in Telangana. Both indicate a legally sanctioned layout with proper infrastructure. Vian Valley is HMDA approved.',
     },
   ],
   'sv-kanaka-maple-homes': [
@@ -184,9 +184,9 @@ export default async function ProjectDetailPage({
         subtitle={`${project.location}${project.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
       />
 
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 md:p-10">
+          <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
             <ProjectDetailActions
               name={project.name}
               images={project.images}
@@ -204,14 +204,14 @@ export default async function ProjectDetailPage({
             />
 
             {project.description && (
-              <p className="mt-8 text-[#5a6a82] leading-relaxed">{project.description}</p>
+              <p className="mt-8 text-brand-muted leading-relaxed">{project.description}</p>
             )}
 
             {project.projectHighlights && project.projectHighlights.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-[#e8ecf2] text-sm font-medium text-[#0f1d33]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-brand-border text-sm font-medium text-brand-ink">
                 {project.projectHighlights.map((highlight, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-brand-gold flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-white stroke-[3]" />
                     </div>
                     {highlight}
@@ -220,13 +220,13 @@ export default async function ProjectDetailPage({
               </div>
             )}
 
-            <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Frequently Asked Questions</h2>
+            <div className="mt-8 pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Frequently Asked Questions</h2>
               <div className="space-y-5">
                 {faqItems.map((faq, i) => (
                   <div key={i}>
-                    <h3 className="font-bold text-[#0f1d33] mb-1">{faq.question}</h3>
-                    <p className="text-sm text-[#5a6a82]">{faq.answer}</p>
+                    <h3 className="font-bold text-brand-ink mb-1">{faq.question}</h3>
+                    <p className="text-sm text-brand-muted">{faq.answer}</p>
                   </div>
                 ))}
               </div>

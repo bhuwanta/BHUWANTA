@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { X, Download } from 'lucide-react'
 import Image from 'next/image'
-import logoImg from '@/images/logo.png'
+import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
 
@@ -178,7 +178,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
         className="relative w-full max-w-sm sm:max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="bg-[#002935] px-6 py-6 flex flex-col items-center justify-center text-center relative shrink-0">
+        <div className="bg-brand-deep px-6 py-6 flex flex-col items-center justify-center text-center relative shrink-0">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/20 rounded-full transition-all z-10"
@@ -187,17 +187,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div
-            className="w-40 sm:w-48 h-12 sm:h-16 mb-4"
-            style={{
-              WebkitMaskImage: `url(${logoImg.src})`,
-              WebkitMaskSize: 'contain',
-              WebkitMaskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              backgroundColor: '#c4a55a' // Gold color from Tailwind config
-            }}
-            aria-label="Bhuwanta"
-          />
+          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
           <h2 className="text-white font-semibold text-lg sm:text-xl">Download {documentType}</h2>
           <p className="text-white/80 text-xs sm:text-sm mt-1">{projectName}</p>
         </div>
@@ -213,14 +203,14 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
           {step === 1 ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-sm text-[#002935]/70">Please enter your details to access this document.</p>
+                <p className="text-sm text-brand-deep/70">Please enter your details to access this document.</p>
               </div>
               <div className="space-y-3">
                 <input
                   required
                   type="text"
                   placeholder="Full Name *"
-                  className="w-full px-4 py-3 bg-[#f8f9fb] border border-[#e8ecf2] rounded-xl text-sm text-[#002935] placeholder:text-[#002935]/40 focus:outline-none focus:ring-2 focus:ring-[#002935]/20 focus:border-[#002935]/50 transition-all"
+                  className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -233,7 +223,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                       placeholder="Phone Number *"
                       minLength={10}
                       pattern="[0-9]{10}"
-                      className={`w-full px-4 py-3 bg-[#f8f9fb] border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-[#e8ecf2] focus:ring-[#002935]/20'} rounded-xl text-sm text-[#002935] placeholder:text-[#002935]/40 focus:outline-none focus:ring-2 focus:border-[#002935]/50 transition-all`}
+                      className={`w-full px-4 py-3 bg-brand-paper border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-deep/20'} rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:border-brand-deep/50 transition-all`}
                       value={formData.phone}
                       onChange={(e) => {
                         const val = e.target.value;
@@ -252,7 +242,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                     required
                     type="email"
                     placeholder="Email Address *"
-                    className="w-full px-4 py-3 bg-[#f8f9fb] border border-[#e8ecf2] rounded-xl text-sm text-[#002935] placeholder:text-[#002935]/40 focus:outline-none focus:ring-2 focus:ring-[#002935]/20 focus:border-[#002935]/50 transition-all"
+                    className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
@@ -261,7 +251,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                 <input
                   type="text"
                   placeholder="Referred by (Optional)"
-                  className="w-full px-4 py-3 bg-[#f8f9fb] border border-[#e8ecf2] rounded-xl text-sm text-[#002935] placeholder:text-[#002935]/40 focus:outline-none focus:ring-2 focus:ring-[#002935]/20 focus:border-[#002935]/50 transition-all"
+                  className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
                   value={formData.referredBy}
                   onChange={(e) => setFormData({ ...formData, referredBy: e.target.value })}
                 />
@@ -272,7 +262,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
               <div className="pt-2">
                 <button
                   disabled={isSubmitting}
-                  className="w-full py-3 sm:py-3.5 bg-[#c4a55a] text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-[#b59853] hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                  className="w-full py-3 sm:py-3.5 bg-brand-gold text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-brand-gold-hover hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -288,7 +278,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                     </>
                   )}
                 </button>
-                <p className="text-[11px] text-center text-[#002935]/40 mt-3 font-medium">
+                <p className="text-[11px] text-center text-brand-deep/40 mt-3 font-medium">
                   Your information is kept 100% confidential.
                 </p>
               </div>
@@ -296,7 +286,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
           ) : (
             <form onSubmit={handleVerifyOTP} className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-sm text-[#002935]/70">Enter the 6-digit code sent to +91 {formData.phone}</p>
+                <p className="text-sm text-brand-deep/70">Enter the 6-digit code sent to +91 {formData.phone}</p>
               </div>
               
               <input
@@ -305,7 +295,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                 placeholder="000000"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-4 py-3 bg-[#f8f9fb] border border-[#e8ecf2] rounded-xl text-center tracking-[0.3em] text-lg font-semibold text-[#002935] focus:outline-none focus:ring-2 focus:ring-[#002935]/20 focus:border-[#002935]/50 transition-all"
+                className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-center tracking-[0.3em] text-lg font-semibold text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
               />
 
               <div className="flex gap-2 pt-2">
@@ -313,13 +303,13 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                   type="button"
                   onClick={() => setStep(1)}
                   disabled={isSubmitting}
-                  className="w-1/3 py-3 sm:py-3.5 bg-[#f8f9fb] border border-[#e8ecf2] text-[#002935] text-sm sm:text-base font-semibold rounded-xl hover:bg-gray-100 transition-all disabled:opacity-70"
+                  className="w-1/3 py-3 sm:py-3.5 bg-brand-paper border border-brand-border text-brand-deep text-sm sm:text-base font-semibold rounded-xl hover:bg-gray-100 transition-all disabled:opacity-70"
                 >
                   Back
                 </button>
                 <button
                   disabled={isSubmitting || otp.length < 6}
-                  className="w-2/3 py-3 sm:py-3.5 bg-[#c4a55a] text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-[#b59853] hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                  className="w-2/3 py-3 sm:py-3.5 bg-brand-gold text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-brand-gold-hover hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? 'Verifying...' : 'Submit & Download'}
                 </button>

@@ -1,11 +1,12 @@
 'use client'
 
+import { enquiryHref } from '@/lib/project-links'
 import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Download, CreditCard, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackWhatsAppClick } from '@/lib/gtag'
 
 interface ProjectDetailActionsProps {
   name: string
@@ -50,14 +51,14 @@ export function ProjectDetailActions({
 
   return (
     <>
-      <div className="w-full aspect-[16/10] relative bg-[#f3f5f8] rounded-2xl overflow-hidden border border-[#e8ecf2]">
+      <div className="w-full aspect-[16/10] relative bg-brand-soft rounded-2xl overflow-hidden border border-brand-border">
         <ProjectImageCarousel images={images} projectName={name} videoUrl={videoUrl} youtubeUrl={youtubeUrl} />
       </div>
 
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
-          href={`/#book-visit?project=${encodeURIComponent(name)}`}
-          className="w-full col-span-1 px-2 py-2.5 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
+          href={enquiryHref(name)}
+          className="w-full col-span-1 px-2 py-2.5 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           Enquire Now
         </Link>
@@ -65,7 +66,7 @@ export function ProjectDetailActions({
           href={`https://wa.me/919666504405?text=${encodeURIComponent(`Hi Bhuwanta, I'm interested in investor pricing for ${name}. Please share details.`)}`}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={fireLeadConversion}
+          onClick={trackWhatsAppClick}
           className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-[#25D366] text-white font-semibold rounded-lg hover:opacity-90 transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           WhatsApp
@@ -75,17 +76,17 @@ export function ProjectDetailActions({
             href={googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
+            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
           >
-            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">View Location</span>
+            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">View Location</span>
           </a>
         )}
         {showHighlights && (
           <Link
             href={`/projects/${slug}/videos`}
-            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
+            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
           >
-            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" />{' '}
+            <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" />{' '}
             <span className="truncate"><span className="hidden sm:inline">Project </span>Highlights</span>
           </Link>
         )}
@@ -93,38 +94,38 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: brochureUrls!, documentType: 'Brochure' })}
           disabled={!brochureUrls || brochureUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Brochure</span>
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Brochure</span>
         </button>
         <button
           type="button"
           onClick={() => setDownloadQueue({ urls: layoutUrls!, documentType: 'Layout' })}
           disabled={!layoutUrls || layoutUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">Layout</span>
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Layout</span>
         </button>
         <button
           type="button"
           onClick={() => setDownloadQueue({ urls: reraUrls!, documentType: 'RERA Documents' })}
           disabled={!reraUrls || reraUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">RERA Documents</span>
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">RERA Documents</span>
         </button>
         <button
           type="button"
           onClick={() => setDownloadQueue({ urls: hmdaDtcpUrls!, documentType: approvalCertificateLabel || 'HMDA/DTCP Approved' })}
           disabled={!hmdaDtcpUrls || hmdaDtcpUrls.length === 0}
-          className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed`}
+          className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed`}
         >
-          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c4a55a] flex-shrink-0" /> <span className="truncate">{approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">{approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
         </button>
       </div>
 
-      <div className="mt-6 pt-4 border-t border-[#e8ecf2] flex items-center gap-2 text-xs font-semibold text-[#5a6a82]">
-        <CreditCard className="w-4 h-4 text-[#5a6a82]" />
+      <div className="mt-6 pt-4 border-t border-brand-border flex items-center gap-2 text-xs font-semibold text-brand-muted">
+        <CreditCard className="w-4 h-4 text-brand-muted" />
         Ready for Construction
       </div>
 

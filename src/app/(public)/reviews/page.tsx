@@ -43,8 +43,8 @@ export default async function ReviewsPage() {
     <>
       <JsonLd data={[breadcrumb]} />
 
-      <PageBanner 
-        title={<>Customer <span className="text-[#c4a55a]">Reviews</span></>} 
+      <PageBanner
+        title={<>Customer <span className="text-brand-accent">Reviews</span></>}
       />
 
       <ReviewsGrid reviewsData={reviewsData} />

@@ -1,223 +1,145 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Check, MapPin, Download } from 'lucide-react'
+import { cache } from 'react'
+import { MapPin, ArrowRight, FileCheck2, IndianRupee, CalendarCheck } from 'lucide-react'
 import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
+import { getSiteUrl } from '@/lib/site-url'
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildRealEstateListingSchema } from '@/components/seo/JsonLd'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
-import { TrustStrip } from '@/components/ui/TrustStrip'
 import { TrackedWhatsAppAnchor } from '@/components/ui/TrackedWhatsAppAnchor'
-
-const PROJECT_NAME = 'VIAN VALLY'
-const WHATSAPP_NUMBER = '919666504405'
-
-interface ProjectData {
-  name: string
-  location: string
-  googleMapsUrl?: string
-  description: string
-  images?: string[]
-  videoUrl?: string
-  youtubeUrl?: string
-  projectHighlights?: string[]
-  reraUrls?: string[]
-  approvalBadge?: string
-}
+import { ContactForm } from '@/components/ui/ContactForm'
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots in Shabad — HMDA & RERA Approved | Bhuwanta'
-const PAGE_DESCRIPTION = 'Curated, HMDA & RERA approved open plots in Shabad on the NH-44 Bangalore Highway corridor. Reserve a private consultation — no public pricing.'
-const PAGE_URL = 'https://bhuwanta.com/shabad-open-plots'
+interface ProjectData {
+  name: string
+  images?: string[]
+  videoUrl?: string
+  youtubeUrl?: string
+}
+
+// Same CMS name as the project overview; the old VALLY lookup missed its photos.
+const getProject = cache(() => sanityFetch<ProjectData | null>({
+  query: projectByNameQuery,
+  params: { name: 'VIAN VALLEY' },
+  tags: ['projects'],
+}).catch(() => null))
+
+const title = 'Open Plots in Shabad from ₹30,999/sq. yd. | Bhuwanta'
+const description = 'Explore Vian Valley open plots in Shabad from ₹30,999 per sq. yd. Request a plot-specific quote, layout documents and a site visit with Bhuwanta.'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const project = await sanityFetch<ProjectData | null>({
-    query: projectByNameQuery,
-    params: { name: PROJECT_NAME },
-    tags: ['projects'],
-  }).catch(() => null)
-
-  const ogImage = project?.images?.[0]
-    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots in Shabad')}&subtitle=${encodeURIComponent('Vian Vally — HMDA & RERA Approved')}`
-
+  const project = await getProject()
+  const url = `${getSiteUrl()}/shabad-open-plots`
+  const image = project?.images?.[0] || `${getSiteUrl()}/api/og?title=Open%20Plots%20in%20Shabad&subtitle=Vian%20Valley%20%E2%80%94%20Bhuwanta`
   return {
-    title: { absolute: PAGE_TITLE },
-    description: PAGE_DESCRIPTION,
-    alternates: { canonical: PAGE_URL },
-    openGraph: {
-      title: PAGE_TITLE,
-      description: PAGE_DESCRIPTION,
-      url: PAGE_URL,
-      type: 'website',
-      images: [{ url: ogImage, width: 1200, height: 630 }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: PAGE_TITLE,
-      description: PAGE_DESCRIPTION,
-      images: [ogImage],
-    },
+    title: { absolute: title }, description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url, type: 'website', images: [{ url: image }] },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
   }
 }
 
 const faqs = [
   {
-    question: 'Is Shabad a good place to invest in open plots?',
-    answer: 'Shabad sits directly on the NH-44 Bangalore Highway corridor southwest of Hyderabad, making it one of the growth belts benefiting from the highway\'s connectivity to the city and the industrial and infrastructure activity along this route. Vian Vally, Bhuwanta\'s HMDA & RERA approved project in Shabad, is a live, verified entry point into this corridor.',
+    question: 'What is the price of open plots in Shabad?',
+    answer: 'Bhuwanta’s advertised Vian Valley offer starts at ₹30,999 per square yard. Request a written quote for a specific plot, including its area, facing, phase and applicable charges. A per-yard rate is not the total purchase price.',
   },
   {
-    question: 'Is Vian Vally HMDA approved?',
-    answer: 'Yes, Vian Vally is HMDA approved and RERA registered. The RERA certificate and layout documents are available for review — request them through the enquiry form on this page.',
+    question: 'Where is Vian Valley located?',
+    answer: 'Vian Valley is in Shabad, Ranga Reddy district, southwest of Hyderabad. Ask for the exact entrance pin and a route from your starting point when arranging a site visit. Shabad and Shadnagar are distinct locations.',
   },
   {
-    question: 'What is the pricing for plots at Vian Vally?',
-    answer: 'Bhuwanta offers exclusive investor pricing for Vian Vally that is shared directly during a private consultation rather than published publicly. Enquire through the form or WhatsApp for today\'s rate.',
+    question: 'Which plot sizes and phases are available?',
+    answer: 'Request the current plot list with plot numbers, dimensions, facing and phase. The master layout includes Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central; a combined layout is not a statement of current availability.',
+  },
+  {
+    question: 'How do I check the approvals before buying?',
+    answer: 'Request the HMDA layout approval, RERA registration details and title documents for the exact phase and plot. Match the project name, survey numbers and plot number to the documents before proceeding. A brochure badge alone is not a substitute for these checks.',
+  },
+  {
+    question: 'Can I book a site visit with Bhuwanta?',
+    answer: 'Yes. Use the enquiry form or WhatsApp to request a site visit. Share your budget and preferred date so the team can confirm suitable plots and the meeting location.',
   },
 ]
 
 export default async function ShabadOpenPlotsPage() {
-  const project = await sanityFetch<ProjectData | null>({
-    query: projectByNameQuery,
-    params: { name: PROJECT_NAME },
-    tags: ['projects'],
-  }).catch(() => null)
-
-  const siteUrl = 'https://bhuwanta.com'
+  const project = await getProject()
+  const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/shabad-open-plots`
-  const waMessage = encodeURIComponent('Hi Bhuwanta, I would like to know more about Vian Vally in Shabad and today\'s investor pricing.')
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`
-
-  const breadcrumb = buildBreadcrumbSchema([
-    { name: 'Home', url: siteUrl },
-    { name: 'Open Plots in Shabad', url: pageUrl },
-  ])
-  const faqSchema = buildFaqSchema(faqs)
-  const listingSchema = buildRealEstateListingSchema({
-    name: 'Vian Vally — Open Plots in Shabad',
-    description: 'HMDA & RERA approved open plots in Shabad, on the NH-44 Bangalore Highway corridor.',
-    url: pageUrl,
-    address: 'Shabad, Hyderabad',
-    ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}),
-  })
+  const whatsappUrl = `https://wa.me/919666504405?text=${encodeURIComponent('Hi Bhuwanta, I am interested in Vian Valley plots in Shabad from ₹30,999 per sq. yd. Please share available plot sizes, the total cost breakdown and site visit options.')}`
+  const projects = [{ name: project?.name || 'VIAN VALLEY', location: 'Shabad' }]
 
   return (
     <>
-      <JsonLd data={[breadcrumb, faqSchema, listingSchema]} />
-
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#002935] luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#B69A4E]/10 rounded-full blur-[150px]" />
-        <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20 mb-6">
-            <MapPin className="w-3.5 h-3.5" /> Shabad · NH-44 Bangalore Highway Corridor
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Exclusive Open Plots in Shabad — <span className="text-[#c4a55a]">HMDA & RERA Approved</span>
-          </h1>
-          <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
-            Vian Vally is Bhuwanta Developers&apos; curated, investor-grade land asset in Shabad — a growth corridor positioned directly on the NH-44 Bangalore Highway. Reserve a private consultation to review approvals and today&apos;s investor pricing.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/#book-visit?project=Vian%20Vally" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              Request Investor Pricing
-            </Link>
-            <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">
-              Chat With Us on WhatsApp
-            </TrackedWhatsAppAnchor>
-          </div>
-        </div>
-      </section>
-
-      <TrustStrip />
-
-      {/* Opportunity */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0f1d33] mb-6">The Opportunity in Shabad</h2>
-          <p className="text-[#5a6a82] leading-relaxed mb-6">
-            Shabad&apos;s position directly on the NH-44 Bangalore Highway gives it durable connectivity advantages that don&apos;t depend on any single project or developer — it&apos;s a function of geography. For investors looking at Hyderabad&apos;s southwest growth corridor, that connectivity is the underlying thesis: land here benefits from the same highway infrastructure that serves the broader Bangalore Highway belt, independent of short-term market cycles.
-          </p>
-          <p className="text-[#5a6a82] leading-relaxed">
-            Vian Vally is Bhuwanta&apos;s live, HMDA approved and RERA registered project in this corridor — real inventory with clear legal documentation, not a pre-launch concept.
-          </p>
-
-          {project?.images && project.images.length > 0 && (
-            <div className="mt-10 rounded-2xl overflow-hidden border border-[#e8ecf2] aspect-[16/9] relative bg-[#f3f5f8]">
-              <ProjectImageCarousel images={project.images} projectName="Vian Vally" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
+      <JsonLd data={[
+        buildBreadcrumbSchema([{ name: 'Home', url: siteUrl }, { name: 'Open Plots in Shabad', url: pageUrl }]),
+        buildFaqSchema(faqs),
+        buildRealEstateListingSchema({ name: 'Vian Valley — Open Plots in Shabad', description, url: pageUrl, address: 'Shabad, Ranga Reddy, Telangana', ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}) }),
+      ]} />
+      <section className="relative overflow-hidden bg-brand-deep pt-32 sm:pt-40 pb-16 sm:pb-20">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/10 rounded-full blur-[100px]" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+          <nav aria-label="Breadcrumb" className="text-sm text-white/60 mb-8"><Link href="/" className="hover:text-white">Home</Link><span className="mx-2">/</span>Open Plots in Shabad</nav>
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="flex items-center gap-2 text-brand-accent text-sm font-semibold mb-5"><MapPin className="w-4 h-4" /> Shabad · Southwest Hyderabad</p>
+              <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-5">Open Plots in Shabad.<br /><span className="text-brand-accent">Explore Vian Valley.</span></h1>
+              <p className="text-white/75 text-lg leading-relaxed">Explore Shabad’s growing industrial corridor and the developments shaping its future. Compare plot options, review the documents and visit the location with Bhuwanta.</p>
+              <div className="mt-7 border-l-2 border-brand-gold pl-5">
+                <p className="text-white/70 text-sm">Plots from</p>
+                <p className="text-3xl font-bold text-brand-accent">₹30,999 <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
+                <p className="text-xs text-white/65 mt-2">Request a plot-specific quote and full cost breakdown.</p>
+              </div>
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Link href="#book-visit" className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-brand-gold text-brand-deep font-bold rounded-xl hover:bg-brand-gold-light transition-colors">Get Price &amp; Plot Details <ArrowRight className="w-4 h-4" /></Link>
+                <TrackedWhatsAppAnchor href={whatsappUrl} className="inline-flex items-center justify-center px-6 py-4 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/10">Ask on WhatsApp</TrackedWhatsAppAnchor>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* Approvals + Specs */}
-      <section className="py-16 bg-[#f7f8fa]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-6">Approvals &amp; Legal Documentation</h2>
-            <div className="flex flex-wrap gap-3 mb-6">
-              <span className="px-4 py-2 bg-[#c4a55a] text-white rounded-full text-xs font-bold uppercase tracking-wider">
-                {project?.approvalBadge || 'HMDA & RERA Approved'}
-              </span>
-            </div>
-            {project?.reraUrls && project.reraUrls.length > 0 ? (
-              <a
-                href={project.reraUrls[0]}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-[#1e3a5f] hover:text-[#c4a55a] transition-colors"
-              >
-                <Download className="w-4 h-4" /> View RERA Certificate
-              </a>
+            {project?.images?.length ? (
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-white/10 border border-white/15">
+                <ProjectImageCarousel images={project.images} projectName="Vian Valley, Shabad" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
+              </div>
             ) : (
-              <p className="text-sm text-[#5a6a82]">RERA and approval documents are shared during your consultation.</p>
-            )}
-
-            {project?.projectHighlights && project.projectHighlights.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-[#e8ecf2] text-sm font-medium text-[#0f1d33]">
-                {project.projectHighlights.map((highlight, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-white stroke-[3]" />
-                    </div>
-                    {highlight}
-                  </div>
-                ))}
-              </div>
+              <div className="rounded-2xl border border-white/20 p-8 text-white/80"><h2 className="text-xl font-semibold text-white mb-4">Start with the details that matter</h2><p className="leading-relaxed">Ask for available plot numbers, phase-specific documents and a route to the entrance before your visit.</p></div>
             )}
           </div>
         </div>
       </section>
-
-      {/* FAQ */}
-      <section className="py-16 bg-white">
+      <section className="py-14 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-3 gap-7">
+          {[
+            { icon: IndianRupee, title: 'A quote for your plot', text: 'Compare the rate, plot area and total payable amount. Ask which charges are included before you shortlist.' },
+            { icon: FileCheck2, title: 'Documents for your phase', text: 'Request the approved layout, registration details and title documents that match the plot you are considering.' },
+            { icon: CalendarCheck, title: 'See the location', text: 'Visit the site to assess access roads, completed amenities and the surroundings for yourself.' },
+          ].map(item => <div key={item.title} className="rounded-xl border border-brand-border p-6"><item.icon className="w-6 h-6 text-brand-accent mb-4" /><h2 className="text-lg font-bold text-brand-ink mb-2">{item.title}</h2><p className="text-sm leading-relaxed text-brand-muted">{item.text}</p></div>)}
+        </div>
+      </section>
+      <section className="py-14 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-[#1e3a5f] mb-8">Frequently Asked Questions</h2>
-          <div className="space-y-6">
-            {faqs.map((faq, i) => (
-              <div key={i}>
-                <h3 className="text-lg font-bold text-[#0f1d33] mb-2">{faq.question}</h3>
-                <p className="text-[#5a6a82] leading-relaxed">{faq.answer}</p>
-              </div>
-            ))}
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-5">Shabad’s wider industrial corridor</h2>
+          <p className="text-brand-muted leading-relaxed mb-4">Shabad buyers often compare access to Chandanvelly, Hayathabad and Seetharampur. These are distinct locations: check the route from the particular plot rather than relying on a regional map or a headline travel time.</p>
+          <p className="text-brand-muted leading-relaxed mb-4">Olectra reported the start of commercial operations at its Seetharampur EV facility on 31 December 2025. Its first phase has an annual production capacity of 2,500 buses per shift. <a href="https://olectra.com/wp-content/uploads/23.-01.01.2026.pdf" target="_blank" rel="noopener noreferrer" className="underline text-brand-primary">Read Olectra’s announcement</a>.</p>
+          <p className="text-brand-muted leading-relaxed">Consider both existing activity and announced plans when comparing locations. Future development does not guarantee a particular resale price or completion date.</p>
+          <Link href="/projects/vian-vally" className="inline-flex items-center gap-2 font-semibold text-brand-primary mt-6">View Vian Valley project details <ArrowRight className="w-4 h-4" /></Link>
+        </div>
+      </section>
+      <section id="book-visit" className="py-16 bg-white scroll-mt-28">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[0.85fr_1.15fr] gap-10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-widest text-brand-accent mb-3">Your next step</p>
+            <h2 className="text-3xl font-bold text-brand-ink mb-5">Find the plot that fits your plans.</h2>
+            <p className="text-brand-muted leading-relaxed">Share your requirements to request available plot sizes, a written cost breakdown and a site visit. Whether you are comparing options or ready to visit, our team can help you take the next step.</p>
+            <p className="text-sm text-brand-muted mt-5">You can include your budget, preferred plot size and buying timeline in the optional message.</p>
           </div>
-          <p className="mt-10 text-sm text-[#5a6a82]">
-            Read more in our{' '}
-            <Link href="/blog/open-plots-shabad-hyderabad-hmda-approved-guide" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
-              full guide to open plots in Shabad
-            </Link>
-            , or see how Shabad compares to nearby{' '}
-            <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
-              Shadnagar
-            </Link>
-            . For the full project listing, visit{' '}
-            <Link href="/projects/vian-vally" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
-              the Vian Vally project page
-            </Link>
-            . Before you buy anywhere in this corridor, download our free{' '}
-            <Link href="/resources/hyderabad-plot-buyer-legal-checklist" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
-              Hyderabad Plot Buyer&apos;s Legal Checklist
-            </Link>
-            .
-          </p>
+          <div className="p-6 sm:p-8 rounded-2xl border border-brand-border bg-brand-paper"><ContactForm projectsList={projects} locationNames={['Shabad']} initialProject={projects[0].name} compact /></div>
+        </div>
+      </section>
+      <section className="py-16 bg-brand-paper">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl font-bold text-brand-ink mb-8">Questions about Shabad plots</h2>
+          <div className="space-y-6">{faqs.map(faq => <div key={faq.question}><h3 className="font-bold text-brand-ink mb-2">{faq.question}</h3><p className="text-brand-muted leading-relaxed">{faq.answer}</p></div>)}</div>
+          <div className="mt-10 pt-6 border-t border-brand-border flex flex-wrap gap-5 text-sm font-semibold text-brand-primary"><Link href="/blog/open-plots-shabad-hyderabad-hmda-approved-guide">Shabad buyer’s guide</Link><Link href="/blog/shabad-vs-shadnagar-investment-comparison">Shabad vs Shadnagar</Link><Link href="/resources/hyderabad-plot-buyer-legal-checklist">Plot document checklist</Link></div>
         </div>
       </section>
     </>

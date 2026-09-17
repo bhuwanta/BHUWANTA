@@ -100,12 +100,12 @@ export function ProjectHighlightImages({
 
   if (usable.length === 0) {
     return (
-      <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
-        <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">
-          <ImageOff className="w-8 h-8 text-[#1e3a5f]/40" />
+      <div className="bg-white border border-brand-border shadow-sm rounded-xl p-12 text-center">
+        <div className="w-16 h-16 bg-brand-soft rounded-full flex items-center justify-center mx-auto mb-4">
+          <ImageOff className="w-8 h-8 text-brand-primary/40" />
         </div>
-        <h3 className="text-xl font-bold text-[#0f1d33] mb-2">Photos Coming Soon</h3>
-        <p className="text-[#5a6a82]">We&apos;re preparing site photographs for {projectName}.</p>
+        <h3 className="text-xl font-bold text-brand-ink mb-2">Photos Coming Soon</h3>
+        <p className="text-brand-muted">We&apos;re preparing site photographs for {projectName}.</p>
       </div>
     )
   }
@@ -135,7 +135,7 @@ export function ProjectHighlightImages({
           return (
             <figure
               key={`${img.url}-${idx}`}
-              className="mb-4 lg:mb-6 break-inside-avoid bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden transition-premium hover:shadow-md"
+              className="mb-4 lg:mb-6 break-inside-avoid bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden transition-premium hover:shadow-md"
             >
               <button
                 type="button"
@@ -144,7 +144,7 @@ export function ProjectHighlightImages({
                 }}
                 onClick={() => open(idx)}
                 aria-label={`Open ${altFor(img, idx)} full size`}
-                className="group relative block w-full bg-[#f3f5f8] cursor-zoom-in"
+                className="group relative block w-full bg-brand-soft cursor-zoom-in"
               >
                 {width && height ? (
                   // The real dimensions give the browser the ratio up front, so
@@ -178,7 +178,7 @@ export function ProjectHighlightImages({
               </button>
               {img.caption && (
                 <figcaption
-                  className="px-4 py-3 text-sm font-semibold text-[#0f1d33] leading-snug"
+                  className="px-4 py-3 text-sm font-semibold text-brand-ink leading-snug"
                   title={img.caption}
                 >
                   {img.caption}
@@ -194,7 +194,7 @@ export function ProjectHighlightImages({
           <button
             type="button"
             onClick={() => setShowAll(true)}
-            className="px-6 py-3 bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-sm"
+            className="px-6 py-3 bg-white border border-brand-gold text-brand-accent font-semibold rounded-lg hover:bg-brand-paper transition-premium text-sm"
           >
             Show all {usable.length} photos
           </button>

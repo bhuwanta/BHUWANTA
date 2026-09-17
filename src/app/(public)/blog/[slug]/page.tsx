@@ -112,12 +112,12 @@ export default async function BlogPostPage({
     <>
       <JsonLd data={faqSchema ? [breadcrumb, articleSchema, faqSchema] : [breadcrumb, articleSchema]} />
 
-      <article className="pt-28 sm:pt-32 section-padding pb-20 bg-[#f7f8fa]">
-        <div className="max-w-4xl mx-auto bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden">
+      <article className="pt-28 sm:pt-32 section-padding pb-20 bg-brand-paper">
+        <div className="max-w-4xl mx-auto bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden">
           
           {/* Hero Image */}
           {post.mainImage && (
-            <div className="w-full aspect-[16/9] relative bg-[#f3f5f8]">
+            <div className="w-full aspect-[16/9] relative bg-brand-soft">
               <Image
                 src={post.mainImage}
                 alt={`${post.title} — cover image`}
@@ -132,25 +132,25 @@ export default async function BlogPostPage({
           <div className="p-8 md:p-12">
             {/* Header / Meta */}
             <header className="mb-10">
-              <div className="flex flex-wrap items-center gap-3 text-sm text-[#5a6a82] mb-6 font-medium">
-                <span className="flex items-center gap-1.5 text-[#c4a55a]"><Calendar className="w-4 h-4" /> <span className="text-[#5a6a82]">{formatDate(post.publishDate)}</span></span>
-                <span className="text-[#e8ecf2]">•</span>
-                <span className="flex items-center gap-1.5 text-[#c4a55a] font-semibold text-[#5a6a82]">Bhuwanta Team</span>
+              <div className="flex flex-wrap items-center gap-3 text-sm text-brand-muted mb-6 font-medium">
+                <span className="flex items-center gap-1.5 text-brand-accent"><Calendar className="w-4 h-4" /> <span className="text-brand-muted">{formatDate(post.publishDate)}</span></span>
+                <span className="text-brand-border">•</span>
+                <span className="flex items-center gap-1.5 text-brand-accent font-semibold text-brand-muted">Bhuwanta Team</span>
                 {post.tags && post.tags.length > 0 && (
                   <>
-                    <span className="text-[#e8ecf2]">•</span>
-                    <span className="flex items-center gap-1.5 text-[#c4a55a]"><Tag className="w-4 h-4" /> <span className="text-[#5a6a82]">{post.tags[0]}</span></span>
+                    <span className="text-brand-border">•</span>
+                    <span className="flex items-center gap-1.5 text-brand-accent"><Tag className="w-4 h-4" /> <span className="text-brand-muted">{post.tags[0]}</span></span>
                   </>
                 )}
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#1e3a5f] leading-tight mb-8">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-primary leading-tight mb-8">
                 {post.title}
               </h1>
             </header>
 
             {/* Body */}
-            <div className="prose prose-lg max-w-none prose-headings:text-[#1e3a5f] prose-h3:text-[#1e3a5f] prose-h4:text-[#c4a55a] prose-h4:font-bold prose-p:text-[#5a6a82] prose-a:text-[#1e3a5f] prose-a:font-semibold hover:prose-a:text-[#c4a55a] prose-strong:text-[#0f1d33] prose-blockquote:bg-[#fef9f0] prose-blockquote:border-l-4 prose-blockquote:border-[#c4a55a] prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:text-[#5a6a82] prose-blockquote:not-italic prose-li:text-[#5a6a82] prose-ul:text-[#5a6a82] prose-ol:text-[#5a6a82]">
+            <div className="prose prose-lg max-w-none prose-headings:text-brand-primary prose-h3:text-brand-primary prose-h4:text-brand-accent prose-h4:font-bold prose-p:text-brand-muted prose-a:text-brand-primary prose-a:font-semibold hover:prose-a:text-brand-accent prose-strong:text-brand-ink prose-blockquote:bg-brand-soft prose-blockquote:border-l-4 prose-blockquote:border-brand-gold prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:text-brand-muted prose-blockquote:not-italic prose-li:text-brand-muted prose-ul:text-brand-muted prose-ol:text-brand-muted">
               {post.body && (
                 <PortableText 
                   value={post.body} 
@@ -171,13 +171,13 @@ export default async function BlogPostPage({
 
             {/* FAQs */}
             {post.faqs && post.faqs.length > 0 && (
-              <div className="mt-16 pt-8 border-t border-[#e8ecf2]">
-                <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">Frequently Asked Questions</h2>
+              <div className="mt-16 pt-8 border-t border-brand-border">
+                <h2 className="text-2xl font-bold text-brand-primary mb-6">Frequently Asked Questions</h2>
                 <div className="space-y-6">
                   {post.faqs.map((faq, i) => (
                     <div key={i}>
-                      <h3 className="text-lg font-bold text-[#0f1d33] mb-2">{faq.question}</h3>
-                      <p className="text-[#5a6a82] leading-relaxed">{faq.answer}</p>
+                      <h3 className="text-lg font-bold text-brand-ink mb-2">{faq.question}</h3>
+                      <p className="text-brand-muted leading-relaxed">{faq.answer}</p>
                     </div>
                   ))}
                 </div>
@@ -185,18 +185,18 @@ export default async function BlogPostPage({
             )}
 
             {/* Footer */}
-            <footer className="mt-16 pt-8 border-t border-[#e8ecf2] flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-sm text-[#5a6a82]">
+            <footer className="mt-16 pt-8 border-t border-brand-border flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3 text-sm text-brand-muted">
                 Share this article:
                 <div className="flex gap-2">
-                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-colors text-xs font-bold">f</a>
-                  <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-colors text-[10px] font-bold">in</a>
-                  <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-colors text-xs font-bold">x</a>
+                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-colors text-xs font-bold">f</a>
+                  <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-colors text-[10px] font-bold">in</a>
+                  <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`${siteUrl}/blog/${slug}`)}&text=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-6 h-6 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary hover:bg-brand-primary hover:text-white transition-colors text-xs font-bold">x</a>
                 </div>
               </div>
               <Link
                 href="/blog"
-                className="inline-flex items-center gap-2 text-sm font-bold text-[#c4a55a] hover:text-[#a38743] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-bold text-brand-accent hover:text-brand-accent transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to all blogs
               </Link>

@@ -107,11 +107,11 @@ export default async function GalleryPage() {
     <>
       <JsonLd data={gallerySchema ? [breadcrumb, gallerySchema] : [breadcrumb]} />
 
-      <PageBanner 
-        title={<>Our <span className="text-[#c4a55a]">Gallery</span></>} 
+      <PageBanner
+        title={<>Our <span className="text-brand-accent">Gallery</span></>}
       />
 
-      <div className="flex-1 bg-[#f7f8fa]">
+      <div className="flex-1 bg-brand-paper">
         <GalleryGrid projects={projects} gallerySingleton={gallerySingleton} />
       </div>
 

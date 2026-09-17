@@ -1,6 +1,6 @@
 'use client'
 
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackWhatsAppClick } from '@/lib/gtag'
 
 const WHATSAPP_NUMBER = '919666504405'
 
@@ -30,7 +30,7 @@ export function WhatsAppInlineCta({
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={trackConversion ? fireLeadConversion : undefined}
+      onClick={trackConversion ? trackWhatsAppClick : undefined}
       className={`inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white text-sm font-semibold rounded-lg shadow-lg shadow-[#25D366]/20 hover:scale-105 transition-premium ${className}`}
     >
       {label}

@@ -1,3 +1,4 @@
+import { enquiryHref } from '@/lib/project-links'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
@@ -173,13 +174,13 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
       <PageBanner
         title={
           <>
-            {name} <span className="text-[#c4a55a]">Project Highlights</span>
+            {name} <span className="text-brand-accent">Project Highlights</span>
           </>
         }
         subtitle={project.location || project.categoryTitle}
       />
 
-      <div className="py-12 lg:py-16 bg-[#f7f8fa] min-h-[50vh]">
+      <div className="py-12 lg:py-16 bg-brand-paper min-h-[50vh]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back goes to the listing, not to /projects/<slug>: visitors reach
               this page from the Videos button on a project card, and for two
@@ -187,7 +188,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               were actually on. */}
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#c4a55a] hover:text-[#b59853] transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-accent hover:text-brand-accent transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" /> Back to All Projects
           </Link>
@@ -198,10 +199,10 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
           {(project.videosPageHeading || project.videosPageIntro) && (
             <div className="mb-10 max-w-3xl">
               {project.videosPageHeading && (
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#0f1d33] mb-3">{project.videosPageHeading}</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-3">{project.videosPageHeading}</h2>
               )}
               {project.videosPageIntro && (
-                <p className="text-[#5a6a82] leading-relaxed whitespace-pre-line">{project.videosPageIntro}</p>
+                <p className="text-brand-muted leading-relaxed whitespace-pre-line">{project.videosPageIntro}</p>
               )}
             </div>
           )}
@@ -224,25 +225,25 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               <ProjectHighlightsTabs videos={videos} images={images} projectName={name} />
             </Suspense>
           ) : (
-            <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-12 text-center">
-              <div className="w-16 h-16 bg-[#f3f5f8] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Film className="w-8 h-8 text-[#1e3a5f]/40" />
+            <div className="bg-white border border-brand-border shadow-sm rounded-xl p-12 text-center">
+              <div className="w-16 h-16 bg-brand-soft rounded-full flex items-center justify-center mx-auto mb-4">
+                <Film className="w-8 h-8 text-brand-primary/40" />
               </div>
-              <h3 className="text-xl font-bold text-[#0f1d33] mb-2">Highlights Coming Soon</h3>
-              <p className="text-[#5a6a82] mb-6">
+              <h3 className="text-xl font-bold text-brand-ink mb-2">Highlights Coming Soon</h3>
+              <p className="text-brand-muted mb-6">
                 We&apos;re preparing site walkthroughs, drone footage and photographs for {name}. In the meantime, our
                 team can walk you through the layout directly.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href={`/#book-visit?project=${encodeURIComponent(name)}`}
-                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-sm"
+                  href={enquiryHref(name)}
+                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-sm"
                 >
                   Enquire Now
                 </Link>
                 <Link
                   href={`/projects/${slug}`}
-                  className="w-full sm:w-auto px-6 py-3 bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-sm"
+                  className="w-full sm:w-auto px-6 py-3 bg-white border border-brand-gold text-brand-accent font-semibold rounded-lg hover:bg-brand-paper transition-premium text-sm"
                 >
                   View Project
                 </Link>
@@ -251,15 +252,15 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
           )}
 
           {(videos.length > 0 || images.length > 0) && (
-            <div className="mt-12 bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-12 bg-white border border-brand-border shadow-sm rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
-                <h3 className="text-lg font-bold text-[#0f1d33]">Want to see {name} in person?</h3>
-                <p className="text-sm text-[#5a6a82] mt-1">Book a site visit or ask us anything about the layout.</p>
+                <h3 className="text-lg font-bold text-brand-ink">Want to see {name} in person?</h3>
+                <p className="text-sm text-brand-muted mt-1">Book a site visit or ask us anything about the layout.</p>
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Link
-                  href={`/#book-visit?project=${encodeURIComponent(name)}`}
-                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-sm text-center"
+                  href={enquiryHref(name)}
+                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-sm text-center"
                 >
                   Enquire Now
                 </Link>

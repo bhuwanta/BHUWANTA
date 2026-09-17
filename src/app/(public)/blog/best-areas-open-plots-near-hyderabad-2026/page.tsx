@@ -14,7 +14,7 @@ export const metadata: Metadata = buildStaticOgMetadata({
 const faqs = [
   {
     question: 'What are the best growth corridors for open plots near Hyderabad in 2026?',
-    answer: 'Three corridors stand out: NH-44 South (Shabad and Shadnagar, on the Bangalore Highway), Mumbai Highway West (Sangareddy and Sadashivpet, on NH-65, near the NIMZ industrial belt), and Warangal Highway East (near Yadagirigutta, on NH-163). Each has a different growth driver — highway connectivity, industrial development, and temple-tourism infrastructure respectively — so the "best" one depends on your priorities.',
+    answer: 'Three corridors stand out: Southwest Hyderabad (Shabad, and Shadnagar on the NH-44 corridor), Mumbai Highway West (Sangareddy and Sadashivpet, on NH-65, near the NIMZ industrial belt), and Warangal Highway East (near Yadagirigutta, on NH-163). Each has a different growth driver — highway connectivity, industrial development, and temple-tourism infrastructure respectively — so the "best" one depends on your priorities.',
   },
   {
     question: 'Which corridor has the most affordable entry point?',
@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     question: 'Does Bhuwanta have verified projects in all three corridors?',
-    answer: 'Yes. Bhuwanta has live, HMDA/DTCP and RERA approved projects across NH-44 South (Vian Vally, Shabad), Mumbai Highway West (TJR Township at Sangareddy, Vaibhav County at Sadashivpet), and Warangal Highway East (S.V. Kanaka Maple Homes, near Yadagirigutta).',
+    answer: 'Yes. Bhuwanta has live, HMDA/DTCP and RERA approved projects across Southwest Hyderabad (Vian Valley, Shabad), Mumbai Highway West (TJR Township at Sangareddy, Vaibhav County at Sadashivpet), and Warangal Highway East (S.V. Kanaka Maple Homes, near Yadagirigutta).',
   },
 ]
 
@@ -63,7 +63,7 @@ export default function BestAreasOpenPlotsPage() {
 
       <h2>The Three Corridors at a Glance</h2>
       <p>
-        <strong>NH-44 South (Shabad / Shadnagar)</strong> — on the Bangalore Highway southwest of the city, in the
+        <strong>Southwest Hyderabad (Shabad / Shadnagar)</strong> — separate locations south and southwest of the city, in the
         same growth belt that also serves Rajiv Gandhi International Airport.
       </p>
       <p>
@@ -83,10 +83,10 @@ export default function BestAreasOpenPlotsPage() {
         project is shaping growth across the wider region.
       </p>
 
-      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-[#e8ecf2]">
+      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-brand-border">
         <table className="w-full text-sm text-left">
           <thead>
-            <tr className="bg-[#f7f8fa] text-[#1e3a5f]">
+            <tr className="bg-brand-paper text-brand-primary">
               <th className="px-4 py-3 font-bold">Corridor</th>
               <th className="px-4 py-3 font-bold">Highway</th>
               <th className="px-4 py-3 font-bold">Primary Growth Driver</th>
@@ -94,18 +94,18 @@ export default function BestAreasOpenPlotsPage() {
               <th className="px-4 py-3 font-bold">Approval Type</th>
             </tr>
           </thead>
-          <tbody className="text-[#5a6a82]">
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">NH-44 South</td>
+          <tbody className="text-brand-muted">
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">NH-44 South</td>
               <td className="px-4 py-3">NH-44 Bangalore Highway</td>
               <td className="px-4 py-3">Highway connectivity, airport-side growth belt</td>
               <td className="px-4 py-3">
-                <Link href="/projects/vian-vally">Vian Vally</Link> (Shabad)
+                <Link href="/projects/vian-vally">Vian Valley</Link> (Shabad)
               </td>
               <td className="px-4 py-3">HMDA &amp; RERA</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Mumbai Highway West</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Mumbai Highway West</td>
               <td className="px-4 py-3">NH-65 Mumbai Highway</td>
               <td className="px-4 py-3">NIMZ industrial belt, education hub, district HQ</td>
               <td className="px-4 py-3">
@@ -114,8 +114,8 @@ export default function BestAreasOpenPlotsPage() {
               </td>
               <td className="px-4 py-3">HMDA / DTCP &amp; RERA</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Warangal Highway East</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Warangal Highway East</td>
               <td className="px-4 py-3">NH-163 Warangal Highway</td>
               <td className="px-4 py-3">Temple-tourism infrastructure, rail connectivity</td>
               <td className="px-4 py-3">
@@ -127,11 +127,11 @@ export default function BestAreasOpenPlotsPage() {
         </table>
       </div>
 
-      <h2>NH-44 South: Shabad &amp; Shadnagar</h2>
+      <h2>Southwest Hyderabad: Shabad &amp; Shadnagar</h2>
       <p>
-        This corridor&apos;s advantage is straightforward highway geography — it sits directly on the NH-44
-        Bangalore Highway, in the same broader growth belt that also serves Rajiv Gandhi International Airport.
-        Bhuwanta&apos;s live, verified inventory here is <Link href="/projects/vian-vally">Vian Vally</Link> in
+        Shadnagar is associated with the NH-44 Bangalore Highway. Shabad is a separate location southwest of Hyderabad;
+        compare actual approach roads and travel routes for each project.
+        Bhuwanta&apos;s live, verified inventory here is <Link href="/projects/vian-vally">Vian Valley</Link> in
         Shabad. See our dedicated <Link href="/shabad-open-plots">Shabad</Link> and{' '}
         <Link href="/shadnagar-open-plots">Shadnagar</Link> pages, or our{' '}
         <Link href="/blog/shabad-vs-shadnagar-investment-comparison">direct comparison of the two towns</Link>.
