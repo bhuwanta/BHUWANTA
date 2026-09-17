@@ -58,7 +58,7 @@ export function ProjectDetailActions({
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
           href={enquiryHref(name)}
-          className="w-full col-span-1 px-2 py-2.5 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           Enquire Now
         </Link>
@@ -67,7 +67,7 @@ export function ProjectDetailActions({
           target="_blank"
           rel="noopener noreferrer"
           onClick={trackWhatsAppClick}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-[#25D366] text-white font-semibold rounded-lg hover:opacity-90 transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-[#25D366] text-white font-semibold rounded-lg hover:opacity-90 transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           WhatsApp
         </a>
@@ -76,7 +76,7 @@ export function ProjectDetailActions({
             href={googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
+            className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
           >
             <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">View Location</span>
           </a>
@@ -84,7 +84,7 @@ export function ProjectDetailActions({
         {showHighlights && (
           <Link
             href={`/projects/${slug}/videos`}
-            className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
+            className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2"
           >
             <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" />{' '}
             <span className="truncate"><span className="hidden sm:inline">Project </span>Highlights</span>
@@ -94,7 +94,7 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: brochureUrls!, documentType: 'Brochure' })}
           disabled={!brochureUrls || brochureUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Brochure</span>
         </button>
@@ -102,7 +102,7 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: layoutUrls!, documentType: 'Layout' })}
           disabled={!layoutUrls || layoutUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Layout</span>
         </button>
@@ -110,7 +110,7 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: reraUrls!, documentType: 'RERA Documents' })}
           disabled={!reraUrls || reraUrls.length === 0}
-          className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">RERA Documents</span>
         </button>
@@ -118,7 +118,7 @@ export function ProjectDetailActions({
           type="button"
           onClick={() => setDownloadQueue({ urls: hmdaDtcpUrls!, documentType: approvalCertificateLabel || 'HMDA/DTCP Approved' })}
           disabled={!hmdaDtcpUrls || hmdaDtcpUrls.length === 0}
-          className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed`}
+          className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 disabled:opacity-40 disabled:cursor-not-allowed`}
         >
           <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">{approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
         </button>

@@ -112,7 +112,7 @@ export function Footer() {
                 href={mapsUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-fit ml-8 px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-gold/10 text-brand-accent hover:bg-brand-gold hover:text-white transition-premium border border-brand-gold/20 shadow-none flex items-center gap-2 uppercase tracking-wider"
+                className="w-fit ml-8 px-4 py-2.5 min-h-11 text-xs font-bold rounded-lg bg-brand-gold/10 text-brand-accent hover:bg-brand-gold hover:text-white transition-premium border border-brand-gold/20 shadow-none flex items-center gap-2 uppercase tracking-wider"
               >
                 <MapPin className="w-3.5 h-3.5" />
                 Open in Google Maps

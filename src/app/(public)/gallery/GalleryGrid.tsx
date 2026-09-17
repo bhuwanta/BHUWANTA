@@ -92,7 +92,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
           <div className="bg-white border border-brand-border p-1.5 rounded-xl inline-flex shadow-sm min-w-max snap-center">
             <button
               onClick={() => setActiveTab('site_visits')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 min-h-11 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
                 activeTab === 'site_visits'
                   ? 'gradient-gold text-white shadow-md'
                   : 'text-brand-muted hover:text-brand-ink hover:bg-brand-soft'
@@ -102,7 +102,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
             </button>
             <button
               onClick={() => setActiveTab('videos')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 min-h-11 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
                 activeTab === 'videos'
                   ? 'gradient-gold text-white shadow-md'
                   : 'text-brand-muted hover:text-brand-ink hover:bg-brand-soft'
@@ -112,7 +112,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
             </button>
             <button
               onClick={() => setActiveTab('photos')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 min-h-11 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
                 activeTab === 'photos'
                   ? 'gradient-gold text-white shadow-md'
                   : 'text-brand-muted hover:text-brand-ink hover:bg-brand-soft'
@@ -122,7 +122,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
             </button>
             <button
               onClick={() => setActiveTab('social_media')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 min-h-11 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
                 activeTab === 'social_media'
                   ? 'gradient-gold text-white shadow-md'
                   : 'text-brand-muted hover:text-brand-ink hover:bg-brand-soft'
