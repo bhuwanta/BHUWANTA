@@ -40,7 +40,7 @@ export function AnimatedCounter({ value }: AnimatedCounterProps) {
   useEffect(() => { queueMicrotask(() => setMounted(true)) }, [])
 
   return (
-    <span ref={ref} className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-[#c4a55a] via-[#e2cc8f] to-[#c4a55a]">
+    <span ref={ref} className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold">
       {!mounted ? value : `${display}${suffix}`}
     </span>
   )

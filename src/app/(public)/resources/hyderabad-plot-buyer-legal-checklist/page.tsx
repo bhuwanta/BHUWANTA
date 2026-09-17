@@ -63,7 +63,7 @@ export default function LegalChecklistPage() {
       <JsonLd data={breadcrumb} />
 
       <PageBanner
-        title={<>Hyderabad Plot Buyer&apos;s <span className="text-[#c4a55a]">Legal Checklist (2026)</span></>}
+        title={<>Hyderabad Plot Buyer&apos;s <span className="text-brand-accent">Legal Checklist (2026)</span></>}
         subtitle="The 8-step verification process every serious buyer should follow before purchasing an open plot in Hyderabad"
       />
 
@@ -76,21 +76,21 @@ export default function LegalChecklistPage() {
             <div className="space-y-8">
               {steps.map((step, i) => (
                 <div key={i} className="flex items-start gap-4">
-                  <CheckCircle2 className="w-6 h-6 text-[#c4a55a] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-brand-accent shrink-0 mt-0.5" />
                   <div>
-                    <h2 className="text-lg font-bold text-[#0f1d33] mb-1">{step.title}</h2>
-                    <p className="text-[#5a6a82] leading-relaxed">{step.body}</p>
+                    <h2 className="text-lg font-bold text-brand-ink mb-1">{step.title}</h2>
+                    <p className="text-brand-muted leading-relaxed">{step.body}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="mt-10 text-sm text-[#5a6a82] border-t border-[#e8ecf2] pt-6">
+            <p className="mt-10 text-sm text-brand-muted border-t border-brand-border pt-6">
               This checklist is general guidance, not legal advice. For a specific transaction, consult a
               qualified property lawyer. Bhuwanta Developers provides HMDA/DTCP approval documents and RERA
               certificates for all our own projects on request — happy to walk you through this checklist
               against our own documentation. For the detailed walkthrough of steps 1-4 (which portals to use and
               what to search for), see{' '}
-              <Link href="/blog/verify-hmda-dtcp-approval-telangana" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
+              <Link href="/blog/verify-hmda-dtcp-approval-telangana" className="font-semibold text-brand-primary hover:text-brand-accent">
                 How to Verify HMDA/DTCP Approval in Telangana
               </Link>.
             </p>

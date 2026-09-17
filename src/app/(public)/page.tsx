@@ -230,15 +230,15 @@ export default async function HomePage({
       </section>
 
       {/* ===== SECTION 1.5 — STATS BAR ===== */}
-      <section className="bg-white border-b border-[#e8ecf2] py-12 relative z-20 shadow-sm">
+      <section className="bg-white border-b border-brand-border py-12 relative z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 sm:gap-y-12 md:gap-8 md:divide-x md:divide-[#e8ecf2]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 sm:gap-y-12 md:gap-8 md:divide-x md:divide-brand-border">
             {statsData.map((stat, idx) => (
               <div key={idx} className="text-center px-2 sm:px-4 flex flex-col items-center justify-center">
-                <div className="text-3xl sm:text-4xl font-bold text-[#c4a55a] mb-2">
+                <div className="text-3xl sm:text-4xl font-bold text-brand-accent mb-2">
                   <AnimatedCounter value={stat.value} />
                 </div>
-                <div className="text-sm sm:text-base font-semibold text-[#0f1d33] text-center max-w-[120px] sm:max-w-none">{stat.label}</div>
+                <div className="text-sm sm:text-base font-semibold text-brand-ink text-center max-w-[120px] sm:max-w-none">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -246,9 +246,9 @@ export default async function HomePage({
       </section>
 
       {/* ===== SECTION 1.6 — CITABLE COMPANY SUMMARY (for AI/answer engines) ===== */}
-      <section className="bg-white py-10 sm:py-14 border-b border-[#e8ecf2]">
+      <section className="bg-white py-10 sm:py-14 border-b border-brand-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <p className="text-sm sm:text-base text-[#5a6a82] leading-relaxed text-center">
+          <p className="text-sm sm:text-base text-brand-muted leading-relaxed text-center">
             Bhuwanta Developers is a Hyderabad-based real estate company specializing in HMDA and DTCP approved open plots, villa plots, and farmlands. The company&apos;s current projects span four of Hyderabad&apos;s fastest-growing corridors: S.V. Kanaka Maple Homes on the Warangal Highway near the Yadagirigutta Temple, TJR Township at Sangareddy Junction on the Mumbai Highway, Vaibhav County in Sadashivpet also on the Mumbai Highway, and Vian Valley in Shabad, southwest of Hyderabad. Every layout is DTCP, HMDA, or YTDA approved and RERA registered, with clear legal documentation, Vastu-compliant planning, and underground drainage. Bhuwanta has sold 100+ plots to date. Bhuwanta is led by Chairman &amp; Managing Director S. Siva Kumar and CEO &amp; Managing Director CH. Rama Krishna Reddy. The company&apos;s headquarters is at Alluri Trade Center, KPHB, Hyderabad, near KPHB Metro Station. Buyers can book a free site visit directly through the website or WhatsApp.
           </p>
         </div>
@@ -256,17 +256,17 @@ export default async function HomePage({
 
 
       {/* ===== SECTION 2 — WHY CHOOSE BHUWANTA (DARK) ===== */}
-      <section className="bg-[#022F3A] pt-20 pb-10 sm:pt-28 sm:pb-14 overflow-hidden" id="why-choose">
+      <section className="bg-brand-deep pt-20 pb-10 sm:pt-28 sm:pb-14 overflow-hidden" id="why-choose">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex justify-center mb-5">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20">
               <ShieldCheck className="w-3.5 h-3.5" />
               Why Us
             </span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-5 tracking-tight">
-            Why Choose <span className="text-[#c4a55a]">BHUWANTA?</span>
+            Why Choose <span className="text-brand-accent">BHUWANTA?</span>
           </h2>
 
           <p className="text-base sm:text-lg text-white/80 text-center max-w-3xl mx-auto mb-14 leading-relaxed">
@@ -283,10 +283,10 @@ export default async function HomePage({
                   key={`track1-${i}`}
                   className="w-[280px] sm:w-[320px] flex-shrink-0 flex items-center gap-3 bg-white rounded-xl px-4 py-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                 >
-                  <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-[#B69A4E]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#B69A4E]/20">
-                    <feature.icon className="w-5 h-5 text-[#B69A4E]" />
+                  <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-brand-gold/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-brand-gold/20">
+                    <feature.icon className="w-5 h-5 text-brand-accent" />
                   </div>
-                  <span className="text-[15px] font-semibold text-[#0f1d33] whitespace-normal leading-tight">
+                  <span className="text-[15px] font-semibold text-brand-ink whitespace-normal leading-tight">
                     {feature.title}
                   </span>
                 </div>
@@ -299,18 +299,18 @@ export default async function HomePage({
                   key={`track2-${i}`}
                   className="w-[280px] sm:w-[320px] flex-shrink-0 flex items-center gap-3 bg-white rounded-xl px-4 py-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                 >
-                  <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-[#B69A4E]/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-[#B69A4E]/20">
-                    <feature.icon className="w-5 h-5 text-[#B69A4E]" />
+                  <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-brand-gold/10 flex items-center justify-center transition-colors duration-300 group-hover:bg-brand-gold/20">
+                    <feature.icon className="w-5 h-5 text-brand-accent" />
                   </div>
-                  <span className="text-[15px] font-semibold text-[#0f1d33] whitespace-normal leading-tight">
+                  <span className="text-[15px] font-semibold text-brand-ink whitespace-normal leading-tight">
                     {feature.title}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-[#022F3A] to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-[#022F3A] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-brand-deep to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-brand-deep to-transparent" />
         </div>
       </section>
 
@@ -321,17 +321,17 @@ export default async function HomePage({
       <section className="bg-white pt-10 pb-20 sm:pt-14 sm:pb-28" id="premium-projects">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex justify-center mb-5">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest">
               <MapPin className="w-3.5 h-3.5" />
               Premium Projects
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#022F3A] text-center mb-5 tracking-tight">
-            Explore Our Premium <span className="text-[#c4a55a]">Open Plot Projects</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-deep text-center mb-5 tracking-tight">
+            Explore Our Premium <span className="text-brand-accent">Open Plot Projects</span>
           </h2>
 
-          <p className="text-base sm:text-lg text-[#3a3a3a] text-center max-w-3xl mx-auto mb-14 leading-relaxed">
+          <p className="text-base sm:text-lg text-brand-muted text-center max-w-3xl mx-auto mb-14 leading-relaxed">
             Discover strategically located HMDA-approved plots in Hyderabad&apos;s fastest growing corridors. Each project is designed to offer excellent connectivity, infrastructure, and long-term appreciation.
           </p>
 
@@ -342,7 +342,7 @@ export default async function HomePage({
                 key={index}
                 className="group block"
               >
-                <div className="relative overflow-hidden rounded-2xl shadow-md aspect-[4/3] border border-[#e8ecf2] transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-[#c4a55a]/50">
+                <div className="relative overflow-hidden rounded-2xl shadow-md aspect-[4/3] border border-brand-border transition-all duration-500 hover:shadow-xl hover:-translate-y-1 hover:border-brand-gold/50">
                   <SanityImage 
                     src={category.image} 
                     alt={category.name} 
@@ -352,12 +352,12 @@ export default async function HomePage({
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f1d33] via-[#0f1d33]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-ink via-brand-ink/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
                   <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col justify-end">
                     <h3 className="text-xl font-bold text-white mb-2 translate-y-1 group-hover:translate-y-0 transition-transform duration-300 leading-tight">
                       {category.name}
                     </h3>
-                    <div className="h-1 w-10 bg-[#c4a55a] rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-100" />
+                    <div className="h-1 w-10 bg-brand-gold rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-100" />
                   </div>
                 </div>
               </Link>
@@ -368,7 +368,7 @@ export default async function HomePage({
           <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/projects"
-              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl bg-[#022F3A] text-white transition-all hover:bg-[#022F3A]/90 hover:shadow-xl hover:-translate-y-0.5 overflow-hidden w-full sm:w-auto"
+              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl bg-brand-deep text-white transition-all hover:bg-brand-deep/90 hover:shadow-xl hover:-translate-y-0.5 overflow-hidden w-full sm:w-auto"
             >
               <span className="relative z-10 flex items-center gap-2">
                 View All Projects
@@ -387,17 +387,17 @@ export default async function HomePage({
       )}
 
       {/* ===== SECTION 5 — YOUR JOURNEY TO OWNERSHIP (BLUE) ===== */}
-      <section className="bg-[#022F3A] py-20 sm:py-28 relative overflow-hidden" id="journey">
+      <section className="bg-brand-deep py-20 sm:py-28 relative overflow-hidden" id="journey">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
           
           <div className="text-center mb-16">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20 mb-5">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20 mb-5">
               <Compass className="w-3.5 h-3.5" />
               Simple Process
             </span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
               Your Journey to Owning a Plot <br className="hidden sm:block" />
-              <span className="text-[#B69A4E] mt-2 inline-block">with Bhuwanta</span>
+              <span className="text-brand-accent mt-2 inline-block">with Bhuwanta</span>
             </h2>
           </div>
 
@@ -409,20 +409,20 @@ export default async function HomePage({
                   className="relative w-full lg:w-auto lg:flex-1 group"
                 >
                   {index !== journeyStepsData.length - 1 && (
-                    <div className="hidden lg:block absolute top-10 left-[50%] w-full h-[2px] bg-[#B69A4E]/30 z-0" />
+                    <div className="hidden lg:block absolute top-10 left-[50%] w-full h-[2px] bg-brand-gold/30 z-0" />
                   )}
 
                   {/* Mobile: horizontal row layout */}
                   <div className="flex items-start gap-6 lg:hidden relative">
-                    <div className="shrink-0 z-10 w-14 h-14 rounded-full bg-[#022F3A] border-2 border-[#B69A4E] text-[#B69A4E] flex items-center justify-center text-lg font-bold group-hover:bg-[#B69A4E] group-hover:text-white transition-all duration-300">
+                    <div className="shrink-0 z-10 w-14 h-14 rounded-full bg-brand-deep border-2 border-brand-gold text-brand-accent flex items-center justify-center text-lg font-bold group-hover:bg-brand-gold group-hover:text-brand-ink transition-all duration-300">
                       {step.id}
                     </div>
                     {/* Line connecting to the NEXT step (mobile) */}
                     {index !== journeyStepsData.length - 1 && (
-                      <div className="absolute left-7 top-14 w-[2px] bg-[#B69A4E]/30 -translate-x-1/2 z-0" style={{ height: 'calc(100% + 2.5rem - 3.5rem)' }} />
+                      <div className="absolute left-7 top-14 w-[2px] bg-brand-gold/30 -translate-x-1/2 z-0" style={{ height: 'calc(100% + 2.5rem - 3.5rem)' }} />
                     )}
                     <div className="pt-1.5 pb-2">
-                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#B69A4E] transition-colors duration-300">
+                      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-brand-accent transition-colors duration-300">
                         {step.title}
                       </h3>
                       <p className="text-white/70 text-sm sm:text-base leading-relaxed">
@@ -433,11 +433,11 @@ export default async function HomePage({
 
                   {/* Desktop: vertical column layout */}
                   <div className="hidden lg:flex flex-col items-center">
-                    <div className="shrink-0 z-10 w-20 h-20 rounded-full bg-[#022F3A] border-2 border-[#B69A4E] text-[#B69A4E] flex items-center justify-center text-2xl font-bold mb-8 group-hover:scale-110 group-hover:bg-[#B69A4E] group-hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(182,154,78,0.15)] group-hover:shadow-[0_0_30px_rgba(182,154,78,0.4)]">
+                    <div className="shrink-0 z-10 w-20 h-20 rounded-full bg-brand-deep border-2 border-brand-gold text-brand-accent flex items-center justify-center text-2xl font-bold mb-8 group-hover:scale-110 group-hover:bg-brand-gold group-hover:text-brand-ink transition-all duration-300 shadow-[0_0_20px_rgba(182,154,78,0.15)] group-hover:shadow-[0_0_30px_rgba(182,154,78,0.4)]">
                       {step.id}
                     </div>
                     <div className="text-center px-4">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-[#B69A4E] transition-colors duration-300">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-brand-accent transition-colors duration-300">
                         {step.title}
                       </h3>
                       <p className="text-white/80 text-sm leading-relaxed max-w-[280px] mx-auto">
@@ -456,15 +456,15 @@ export default async function HomePage({
       <section className="bg-white py-16 sm:py-24 overflow-hidden" id="certifications">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-12 text-center">
           <div className="flex justify-center mb-5">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest">
               <BadgeCheck className="w-3.5 h-3.5" />
               Verified & Secure
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#022F3A] mb-4 tracking-tight">
-            Our <span className="text-[#c4a55a]">Certifications & Approvals</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-deep mb-4 tracking-tight">
+            Our <span className="text-brand-accent">Certifications & Approvals</span>
           </h2>
-          <p className="text-base sm:text-lg text-[#3a3a3a] max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-brand-muted max-w-2xl mx-auto">
             We ensure every project meets the highest standards of legality and compliance.
           </p>
         </div>
@@ -476,12 +476,12 @@ export default async function HomePage({
               {certifications.map((cert, i) => (
                 <div
                   key={`cert1-${i}`}
-                  className="w-[220px] sm:w-[260px] flex-shrink-0 flex flex-col items-center gap-3 bg-[#fafafa] border border-gray-200 rounded-xl px-4 py-5 text-center transition-all duration-300 hover:shadow-md hover:border-[#B69A4E] hover:-translate-y-1 hover:bg-white"
+                  className="w-[220px] sm:w-[260px] flex-shrink-0 flex flex-col items-center gap-3 bg-brand-paper border border-gray-200 rounded-xl px-4 py-5 text-center transition-all duration-300 hover:shadow-md hover:border-brand-gold hover:-translate-y-1 hover:bg-white"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#B69A4E]/10 flex items-center justify-center">
-                    <cert.icon className="w-6 h-6 text-[#B69A4E]" />
+                  <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center">
+                    <cert.icon className="w-6 h-6 text-brand-accent" />
                   </div>
-                  <span className="text-sm sm:text-[15px] font-bold text-[#022F3A] leading-tight whitespace-normal">
+                  <span className="text-sm sm:text-[15px] font-bold text-brand-deep leading-tight whitespace-normal">
                     {cert.title}
                   </span>
                 </div>
@@ -492,12 +492,12 @@ export default async function HomePage({
               {certifications.map((cert, i) => (
                 <div
                   key={`cert2-${i}`}
-                  className="w-[220px] sm:w-[260px] flex-shrink-0 flex flex-col items-center gap-3 bg-[#fafafa] border border-gray-200 rounded-xl px-4 py-5 text-center transition-all duration-300 hover:shadow-md hover:border-[#B69A4E] hover:-translate-y-1 hover:bg-white"
+                  className="w-[220px] sm:w-[260px] flex-shrink-0 flex flex-col items-center gap-3 bg-brand-paper border border-gray-200 rounded-xl px-4 py-5 text-center transition-all duration-300 hover:shadow-md hover:border-brand-gold hover:-translate-y-1 hover:bg-white"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#B69A4E]/10 flex items-center justify-center">
-                    <cert.icon className="w-6 h-6 text-[#B69A4E]" />
+                  <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center">
+                    <cert.icon className="w-6 h-6 text-brand-accent" />
                   </div>
-                  <span className="text-sm sm:text-[15px] font-bold text-[#022F3A] leading-tight whitespace-normal">
+                  <span className="text-sm sm:text-[15px] font-bold text-brand-deep leading-tight whitespace-normal">
                     {cert.title}
                   </span>
                 </div>
@@ -509,17 +509,17 @@ export default async function HomePage({
 
       {/* ===== SECTION 7 — REAL SITES, REAL APPROVALS (BLUE) ===== */}
       {sitePhotos.length > 0 && (
-      <section className="bg-[#022F3A] py-20 sm:py-28" id="testimonials">
+      <section className="bg-brand-deep py-20 sm:py-28" id="testimonials">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="flex justify-center mb-5">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20">
                 <MessageCircle className="w-3.5 h-3.5" />
                 See For Yourself
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-5 tracking-tight">
-              Real Sites, <span className="text-[#c4a55a]">Real Approvals</span>
+              Real Sites, <span className="text-brand-accent">Real Approvals</span>
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-3xl mx-auto leading-relaxed">
               No stock photos, no stand-ins — these are our actual layouts. Book a free site visit and verify everything yourself before you decide.
@@ -536,7 +536,7 @@ export default async function HomePage({
                   sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f1d33] via-[#0f1d33]/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-ink via-brand-ink/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4">
                   <p className="text-white text-xs sm:text-sm font-bold leading-tight">{photo.name}</p>
                   {photo.location && <p className="text-white/70 text-[10px] sm:text-xs">{photo.location}</p>}
@@ -554,7 +554,7 @@ export default async function HomePage({
 
           {/* Top Center Badge */}
           <div className="flex justify-center mb-10 md:mb-14">
-            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20 shadow-sm backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20 shadow-sm backdrop-blur-sm">
               <MapPin className="w-4 h-4" />
               Schedule A Tour
             </span>
@@ -564,22 +564,22 @@ export default async function HomePage({
             
             {/* Left Side: Content */}
             <div className="lg:order-1">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#022F3A] mb-6 tracking-tight leading-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-deep mb-6 tracking-tight leading-tight">
                 Book Your Free <br/>
-                <span className="text-[#B69A4E]">Site Visit</span> Today
+                <span className="text-brand-accent">Site Visit</span> Today
               </h2>
-              <p className="text-[#3a3a3a] text-base sm:text-lg mb-8 leading-relaxed max-w-lg">
+              <p className="text-brand-muted text-base sm:text-lg mb-8 leading-relaxed max-w-lg">
                 Interested in owning a plot? Fill in your details and our team will assist you with arranging a personal site visit, explaining the pricing, and guiding you through documentation.
               </p>
               
               <div className="space-y-6">
 
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-[#B69A4E]">
+                  <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-brand-accent">
                     <MessageCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-[#022F3A]">WhatsApp Support</h3>
+                    <h3 className="font-semibold text-brand-deep">WhatsApp Support</h3>
                     <p className="text-sm text-gray-500 mt-1">Available Mon-Sat, 10 AM to 7 PM</p>
                   </div>
                 </div>

@@ -33,7 +33,7 @@ export function OverviewDownloadButton({
   const base =
     variant === 'pill'
       ? 'lg:flex-none flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 lg:px-5 py-2 rounded-full whitespace-nowrap gradient-gold text-white shadow-md'
-      : 'inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl gradient-gold text-white shadow-lg shadow-[#c4a55a]/20'
+      : 'inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold rounded-xl gradient-gold text-white shadow-lg shadow-brand-gold/20'
 
   return (
     <>

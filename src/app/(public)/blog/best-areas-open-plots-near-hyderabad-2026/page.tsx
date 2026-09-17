@@ -83,10 +83,10 @@ export default function BestAreasOpenPlotsPage() {
         project is shaping growth across the wider region.
       </p>
 
-      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-[#e8ecf2]">
+      <div className="not-prose overflow-x-auto my-8 rounded-xl border border-brand-border">
         <table className="w-full text-sm text-left">
           <thead>
-            <tr className="bg-[#f7f8fa] text-[#1e3a5f]">
+            <tr className="bg-brand-paper text-brand-primary">
               <th className="px-4 py-3 font-bold">Corridor</th>
               <th className="px-4 py-3 font-bold">Highway</th>
               <th className="px-4 py-3 font-bold">Primary Growth Driver</th>
@@ -94,9 +94,9 @@ export default function BestAreasOpenPlotsPage() {
               <th className="px-4 py-3 font-bold">Approval Type</th>
             </tr>
           </thead>
-          <tbody className="text-[#5a6a82]">
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">NH-44 South</td>
+          <tbody className="text-brand-muted">
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">NH-44 South</td>
               <td className="px-4 py-3">NH-44 Bangalore Highway</td>
               <td className="px-4 py-3">Highway connectivity, airport-side growth belt</td>
               <td className="px-4 py-3">
@@ -104,8 +104,8 @@ export default function BestAreasOpenPlotsPage() {
               </td>
               <td className="px-4 py-3">HMDA &amp; RERA</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Mumbai Highway West</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Mumbai Highway West</td>
               <td className="px-4 py-3">NH-65 Mumbai Highway</td>
               <td className="px-4 py-3">NIMZ industrial belt, education hub, district HQ</td>
               <td className="px-4 py-3">
@@ -114,8 +114,8 @@ export default function BestAreasOpenPlotsPage() {
               </td>
               <td className="px-4 py-3">HMDA / DTCP &amp; RERA</td>
             </tr>
-            <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Warangal Highway East</td>
+            <tr className="border-t border-brand-border">
+              <td className="px-4 py-3 font-semibold text-brand-ink">Warangal Highway East</td>
               <td className="px-4 py-3">NH-163 Warangal Highway</td>
               <td className="px-4 py-3">Temple-tourism infrastructure, rail connectivity</td>
               <td className="px-4 py-3">

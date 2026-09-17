@@ -174,7 +174,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
   return (
     <div className="space-y-5">
-      <h3 className="text-2xl font-bold text-[#0f1d33] mb-2">Request Prices or a Site Visit</h3>
+      <h3 className="text-2xl font-bold text-brand-ink mb-2">Request Prices or a Site Visit</h3>
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm font-medium mb-6">
@@ -186,7 +186,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
         <form onSubmit={handleSendOTP} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-[#0f1d33] mb-1">Full Name <span className="text-red-500">*</span></label>
+              <label htmlFor="name" className="block text-sm font-medium text-brand-ink mb-1">Full Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 id="name"
@@ -195,12 +195,12 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                className="w-full bg-brand-soft border border-brand-border rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-[#0f1d33] mb-1">Mobile Number <span className="text-red-500">*</span></label>
+              <label htmlFor="phone" className="block text-sm font-medium text-brand-ink mb-1">Mobile Number <span className="text-red-500">*</span></label>
               <input
                 type="tel"
                 id="phone"
@@ -212,28 +212,28 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
                 required
                 minLength={10}
                 pattern="[0-9]{10}"
-                className={`w-full bg-[#f3f5f8] border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-[#e8ecf2] focus:ring-[#c4a55a]'} rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:border-transparent`}
+                className={`w-full bg-brand-soft border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-gold'} rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:border-transparent`}
               />
               {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
             </div>
 
             {!compact && <>
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-[#0f1d33] mb-1">Preferred Location</label>
+              <label htmlFor="location" className="block text-sm font-medium text-brand-ink mb-1">Preferred Location</label>
               <div className="relative">
                 <select
                   id="location"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full appearance-none bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg pl-3 pr-10 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                  className="w-full appearance-none bg-brand-soft border border-brand-border rounded-lg pl-3 pr-10 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
                 >
                   <option value="All">All Locations</option>
                   {locationNames.map((name, idx) => (
                     <option key={idx} value={name}>{name}</option>
                   ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5a6a82]">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-muted">
                   <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                   </svg>
@@ -242,14 +242,14 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             </div>
 
             <div>
-              <label htmlFor="project" className="block text-sm font-medium text-[#0f1d33] mb-1">Project Interested In</label>
+              <label htmlFor="project" className="block text-sm font-medium text-brand-ink mb-1">Project Interested In</label>
               <div className="relative">
                 <select
                   id="project"
                   name="project"
                   value={formData.project}
                   onChange={handleChange}
-                  className="w-full appearance-none bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg pl-3 pr-10 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                  className="w-full appearance-none bg-brand-soft border border-brand-border rounded-lg pl-3 pr-10 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
                 >
                   <option value="Not Sure">Not Sure</option>
                   {Array.from(new Set(
@@ -260,7 +260,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
                     <option key={idx} value={name}>{name}</option>
                   ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5a6a82]">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-muted">
                   <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                   </svg>
@@ -269,44 +269,44 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#0f1d33] mb-1">Email ID</label>
+              <label htmlFor="email" className="block text-sm font-medium text-brand-ink mb-1">Email ID</label>
               <input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                className="w-full bg-brand-soft border border-brand-border rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               />
             </div>
 
             <div>
-              <label htmlFor="referredBy" className="block text-sm font-medium text-[#0f1d33] mb-1">Referred By (Optional)</label>
+              <label htmlFor="referredBy" className="block text-sm font-medium text-brand-ink mb-1">Referred By (Optional)</label>
               <input
                 type="text"
                 id="referredBy"
                 name="referredBy"
                 value={formData.referredBy}
                 onChange={handleChange}
-                className="w-full bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                className="w-full bg-brand-soft border border-brand-border rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
               />
             </div>
 
             <div>
-              <label htmlFor="enquiryType" className="block text-sm font-medium text-[#0f1d33] mb-1">Select Enquiry Type</label>
+              <label htmlFor="enquiryType" className="block text-sm font-medium text-brand-ink mb-1">Select Enquiry Type</label>
               <div className="relative">
                 <select
                   id="enquiryType"
                   name="enquiryType"
                   value={formData.enquiryType}
                   onChange={handleChange}
-                  className="w-full appearance-none bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg pl-3 pr-10 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+                  className="w-full appearance-none bg-brand-soft border border-brand-border rounded-lg pl-3 pr-10 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
                 >
                   <option value="Site Visit">Site Visit</option>
                   <option value="General Inquiry">General Inquiry</option>
                   <option value="Pricing Details">Pricing Details</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5a6a82]">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-muted">
                   <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                   </svg>
@@ -317,14 +317,14 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             </>}
 
             <div className="sm:col-span-2">
-              <label htmlFor="message" className="block text-sm font-medium text-[#0f1d33] mb-1">Your Message (Optional)</label>
+              <label htmlFor="message" className="block text-sm font-medium text-brand-ink mb-1">Your Message (Optional)</label>
               <textarea
                 id="message"
                 name="message"
                 rows={2}
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent resize-none"
+                className="w-full bg-brand-soft border border-brand-border rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent resize-none"
               ></textarea>
             </div>
           </div>
@@ -337,9 +337,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               checked={formData.agree}
               onChange={handleChange}
               required
-              className="w-4 h-4 rounded border-[#e8ecf2] text-[#1e3a5f] focus:ring-[#c4a55a]"
+              className="w-4 h-4 rounded border-brand-border text-brand-primary focus:ring-brand-gold"
             />
-            <label htmlFor="agree" className="text-xs text-[#5a6a82] leading-tight">
+            <label htmlFor="agree" className="text-xs text-brand-muted leading-tight">
               I agree to the <Link href="/policies" target="_blank" className="underline">Terms &amp; Privacy Policy</Link> and to being contacted about my enquiry.
             </label>
           </div>
@@ -349,20 +349,20 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-[#0f1d33] font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-brand-gold to-brand-gold text-brand-ink font-semibold rounded-lg shadow-lg shadow-brand-gold/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? 'Sending OTP...' : 'Get Price & Plot Details →'}
           </button>
         </form>
       ) : (
-        <form onSubmit={handleVerifyOTP} className="space-y-5 bg-[#f8f9fb] p-6 rounded-xl border border-[#e8ecf2]">
+        <form onSubmit={handleVerifyOTP} className="space-y-5 bg-brand-paper p-6 rounded-xl border border-brand-border">
           <div className="text-center">
-            <h4 className="text-lg font-semibold text-[#0f1d33] mb-1">Verify Phone Number</h4>
-            <p className="text-sm text-[#5a6a82] mb-4">We sent a 6-digit code to +91 {formData.phone}</p>
+            <h4 className="text-lg font-semibold text-brand-ink mb-1">Verify Phone Number</h4>
+            <p className="text-sm text-brand-muted mb-4">We sent a 6-digit code to +91 {formData.phone}</p>
           </div>
 
           <div>
-            <label htmlFor="otp" className="block text-sm font-medium text-[#0f1d33] mb-1 text-center">Enter OTP</label>
+            <label htmlFor="otp" className="block text-sm font-medium text-brand-ink mb-1 text-center">Enter OTP</label>
             <input
               type="text"
               id="otp"
@@ -373,7 +373,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               required
               placeholder="000000"
-              className="w-full text-center tracking-widest text-xl bg-white border border-[#e8ecf2] rounded-lg px-3 py-3 text-[#0f1d33] focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent"
+              className="w-full text-center tracking-widest text-xl bg-white border border-brand-border rounded-lg px-3 py-3 text-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent"
             />
           </div>
 
@@ -382,14 +382,14 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               type="button"
               onClick={() => setStep(1)}
               disabled={loading}
-              className="w-1/3 bg-white border border-[#e8ecf2] text-[#5a6a82] font-semibold rounded-lg py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-70"
+              className="w-1/3 bg-white border border-brand-border text-brand-muted font-semibold rounded-lg py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-70"
             >
               Back
             </button>
             <button
               type="submit"
               disabled={loading || otp.length < 6}
-              className="w-2/3 bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-[#0f1d33] font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-2/3 bg-gradient-to-r from-brand-gold to-brand-gold text-brand-ink font-semibold rounded-lg shadow-lg shadow-brand-gold/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? 'Verifying...' : 'Verify & Submit'}
             </button>

@@ -53,7 +53,7 @@ export default function Nh44CorridorGuidePage() {
       <JsonLd data={breadcrumb} />
 
       <PageBanner
-        title={<>NH-44 Growth Corridor <span className="text-[#c4a55a]">Investment Guide</span></>}
+        title={<>NH-44 Growth Corridor <span className="text-brand-accent">Investment Guide</span></>}
         subtitle="Key towns, infrastructure drivers, and where Bhuwanta has verified inventory today"
       />
 
@@ -65,14 +65,14 @@ export default function Nh44CorridorGuidePage() {
           >
             <div className="space-y-12">
               <div>
-                <h2 className="text-xl font-bold text-[#1e3a5f] mb-6">Corridor Waypoints</h2>
+                <h2 className="text-xl font-bold text-brand-primary mb-6">Corridor Waypoints</h2>
                 <div className="space-y-4">
                   {waypoints.map((wp, i) => (
-                    <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-[#f7f8fa] border border-[#e8ecf2]">
-                      <MapPin className={`w-5 h-5 shrink-0 mt-0.5 ${wp.hasInventory ? 'text-[#c4a55a]' : 'text-[#5a6a82]'}`} />
+                    <div key={i} className="flex items-start gap-3 p-4 rounded-xl bg-brand-paper border border-brand-border">
+                      <MapPin className={`w-5 h-5 shrink-0 mt-0.5 ${wp.hasInventory ? 'text-brand-accent' : 'text-brand-muted'}`} />
                       <div>
-                        <p className="font-bold text-[#0f1d33]">{wp.name}</p>
-                        <p className="text-sm text-[#5a6a82]">{wp.note}</p>
+                        <p className="font-bold text-brand-ink">{wp.name}</p>
+                        <p className="text-sm text-brand-muted">{wp.note}</p>
                       </div>
                     </div>
                   ))}
@@ -80,23 +80,23 @@ export default function Nh44CorridorGuidePage() {
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-[#1e3a5f] mb-6">Infrastructure Drivers</h2>
+                <h2 className="text-xl font-bold text-brand-primary mb-6">Infrastructure Drivers</h2>
                 <div className="space-y-6">
                   {drivers.map((driver, i) => (
                     <div key={i}>
-                      <h3 className="font-bold text-[#0f1d33] mb-1">{driver.title}</h3>
-                      <p className="text-sm text-[#5a6a82] leading-relaxed">{driver.body}</p>
+                      <h3 className="font-bold text-brand-ink mb-1">{driver.title}</h3>
+                      <p className="text-sm text-brand-muted leading-relaxed">{driver.body}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <p className="text-sm text-[#5a6a82] border-t border-[#e8ecf2] pt-6">
+              <p className="text-sm text-brand-muted border-t border-brand-border pt-6">
                 This guide reflects publicly available information as of 2026 and is not a guarantee of
                 future appreciation. For the live, verified project on this corridor, see{' '}
-                <Link href="/projects/vian-vally" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Vian Valley in Shabad</Link>,
+                <Link href="/projects/vian-vally" className="font-semibold text-brand-primary hover:text-brand-accent">Vian Valley in Shabad</Link>,
                 or read the full{' '}
-                <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Shabad vs Shadnagar comparison</Link>.
+                <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-brand-primary hover:text-brand-accent">Shabad vs Shadnagar comparison</Link>.
               </p>
             </div>
           </GatedResource>

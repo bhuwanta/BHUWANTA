@@ -92,14 +92,14 @@ export default async function ShadnagarOpenPlotsPage() {
       <JsonLd data={[breadcrumb, faqSchema]} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#002935] luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#B69A4E]/10 rounded-full blur-[150px]" />
+      <section className="relative overflow-hidden bg-brand-deep luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[150px]" />
         <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20 mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20 mb-6">
             <MapPin className="w-3.5 h-3.5" /> Shadnagar &amp; NH-44 Corridor
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Plots Near Shadnagar / NH-44 — <span className="text-[#c4a55a]">Curated HMDA &amp; DTCP Options</span>
+            Plots Near Shadnagar / NH-44 — <span className="text-brand-accent">Curated HMDA &amp; DTCP Options</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
             We don&apos;t have live inventory in Shadnagar itself yet. What we do have is Vian Valley — a curated, HMDA &amp; RERA approved land asset in Shabad, southwest of Hyderabad, with clear legal documentation and real inventory today.
@@ -120,31 +120,31 @@ export default async function ShadnagarOpenPlotsPage() {
       {/* Honest positioning */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0f1d33] mb-6">The Nearest Verified Option to Shadnagar</h2>
-          <p className="text-[#5a6a82] leading-relaxed mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Nearest Verified Option to Shadnagar</h2>
+          <p className="text-brand-muted leading-relaxed mb-6">
             Shadnagar and Shabad are separate towns south and southwest of Hyderabad. Shadnagar is associated with NH-44; access to a Shabad project depends on its own approach roads. We&apos;d rather be direct about this than stretch the truth: Bhuwanta doesn&apos;t currently have plots for sale in Shadnagar itself. What we do have, in the wider region, is Vian Valley in Shabad — a live, HMDA approved and RERA registered project with real inventory and clear documentation.
           </p>
-          <p className="text-[#5a6a82] leading-relaxed">
+          <p className="text-brand-muted leading-relaxed">
             If your interest is specifically Shadnagar, we&apos;d encourage you to compare the two towns directly — see our{' '}
-            <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Shabad vs Shadnagar comparison</Link>{' '}
+            <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-brand-primary hover:text-brand-accent">Shabad vs Shadnagar comparison</Link>{' '}
             and our{' '}
-            <Link href="/blog/open-plots-shadnagar-growth-story-2026" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Shadnagar growth story</Link>{' '}
+            <Link href="/blog/open-plots-shadnagar-growth-story-2026" className="font-semibold text-brand-primary hover:text-brand-accent">Shadnagar growth story</Link>{' '}
             — before deciding whether the nearby Shabad corridor works for your goals. You may also find our free{' '}
-            <Link href="/resources/nh44-growth-corridor-investment-map" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">NH-44 Growth Corridor Investment Guide</Link>{' '}
+            <Link href="/resources/nh44-growth-corridor-investment-map" className="font-semibold text-brand-primary hover:text-brand-accent">NH-44 Growth Corridor Investment Guide</Link>{' '}
             useful before deciding.
           </p>
 
           {project?.images && project.images.length > 0 && (
-            <div className="mt-10 rounded-2xl overflow-hidden border border-[#e8ecf2] aspect-[16/9] relative bg-[#f3f5f8]">
+            <div className="mt-10 rounded-2xl overflow-hidden border border-brand-border aspect-[16/9] relative bg-brand-soft">
               <ProjectImageCarousel images={project.images} projectName="Vian Valley" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
             </div>
           )}
 
           {project?.projectHighlights && project.projectHighlights.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-10 pt-8 border-t border-[#e8ecf2] text-sm font-medium text-[#0f1d33]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-10 pt-8 border-t border-brand-border text-sm font-medium text-brand-ink">
               {project.projectHighlights.map((highlight, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-brand-gold flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3 text-white stroke-[3]" />
                   </div>
                   {highlight}
@@ -156,14 +156,14 @@ export default async function ShadnagarOpenPlotsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-[#1e3a5f] mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-brand-primary mb-8">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {faqs.map((faq, i) => (
               <div key={i}>
-                <h3 className="text-lg font-bold text-[#0f1d33] mb-2">{faq.question}</h3>
-                <p className="text-[#5a6a82] leading-relaxed">{faq.answer}</p>
+                <h3 className="text-lg font-bold text-brand-ink mb-2">{faq.question}</h3>
+                <p className="text-brand-muted leading-relaxed">{faq.answer}</p>
               </div>
             ))}
           </div>

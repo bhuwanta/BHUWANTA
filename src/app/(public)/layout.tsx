@@ -127,10 +127,12 @@ export default async function PublicLayout({
         </Script>
       )}
 
-      <Navbar />
-      <main className="flex-1 flex flex-col">{children}</main>
-      <Footer />
-      <DynamicClientComponents />
+      <div className="public-site flex min-h-screen flex-1 flex-col">
+        <Navbar />
+        <main className="flex-1 flex flex-col">{children}</main>
+        <Footer />
+        <DynamicClientComponents />
+      </div>
     </>
   )
 }

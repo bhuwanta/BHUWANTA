@@ -122,7 +122,7 @@ export function GatedResource({
         <div className="flex justify-end mb-6 print:hidden">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] transition-premium text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold transition-premium text-sm"
           >
             <Printer className="w-4 h-4" /> Print / Save as PDF
           </button>
@@ -133,13 +133,13 @@ export function GatedResource({
   }
 
   return (
-    <div className="bg-[#f7f8fa] border border-[#e8ecf2] rounded-2xl p-8 sm:p-12 text-center relative">
+    <div className="bg-brand-paper border border-brand-border rounded-2xl p-8 sm:p-12 text-center relative">
       <div id="gated-recaptcha-container"></div>
       
-      <div className="w-14 h-14 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center mx-auto mb-6">
-        <Lock className="w-6 h-6 text-[#1e3a5f]" />
+      <div className="w-14 h-14 rounded-full bg-brand-primary/10 flex items-center justify-center mx-auto mb-6">
+        <Lock className="w-6 h-6 text-brand-primary" />
       </div>
-      <p className="text-[#5a6a82] leading-relaxed max-w-xl mx-auto mb-8">{teaser}</p>
+      <p className="text-brand-muted leading-relaxed max-w-xl mx-auto mb-8">{teaser}</p>
 
       {error && (
         <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium mb-6 max-w-sm mx-auto">
@@ -154,7 +154,7 @@ export function GatedResource({
             type="text"
             placeholder="Full Name *"
             aria-label="Full Name"
-            className="w-full px-4 py-3 bg-white border border-[#e8ecf2] rounded-xl text-sm text-[#0f1d33] placeholder:text-[#5a6a82]/60 focus:outline-none focus:ring-2 focus:ring-[#c4a55a] transition-all"
+            className="w-full px-4 py-3 bg-white border border-brand-border rounded-xl text-sm text-brand-ink placeholder:text-brand-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-gold transition-all"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
@@ -166,7 +166,7 @@ export function GatedResource({
               aria-label="Mobile Number"
               minLength={10}
               pattern="[0-9]{10}"
-              className={`w-full px-4 py-3 bg-white border ${phoneError ? 'border-red-500' : 'border-[#e8ecf2]'} rounded-xl text-sm text-[#0f1d33] placeholder:text-[#5a6a82]/60 focus:outline-none focus:ring-2 focus:ring-[#c4a55a] transition-all`}
+              className={`w-full px-4 py-3 bg-white border ${phoneError ? 'border-red-500' : 'border-brand-border'} rounded-xl text-sm text-brand-ink placeholder:text-brand-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-gold transition-all`}
               value={formData.phone}
               onChange={(e) => {
                 const val = e.target.value
@@ -181,13 +181,13 @@ export function GatedResource({
             type="text"
             placeholder="Referred by (Optional)"
             aria-label="Referred by"
-            className="w-full px-4 py-3 bg-white border border-[#e8ecf2] rounded-xl text-sm text-[#0f1d33] placeholder:text-[#5a6a82]/60 focus:outline-none focus:ring-2 focus:ring-[#c4a55a] transition-all"
+            className="w-full px-4 py-3 bg-white border border-brand-border rounded-xl text-sm text-brand-ink placeholder:text-brand-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-gold transition-all"
             value={formData.referredBy}
             onChange={(e) => setFormData({ ...formData, referredBy: e.target.value })}
           />
           <button
             disabled={loading}
-            className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
+            className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -201,13 +201,13 @@ export function GatedResource({
               'Unlock This Guide'
             )}
           </button>
-          <p className="text-xs text-[#5a6a82]/70">Your information is kept 100% confidential.</p>
+          <p className="text-xs text-brand-muted/70">Your information is kept 100% confidential.</p>
         </form>
       ) : (
         <form onSubmit={handleVerifyOTP} className="max-w-sm mx-auto space-y-4">
           <div className="text-center mb-2">
-            <h3 className="text-lg font-bold text-[#0f1d33]">Verify Your Number</h3>
-            <p className="text-xs text-[#5a6a82]">Code sent to +91 {formData.phone}</p>
+            <h3 className="text-lg font-bold text-brand-ink">Verify Your Number</h3>
+            <p className="text-xs text-brand-muted">Code sent to +91 {formData.phone}</p>
           </div>
           <div>
             <input
@@ -216,7 +216,7 @@ export function GatedResource({
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               placeholder="6-digit OTP"
-              className="w-full text-center tracking-widest text-lg font-semibold bg-white border border-[#e8ecf2] rounded-xl px-4 py-3.5 text-[#0f1d33] focus:outline-none focus:ring-2 focus:ring-[#c4a55a] transition-all"
+              className="w-full text-center tracking-widest text-lg font-semibold bg-white border border-brand-border rounded-xl px-4 py-3.5 text-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-gold transition-all"
               required
             />
           </div>
@@ -224,7 +224,7 @@ export function GatedResource({
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
+              className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -245,7 +245,7 @@ export function GatedResource({
                 setOtp('');
                 setError('');
               }}
-              className="text-xs font-medium text-[#5a6a82] hover:text-[#0f1d33] transition-colors"
+              className="text-xs font-medium text-brand-muted hover:text-brand-ink transition-colors"
             >
               Change Phone Number
             </button>

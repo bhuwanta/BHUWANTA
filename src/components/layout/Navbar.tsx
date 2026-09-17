@@ -1,13 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { client } from '@/lib/sanity'
-import logoFallback from '@/images/bhuwanta-logo-horizontal.png'
+import { BrandLockup } from './BrandLockup'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -19,193 +18,82 @@ const navLinks = [
   { href: '/blog', label: 'Blog' },
 ]
 
-interface SiteSettings {
-  siteName?: string
-  tagline?: string
-  logo?: { asset?: { _ref: string } }
-  ctaButtonText?: string
-  ctaButtonLink?: string
-}
-
 export function Navbar() {
   const pathname = usePathname()
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [settings, setSettings] = useState<SiteSettings>({})
+  const [menuPath, setMenuPath] = useState<string | null>(null)
+  const isOpen = menuPath === pathname
+  const [ctaText, setCtaText] = useState('Book Site Visit')
+  const ctaLink = pathname === '/shabad-open-plots' ? '#book-visit' : '/#book-visit'
 
-  const isHome = pathname === '/'
-  const showGlass = scrolled
-  const isDarkContent = showGlass || !isHome
-
-  // Always scroll to top on route change, unless there is a hash
   useEffect(() => {
-    setTimeout(() => {
-      if (!window.location.hash) {
-        window.scrollTo(0, 0)
-      }
+    const timeout = setTimeout(() => {
+      if (!window.location.hash) window.scrollTo(0, 0)
     }, 50)
+    return () => clearTimeout(timeout)
   }, [pathname])
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuPath(null)
+        document.getElementById('nav-mobile-toggle')?.focus()
+      }
     }
-    // Check initial scroll position
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    if (isOpen) document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [isOpen])
 
   useEffect(() => {
-    client.fetch(`*[_type == "siteSettings"][0]{
-      siteName, tagline, ctaButtonText, ctaButtonLink
-    }`).then((data: SiteSettings) => {
-      if (data) setSettings(data)
-    }).catch(() => {})
+    client.fetch<{ ctaButtonText?: string } | null>('*[_type == "siteSettings"][0]{ctaButtonText}')
+      .then(data => { if (data?.ctaButtonText) setCtaText(data.ctaButtonText) })
+      .catch(() => {})
   }, [])
-  const siteName = settings.siteName || 'BHUWANTA'
-  const ctaText = settings.ctaButtonText || 'Book Site Visit'
-  const ctaLink = '/#book-visit' // Hardcoded to always scroll to the Schedule a Tour section
+
+  const active = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
 
   return (
-    <nav
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        isDarkContent
-          ? 'bg-white/80 backdrop-blur-xl border-b border-[#e8ecf2] shadow-sm py-4'
-          : 'bg-transparent py-6'
-      )}
-    >
+    <nav aria-label="Main navigation" className="public-nav fixed inset-x-0 top-0 z-50 border-b border-brand-gold/20 bg-brand-deep/95 backdrop-blur-xl shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-12">
-          {/* Logo */}
-          <Link href="/" className="flex items-center" id="nav-logo">
-            <div className="relative h-12 sm:h-16 w-auto transition-transform duration-500 hover:scale-[1.05] origin-left">
-              <Image
-                src={logoFallback}
-                alt={`${siteName} Developers — Your Land. Your Legacy.`}
-                className="h-12 sm:h-16 w-auto object-contain rounded-md"
-                sizes="(max-width: 640px) 132px, 176px"
-                priority
-              />
-            </div>
+        <div className="flex items-center justify-between gap-4 h-20">
+          <Link href="/" id="nav-logo" aria-label="Bhuwanta home" onClick={() => setMenuPath(null)} className="shrink-0 rounded-sm">
+            <BrandLockup priority />
           </Link>
-
-          {/* Right Section: Nav + CTA */}
-          <div className="flex items-center gap-8">
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  id={`nav-${link.label.toLowerCase()}`}
-                  onClick={() => {
-                    if (!link.href.includes('#')) {
-                      window.scrollTo(0, 0)
-                    }
-                  }}
-                  className={cn(
-                    "px-4 py-2 text-sm transition-premium rounded-lg",
-                    isDarkContent 
-                      ? "text-[#002935] font-bold hover:text-[#B69A4E] hover:bg-[#f3f5f8]" 
-                      : "text-white/90 font-medium hover:text-white hover:bg-white/10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-
-            {/* CTA + Call Now + Mobile Toggle */}
-            <div className="flex items-center gap-3">
-
-              <Link
-                href={ctaLink}
-                id="nav-cta"
-                onClick={(e) => {
-                  if (isHome) {
-                    e.preventDefault();
-                    document.getElementById('book-visit')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="hidden sm:inline-flex px-5 py-2.5 text-sm font-semibold rounded-lg transition-premium hover:scale-105 glow-gold gradient-gold text-white"
-              >
-                {ctaText}
+          <div className="hidden xl:flex items-center gap-0.5">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href} id={`nav-${link.label.toLowerCase().replaceAll(' ', '-')}`}
+                aria-current={active(link.href) ? 'page' : undefined}
+                className={cn('px-3 py-2 text-sm font-medium rounded-md transition-colors', active(link.href) ? 'text-brand-gold bg-white/5' : 'text-white/85 hover:text-brand-gold hover:bg-white/5')}>
+                {link.label}
               </Link>
-
-              <Link
-                href="/REALESTATE_SOFTWARE/login"
-                id="nav-login"
-                className="hidden sm:inline-flex px-5 py-2.5 text-sm font-semibold rounded-lg transition-premium hover:scale-105 glow-gold gradient-gold text-white"
-              >
-                Login
-              </Link>
-
-              {/* Mobile hamburger */}
-              <button
-                className={cn(
-                  "md:hidden p-2 transition-colors",
-                  isDarkContent ? "text-[#002935]" : "text-white"
-                )}
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Toggle menu"
-                id="nav-mobile-toggle"
-              >
-                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
+              {ctaText}
+            </Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex px-3 py-3 rounded-lg border border-white/20 text-sm text-white/85 hover:border-brand-gold hover:text-brand-gold transition-colors">Login</Link>
+            <button id="nav-mobile-toggle" type="button" aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} aria-controls="public-mobile-menu"
+              className="xl:hidden inline-flex items-center justify-center w-11 h-11 text-brand-gold rounded-lg border border-white/20 hover:bg-white/10"
+              onClick={() => setMenuPath(isOpen ? null : pathname)}>
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <div
-        className={cn(
-          'md:hidden overflow-hidden transition-all duration-500',
-          isOpen ? 'max-h-[600px] border-t border-[#e8ecf2] bg-white' : 'max-h-0'
-        )}
-      >
-        <div className="px-4 py-4 space-y-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => {
-                setIsOpen(false)
-                if (!link.href.includes('#')) {
-                  window.scrollTo(0, 0)
-                }
-              }}
-              className="block px-4 py-3 text-sm font-semibold text-[#0f1d33] hover:text-[#002935] hover:bg-[#f3f5f8] rounded-lg transition-premium"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            href={ctaLink}
-            onClick={(e) => {
-              setIsOpen(false);
-              if (isHome) {
-                e.preventDefault();
-                document.getElementById('book-visit')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="block px-4 py-3 text-sm font-semibold text-center rounded-lg gradient-gold text-white mt-3"
-          >
-            {ctaText}
-          </Link>
-
-          <Link
-            href="/REALESTATE_SOFTWARE/login"
-            id="nav-mobile-login"
-            onClick={() => setIsOpen(false)}
-            className="block px-4 py-3 text-sm font-semibold text-center rounded-lg gradient-gold text-white mt-3"
-          >
-            Login
-          </Link>
+      {isOpen && (
+        <div id="public-mobile-menu" className="xl:hidden max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-white/10 bg-brand-deep px-4 py-4">
+          <div className="max-w-7xl mx-auto grid gap-1">
+            {navLinks.map(link => (
+              <Link key={link.href} href={link.href} aria-current={active(link.href) ? 'page' : undefined} onClick={() => setMenuPath(null)}
+                className={cn('block px-4 py-3 rounded-lg text-sm font-medium', active(link.href) ? 'text-brand-gold bg-white/5' : 'text-white/85 hover:bg-white/5 hover:text-brand-gold')}>
+                {link.label}
+              </Link>
+            ))}
+            <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center font-semibold text-sm rounded-lg gradient-gold">{ctaText}</Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="px-4 py-3 text-center text-sm text-white/80">Login</Link>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   )
 }

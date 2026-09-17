@@ -86,35 +86,35 @@ export default function ThankYouPage() {
   }
 
   return (
-    <main className="min-h-[80vh] bg-[#f7f8fa] pt-24 pb-16 px-4">
+    <main className="min-h-[80vh] bg-brand-paper pt-24 pb-16 px-4">
       <div className="max-w-3xl mx-auto">
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#c4a55a] hover:text-[#b59853] transition-colors mb-6 cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-accent hover:text-brand-accent transition-colors mb-6 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
         {/* Confirmation */}
-        <div className="bg-white border border-[#e8ecf2] rounded-2xl shadow-sm p-8 sm:p-12 text-center">
+        <div className="bg-white border border-brand-border rounded-2xl shadow-sm p-8 sm:p-12 text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-9 h-9 text-emerald-500" />
           </div>
 
-          <p className="text-xs font-bold uppercase tracking-widest text-[#c4a55a] mb-3">Enquiry Received</p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#0f1d33] mb-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-brand-accent mb-3">Enquiry Received</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-brand-ink mb-4">
             Thank You, We&apos;ll Be In Touch
           </h1>
 
-          <p className="text-[#5a6a82] leading-relaxed max-w-xl mx-auto">
+          <p className="text-brand-muted leading-relaxed max-w-xl mx-auto">
             {/* Reserve the line height before the clock-dependent text arrives. */}
             {responseMessage || ' '}
           </p>
-          <p className="text-sm text-[#5a6a82]/80 mt-2">Business hours: Mon–Sat, 10 AM – 7 PM IST</p>
+          <p className="text-sm text-brand-muted/80 mt-2">Business hours: Mon–Sat, 10 AM – 7 PM IST</p>
 
-          <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-            <p className="text-sm font-semibold text-[#0f1d33] mb-4">Would you rather not wait?</p>
+          <div className="mt-8 pt-8 border-t border-brand-border">
+            <p className="text-sm font-semibold text-brand-ink mb-4">Would you rather not wait?</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <WhatsAppInlineCta
                 context="my enquiry"
@@ -125,7 +125,7 @@ export default function ThankYouPage() {
               />
               <a
                 href={`mailto:${EMAIL}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-[#e8ecf2] text-[#1e3a5f] font-semibold rounded-lg hover:border-[#c4a55a] transition-premium"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold transition-premium"
               >
                 <Mail className="w-4 h-4" /> Email
               </a>
@@ -135,18 +135,18 @@ export default function ThankYouPage() {
 
         {/* What happens next */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-[#0f1d33] text-center mb-6">What Happens Next</h2>
+          <h2 className="text-xl font-bold text-brand-ink text-center mb-6">What Happens Next</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {NEXT_STEPS.map((step, i) => (
-              <div key={step.title} className="bg-white border border-[#e8ecf2] rounded-xl p-6 shadow-sm">
+              <div key={step.title} className="bg-white border border-brand-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-full bg-[#c4a55a]/10 flex items-center justify-center shrink-0">
-                    <step.icon className="w-4.5 h-4.5 text-[#c4a55a]" />
+                  <div className="w-9 h-9 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+                    <step.icon className="w-4.5 h-4.5 text-brand-accent" />
                   </div>
-                  <span className="text-xs font-bold text-[#c4a55a]">STEP {i + 1}</span>
+                  <span className="text-xs font-bold text-brand-accent">STEP {i + 1}</span>
                 </div>
-                <h3 className="font-bold text-[#0f1d33] mb-1.5">{step.title}</h3>
-                <p className="text-sm text-[#5a6a82] leading-relaxed">{step.body}</p>
+                <h3 className="font-bold text-brand-ink mb-1.5">{step.title}</h3>
+                <p className="text-sm text-brand-muted leading-relaxed">{step.body}</p>
               </div>
             ))}
           </div>
@@ -154,7 +154,7 @@ export default function ThankYouPage() {
 
         {/* While you wait */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-[#0f1d33] text-center mb-6">While You Wait</h2>
+          <h2 className="text-xl font-bold text-brand-ink text-center mb-6">While You Wait</h2>
           {/* One row of four from sm up; two columns on the narrowest phones,
               where four would leave each card too thin to read. */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -162,23 +162,23 @@ export default function ThankYouPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="group bg-white border border-[#e8ecf2] rounded-xl p-4 sm:p-5 shadow-sm hover:border-[#c4a55a] hover:shadow-md transition-premium flex flex-col items-center text-center gap-2"
+                className="group bg-white border border-brand-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-brand-gold hover:shadow-md transition-premium flex flex-col items-center text-center gap-2"
               >
-                <div className="w-11 h-11 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0 group-hover:bg-[#c4a55a]/10 transition-colors">
-                  <link.icon className="w-5 h-5 text-[#c4a55a]" />
+                <div className="w-11 h-11 rounded-lg bg-brand-soft flex items-center justify-center shrink-0 group-hover:bg-brand-gold/10 transition-colors">
+                  <link.icon className="w-5 h-5 text-brand-accent" />
                 </div>
                 <div className="min-w-0 w-full">
-                  <p className="font-bold text-[#0f1d33] group-hover:text-[#c4a55a] transition-colors truncate">
+                  <p className="font-bold text-brand-ink group-hover:text-brand-accent transition-colors truncate">
                     {link.label}
                   </p>
-                  <p className="text-xs text-[#5a6a82] truncate">{link.desc}</p>
+                  <p className="text-xs text-brand-muted truncate">{link.desc}</p>
                 </div>
               </Link>
             ))}
           </div>
         </section>
 
-        <p className="text-center text-xs text-[#5a6a82]/70 mt-10">
+        <p className="text-center text-xs text-brand-muted/70 mt-10">
           Your details are kept confidential and are never shared with third parties.
         </p>
       </div>

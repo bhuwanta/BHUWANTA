@@ -4,6 +4,20 @@
 @variant dark (&:is(.dark *));
 
 @theme inline {
+
+  /* Marketing colors are supplied by .public-site, independently of the CRM. */
+  --color-brand-deep: var(--site-deep, #002935);
+  --color-brand-ink: var(--site-ink, #0f1d33);
+  --color-brand-primary: var(--site-primary, #1e3a5f);
+  --color-brand-muted: var(--site-muted, #5a6a82);
+  --color-brand-border: var(--site-border, #e8ecf2);
+  --color-brand-paper: var(--site-paper, #f7f8fa);
+  --color-brand-soft: var(--site-soft, #f3f5f8);
+  --color-brand-gold: var(--site-gold, #c4a55a);
+  --color-brand-gold-hover: var(--site-gold-hover, #b59853);
+  --color-brand-gold-light: var(--site-gold-light, #e2ca91);
+  --color-brand-accent: var(--site-accent, #B69A4E);
+
   /* ============================================
      BHUWANTA — WHITE + NAVY BLUE + GOLD THEME
      ============================================ */
@@ -310,4 +324,54 @@
 .divider-gold {
   height: 1px;
   background: linear-gradient(90deg, transparent, #B69A4E, transparent);
+}
+
+/* Public website: forest green, warm ivory and the logo's gold. */
+.public-site {
+  --site-deep: #032b20;
+  --site-ink: #153c2e;
+  --site-primary: #17543e;
+  --site-muted: #55695e;
+  --site-border: #dfe4d8;
+  --site-paper: #faf9f3;
+  --site-soft: #f0f3e9;
+  --site-gold: #dfbb68;
+  --site-gold-hover: #d2aa50;
+  --site-gold-light: #ecd39a;
+  --site-accent: #866219;
+  background: var(--site-paper);
+  color: var(--site-ink);
+  accent-color: var(--site-primary);
+}
+/* Gold lettering needs different contrast on dark and light surfaces. */
+.public-site :where(.bg-brand-deep, .bg-brand-ink, .bg-brand-primary, .from-brand-deep, .from-brand-ink, .from-brand-primary, .gradient-primary, .gradient-dark, .public-nav) {
+  --site-accent: #dfbb68;
+}
+.public-site :where(.bg-white, .bg-brand-paper, .bg-brand-soft, .glass-card, .gradient-light) {
+  --site-accent: #866219;
+}
+.public-site .gradient-primary { background: linear-gradient(135deg, #032b20, #124c36 60%, #1c6347); }
+.public-site .gradient-dark { background: linear-gradient(180deg, #032b20, #0b3b2a); }
+.public-site .gradient-light { background: linear-gradient(180deg, #ffffff, #faf9f3); }
+.public-site .gradient-gold { background: linear-gradient(120deg, #ecd39a, #dfbb68); color: #153c2e; }
+.public-site .bg-brand-gold { color: #153c2e; }
+.public-site .glass { border-color: #dfe4d8; }
+.public-site .glass-card { border-color: #dfe4d8; box-shadow: 0 2px 16px rgb(3 43 32 / 5%); }
+.public-site .text-gradient { background-image: linear-gradient(var(--site-accent), var(--site-accent)); }
+.public-site .text-gradient-blue { background-image: linear-gradient(135deg, #17543e, #277252); }
+.public-site .hero-overlay { background: linear-gradient(to bottom, rgb(3 43 32 / 75%), rgb(3 43 32 / 55%) 40%, rgb(3 43 32 / 85%)); }
+.public-site .glow { box-shadow: 0 0 20px rgb(23 84 62 / 15%); }
+.public-site .btn-premium { background: linear-gradient(135deg, #124c36, #1c6347); }
+.public-site .btn-premium:hover { box-shadow: 0 4px 20px rgb(23 84 62 / 25%); }
+.public-site .animated-underline::after { background: linear-gradient(90deg, #dfbb68, #17543e); }
+.public-site .divider-gold { background: linear-gradient(90deg, transparent, #dfbb68, transparent); }
+.public-site .luxury-bg-grid::before { background-image: linear-gradient(rgb(3 43 32 / 4%) 1px, transparent 1px), linear-gradient(90deg, rgb(3 43 32 / 4%) 1px, transparent 1px); }
+.public-site :where(a, button, input, textarea, select):focus-visible { outline: 2px solid var(--site-accent); outline-offset: 4px; }
+
+/* Show the approved monogram without shrinking the entire logo artwork. */
+.brand-symbol { position: relative; display: block; flex-shrink: 0; width: 2.75rem; height: 2.75rem; overflow: hidden; }
+.brand-symbol img { position: absolute; width: 461.333%; max-width: none; height: auto; left: -66.667%; top: -33.333%; }
+@media (min-width: 640px) { .brand-symbol { width: 3rem; height: 3rem; } }
+@media (prefers-reduced-motion: reduce) {
+  .public-site *, .public-site *::before, .public-site *::after { scroll-behavior: auto; animation-duration: 0.01ms; animation-iteration-count: 1; transition-duration: 0.01ms; }
 }

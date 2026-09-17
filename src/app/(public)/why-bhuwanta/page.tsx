@@ -75,58 +75,58 @@ export default function WhyBhuwantaPage() {
       <JsonLd data={[breadcrumb, faqSchema]} />
 
       <PageBanner
-        title={<>Why Choose <span className="text-[#c4a55a]">Bhuwanta</span></>}
+        title={<>Why Choose <span className="text-brand-accent">Bhuwanta</span></>}
         subtitle="A Trusted Open Plot Advisor in Telangana"
       />
 
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 md:p-10">
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">What Bhuwanta Actually Does</h2>
-            <p className="text-[#5a6a82] leading-relaxed mb-8">
+          <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
+            <h2 className="text-xl font-bold text-brand-primary mb-4">What Bhuwanta Actually Does</h2>
+            <p className="text-brand-muted leading-relaxed mb-8">
               Bhuwanta develops and sells HMDA, DTCP, and RERA-approved open plots across four projects in
               Telangana&apos;s growth corridors. We&apos;re a plotted-development company, not a broker or
               aggregator — every project listed on this site is one we develop and stand behind directly, with
               approval documentation available on request.
             </p>
 
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Why Approval Status Matters — and How to Check It Yourself</h2>
-            <p className="text-[#5a6a82] leading-relaxed mb-4">
+            <h2 className="text-xl font-bold text-brand-primary mb-4">Why Approval Status Matters — and How to Check It Yourself</h2>
+            <p className="text-brand-muted leading-relaxed mb-4">
               HMDA and DTCP approval confirm a layout was legally sanctioned by the relevant authority; RERA
               registration adds a further layer of regulatory oversight and buyer protection. Rather than just
               asserting we&apos;re approved, here&apos;s how to verify it independently for any project you&apos;re
               considering:
             </p>
-            <ul className="space-y-2 mb-4 text-[#5a6a82]">
-              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-[#c4a55a] shrink-0 mt-0.5" /> Ask for the specific approval number for the exact layout — not a general area claim.</li>
-              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-[#c4a55a] shrink-0 mt-0.5" /> Check HMDA approval via the HMDA DPMS portal, or DTCP approval through Telangana&apos;s DTCP records.</li>
-              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-[#c4a55a] shrink-0 mt-0.5" /> Confirm RERA registration is active on the TS-RERA portal.</li>
-              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-[#c4a55a] shrink-0 mt-0.5" /> Request a recent Encumbrance Certificate before making any payment.</li>
+            <ul className="space-y-2 mb-4 text-brand-muted">
+              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Ask for the specific approval number for the exact layout — not a general area claim.</li>
+              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Check HMDA approval via the HMDA DPMS portal, or DTCP approval through Telangana&apos;s DTCP records.</li>
+              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Confirm RERA registration is active on the TS-RERA portal.</li>
+              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Request a recent Encumbrance Certificate before making any payment.</li>
             </ul>
-            <p className="text-[#5a6a82] leading-relaxed mb-8">
+            <p className="text-brand-muted leading-relaxed mb-8">
               For the full walkthrough, see our{' '}
-              <Link href="/blog/verify-hmda-dtcp-approval-telangana" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
+              <Link href="/blog/verify-hmda-dtcp-approval-telangana" className="font-semibold text-brand-primary hover:text-brand-accent">
                 step-by-step HMDA/DTCP/RERA verification guide
               </Link>.
             </p>
 
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">4 Projects, 4 Growth Corridors</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4">4 Projects, 4 Growth Corridors</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               {projects.map((p) => (
                 <Link
                   key={p.href}
                   href={p.href}
-                  className="block border border-[#e8ecf2] rounded-lg p-4 hover:border-[#c4a55a] transition-premium"
+                  className="block border border-brand-border rounded-lg p-4 hover:border-brand-gold transition-premium"
                 >
-                  <h3 className="font-bold text-[#0f1d33] mb-1">{p.name}</h3>
-                  <p className="text-sm text-[#5a6a82]">{p.area} · {p.corridor}</p>
-                  <p className="text-sm font-semibold text-[#c4a55a] mt-1">{p.approval}</p>
+                  <h3 className="font-bold text-brand-ink mb-1">{p.name}</h3>
+                  <p className="text-sm text-brand-muted">{p.area} · {p.corridor}</p>
+                  <p className="text-sm font-semibold text-brand-accent mt-1">{p.approval}</p>
                 </Link>
               ))}
             </div>
 
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">How the Process Works</h2>
-            <ol className="space-y-2 mb-8 text-[#5a6a82] list-decimal list-inside">
+            <h2 className="text-xl font-bold text-brand-primary mb-4">How the Process Works</h2>
+            <ol className="space-y-2 mb-8 text-brand-muted list-decimal list-inside">
               <li>Browse our 4 projects and shortlist the one that fits your budget and location preference.</li>
               <li>Request investor pricing via WhatsApp, phone, or the contact form — we don&apos;t publish prices publicly.</li>
               <li>Review approval documents, RERA certificates, and the layout plan for your shortlisted plot.</li>
@@ -138,19 +138,19 @@ export default function WhyBhuwantaPage() {
               <WhatsAppInlineCta context="learning more about why Bhuwanta is a trusted developer in Telangana" label="Ask Us on WhatsApp" />
             </div>
 
-            <div className="pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Frequently Asked Questions</h2>
+            <div className="pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Frequently Asked Questions</h2>
               <div className="space-y-5">
                 {faqs.map((faq, i) => (
                   <div key={i}>
-                    <h3 className="font-bold text-[#0f1d33] mb-1">{faq.question}</h3>
-                    <p className="text-sm text-[#5a6a82]">{faq.answer}</p>
+                    <h3 className="font-bold text-brand-ink mb-1">{faq.question}</h3>
+                    <p className="text-sm text-brand-muted">{faq.answer}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="mt-10 text-sm text-[#5a6a82] italic border-t border-[#e8ecf2] pt-6">
+            <p className="mt-10 text-sm text-brand-muted italic border-t border-brand-border pt-6">
               This page is for general information only and does not constitute legal, tax, or financial advice.
               Real estate values can rise or fall, and past market trends do not guarantee future performance.
               Please consult a qualified financial advisor before making any investment decision.

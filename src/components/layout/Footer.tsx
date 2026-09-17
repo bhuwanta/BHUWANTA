@@ -1,11 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { Mail, MapPin } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { client } from '@/lib/sanity'
-import logoFallback from '@/images/bhuwanta-logo-horizontal.png'
+import { BrandLockup } from './BrandLockup'
 
 const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -71,7 +70,6 @@ export function Footer() {
     }).catch(() => {})
   }, [])
 
-  const siteName = settings.siteName || 'BHUWANTA'
 
   const footerLinks = settings.navLinks?.length ? settings.navLinks : defaultFooterLinks
   const address = settings.footerAddress || 'Alluri Trade Center, Floor #5 , Unit #406 , KPHB, Near KPHB Metro Station (opposite to pillar number # 761), hyderabad, telangana - 500072'
@@ -88,9 +86,9 @@ export function Footer() {
   ].filter(s => s.url)
 
   return (
-    <footer className="relative bg-[#002935] border-t border-white/10 pt-2">
+    <footer className="relative bg-brand-deep border-t border-white/10 pt-2">
       {/* Decorative top border gradient */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B69A4E]/50 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -99,21 +97,14 @@ export function Footer() {
           <div className="lg:col-span-5">
             <div className="mb-8 sm:mb-10 flex flex-col items-start">
               <Link href="/" className="flex items-center group gap-3 sm:gap-4 mb-4">
-                <div className="relative h-16 sm:h-20 w-auto transition-transform duration-500 hover:scale-[1.05] origin-left">
-                  <Image
-                    src={logoFallback}
-                    alt={`${siteName} Developers — Your Land. Your Legacy.`}
-                    className="h-16 sm:h-20 w-auto object-contain rounded-md"
-                    sizes="(max-width: 640px) 176px, 220px"
-                  />
-                </div>
+                <BrandLockup tagline />
               </Link>
             </div>
             <div className="mb-6 flex flex-col gap-3">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#B69A4E] mt-0.5 shrink-0" />
+                <MapPin className="w-5 h-5 text-brand-accent mt-0.5 shrink-0" />
                 <div className="text-sm text-white/70 leading-relaxed pr-2">
-                  <strong className="block text-[#c4a55a] mb-1 text-base tracking-wide">{addressLabel}</strong>
+                  <strong className="block text-brand-accent mb-1 text-base tracking-wide">{addressLabel}</strong>
                   <p>{address}</p>
                 </div>
               </div>
@@ -121,7 +112,7 @@ export function Footer() {
                 href={mapsUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-fit ml-8 px-4 py-2.5 text-xs font-bold rounded-lg bg-[#B69A4E]/10 text-[#B69A4E] hover:bg-[#B69A4E] hover:text-white transition-premium border border-[#B69A4E]/20 shadow-none flex items-center gap-2 uppercase tracking-wider"
+                className="w-fit ml-8 px-4 py-2.5 text-xs font-bold rounded-lg bg-brand-gold/10 text-brand-accent hover:bg-brand-gold hover:text-white transition-premium border border-brand-gold/20 shadow-none flex items-center gap-2 uppercase tracking-wider"
               >
                 <MapPin className="w-3.5 h-3.5" />
                 Open in Google Maps
@@ -131,7 +122,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="lg:col-span-2 lg:justify-self-center">
-            <h3 className="text-sm font-semibold text-[#c4a55a] mb-4 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-brand-accent mb-4 uppercase tracking-wider">
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -150,13 +141,13 @@ export function Footer() {
 
           {/* Contact Info */}
           <div className="lg:col-span-3 lg:justify-self-center">
-            <h3 className="text-sm font-semibold text-[#c4a55a] mb-4 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-brand-accent mb-4 uppercase tracking-wider">
               Contact
             </h3>
             <ul className="space-y-4">
 
               <li className="flex items-center gap-3 group">
-                <Mail className="w-4 h-4 text-[#B69A4E] shrink-0" />
+                <Mail className="w-4 h-4 text-brand-accent shrink-0" />
                 <a href={`mailto:${email}`} className="text-sm text-white/70 group-hover:text-white transition-colors">{email}</a>
               </li>
             </ul>
@@ -164,7 +155,7 @@ export function Footer() {
 
           {/* Follow Us Column */}
           <div className="lg:col-span-2 lg:justify-self-end">
-            <h3 className="text-sm font-semibold text-[#c4a55a] mb-4 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-brand-accent mb-4 uppercase tracking-wider">
               Follow Us
             </h3>
             <div className="flex flex-col gap-3">
@@ -182,8 +173,8 @@ export function Footer() {
                   className="flex items-center gap-3 text-sm group transition-premium"
                   aria-label={social.name}
                 >
-                  <div className="w-9 h-9 rounded-lg bg-[#B69A4E]/10 border border-[#B69A4E]/30 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/30 transition-premium">
-                    <social.icon className="w-4 h-4 text-[#B69A4E] transition-all duration-300 group-hover:scale-110 group-hover:text-white" />
+                  <div className="w-9 h-9 rounded-lg bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/30 transition-premium">
+                    <social.icon className="w-4 h-4 text-brand-accent transition-all duration-300 group-hover:scale-110 group-hover:text-white" />
                   </div>
                   <span className="text-white/70 group-hover:text-white transition-colors">
                     {social.name}

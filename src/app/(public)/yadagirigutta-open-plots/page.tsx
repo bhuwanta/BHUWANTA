@@ -132,14 +132,14 @@ export default async function YadagiriguttaOpenPlotsPage() {
       <JsonLd data={[breadcrumb, faqSchema, listingSchema]} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#002935] luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#B69A4E]/10 rounded-full blur-[150px]" />
+      <section className="relative overflow-hidden bg-brand-deep luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[150px]" />
         <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B69A4E]/10 text-[#B69A4E] text-xs font-semibold uppercase tracking-widest border border-[#B69A4E]/20 mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20 mb-6">
             <MapPin className="w-3.5 h-3.5" /> Warangal Highway, near Yadagirigutta
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Exclusive Open Plots Near Yadagirigutta — <span className="text-[#c4a55a]">DTCP & RERA Approved</span>
+            Exclusive Open Plots Near Yadagirigutta — <span className="text-brand-accent">DTCP & RERA Approved</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
             S.V. Kanaka Maple Homes is Bhuwanta Developers&apos; curated, investor-grade land asset on the Warangal Highway, near the Yadagirigutta temple corridor. Reserve a private consultation to review approvals and today&apos;s investor pricing.
@@ -160,16 +160,16 @@ export default async function YadagiriguttaOpenPlotsPage() {
       {/* Opportunity */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0f1d33] mb-6">The Opportunity Near Yadagirigutta</h2>
-          <p className="text-[#5a6a82] leading-relaxed mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Opportunity Near Yadagirigutta</h2>
+          <p className="text-brand-muted leading-relaxed mb-6">
             This corridor sits on the Warangal Highway (NH-163), close to Yadagirigutta — home to the Sri Lakshmi Narasimha Swamy Temple, one of the most significant temple redevelopment and tourism-infrastructure efforts in the region. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project. The area also benefits from proximity to Bhongir, the district headquarters town, rail connectivity via Yadagirigutta station, and the northern alignment of the planned Regional Ring Road (RRR).
           </p>
-          <p className="text-[#5a6a82] leading-relaxed">
+          <p className="text-brand-muted leading-relaxed">
             S.V. Kanaka Maple Homes is Bhuwanta&apos;s live, DTCP approved and RERA registered project in this corridor — real inventory with clear legal documentation, not a pre-launch concept.
           </p>
 
           {project?.images && project.images.length > 0 && (
-            <div className="mt-10 rounded-2xl overflow-hidden border border-[#e8ecf2] aspect-[16/9] relative bg-[#f3f5f8]">
+            <div className="mt-10 rounded-2xl overflow-hidden border border-brand-border aspect-[16/9] relative bg-brand-soft">
               <ProjectImageCarousel images={project.images} projectName="S.V. Kanaka Maple Homes" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
             </div>
           )}
@@ -177,16 +177,16 @@ export default async function YadagiriguttaOpenPlotsPage() {
       </section>
 
       {/* Connectivity & Growth Drivers */}
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0f1d33] mb-8">Connectivity &amp; Growth Drivers</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-8">Connectivity &amp; Growth Drivers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
             {connectivityDrivers.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 bg-white border border-[#e8ecf2] rounded-xl p-4">
-                <div className="w-5 h-5 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0 mt-0.5">
+              <div key={i} className="flex items-start gap-3 bg-white border border-brand-border rounded-xl p-4">
+                <div className="w-5 h-5 rounded-full bg-brand-gold flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="w-3 h-3 text-white stroke-[3]" />
                 </div>
-                <span className="text-sm text-[#0f1d33] font-medium">{item}</span>
+                <span className="text-sm text-brand-ink font-medium">{item}</span>
               </div>
             ))}
           </div>
@@ -196,10 +196,10 @@ export default async function YadagiriguttaOpenPlotsPage() {
       {/* Approvals + Specs */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
-            <h2 className="text-xl font-bold text-[#1e3a5f] mb-6">Approvals &amp; Legal Documentation</h2>
+          <div className="bg-white border border-brand-border shadow-sm rounded-xl p-8">
+            <h2 className="text-xl font-bold text-brand-primary mb-6">Approvals &amp; Legal Documentation</h2>
             <div className="flex flex-wrap gap-3 mb-6">
-              <span className="px-4 py-2 bg-[#c4a55a] text-white rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-4 py-2 bg-brand-gold text-white rounded-full text-xs font-bold uppercase tracking-wider">
                 {project?.approvalBadge || 'DTCP & RERA Approved'}
               </span>
             </div>
@@ -208,19 +208,19 @@ export default async function YadagiriguttaOpenPlotsPage() {
                 href={project.reraUrls[0]}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-[#1e3a5f] hover:text-[#c4a55a] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors"
               >
                 <Download className="w-4 h-4" /> View RERA Certificate
               </a>
             ) : (
-              <p className="text-sm text-[#5a6a82]">RERA and approval documents are shared during your consultation.</p>
+              <p className="text-sm text-brand-muted">RERA and approval documents are shared during your consultation.</p>
             )}
 
             {project?.projectHighlights && project.projectHighlights.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-[#e8ecf2] text-sm font-medium text-[#0f1d33]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-brand-border text-sm font-medium text-brand-ink">
                 {project.projectHighlights.map((highlight, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-brand-gold flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-white stroke-[3]" />
                     </div>
                     {highlight}
@@ -233,16 +233,16 @@ export default async function YadagiriguttaOpenPlotsPage() {
       </section>
 
       {/* Due Diligence Checklist */}
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-xl font-bold text-[#1e3a5f] mb-6 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#c4a55a]" /> Before You Buy Near Yadagirigutta
+          <h2 className="text-xl font-bold text-brand-primary mb-6 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-brand-accent" /> Before You Buy Near Yadagirigutta
           </h2>
           <ul className="space-y-3">
             {dueDiligenceChecklist.map((item, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-[#5a6a82]">
-                <div className="w-4 h-4 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="w-3 h-3 text-[#1e3a5f] stroke-[3]" />
+              <li key={i} className="flex items-start gap-3 text-sm text-brand-muted">
+                <div className="w-4 h-4 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Check className="w-3 h-3 text-brand-primary stroke-[3]" />
                 </div>
                 {item}
               </li>
@@ -254,26 +254,26 @@ export default async function YadagiriguttaOpenPlotsPage() {
       {/* FAQ */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-[#1e3a5f] mb-8">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-brand-primary mb-8">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {faqs.map((faq, i) => (
               <div key={i}>
-                <h3 className="text-lg font-bold text-[#0f1d33] mb-2">{faq.question}</h3>
-                <p className="text-[#5a6a82] leading-relaxed">{faq.answer}</p>
+                <h3 className="text-lg font-bold text-brand-ink mb-2">{faq.question}</h3>
+                <p className="text-brand-muted leading-relaxed">{faq.answer}</p>
               </div>
             ))}
           </div>
-          <p className="mt-10 text-sm text-[#5a6a82]">
+          <p className="mt-10 text-sm text-brand-muted">
             For the full project listing, visit{' '}
-            <Link href="/projects/sv-kanaka-maple-homes" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
+            <Link href="/projects/sv-kanaka-maple-homes" className="font-semibold text-brand-primary hover:text-brand-accent">
               the S.V. Kanaka Maple Homes project page
             </Link>
             . See how HMDA and DTCP approvals compare in our{' '}
-            <Link href="/hmda-vs-dtcp-plots-hyderabad" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
+            <Link href="/hmda-vs-dtcp-plots-hyderabad" className="font-semibold text-brand-primary hover:text-brand-accent">
               HMDA vs DTCP guide
             </Link>
             , or read our{' '}
-            <Link href="/blog/best-areas-open-plots-near-hyderabad-2026" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">
+            <Link href="/blog/best-areas-open-plots-near-hyderabad-2026" className="font-semibold text-brand-primary hover:text-brand-accent">
               2026 guide to the best areas for open plots near Hyderabad
             </Link>{' '}
             to see how this corridor compares to Hyderabad&apos;s other growth belts.

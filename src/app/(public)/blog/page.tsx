@@ -210,18 +210,18 @@ export default async function BlogPage() {
       <JsonLd data={breadcrumb} />
 
       <PageBanner
-        title={<>Latest <span className="text-[#c4a55a]">Blogs</span></>}
+        title={<>Latest <span className="text-brand-accent">Blogs</span></>}
       />
 
       {/* Blog Grid Section */}
-      <section className="py-20 bg-[#f7f8fa]">
+      <section className="py-20 bg-brand-paper">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {allCards.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {allCards.map((card) => (
                 <Link key={card.href} href={card.href} className="block h-full group">
-                  <article className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
-                    <div className="w-full aspect-[16/9] relative overflow-hidden bg-[#f7f8fa]">
+                  <article className="bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full">
+                    <div className="w-full aspect-[16/9] relative overflow-hidden bg-brand-paper">
                       <Image
                         src={card.image}
                         alt={`${card.title} — cover image`}
@@ -237,18 +237,18 @@ export default async function BlogPage() {
                       />
                     </div>
                     <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex items-center gap-2 text-sm text-[#5a6a82] mb-4 font-medium">
-                        <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-[#c4a55a]" /> {formatDate(card.publishDate)}</span>
-                        <span className="text-[#e8ecf2]">•</span>
-                        <span className="flex items-center gap-1.5"><Tag className="w-4 h-4 text-[#c4a55a]" /> {card.tag}</span>
+                      <div className="flex items-center gap-2 text-sm text-brand-muted mb-4 font-medium">
+                        <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-brand-accent" /> {formatDate(card.publishDate)}</span>
+                        <span className="text-brand-border">•</span>
+                        <span className="flex items-center gap-1.5"><Tag className="w-4 h-4 text-brand-accent" /> {card.tag}</span>
                       </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-[#1e3a5f] mb-3 group-hover:text-[#c4a55a] transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-xl md:text-2xl font-bold text-brand-primary mb-3 group-hover:text-brand-accent transition-colors line-clamp-2 leading-snug">
                         {card.title}
                       </h3>
-                      <p className="text-[#5a6a82] text-base mb-6 line-clamp-3 flex-grow">
+                      <p className="text-brand-muted text-base mb-6 line-clamp-3 flex-grow">
                         {card.excerpt}
                       </p>
-                      <div className="inline-flex items-center gap-2 text-base font-bold text-[#c4a55a] group-hover:text-[#a38743] transition-colors mt-auto">
+                      <div className="inline-flex items-center gap-2 text-base font-bold text-brand-accent group-hover:text-brand-accent transition-colors mt-auto">
                         Read More <ArrowRight className="w-5 h-5" />
                       </div>
                     </div>
@@ -258,16 +258,16 @@ export default async function BlogPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <BookOpen className="w-12 h-12 text-[#c4a55a] mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-bold text-[#0f1d33] mb-2">No blogs found</h3>
-              <p className="text-[#5a6a82]">Check back later for new insights and updates.</p>
+              <BookOpen className="w-12 h-12 text-brand-accent mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-bold text-brand-ink mb-2">No blogs found</h3>
+              <p className="text-brand-muted">Check back later for new insights and updates.</p>
             </div>
           )}
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-white border-t border-[#e8ecf2]">
+      <section className="py-20 bg-white border-t border-brand-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <NewsletterForm />
         </div>

@@ -119,9 +119,9 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
         subtitle={`${project?.location || config.corridorLabel}${project?.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
       />
 
-      <section className="py-16 bg-[#f7f8fa]">
+      <section className="py-16 bg-brand-paper">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 md:p-10">
+          <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
             <ProjectDetailActions
               name={config.displayName}
               images={project?.images}
@@ -143,20 +143,20 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
             />
 
             {/* The Opportunity */}
-            <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">The Opportunity</h2>
+            <div className="mt-8 pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">The Opportunity</h2>
               <div className="space-y-4">
                 {config.opportunityParagraphs.map((p, i) => (
-                  <p key={i} className="text-[#5a6a82] leading-relaxed">{p}</p>
+                  <p key={i} className="text-brand-muted leading-relaxed">{p}</p>
                 ))}
               </div>
             </div>
 
             {/* Approvals */}
-            <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Approvals &amp; Legal Documentation</h2>
+            <div className="mt-8 pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Approvals &amp; Legal Documentation</h2>
               <div className="flex flex-wrap gap-3 mb-4">
-                <span className="px-4 py-2 bg-[#c4a55a] text-white rounded-full text-xs font-bold uppercase tracking-wider">
+                <span className="px-4 py-2 bg-brand-gold text-white rounded-full text-xs font-bold uppercase tracking-wider">
                   {project?.approvalBadge || 'Request phase-specific documents'}
                 </span>
               </div>
@@ -165,21 +165,21 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
                   href={project.reraUrls[0]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#1e3a5f] hover:text-[#c4a55a] transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-accent transition-colors"
                 >
                   <Download className="w-4 h-4" /> View RERA Certificate
                 </a>
               ) : (
-                <p className="text-sm text-[#5a6a82]">RERA and approval documents are shared during your consultation.</p>
+                <p className="text-sm text-brand-muted">RERA and approval documents are shared during your consultation.</p>
               )}
             </div>
 
             {/* Specs / Highlights */}
             {project?.projectHighlights && project.projectHighlights.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-[#e8ecf2] text-sm font-medium text-[#0f1d33]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 mt-8 pt-8 border-t border-brand-border text-sm font-medium text-brand-ink">
                 {project.projectHighlights.map((highlight, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-[#c4a55a] flex items-center justify-center shrink-0">
+                    <div className="w-4 h-4 rounded-full bg-brand-gold flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 text-white stroke-[3]" />
                     </div>
                     {highlight}
@@ -189,13 +189,13 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
             )}
 
             {/* Location advantages */}
-            <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Location Advantages</h2>
+            <div className="mt-8 pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Location Advantages</h2>
               <ul className="space-y-3">
                 {config.locationAdvantages.map((adv, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-[#5a6a82]">
-                    <div className="w-4 h-4 rounded-full bg-[#1e3a5f]/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Check className="w-3 h-3 text-[#1e3a5f] stroke-[3]" />
+                  <li key={i} className="flex items-start gap-2 text-sm text-brand-muted">
+                    <div className="w-4 h-4 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="w-3 h-3 text-brand-primary stroke-[3]" />
                     </div>
                     {adv}
                   </li>
@@ -204,24 +204,24 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
             </div>
 
             {/* FAQ */}
-            <div className="mt-8 pt-8 border-t border-[#e8ecf2]">
-              <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Frequently Asked Questions</h2>
+            <div className="mt-8 pt-8 border-t border-brand-border">
+              <h2 className="text-xl font-bold text-brand-primary mb-4">Frequently Asked Questions</h2>
               <div className="space-y-5">
                 {config.faqs.map((faq, i) => (
                   <div key={i}>
-                    <h3 className="font-bold text-[#0f1d33] mb-1">{faq.question}</h3>
-                    <p className="text-sm text-[#5a6a82]">{faq.answer}</p>
+                    <h3 className="font-bold text-brand-ink mb-1">{faq.question}</h3>
+                    <p className="text-sm text-brand-muted">{faq.answer}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {config.relatedLinks.length > 0 && (
-              <div className="mt-8 pt-8 border-t border-[#e8ecf2] flex flex-wrap gap-x-2 gap-y-1 text-sm text-[#5a6a82]">
+              <div className="mt-8 pt-8 border-t border-brand-border flex flex-wrap gap-x-2 gap-y-1 text-sm text-brand-muted">
                 <span>Related:</span>
                 {config.relatedLinks.map((link, i) => (
                   <span key={link.href}>
-                    <Link href={link.href} className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">{link.label}</Link>
+                    <Link href={link.href} className="font-semibold text-brand-primary hover:text-brand-accent">{link.label}</Link>
                     {i < config.relatedLinks.length - 1 ? ',' : ''}
                   </span>
                 ))}
