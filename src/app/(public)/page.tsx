@@ -8,7 +8,7 @@ import {
   Check,
 } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo'
-import { sanityFetch, projectsQuery } from '@/lib/sanity'
+import { sanityFetch, projectsQuery, homeQuery } from '@/lib/sanity'
 import dynamic from 'next/dynamic'
 const ContactForm = dynamic(() =>
   import('@/components/ui/ContactForm').then((module) => module.ContactForm),
@@ -66,10 +66,25 @@ export default async function HomePage({
   searchParams: Promise<{ project?: string }>
 }) {
   const { project: preselectedProject } = await searchParams
-  const data = await sanityFetch<{ projectEntries?: Project[] }>({
-    query: projectsQuery,
-    tags: ['projects'],
-  }).catch(() => null)
+  const [data, home] = await Promise.all([
+    sanityFetch<{ projectEntries?: Project[] }>({
+      query: projectsQuery,
+      tags: ['projects'],
+    }).catch(() => null),
+    sanityFetch<{
+      heroImages?: Array<{
+        text?: string
+        image?: { asset?: { url?: string } }
+        asset?: { url?: string }
+      }>
+    }>({ query: homeQuery, tags: ['home'] }).catch(() => null),
+  ])
+  // Captions are the content; retain caption-only highlights if an image is missing.
+  const highlights = (home?.heroImages || []).flatMap((item) => {
+    const title = item.text?.trim()
+    if (!title) return []
+    return [{ title, image: item.image?.asset?.url || item.asset?.url }]
+  })
   const projects = data?.projectEntries || []
   const projectsList = projects
     .filter((p) => p.name)
@@ -79,7 +94,7 @@ export default async function HomePage({
   ]
   return (
     <>
-      <ImmersiveHero />
+      <ImmersiveHero highlights={highlights} />
       <TrustStrip />
       <section className="home-section" id="locations">
         <div className="site-container">

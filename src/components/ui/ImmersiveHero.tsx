@@ -2,11 +2,48 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowDown, ArrowUpRight, MoveUpRight } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import {
+  ArrowDown,
+  ArrowUpRight,
+  MoveUpRight,
+  ArrowLeft,
+  ArrowRight,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+
+import { SanityImage } from '@/components/ui/SanityImage'
+
+export interface HeroHighlight {
+  title: string
+  image?: string
+}
 
 /** Cinematic depth for the concept artwork; project-layout 3D is a separate feature. */
-export function ImmersiveHero() {
+export function ImmersiveHero({
+  highlights = [],
+}: {
+  highlights?: HeroHighlight[]
+}) {
+  const [selected, setSelected] = useState(0)
+  const active = selected > 0 ? highlights[selected - 1] : undefined
+  const rail = useRef<HTMLDivElement>(null)
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const count = highlights.length + 1
+  const select = (index: number) => {
+    const next = (index + count) % count
+    setSelected(next)
+    const button = rail.current?.querySelector<HTMLButtonElement>(
+      `[data-slide="${next}"]`,
+    )
+    if (button && rail.current) {
+      rail.current.scrollTo({
+        left: button.offsetLeft - 10,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant'
+          : 'smooth',
+      })
+    }
+  }
   const root = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -123,25 +160,70 @@ export function ImmersiveHero() {
   return (
     <section
       ref={root}
-      className="immersive-hero"
+      className={`immersive-hero ${active ? 'hero-highlight-active' : ''}`}
+      data-has-highlights={highlights.length > 0 ? 'true' : undefined}
       id="hero"
       aria-label="Explore Bhuwanta open plots"
     >
       <div className="immersive-stage">
         <div className="hero-atmosphere" aria-hidden="true" />
-        <div className="site-container immersive-composition">
+        <div
+          className="site-container immersive-composition"
+          id="hero-feature-panel"
+          onTouchStart={(event) => {
+            touchStart.current = {
+              x: event.touches[0].clientX,
+              y: event.touches[0].clientY,
+            }
+          }}
+          onTouchEnd={(event) => {
+            if (!touchStart.current || !highlights.length) return
+            const dx = event.changedTouches[0].clientX - touchStart.current.x
+            const dy = event.changedTouches[0].clientY - touchStart.current.y
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5)
+              select(selected + (dx < 0 ? 1 : -1))
+            touchStart.current = null
+          }}
+        >
+          {active && (
+            <div key={selected} className="hero-highlight-backdrop">
+              {active.image && (
+                <SanityImage
+                  src={active.image}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              )}
+              <div className="hero-highlight-shade" />
+              <span className="hero-image-disclaimer">
+                {active.image ? 'Illustrative image' : 'Property highlight'}
+              </span>
+            </div>
+          )}
           <div className="immersive-copy">
             <span className="eyebrow hero-entrance hero-entrance-1">
-              Your land. Your legacy.
+              {active ? 'Discover our highlights' : 'Your land. Your legacy.'}
             </span>
-            <h1 className="hero-entrance hero-entrance-2">
-              Find your plot.
-              <br />
-              <em>Plan your future.</em>
+            <h1
+              className="hero-entrance hero-entrance-2"
+              key={`title-${selected}`}
+            >
+              {active ? (
+                active.title
+              ) : (
+                <>
+                  Find your plot.
+                  <br />
+                  <em>Plan your future.</em>
+                </>
+              )}
             </h1>
             <p className="hero-entrance hero-entrance-3">
-              Explore open plots around Hyderabad. Discover the location,
-              understand the details, and take the next step with Bhuwanta.
+              {active
+                ? 'Explore the details with Bhuwanta. Ask our team about current availability and book a free site visit.'
+                : 'Explore open plots around Hyderabad. Discover the location, understand the details, and take the next step with Bhuwanta.'}
             </p>
             <div className="hero-actions hero-entrance hero-entrance-4">
               <Link
@@ -156,44 +238,117 @@ export function ImmersiveHero() {
               </Link>
             </div>
           </div>
-          <figure className="immersive-artwork">
-            <div className="artwork-orbit orbit-one" aria-hidden="true" />
-            <div className="artwork-orbit orbit-two" aria-hidden="true" />
-            <div className="artwork-depth">
-              <Image
-                src="/images/township-concept.jpg"
-                alt="Architectural concept of tree-lined roads and open plots, presented with interactive visual depth"
-                width={1536}
-                height={1024}
-                priority
-                sizes="(max-width: 900px) 100vw, 65vw"
-                draggable={false}
-              />
-              <div className="artwork-marker marker-land" aria-hidden="true">
-                <span />
-                Explore Open Plots
+          {!active && (
+            <figure className="immersive-artwork">
+              <div className="artwork-orbit orbit-one" aria-hidden="true" />
+              <div className="artwork-orbit orbit-two" aria-hidden="true" />
+              <div className="artwork-depth">
+                <Image
+                  src="/images/township-concept.jpg"
+                  alt="Architectural concept of tree-lined roads and open plots, presented with interactive visual depth"
+                  width={1536}
+                  height={1024}
+                  priority
+                  sizes="(max-width: 900px) 100vw, 65vw"
+                  draggable={false}
+                />
+                <div className="artwork-marker marker-land" aria-hidden="true">
+                  <span />
+                  Explore Open Plots
+                </div>
+                <div className="artwork-marker marker-life" aria-hidden="true">
+                  <span />
+                  Plan Your Future Home
+                </div>
               </div>
-              <div className="artwork-marker marker-life" aria-hidden="true">
-                <span />
-                Plan Your Future Home
+              <figcaption>
+                Concept illustration · Not an actual project layout
+              </figcaption>
+            </figure>
+          )}
+          {!active && (
+            <div className="hero-scroll-note" aria-hidden="true">
+              <span className="eyebrow">A closer look</span>
+              <p>
+                Explore the location.
+                <br />
+                <em>Choose your plot.</em>
+              </p>
+              <span className="hero-note-detail">
+                Discover our locations below <MoveUpRight size={16} />
+              </span>
+            </div>
+          )}
+        </div>
+        {highlights.length > 0 && (
+          <div className="site-container hero-highlights">
+            <div className="hero-highlights-heading">
+              <div>
+                <h2>Discover our highlights</h2>
+                <p>Select a highlight to read more</p>
+              </div>
+              <div className="hero-highlight-controls">
+                <button
+                  type="button"
+                  onClick={() => select(selected - 1)}
+                  aria-label="Previous hero highlight"
+                >
+                  <ArrowLeft size={17} />
+                </button>
+                <span aria-live="polite" className="sr-only">
+                  {active ? active.title : 'Overview'}
+                </span>
+                <span aria-hidden="true">
+                  {String(selected + 1).padStart(2, '0')} /{' '}
+                  {String(count).padStart(2, '0')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => select(selected + 1)}
+                  aria-label="Next hero highlight"
+                >
+                  <ArrowRight size={17} />
+                </button>
               </div>
             </div>
-            <figcaption>
-              Concept illustration · Not an actual project layout
-            </figcaption>
-          </figure>
-          <div className="hero-scroll-note" aria-hidden="true">
-            <span className="eyebrow">A closer look</span>
-            <p>
-              Explore the location.
-              <br />
-              <em>Choose your plot.</em>
-            </p>
-            <span className="hero-note-detail">
-              Discover our locations below <MoveUpRight size={16} />
-            </span>
+            <div
+              className="hero-highlight-rail"
+              ref={rail}
+              role="group"
+              aria-label="Choose a hero highlight"
+            >
+              {[
+                { title: 'Overview', image: '/images/township-concept.jpg' },
+                ...highlights,
+              ].map((slide, index) => (
+                <button
+                  key={`${index}-${slide.title}`}
+                  type="button"
+                  data-slide={index}
+                  aria-pressed={selected === index}
+                  aria-controls="hero-feature-panel"
+                  className="hero-highlight-card"
+                  onClick={() => select(index)}
+                >
+                  {slide.image && (
+                    <SanityImage
+                      src={slide.image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 600px) 65vw, 280px"
+                      className="object-cover"
+                    />
+                  )}
+                  <span className="hero-highlight-card-shade" />
+                  <span className="hero-highlight-card-title">
+                    {slide.title}
+                  </span>
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         <div className="site-container immersive-bottom">
           <span className="hero-coordinate">
             Hyderabad & beyond <span>17.3850° N · 78.4867° E</span>
