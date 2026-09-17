@@ -14,15 +14,15 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Bhuwanta | Luxury Living Redefined',
+    default: 'Bhuwanta | Open Plots near Hyderabad',
     template: '%s | Bhuwanta',
   },
-  description: 'Experience unparalleled luxury with Bhuwanta. Discover exclusive residential projects and premium properties designed for the modern lifestyle.',
+  description: 'Explore open plots in Shabad, Sangareddy, Sadashivpet and Yadagirigutta with Bhuwanta. Request project details, current prices and a site visit.',
   metadataBase: new URL(getSiteUrl()),
   openGraph: {
     type: 'website',
     siteName: 'Bhuwanta',
-    locale: 'en_US',
+    locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',

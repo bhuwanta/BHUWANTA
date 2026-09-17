@@ -106,11 +106,11 @@ export default function BestInvestmentTelanganaApPage() {
         available on request. Here&apos;s how each one fits into the corridors discussed above.
       </p>
 
-      <h3>Vian Vally — Shabad</h3>
+      <h3>Vian Valley — Shabad</h3>
       <p>
-        Located in Shabad, Telangana, directly on the NH-44 Bangalore Highway — one of Hyderabad&apos;s
+        Located in Shabad, Telangana, southwest of Hyderabad — one of Hyderabad&apos;s
         established growth corridors. HMDA and RERA approved. Best suited for highway-facing investors looking
-        for NH-44 connectivity. <Link href="/projects/vian-vally">View Vian Vally</Link>.
+        for NH-44 connectivity. <Link href="/projects/vian-vally">View Vian Valley</Link>.
       </p>
 
       <h3>S.V. Kanaka Maple Homes — Yadagirigutta / Warangal Highway</h3>
@@ -146,7 +146,7 @@ export default function BestInvestmentTelanganaApPage() {
           </thead>
           <tbody className="text-[#5a6a82]">
             <tr className="border-t border-[#e8ecf2]">
-              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Vian Vally</td>
+              <td className="px-4 py-3 font-semibold text-[#0f1d33]">Vian Valley</td>
               <td className="px-4 py-3">Shabad</td>
               <td className="px-4 py-3">NH-44 Bangalore Highway</td>
               <td className="px-4 py-3">HMDA &amp; RERA</td>

@@ -15,7 +15,6 @@ import {
   Images,
   BookOpen,
 } from 'lucide-react'
-import { fireLeadConversion } from '@/lib/gtag'
 import { WhatsAppInlineCta } from '@/components/ui/WhatsAppInlineCta'
 
 // WhatsApp and email only — Bhuwanta deliberately does not publish a phone
@@ -74,9 +73,6 @@ export default function ThankYouPage() {
   const [responseMessage, setResponseMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    // Reaching this page only happens after a successful form submission
-    // (ContactForm redirects here) — fires the shared lead conversion once.
-    fireLeadConversion()
     // Deferred out of the effect body so the state write doesn't cascade a
     // second render synchronously.
     queueMicrotask(() => setResponseMessage(getResponseMessage(new Date())))
@@ -124,7 +120,7 @@ export default function ThankYouPage() {
                 context="my enquiry"
                 message="Hi Bhuwanta, I just submitted an enquiry on your website — could we speak sooner on WhatsApp?"
                 className="w-full sm:w-auto"
-                // The conversion already fired on mount for this page.
+                // The saved enquiry was tracked by the form.
                 trackConversion={false}
               />
               <a

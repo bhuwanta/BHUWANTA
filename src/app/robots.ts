@@ -17,8 +17,8 @@ const AI_CRAWLER_AGENTS = [
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl()
 
-  const allowRules = ['/']
-  const disallowRules = ['/dashboard', '/api', '/studio', '/crm', '/thank-you']
+  const allowRules = ['/', '/api/og']
+  const disallowRules = ['/dashboard', '/api', '/studio', '/crm', '/REALESTATE_SOFTWARE']
 
   return {
     rules: [

@@ -1,3 +1,4 @@
+import { enquiryHref } from '@/lib/project-links'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -198,7 +199,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href={`/#book-visit?project=${encodeURIComponent(name)}`}
+                  href={enquiryHref(name)}
                   className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-sm"
                 >
                   Enquire Now
@@ -221,7 +222,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Link
-                  href={`/#book-visit?project=${encodeURIComponent(name)}`}
+                  href={enquiryHref(name)}
                   className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-sm text-center"
                 >
                   Enquire Now

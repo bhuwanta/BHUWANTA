@@ -1,125 +1,52 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const vianVally = await sanityFetch<{ images?: string[] } | null>({
-    query: projectByNameQuery,
-    params: { name: 'VIAN VALLY' },
-    tags: ['projects'],
-  }).catch(() => null)
-
+  const project = await sanityFetch<{ images?: string[] } | null>({ query: projectByNameQuery, params: { name: 'VIAN VALLEY' }, tags: ['projects'] }).catch(() => null)
   return buildStaticOgMetadata({
-    title: 'Open Plots in Shabad: HMDA Approved Guide (2026) | Bhuwanta',
-    description: 'A guide to open plots in Shabad, Hyderabad — HMDA approval, what drives value on the NH-44 corridor, and how to verify a plot before you buy.',
+    title: 'Shabad Plot Prices, Location & Buyer Checklist | Bhuwanta',
+    description: 'Compare Shabad open plots by price, location, layout documents and total cost. Explore Vian Valley from ₹30,999 per sq. yd. and plan a site visit.',
     url: 'https://bhuwanta.com/blog/open-plots-shabad-hyderabad-hmda-approved-guide',
-    ogTitle: 'Open Plots in Shabad, Hyderabad',
-    ogSubtitle: 'HMDA Approved Plots Near Bangalore Highway — 2026 Guide',
-    image: vianVally?.images?.[0],
+    ogTitle: 'Buying Open Plots in Shabad', ogSubtitle: 'Price, Location & Documents', image: project?.images?.[0],
   })
 }
 
 const faqs = [
-  {
-    question: 'Is Shabad a good investment in 2026?',
-    answer: 'Shabad\'s position directly on the NH-44 Bangalore Highway gives it durable connectivity to Hyderabad that isn\'t dependent on any single project. For buyers looking at the southwest growth corridor, that highway access is the core of the investment thesis — combined with verifying HMDA/RERA approval on any specific plot before buying.',
-  },
-  {
-    question: 'Is Shabad under HMDA or DTCP?',
-    answer: 'Layouts in Shabad can be approved under either HMDA or DTCP depending on the specific project and its location relative to the Hyderabad Metropolitan Development Authority boundary. Always check the specific approval type and registration number for the exact layout you\'re considering — Vian Vally, Bhuwanta\'s project in Shabad, is HMDA approved and RERA registered.',
-  },
+  { question: 'What is Bhuwanta’s starting price for Shabad plots?', answer: 'The advertised Vian Valley offer starts at ₹30,999 per square yard. Ask for a current quote for the exact plot and a breakdown of all applicable charges.' },
+  { question: 'Does an approval badge verify every plot in a township?', answer: 'No. Request the documents for the particular project phase and plot. Match the approval and registration details, survey numbers and plot number, and have the title documents reviewed independently.' },
+  { question: 'Is Shabad the same as Shadnagar?', answer: 'No. They are separate towns. Compare actual routes from the project entrances rather than treating every southwest Hyderabad project as a highway-front property.' },
 ]
 
 export default function ShabadOpenPlotsGuidePage() {
-  return (
-    <ArticleLayout
-      slug="open-plots-shabad-hyderabad-hmda-approved-guide"
-      title="Open Plots in Shabad, Hyderabad: HMDA Approved Plots Near Bangalore Highway (2026 Guide)"
-      description="A complete 2026 guide to open plots in Shabad, Hyderabad — HMDA approval, what drives value on the NH-44 Bangalore Highway corridor, and how to verify a plot before you buy."
-      tag="Shabad"
-      whatsappContext="Vian Vally in Shabad"
-      publishDate="2026-07-13"
-      faqs={faqs}
-      relatedLinks={[
-        { href: '/shabad-open-plots', label: 'Open Plots in Shabad' },
-        { href: '/projects/vian-vally', label: 'Vian Vally Project Page' },
-        { href: '/blog/shabad-vs-shadnagar-investment-comparison', label: 'Shabad vs Shadnagar Comparison' },
-        { href: '/resources/hyderabad-plot-buyer-legal-checklist', label: "Free: Hyderabad Plot Buyer's Legal Checklist" },
-      ]}
-    >
-      <h2>Why Shabad Is Emerging as a Growth Corridor</h2>
-      <p>
-        Shabad sits southwest of Hyderabad, directly on the NH-44 Bangalore Highway — the national highway connecting
-        Hyderabad to Bangalore. That single fact does most of the heavy lifting in Shabad&apos;s investment case: land
-        along a national highway corridor benefits from connectivity infrastructure that isn&apos;t tied to any one
-        developer or project. Roads get maintained, traffic flows, and the town remains reachable regardless of which
-        specific layout you buy into.
-      </p>
-      <p>
-        Unlike speculative land in areas with no real infrastructure anchor, Shabad&apos;s value proposition is
-        straightforward: it is on an established, heavily-used national highway, within the broader southwest growth
-        belt that Hyderabad has been expanding into for years. That belt also includes neighboring Shadnagar, and the
-        two towns are frequently considered together by buyers evaluating this corridor — we cover that comparison
-        separately in{' '}
-        <Link href="/blog/shabad-vs-shadnagar-investment-comparison">Shabad vs Shadnagar: Which Growth Corridor Should You Invest In?</Link>
-      </p>
-
-      <h2>HMDA Approval — What It Means for Buyers Here</h2>
-      <p>
-        HMDA (Hyderabad Metropolitan Development Authority) approval means a layout has been vetted against
-        stricter infrastructure standards — road widths, drainage, and civic planning norms — than layouts outside
-        HMDA&apos;s jurisdiction. In practice, that translates to wider roads, planned drainage, and a level of civic
-        oversight that DTCP-approved layouts in more remote corridors may not have.
-      </p>
-      <p>
-        For a buyer, the practical takeaway is this: don&apos;t assume every plot in Shabad carries the same approval.
-        Some layouts in this belt are HMDA approved, others are DTCP approved, and the difference affects both the
-        infrastructure standard you&apos;re buying into and (for HMDA) typically a stronger resale position. Always ask
-        for the specific approval type and registration number for the exact layout you&apos;re considering — not a
-        general claim about &quot;the area.&quot;
-      </p>
-
-      <h2>Featured Project: Vian Vally</h2>
-      <p>
-        Vian Vally is Bhuwanta Developers&apos; HMDA approved, RERA registered project in Shabad. It&apos;s a live,
-        verified layout — not a pre-launch concept — with clear legal documentation available for review. The full
-        specs, approval documents, and location details are on the{' '}
-        <Link href="/projects/vian-vally">Vian Vally project page</Link>, and you can request today&apos;s investor
-        pricing directly through the{' '}
-        <Link href="/shabad-open-plots">Shabad open plots enquiry page</Link>.
-      </p>
-
-      <h2>What Drives Value in This Belt</h2>
-      <p>
-        A few concrete factors matter more than generic &quot;good investment&quot; claims when evaluating any plot in the
-        Shabad corridor:
-      </p>
-      <ul>
-        <li><strong>Road width:</strong> wider internal roads (typically the norm in HMDA-approved layouts) support easier access and better long-term livability.</li>
-        <li><strong>Distance to the highway:</strong> plots with direct or near-direct access to NH-44 carry a meaningful connectivity premium over plots set deep behind it.</li>
-        <li><strong>Gated vs. open layout:</strong> gated, secured layouts with a defined entrance and boundary typically offer more predictable long-term upkeep than fully open layouts.</li>
-        <li><strong>Approval type:</strong> HMDA vs DTCP affects both infrastructure standards and, generally, resale liquidity.</li>
-      </ul>
-      <p>
-        We deliberately don&apos;t publish plot pricing on this site — investor pricing for a corridor like this is
-        best discussed directly, since it depends on plot size, position within the layout, and current availability.
-        Enquire through the form or WhatsApp for today&apos;s rate.
-      </p>
-
-      <h2>How to Verify a Shabad Plot Is Genuinely HMDA Approved</h2>
-      <p>Before you commit to any plot in this belt, a practical verification checklist:</p>
-      <ul>
-        <li>Ask for the layout&apos;s HMDA approval number and cross-check it against the HMDA/Telangana government portal.</li>
-        <li>Confirm the RERA registration number and check its status on the Telangana RERA portal.</li>
-        <li>Request the approved layout plan (not just marketing renders) and compare plot boundaries against it.</li>
-        <li>Check for an Encumbrance Certificate confirming clear title with no pending disputes.</li>
-      </ul>
-      <p>
-        Bhuwanta makes the RERA certificate and approval documents for Vian Vally available on request — we&apos;d
-        rather you verify everything yourself before deciding.
-      </p>
-    </ArticleLayout>
-  )
+  return <ArticleLayout slug="open-plots-shabad-hyderabad-hmda-approved-guide" title="Buying Open Plots in Shabad: Price, Location and Documents" description="A practical guide to comparing plot options in Shabad before a site visit or booking." tag="Shabad" whatsappContext="Vian Valley plots in Shabad" publishDate="2026-07-13" faqs={faqs} relatedLinks={[
+    { href: '/shabad-open-plots', label: 'Shabad prices and site visits' },
+    { href: '/projects/vian-vally', label: 'Vian Valley project details' },
+    { href: '/blog/shabad-vs-shadnagar-investment-comparison', label: 'Shabad vs Shadnagar' },
+  ]}>
+    <h2>Start with the particular plot</h2>
+    <p>Shabad is in Ranga Reddy district, southwest of Hyderabad. Buyers looking here often consider the wider Chandanvelly and Seetharampur industrial corridor. For your shortlist, the relevant details are the plot number, phase, legal access, completed services and total cost.</p>
+    <p>Ask for the project entrance pin and check the route from your home or workplace. A brochure showing a national highway nearby does not establish that the plot has direct highway frontage. Shabad and Shadnagar are distinct locations.</p>
+    <h2>Shabad plot price: rate versus total cost</h2>
+    <p>Bhuwanta advertises <Link href="/shabad-open-plots">Vian Valley plots from ₹30,999 per sq. yd.</Link> The project brochure shows a ₹30,999–₹33,999 range. Request a written quote for your chosen plot; do not assume every facing or phase has the starting rate.</p>
+    <p>For illustration, 200 square yards at ₹30,999 would have a base land cost of ₹61,99,800. This is arithmetic, not an available-plot offer or an all-inclusive price. Confirm plot availability and any additional charges separately.</p>
+    <ul>
+      <li>Plot area and dimensions, with the measurement unit stated clearly.</li>
+      <li>Rate per square yard and any facing or corner premium.</li>
+      <li>Development, amenities, maintenance and other charges, where applicable.</li>
+      <li>Registration-related costs, payment schedule and written booking terms.</li>
+    </ul>
+    <h2>Compare project phases carefully</h2>
+    <p>The master layout contains Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central. Ask which phase the offered plot belongs to. A coloured master plan may show reserved areas, mortgage plots and proposed expansion as well as sale plots; it is not a live availability list.</p>
+    <h2>Review approvals and title documents</h2>
+    <p>Ask for the layout approval and the RERA registration details for the exact phase. The <a href="https://rera.telangana.gov.in/" target="_blank" rel="noopener noreferrer">Telangana RERA website</a> links to registered projects, agents and project progress. Use the project’s registered name and number to check its record.</p>
+    <p>Match the survey numbers and plot number to the approved layout. Ask an independent property lawyer to review the title chain, encumbrances and any mortgage or release documents. Approval and registration are separate from a complete title review, and an Encumbrance Certificate alone does not prove that there are no disputes.</p>
+    <h2>Assess development at the site</h2>
+    <p>During your visit, check the access road, boundary, internal roads, drainage, water arrangements and electricity. Separate completed facilities from proposed amenities. Ask for written details of unfinished works and their delivery commitments.</p>
+    <p>Nearby industrial announcements provide context, but do not establish a plot’s resale value. For example, <a href="https://olectra.com/wp-content/uploads/23.-01.01.2026.pdf" target="_blank" rel="noopener noreferrer">Olectra reported</a> commercial operations at its Seetharampur facility from 31 December 2025. Measure the route from your chosen project instead of applying one travel-time claim to the entire area.</p>
+    <h2>Make the site visit useful</h2>
+    <p>Share your budget, preferred size, purpose and buying timeline with Bhuwanta. Request the plot shortlist and documents before the visit so you can compare specific options. <Link href="/shabad-open-plots#book-visit">Request prices and arrange a Vian Valley site visit</Link>.</p>
+  </ArticleLayout>
 }

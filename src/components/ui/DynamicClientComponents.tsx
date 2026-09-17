@@ -10,12 +10,8 @@ const WhatsAppFloat = dynamic(
   () => import('@/components/ui/WhatsAppFloat').then(m => m.WhatsAppFloat),
   { ssr: false }
 )
-const LeadPopup = dynamic(
-  () => import('@/components/ui/LeadPopup').then(m => m.LeadPopup),
-  { ssr: false }
-)
 
-export function DynamicClientComponents({ projectsList = [], locationNames = [] }: { projectsList?: { name: string, location: string }[], locationNames?: string[] }) {
+export function DynamicClientComponents() {
   const [shouldRender, setShouldRender] = useState(false)
 
   useEffect(() => {
@@ -38,7 +34,6 @@ export function DynamicClientComponents({ projectsList = [], locationNames = [] 
   return (
     <>
       <WhatsAppFloat />
-      <LeadPopup projectsList={projectsList} locationNames={locationNames} />
     </>
   )
 }

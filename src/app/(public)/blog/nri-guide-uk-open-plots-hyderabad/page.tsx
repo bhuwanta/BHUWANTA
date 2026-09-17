@@ -70,8 +70,7 @@ export default function NriGuideUkPage() {
 
       <h2>Why Open Plots Near Hyderabad Make Sense for UK Buyers</h2>
       <p>
-        This is the part worth getting excited about. Hyderabad&apos;s growth corridors — Shabad on the NH-44
-        Bangalore Highway, the Warangal Highway near Yadagirigutta, Sangareddy on the Mumbai Highway near the
+        This is the part worth getting excited about. Hyderabad&apos;s growth corridors — Shabad in southwest Hyderabad, the Warangal Highway near Yadagirigutta, Sangareddy on the Mumbai Highway near the
         Regional Ring Road, and Sadashivpet — are still in an earlier, more affordable phase of development
         compared to established UK property markets. For a UK-based investor, that means access to
         legally-clear, government-approved land in a fast-growing market at a fraction of what equivalent capital
@@ -149,10 +148,10 @@ export default function NriGuideUkPage() {
         actually applies, project by project:
       </p>
 
-      <h3>Vian Vally — Shabad</h3>
+      <h3>Vian Valley — Shabad</h3>
       <p>
-        Located in Shabad, Telangana, directly on the NH-44 Bangalore Highway. HMDA and RERA approved.{' '}
-        <Link href="/projects/vian-vally">View Vian Vally</Link>.
+        Located in Shabad, Telangana, southwest of Hyderabad. HMDA and RERA approved.{' '}
+        <Link href="/projects/vian-vally">View Vian Valley</Link>.
       </p>
 
       <h3>S.V. Kanaka Maple Homes — Yadagirigutta / Warangal Highway</h3>

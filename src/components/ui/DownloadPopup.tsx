@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { X, Download } from 'lucide-react'
 import Image from 'next/image'
-import logoImg from '@/images/logo.png'
+import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
 
@@ -187,17 +187,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <div
-            className="w-40 sm:w-48 h-12 sm:h-16 mb-4"
-            style={{
-              WebkitMaskImage: `url(${logoImg.src})`,
-              WebkitMaskSize: 'contain',
-              WebkitMaskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              backgroundColor: '#c4a55a' // Gold color from Tailwind config
-            }}
-            aria-label="Bhuwanta"
-          />
+          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
           <h2 className="text-white font-semibold text-lg sm:text-xl">Download {documentType}</h2>
           <p className="text-white/80 text-xs sm:text-sm mt-1">{projectName}</p>
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackWhatsAppClick } from '@/lib/gtag'
 
 const WHATSAPP_NUMBER = '919666504405'
 
@@ -39,7 +39,7 @@ export function WhatsAppFloat() {
       <button
         type="button"
         onClick={() => {
-          fireLeadConversion()
+          trackWhatsAppClick()
           window.open(whatsappUrl, '_blank')
         }}
         aria-label="Chat With Us on WhatsApp"

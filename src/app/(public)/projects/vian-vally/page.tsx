@@ -1,53 +1,53 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { ProjectLandingTemplate, ProjectLandingConfig, buildProjectPageMetadata } from '@/components/ui/ProjectLandingTemplate'
 
 export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildProjectPageMetadata(
-    config,
-    'Vian Vally — Shabad, NH-44 Bangalore Highway | Bhuwanta',
-    'Vian Vally — HMDA & RERA approved open plots in Shabad, on the NH-44 Bangalore Highway corridor. A curated, investor-grade land asset by Bhuwanta.'
+  return buildProjectPageMetadata(config,
+    'Vian Valley Plots in Shabad from ₹30,999/sq. yd. | Bhuwanta',
+    'Explore Vian Valley in Shabad with Bhuwanta. Plots from ₹30,999 per sq. yd. Request current plot options, phase-specific documents and a site visit.'
   )
 }
 
 const config: ProjectLandingConfig = {
   sanityName: 'VIAN VALLEY',
+  // Preserve the established URL; the correctly-spelled alias redirects here.
   slug: 'vian-vally',
-  displayName: 'Vian Vally',
-  corridorLabel: 'Shabad, NH-44 Bangalore Highway',
-  h1: <>Vian Vally</>,
+  displayName: 'Vian Valley',
+  corridorLabel: 'Shabad · Southwest Hyderabad',
+  h1: <>Vian Valley</>,
   opportunityParagraphs: [
-    'Vian Vally sits in Shabad, directly on the NH-44 Bangalore Highway corridor southwest of Hyderabad. This corridor benefits from durable highway connectivity to the city, independent of any single project or developer.',
-    'This is an HMDA approved and RERA registered layout, offering the stricter infrastructure standards that come with HMDA jurisdiction, in a corridor that has drawn growing investor attention.',
+    'Explore Vian Valley open plots in Shabad, Ranga Reddy district, with Bhuwanta. The advertised offer starts at ₹30,999 per square yard. Request the current plot list and a written quote for the size, facing and phase you prefer.',
+    'The master layout includes Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central. Confirm the exact phase, approval documents and plot availability before choosing. A site visit helps you assess the access roads and completed amenities.',
   ],
   locationAdvantages: [
-    'Directly on the NH-44 Bangalore Highway corridor',
-    'HMDA approved layout with wider road and infrastructure standards',
-    'Part of the same growth belt as the neighboring Shadnagar corridor',
+    'Located in Shabad, southwest of Hyderabad',
+    'Explore the wider Shabad–Chandanvelly industrial corridor',
+    'Request the exact entrance pin and a route from your starting point',
   ],
   faqs: [
     {
-      question: 'Is Vian Vally HMDA approved?',
-      answer: 'Yes. Vian Vally is HMDA approved and RERA registered. Approval and RERA documents are available for review — request them through the enquiry form or WhatsApp.',
+      question: 'What is the price of Vian Valley plots?',
+      answer: 'Bhuwanta’s advertised offer starts at ₹30,999 per square yard. Request a plot-specific quote with dimensions, facing, phase and a breakdown of applicable charges.',
     },
     {
-      question: 'Why invest in Shabad?',
-      answer: 'Shabad sits directly on the NH-44 Bangalore Highway corridor southwest of Hyderabad, giving it durable connectivity advantages tied to the highway itself rather than any single development.',
+      question: 'How can I review the approvals?',
+      answer: 'Request the approved layout, HMDA approval details, RERA registration and title documents for the exact phase and plot you are considering. Match these details before proceeding.',
     },
     {
-      question: 'What is the pricing for plots at Vian Vally?',
-      answer: 'Bhuwanta shares exclusive investor pricing directly during a private consultation rather than publishing it. Enquire through the form or WhatsApp for today\'s rate.',
+      question: 'Is Vian Valley in Shabad or Shadnagar?',
+      answer: 'Vian Valley is in Shabad. Shabad and Shadnagar are separate locations; ask the team for the project entrance pin before your site visit.',
     },
   ],
   relatedLinks: [
+    { href: '/shabad-open-plots', label: 'Shabad prices and site visits' },
     { href: '/projects', label: 'All Projects' },
-    { href: '/shabad-open-plots', label: 'Open Plots in Shabad' },
-    { href: '/blog/open-plots-shabad-hyderabad-hmda-approved-guide', label: 'Shabad Open Plots Guide' },
+    { href: '/blog/open-plots-shabad-hyderabad-hmda-approved-guide', label: 'Shabad Buyer’s Guide' },
     { href: '/blog/shabad-vs-shadnagar-investment-comparison', label: 'Shabad vs Shadnagar' },
   ],
 }
 
-export default function VianVallyPage() {
+export default function VianValleyPage() {
   return <ProjectLandingTemplate config={config} />
 }

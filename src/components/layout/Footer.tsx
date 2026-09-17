@@ -4,8 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, MapPin } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { client, urlFor } from '@/lib/sanity'
-import logoFallback from '@/images/logo.png'
+import { client } from '@/lib/sanity'
+import logoFallback from '@/images/bhuwanta-logo-horizontal.png'
 
 const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -72,7 +72,6 @@ export function Footer() {
   }, [])
 
   const siteName = settings.siteName || 'BHUWANTA'
-  const _tagline = settings.tagline || 'Land Today. Landmark Tomorrow.'
 
   const footerLinks = settings.navLinks?.length ? settings.navLinks : defaultFooterLinks
   const address = settings.footerAddress || 'Alluri Trade Center, Floor #5 , Unit #406 , KPHB, Near KPHB Metro Station (opposite to pillar number # 761), hyderabad, telangana - 500072'
@@ -84,7 +83,7 @@ export function Footer() {
   const socialItems = [
     { name: 'LinkedIn', icon: LinkedinIcon, url: settings.socialLinks?.linkedin || 'https://www.linkedin.com/in/bhuwanta-developer-043591405/' },
     { name: 'Facebook', icon: FacebookIcon, url: settings.socialLinks?.facebook || 'https://www.facebook.com/bhuwantadevelopers' },
-    { name: 'Instagram', icon: InstagramIcon, url: settings.socialLinks?.instagram || 'https://www.instagram.com/bhuwantadevelopers/' },
+    { name: 'Instagram', icon: InstagramIcon, url: settings.socialLinks?.instagram || 'https://www.instagram.com/bhuwanta_developers/' },
     { name: 'YouTube', icon: YoutubeIcon, url: settings.socialLinks?.youtube || 'https://www.youtube.com/@BhuwantaDevelopers' },
   ].filter(s => s.url)
 
@@ -101,16 +100,11 @@ export function Footer() {
             <div className="mb-8 sm:mb-10 flex flex-col items-start">
               <Link href="/" className="flex items-center group gap-3 sm:gap-4 mb-4">
                 <div className="relative h-16 sm:h-20 w-auto transition-transform duration-500 hover:scale-[1.05] origin-left">
-                  <div 
-                    className="h-16 sm:h-20 w-48 sm:w-60"
-                    style={{
-                      WebkitMaskImage: `url(${logoFallback.src})`,
-                      WebkitMaskSize: 'contain',
-                      WebkitMaskRepeat: 'no-repeat',
-                      WebkitMaskPosition: 'left center',
-                      backgroundColor: '#c4a55a' // Gold color
-                    }}
-                    aria-label={settings.siteName || 'BHUWANTA'}
+                  <Image
+                    src={logoFallback}
+                    alt={`${siteName} Developers — Your Land. Your Legacy.`}
+                    className="h-16 sm:h-20 w-auto object-contain rounded-md"
+                    sizes="(max-width: 640px) 176px, 220px"
                   />
                 </div>
               </Link>

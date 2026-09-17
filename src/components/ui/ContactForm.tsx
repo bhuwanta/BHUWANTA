@@ -4,6 +4,9 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
+import { matchEnquiryProject } from '@/lib/project-links'
+import { fireLeadConversion } from '@/lib/gtag'
+import Link from 'next/link'
 
 declare global {
   interface Window {
@@ -11,7 +14,7 @@ declare global {
   }
 }
 
-export function ContactForm({ projectsList = [], locationNames = [], initialProject }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string }) {
+export function ContactForm({ projectsList = [], locationNames = [], initialProject, compact = false }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string, compact?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -42,8 +45,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   // Only preselect if it's a real project name — otherwise the <select> would
   // silently show a blank state since no <option> would match the value.
-  const matchedProject = initialProject && projectsList.some(p => p.name === initialProject) ? initialProject : 'Not Sure'
-  const matchedLocation = initialProject ? projectsList.find(p => p.name === initialProject)?.location : undefined
+  const selectedProject = matchEnquiryProject(projectsList, initialProject)
+  const matchedProject = selectedProject?.name || 'Not Sure'
+  const matchedLocation = selectedProject?.location
 
   const [formData, setFormData] = useState({
     name: '',
@@ -51,7 +55,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
     phone: '',
     location: matchedLocation || 'All',
     project: matchedProject,
-    enquiryType: 'Site Visit',
+    enquiryType: compact ? 'Pricing Details' : 'Site Visit',
     message: '',
     referredBy: '',
     agree: false,
@@ -147,7 +151,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
           enquiryType: formData.enquiryType,
           message: formData.message,
           referredBy: formData.referredBy,
-          sourcePage: 'Website - Home - Contact Section',
+          sourcePage: `Website - ${window.location.pathname} - Contact Section`,
         })
       })
 
@@ -158,6 +162,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
       clearRecaptcha()
 
+      fireLeadConversion()
       router.push('/thank-you')
     } catch (err: unknown) {
       console.error(err)
@@ -169,7 +174,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
   return (
     <div className="space-y-5">
-      <h3 className="text-2xl font-bold text-[#0f1d33] mb-2">Send Us a Message</h3>
+      <h3 className="text-2xl font-bold text-[#0f1d33] mb-2">Request Prices or a Site Visit</h3>
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm font-medium mb-6">
@@ -185,6 +190,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               <input
                 type="text"
                 id="name"
+                autoComplete="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -198,6 +204,8 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               <input
                 type="tel"
                 id="phone"
+                autoComplete="tel-national"
+                inputMode="numeric"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
@@ -209,6 +217,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
             </div>
 
+            {!compact && <>
             <div>
               <label htmlFor="location" className="block text-sm font-medium text-[#0f1d33] mb-1">Preferred Location</label>
               <div className="relative">
@@ -305,15 +314,16 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               </div>
             </div>
 
+            </>}
+
             <div className="sm:col-span-2">
-              <label htmlFor="message" className="block text-sm font-medium text-[#0f1d33] mb-1">Your Message</label>
+              <label htmlFor="message" className="block text-sm font-medium text-[#0f1d33] mb-1">Your Message (Optional)</label>
               <textarea
                 id="message"
                 name="message"
                 rows={2}
                 value={formData.message}
                 onChange={handleChange}
-                required
                 className="w-full bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg px-3 py-2.5 text-[#0f1d33] text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent resize-none"
               ></textarea>
             </div>
@@ -330,7 +340,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               className="w-4 h-4 rounded border-[#e8ecf2] text-[#1e3a5f] focus:ring-[#c4a55a]"
             />
             <label htmlFor="agree" className="text-xs text-[#5a6a82] leading-tight">
-              By submitting, I agree to the Terms & Conditions and Privacy Policy.
+              I agree to the <Link href="/policies" target="_blank" className="underline">Terms &amp; Privacy Policy</Link> and to being contacted about my enquiry.
             </label>
           </div>
 
@@ -339,9 +349,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-[#0f1d33] font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'Sending OTP...' : 'Request Investor Pricing →'}
+            {loading ? 'Sending OTP...' : 'Get Price & Plot Details →'}
           </button>
         </form>
       ) : (
@@ -356,6 +366,8 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             <input
               type="text"
               id="otp"
+              autoComplete="one-time-code"
+              inputMode="numeric"
               name="otp"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
@@ -377,7 +389,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             <button
               type="submit"
               disabled={loading || otp.length < 6}
-              className="w-2/3 bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-2/3 bg-gradient-to-r from-[#c4a55a] to-[#d4b872] text-[#0f1d33] font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? 'Verifying...' : 'Verify & Submit'}
             </button>

@@ -31,16 +31,16 @@ interface ProjectDetail {
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
   'vian-vally': [
     {
-      question: 'Where is Vian Vally located?',
-      answer: 'Vian Vally is located in Shabad, Telangana, on the NH-44 Bangalore Highway, one of Hyderabad’s established growth corridors.',
+      question: 'Where is Vian Valley located?',
+      answer: 'Vian Valley is located in Shabad, Telangana, southwest of Hyderabad, one of Hyderabad’s established growth corridors.',
     },
     {
-      question: 'Are there open plots for sale in Shabad on the NH-44 highway?',
-      answer: 'Yes. Vian Vally offers HMDA approved open plots in Shabad, directly on the NH-44 Bangalore Highway corridor, with clear legal documentation and RERA registration.',
+      question: 'Are there open plots for sale in Shabad?',
+      answer: 'Yes. Vian Valley offers HMDA approved open plots in Shabad, southwest of Hyderabad, with clear legal documentation and RERA registration.',
     },
     {
       question: 'What is the difference between HMDA and DTCP approval?',
-      answer: 'HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, while DTCP (Directorate of Town and Country Planning) approves layouts elsewhere in Telangana. Both indicate a legally sanctioned layout with proper infrastructure. Vian Vally is HMDA approved.',
+      answer: 'HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, while DTCP (Directorate of Town and Country Planning) approves layouts elsewhere in Telangana. Both indicate a legally sanctioned layout with proper infrastructure. Vian Valley is HMDA approved.',
     },
   ],
   'sv-kanaka-maple-homes': [

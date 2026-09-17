@@ -1,11 +1,12 @@
 'use client'
 
+import { enquiryHref } from '@/lib/project-links'
 import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Download, CreditCard, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackWhatsAppClick } from '@/lib/gtag'
 
 interface ProjectDetailActionsProps {
   name: string
@@ -53,7 +54,7 @@ export function ProjectDetailActions({
 
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
-          href={`/#book-visit?project=${encodeURIComponent(name)}`}
+          href={enquiryHref(name)}
           className="w-full col-span-1 px-2 py-2.5 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           Enquire Now
@@ -62,7 +63,7 @@ export function ProjectDetailActions({
           href={`https://wa.me/919666504405?text=${encodeURIComponent(`Hi Bhuwanta, I'm interested in investor pricing for ${name}. Please share details.`)}`}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={fireLeadConversion}
+          onClick={trackWhatsAppClick}
           className="w-full col-span-1 px-2 py-2.5 md:px-5 md:w-auto bg-[#25D366] text-white font-semibold rounded-lg hover:opacity-90 transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
         >
           WhatsApp

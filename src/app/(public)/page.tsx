@@ -162,11 +162,11 @@ export default async function HomePage({
     .slice(0, 6)
 
   // Support both old format (direct asset) and new format (object with image + text)
-  const mappedHeroImages = ((data.heroImages || []) as Array<any>)
-    .map((item: any) => {
+  const mappedHeroImages = ((data.heroImages || []) as Array<{ image?: { asset?: { url?: string } }; asset?: { url?: string }; text?: string }>)
+    .map((item) => {
       // New format: { image: { asset: { url } }, text }
       if (item.image?.asset?.url) {
-        return { url: `${item.image.asset.url}?w=1920&q=60&auto=format`, text: item.text }
+        return { url: `${item.image.asset.url}?w=1920&q=60&auto=format`, text: item.text || '' }
       }
       // Old format: { asset: { url } } (direct image)
       if (item.asset?.url) {
@@ -249,7 +249,7 @@ export default async function HomePage({
       <section className="bg-white py-10 sm:py-14 border-b border-[#e8ecf2]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <p className="text-sm sm:text-base text-[#5a6a82] leading-relaxed text-center">
-            Bhuwanta Developers is a Hyderabad-based real estate company specializing in HMDA and DTCP approved open plots, villa plots, and farmlands. The company&apos;s current projects span four of Hyderabad&apos;s fastest-growing corridors: S.V. Kanaka Maple Homes on the Warangal Highway near the Yadagirigutta Temple, TJR Township at Sangareddy Junction on the Mumbai Highway, Vaibhav County in Sadashivpet also on the Mumbai Highway, and Vian Vally in Shabad on the NH-44 Bangalore Highway. Every layout is DTCP, HMDA, or YTDA approved and RERA registered, with clear legal documentation, Vastu-compliant planning, and underground drainage. Bhuwanta has sold 100+ plots to date. Bhuwanta is led by Chairman &amp; Managing Director S. Siva Kumar and CEO &amp; Managing Director CH. Rama Krishna Reddy. The company&apos;s headquarters is at Alluri Trade Center, KPHB, Hyderabad, near KPHB Metro Station. Buyers can book a free site visit directly through the website or WhatsApp.
+            Bhuwanta Developers is a Hyderabad-based real estate company specializing in HMDA and DTCP approved open plots, villa plots, and farmlands. The company&apos;s current projects span four of Hyderabad&apos;s fastest-growing corridors: S.V. Kanaka Maple Homes on the Warangal Highway near the Yadagirigutta Temple, TJR Township at Sangareddy Junction on the Mumbai Highway, Vaibhav County in Sadashivpet also on the Mumbai Highway, and Vian Valley in Shabad, southwest of Hyderabad. Every layout is DTCP, HMDA, or YTDA approved and RERA registered, with clear legal documentation, Vastu-compliant planning, and underground drainage. Bhuwanta has sold 100+ plots to date. Bhuwanta is led by Chairman &amp; Managing Director S. Siva Kumar and CEO &amp; Managing Director CH. Rama Krishna Reddy. The company&apos;s headquarters is at Alluri Trade Center, KPHB, Hyderabad, near KPHB Metro Station. Buyers can book a free site visit directly through the website or WhatsApp.
           </p>
         </div>
       </section>
@@ -588,7 +588,7 @@ export default async function HomePage({
 
             {/* Right Side: Form */}
             <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-10 shadow-xl lg:order-2">
-              <ContactForm projectsList={projectsList} locationNames={locationNames} initialProject={preselectedProject} />
+              <ContactForm key={preselectedProject || 'general'} projectsList={projectsList} locationNames={locationNames} initialProject={preselectedProject} />
             </div>
 
           </div>

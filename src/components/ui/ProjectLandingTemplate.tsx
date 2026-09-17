@@ -1,3 +1,4 @@
+import { enquiryHref } from '@/lib/project-links'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Check, Download } from 'lucide-react'
@@ -103,7 +104,7 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
   const faqSchema = buildFaqSchema(config.faqs)
   const listingSchema = buildRealEstateListingSchema({
     name: config.displayName,
-    description: project?.description || config.opportunityParagraphs[0] || '',
+    description: config.opportunityParagraphs[0] || '',
     url: pageUrl,
     address: project?.location || config.corridorLabel,
     ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}),
@@ -156,7 +157,7 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
               <h2 className="text-xl font-bold text-[#1e3a5f] mb-4">Approvals &amp; Legal Documentation</h2>
               <div className="flex flex-wrap gap-3 mb-4">
                 <span className="px-4 py-2 bg-[#c4a55a] text-white rounded-full text-xs font-bold uppercase tracking-wider">
-                  {project?.approvalBadge || 'HMDA/DTCP Approved'}
+                  {project?.approvalBadge || 'Request phase-specific documents'}
                 </span>
               </div>
               {project?.reraUrls && project.reraUrls.length > 0 ? (
@@ -232,7 +233,7 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
 
       <CtaSection
         primaryButtonText="Request Investor Pricing"
-        primaryButtonLink={`/#book-visit?project=${encodeURIComponent(config.displayName)}`}
+        primaryButtonLink={enquiryHref(config.displayName)}
       />
     </>
   )

@@ -185,10 +185,10 @@ export default function NriOpenPlotsGuidePage() {
         our word for it.
       </p>
 
-      <h3>Vian Vally — Shabad</h3>
+      <h3>Vian Valley — Shabad</h3>
       <p>
-        Located in Shabad, Telangana, directly on the NH-44 Bangalore Highway. HMDA and RERA approved.{' '}
-        <Link href="/projects/vian-vally">View Vian Vally</Link>.
+        Located in Shabad, Telangana, southwest of Hyderabad. HMDA and RERA approved.{' '}
+        <Link href="/projects/vian-vally">View Vian Valley</Link>.
       </p>
 
       <h3>S.V. Kanaka Maple Homes — Yadagirigutta / Warangal Highway</h3>

@@ -67,6 +67,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: '/projects/vian-valley', destination: '/projects/vian-vally', permanent: true },
+      { source: '/projects/s-v-kanaka-maple-homes', destination: '/projects/sv-kanaka-maple-homes', permanent: true },
       {
         source: '/login',
         destination: '/REALESTATE_SOFTWARE/login',

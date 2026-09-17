@@ -113,7 +113,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/open-plots-shabad-hyderabad-hmda-approved-guide',
     title: 'Open Plots in Shabad, Hyderabad: HMDA Approved Plots Near Bangalore Highway (2026 Guide)',
-    excerpt: 'A complete 2026 guide to open plots in Shabad, Hyderabad — HMDA approval, what drives value on the NH-44 Bangalore Highway corridor, and how to verify a plot before you buy.',
+    excerpt: 'Compare Shabad plots by price, location, phase-specific documents and total cost before arranging a site visit.',
     fallbackImage: ogImage('Open Plots in Shabad, Hyderabad', 'HMDA Approved Plots Near Bangalore Highway — 2026 Guide'),
     tag: 'Blog',
     publishDate: '2026-07-13',
@@ -129,7 +129,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/shabad-vs-shadnagar-investment-comparison',
     title: 'Shabad vs Shadnagar: Which Growth Corridor Should You Invest In?',
-    excerpt: "Shabad vs Shadnagar — a straight comparison of Hyderabad's NH-44 growth corridor towns, who should choose which, and where verified, HMDA-approved inventory is available today.",
+    excerpt: "Compare Shabad and Shadnagar by actual location, road access, documents, total cost and intended use.",
     fallbackImage: ogImage('Shabad vs Shadnagar', 'Which Growth Corridor Should You Invest In?'),
     tag: 'Blog',
     publishDate: '2026-07-13',
@@ -144,7 +144,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   },
 ]
 
-// Guides directly about the Shabad/Shadnagar corridor use Vian Vally's real
+// Guides directly about the Shabad/Shadnagar corridor use Vian Valley's real
 // photo — everything else keeps its own fallbackImage.
 const VIAN_VALLY_HREFS = new Set([
   '/blog/open-plots-shabad-hyderabad-hmda-approved-guide',
@@ -165,7 +165,7 @@ export default async function BlogPage() {
   try {
     const vianVally = await sanityFetch<{ images?: string[] } | null>({
       query: projectByNameQuery,
-      params: { name: 'VIAN VALLY' },
+      params: { name: 'VIAN VALLEY' },
       tags: ['projects'],
     })
     vianVallyImage = vianVally?.images?.[0] || null

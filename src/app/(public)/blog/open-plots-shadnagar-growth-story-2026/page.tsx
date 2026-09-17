@@ -7,7 +7,7 @@ import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
 export async function generateMetadata(): Promise<Metadata> {
   const vianVally = await sanityFetch<{ images?: string[] } | null>({
     query: projectByNameQuery,
-    params: { name: 'VIAN VALLY' },
+    params: { name: 'VIAN VALLEY' },
     tags: ['projects'],
   }).catch(() => null)
 
@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     question: 'Is there verified inventory available near Shadnagar right now?',
-    answer: 'Bhuwanta\'s nearest live, HMDA-approved and RERA-registered project is Vian Vally in neighboring Shabad, on the same NH-44 corridor. We don\'t currently have inventory in Shadnagar itself.',
+    answer: 'Bhuwanta\'s nearest live, HMDA-approved and RERA-registered project is Vian Valley in neighboring Shabad, southwest of Hyderabad. We don\'t currently have inventory in Shadnagar itself.',
   },
 ]
 
@@ -43,7 +43,7 @@ export default function ShadnagarGrowthStoryPage() {
       title="Open Plots for Sale in Shadnagar: What's Driving the 2026 Growth Story"
       description="Why Shadnagar is drawing buyer interest in 2026 — micro-location context, infrastructure drivers, and the red flags to check before buying any open plot in this corridor."
       tag="Shadnagar"
-      whatsappContext="plots near Shadnagar and Vian Vally in Shabad"
+      whatsappContext="plots near Shadnagar and Vian Valley in Shabad"
       publishDate="2026-07-13"
       faqs={faqs}
       relatedLinks={[
@@ -97,7 +97,7 @@ export default function ShadnagarGrowthStoryPage() {
       <h2>Where to Look for Verified Inventory Today</h2>
       <p>
         If you want a live, verified, HMDA-approved and RERA-registered layout on this same corridor today rather
-        than a proposal, Bhuwanta&apos;s <Link href="/projects/vian-vally">Vian Vally project in Shabad</Link> is the
+        than a proposal, Bhuwanta&apos;s <Link href="/projects/vian-vally">Vian Valley project in Shabad</Link> is the
         nearest option, one town over on the same NH-44 highway. See our{' '}
         <Link href="/blog/shabad-vs-shadnagar-investment-comparison">Shabad vs Shadnagar comparison</Link>{' '}
         to decide which fits your goals.

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
-import logoImg from '@/images/logo.png'
+import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
 import { fireLeadConversion } from '@/lib/gtag'
@@ -180,17 +180,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
           </button>
 
           {/* Logo */}
-          <div
-            className="w-56 sm:w-72 h-16 sm:h-20"
-            style={{
-              WebkitMaskImage: `url(${logoImg.src})`,
-              WebkitMaskSize: 'contain',
-              WebkitMaskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              backgroundColor: '#c4a55a' // Gold color from Tailwind config
-            }}
-            aria-label="Bhuwanta"
-          />
+          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
         </div>
 
         {/* Form / Success States */}

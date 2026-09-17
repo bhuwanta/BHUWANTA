@@ -145,7 +145,7 @@ export default async function SangareddyOpenPlotsPage() {
             TJR Township is Bhuwanta Developers&apos; curated, investor-grade land asset at Sangareddy Junction — the district headquarters town, positioned directly on the six-lane Mumbai Highway (NH-65). Reserve a private consultation to review approvals and today&apos;s investor pricing.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/#book-visit?project=TJR%20Township" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <Link href="/?project=TJR%20Township#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
               Request Investor Pricing
             </Link>
             <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">

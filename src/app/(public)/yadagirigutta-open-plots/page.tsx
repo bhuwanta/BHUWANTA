@@ -145,7 +145,7 @@ export default async function YadagiriguttaOpenPlotsPage() {
             S.V. Kanaka Maple Homes is Bhuwanta Developers&apos; curated, investor-grade land asset on the Warangal Highway, near the Yadagirigutta temple corridor. Reserve a private consultation to review approvals and today&apos;s investor pricing.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/#book-visit?project=S.V.%20Kanaka%20Maple%20Homes" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <Link href="/?project=S.V.%20Kanaka%20Maple%20Homes#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
               Request Investor Pricing
             </Link>
             <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">

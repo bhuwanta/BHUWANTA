@@ -32,7 +32,7 @@ export function buildStaticOgMetadata({
       title,
       description,
       url,
-      type: 'article',
+      type: new URL(url).pathname.startsWith('/blog/') ? 'article' : 'website',
       images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {

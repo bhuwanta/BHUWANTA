@@ -16,7 +16,7 @@ export const metadata: Metadata = buildStaticOgMetadata({
 })
 
 const waypoints = [
-  { name: 'Shabad', note: 'Bhuwanta\'s live, HMDA & RERA approved project — Vian Vally', hasInventory: true },
+  { name: 'Shabad', note: 'Bhuwanta\'s live, HMDA & RERA approved project — Vian Valley', hasInventory: true },
   { name: 'Shadnagar', note: 'Higher search demand neighboring town; no Bhuwanta inventory yet', hasInventory: false },
   { name: 'Kothur / Balanagar / Kammadanam', note: 'Micro-locations within the broader Shadnagar belt', hasInventory: false },
 ]
@@ -94,7 +94,7 @@ export default function Nh44CorridorGuidePage() {
               <p className="text-sm text-[#5a6a82] border-t border-[#e8ecf2] pt-6">
                 This guide reflects publicly available information as of 2026 and is not a guarantee of
                 future appreciation. For the live, verified project on this corridor, see{' '}
-                <Link href="/projects/vian-vally" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Vian Vally in Shabad</Link>,
+                <Link href="/projects/vian-vally" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Vian Valley in Shabad</Link>,
                 or read the full{' '}
                 <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-[#1e3a5f] hover:text-[#c4a55a]">Shabad vs Shadnagar comparison</Link>.
               </p>

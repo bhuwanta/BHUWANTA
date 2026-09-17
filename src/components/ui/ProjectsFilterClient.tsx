@@ -1,11 +1,13 @@
 'use client'
 
+import { enquiryHref } from '@/lib/project-links'
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Crown, Check, Download, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import { DownloadPopup } from '@/components/ui/DownloadPopup'
+import { canonicalProjectSlug } from '@/lib/project-links'
 import { OverviewDownloadButton } from '@/components/ui/OverviewDownloadButton'
 
 export interface ProjectEntry {
@@ -217,11 +219,11 @@ export function ProjectsFilterClient({
 
                          <div className="mt-auto">
                             <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mb-4">
-                              <Link href={`/#book-visit?project=${encodeURIComponent(project.name)}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
                                 Enquire Now
                               </Link>
                               {projectSlug && (
-                                <Link href={`/projects/${projectSlug}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                                <Link href={`/projects/${canonicalProjectSlug(projectSlug!)}`} className="w-full col-span-1 px-2 py-2 md:px-6 md:w-auto bg-white border border-[#c4a55a] text-[#c4a55a] font-semibold rounded-lg hover:bg-[#f7f8fa] transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
                                   View Project
                                 </Link>
                               )}

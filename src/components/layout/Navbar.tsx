@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { client, urlFor } from '@/lib/sanity'
-import logoFallback from '@/images/logo.png'
+import { client } from '@/lib/sanity'
+import logoFallback from '@/images/bhuwanta-logo-horizontal.png'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -81,19 +81,11 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center" id="nav-logo">
             <div className="relative h-12 sm:h-16 w-auto transition-transform duration-500 hover:scale-[1.05] origin-left">
-              <Image 
-                src={logoFallback} 
-                alt={siteName} 
-                width={180}
-                height={64}
-                fetchPriority="high"
-                className={cn(
-                  "h-12 sm:h-16 w-auto object-contain transition-all duration-500",
-                  !isDarkContent && "drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]",
-                  isDarkContent && "brightness-0"
-                )}
-                style={{ width: 'auto', height: 'auto' }}
-                sizes="(max-width: 640px) 180px, 250px"
+              <Image
+                src={logoFallback}
+                alt={`${siteName} Developers — Your Land. Your Legacy.`}
+                className="h-12 sm:h-16 w-auto object-contain rounded-md"
+                sizes="(max-width: 640px) 132px, 176px"
                 priority
               />
             </div>

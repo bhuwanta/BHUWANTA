@@ -33,7 +33,7 @@ const faqs = [
 
 const projects = [
   {
-    name: 'Vian Vally',
+    name: 'Vian Valley',
     href: '/projects/vian-vally',
     area: 'Shabad, Telangana',
     corridor: 'NH-44 Bangalore Highway',
