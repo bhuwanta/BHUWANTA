@@ -130,6 +130,8 @@ export function ProjectHighlightImages({
           // Above the fold on the tab click. priority drops the lazy flag and
           // emits a preload, so these three are not queued behind photos the
           // visitor has not scrolled to yet.
+          // Kept in step with warmFirstPhotos in ProjectHighlightsTabs, which
+          // pre-warms exactly these three on hover.
           const isAboveFold = idx < 3
 
           return (

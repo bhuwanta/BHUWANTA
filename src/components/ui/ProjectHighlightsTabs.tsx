@@ -17,6 +17,10 @@ type Tab = 'videos' | 'images'
  * actually reused instead of fetched a second time.
  */
 function warmFirstPhotos(images: ProjectHighlightImage[]) {
+  // Three, to match the `idx < 3` priority window in ProjectHighlightImages.
+  // Warming more than that would fetch photos the grid then requests lazily at
+  // a different size; warming fewer would leave a visible gap on the click.
+  // If one of the two numbers changes, change both.
   for (const img of images.slice(0, 3)) {
     const width = img.dimensions?.width
     const height = img.dimensions?.height
