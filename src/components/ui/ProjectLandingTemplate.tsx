@@ -144,9 +144,9 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
               highlightCount={project?.highlightCount}
             />
 
-            {/* The Opportunity */}
+            {/* About the Project */}
             <div className="mt-8 pt-8 border-t border-brand-border">
-              <h2 className="text-xl font-bold text-brand-primary mb-4">The Opportunity</h2>
+              <h2 className="text-xl font-bold text-brand-primary mb-4">About the Project</h2>
               <div className="space-y-4">
                 {config.opportunityParagraphs.map((p, i) => (
                   <p key={i} className="text-brand-muted leading-relaxed">{p}</p>
@@ -234,7 +234,7 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
       </section>
 
       <CtaSection
-        primaryButtonText="Request Investor Pricing"
+        primaryButtonText="Request Price & Plot Details"
         primaryButtonLink={enquiryHref(config.displayName)}
       />
     </>

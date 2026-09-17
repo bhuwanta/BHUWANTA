@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import './public-theme.css'
 import { PostHogProvider } from '@/lib/posthog'
 import { Toaster } from 'sonner'
 import { SpeedInsights } from "@vercel/speed-insights/next"

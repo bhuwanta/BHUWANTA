@@ -73,7 +73,7 @@ export function ProjectsFilterClient({
   // opens that filter directly instead of dropping the visitor on "All".
   const searchParams = useSearchParams()
   const requestedCategory = searchParams.get('category')
-  const isKnownCategory = Boolean(requestedCategory && categories.some((c) => c.id === requestedCategory))
+  const isKnownCategory = Boolean(requestedCategory && (categories.some((c) => c.id === requestedCategory) || projects.some((p) => (p.category || 'other-projects') === requestedCategory)))
 
   // Derived rather than synced: the URL decides unless the visitor has clicked
   // a filter for this particular URL. Remembering which param a manual choice
@@ -110,7 +110,15 @@ export function ProjectsFilterClient({
     }, 10)
   }
 
-  const sortedCategories = [...categories].sort((a, b) => {
+  // Preserve discoverability when a project exists before its category is published.
+  const resolvedCategories = [...categories]
+  for (const project of projects) {
+    const id = project.category || 'other-projects'
+    if (!resolvedCategories.some(category => category.id === id)) {
+      resolvedCategories.push({ id, title: project.categoryTitle || 'Other Projects', label: project.categoryTitle || 'Other Projects' })
+    }
+  }
+  const sortedCategories = resolvedCategories.sort((a, b) => {
     const aHasProjects = projects.some(p => p.category === a.id)
     const bHasProjects = projects.some(p => p.category === b.id)
     
@@ -130,13 +138,14 @@ export function ProjectsFilterClient({
     : filterCategories.filter(c => c.id === activeFilter)
 
   return (
-    <div ref={filterRef}>
+    <div ref={filterRef} className="project-directory">
       <div className="bg-white border-b border-brand-border py-4 shadow-sm z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-2.5 w-full">
             {filterCategories.map((cat) => (
               <button 
                 key={cat.id} 
+                aria-pressed={activeFilter === cat.id}
                 onClick={() => handleFilterClick(cat.id)}
                 className={`lg:flex-1 flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 py-2 min-h-11 rounded-full transition-all duration-300 whitespace-nowrap ${
                   activeFilter === cat.id 
@@ -159,6 +168,7 @@ export function ProjectsFilterClient({
 
       <div className="py-16 bg-brand-paper">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+          {projects.length === 0 && <div className="border border-brand-border p-10 text-center"><h2 className="text-3xl mb-4">Let us help you find a plot</h2><p className="text-brand-muted mb-6">Project details are currently unavailable. Contact our team for current locations and availability.</p><Link href="/#book-visit" className="site-button">Request Project Details</Link></div>}
           {activeCategories.map((category) => (
             <section key={category.id} id={category.id} className="scroll-mt-36">
               <div className="flex items-center justify-center gap-3 mb-8 text-center">
@@ -169,8 +179,8 @@ export function ProjectsFilterClient({
               </div>
               
               <div className="grid grid-cols-1 gap-8">
-                {projects.filter(p => p.category === category.id).length > 0 ? (
-                  projects.filter(p => p.category === category.id).map((project, idx) => {
+                {projects.filter(p => (p.category || 'other-projects') === category.id).length > 0 ? (
+                  projects.filter(p => (p.category || 'other-projects') === category.id).map((project, idx) => {
                     const projectSlug = getProjectSlug(project)
                     const showHighlights = (project.highlightCount ?? project.videoCount ?? 0) > 0 && Boolean(projectSlug)
                     // The mobile button grid is 2 columns. Two of the buttons are
@@ -229,7 +239,7 @@ export function ProjectsFilterClient({
                                   View Project
                                 </Link>
                               )}
-                              <button type="button" onClick={() => project.googleMapsUrl && window.open(project.googleMapsUrl, '_blank')} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer">
+                              <button type="button" disabled={!project.googleMapsUrl} onClick={() => project.googleMapsUrl && window.open(project.googleMapsUrl, '_blank')} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer">
                                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">View Location</span>
                               </button>
                               {showHighlights && (
@@ -262,7 +272,7 @@ export function ProjectsFilterClient({
                       <MapPin className="w-8 h-8 text-brand-primary/40" />
                     </div>
                     <h3 className="text-xl font-bold text-brand-ink mb-2">New Projects Coming Soon</h3>
-                    <p className="text-brand-muted">We are actively acquiring premium lands in {category.title.replace(' Projects', '')}. Stay tuned!</p>
+                    <p className="text-brand-muted">Contact our team for current availability in {category.title.replace(' Projects', '')}.</p>
                   </div>
                 )}
               </div>

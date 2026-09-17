@@ -37,7 +37,7 @@ const config: ProjectLandingConfig = {
     },
     {
       question: 'What is the pricing for plots at S.V. Kanaka Maple Homes?',
-      answer: 'Bhuwanta shares exclusive investor pricing directly during a private consultation rather than publishing it. Enquire through the form or WhatsApp for today\'s rate.',
+      answer: 'Contact Bhuwanta for current plot availability, pricing and a full cost breakdown. You can enquire through the form or WhatsApp.',
     },
   ],
   relatedLinks: [

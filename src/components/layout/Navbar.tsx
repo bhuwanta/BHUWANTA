@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { client } from '@/lib/sanity'
 import { BrandLockup } from './BrandLockup'
 
 const navLinks = [
@@ -22,7 +21,7 @@ export function Navbar() {
   const pathname = usePathname()
   const [menuPath, setMenuPath] = useState<string | null>(null)
   const isOpen = menuPath === pathname
-  const [ctaText, setCtaText] = useState('Book Site Visit')
+  const ctaText = 'Free Site Visit'
   const ctaLink = pathname === '/shabad-open-plots' ? '#book-visit' : '/#book-visit'
 
   useEffect(() => {
@@ -43,11 +42,6 @@ export function Navbar() {
     return () => document.removeEventListener('keydown', closeOnEscape)
   }, [isOpen])
 
-  useEffect(() => {
-    client.fetch<{ ctaButtonText?: string } | null>('*[_type == "siteSettings"][0]{ctaButtonText}')
-      .then(data => { if (data?.ctaButtonText) setCtaText(data.ctaButtonText) })
-      .catch(() => {})
-  }, [])
 
   const active = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
 
@@ -68,7 +62,7 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
+            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-sm px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
               {ctaText}
             </Link>
             <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex px-3 py-3 rounded-lg border border-white/20 text-sm text-white/85 hover:border-brand-gold hover:text-brand-gold transition-colors">Login</Link>

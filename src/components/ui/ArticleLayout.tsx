@@ -54,10 +54,10 @@ export function ArticleLayout({
     <>
       <JsonLd data={faqSchema ? [breadcrumb, articleSchema, faqSchema] : [breadcrumb, articleSchema]} />
 
-      <article className="pt-28 sm:pt-32 section-padding pb-20 bg-brand-paper">
+      <article className="editorial-article pt-28 sm:pt-32 section-padding pb-20 bg-brand-paper">
         <div className="max-w-4xl mx-auto bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden">
           <div className="p-8 md:p-12">
-            <header className="mb-10">
+            <header className="mb-10"><Link href="/blog" className="eyebrow">← All Articles</Link>
               <div className="flex flex-wrap items-center gap-3 text-sm text-brand-muted mb-6 font-medium">
                 <span className="flex items-center gap-1.5 text-brand-accent">
                   <Calendar className="w-4 h-4" /> <span className="text-brand-muted">{publishDate}</span>

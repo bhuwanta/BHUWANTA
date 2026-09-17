@@ -26,7 +26,7 @@ interface ProjectData {
 export const revalidate = 60
 
 const PAGE_TITLE = 'Open Plots Near Yadagirigutta — Warangal Highway (NH-163) | Bhuwanta'
-const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots on the Warangal Highway, near Yadagirigutta. Reserve a private consultation — no public pricing.'
+const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots on the Warangal Highway, near Yadagirigutta. Contact our team for current pricing, project documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/yadagirigutta-open-plots'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -94,7 +94,7 @@ const faqs = [
   },
   {
     question: 'What is the pricing for plots at S.V. Kanaka Maple Homes?',
-    answer: 'Bhuwanta shares exclusive investor pricing for S.V. Kanaka Maple Homes directly during a private consultation rather than publishing it. Enquire through the form or WhatsApp for today\'s rate.',
+    answer: 'Contact Bhuwanta for current plot availability, pricing and a full cost breakdown. You can enquire through the form or WhatsApp.',
   },
   {
     question: 'What should I check before buying a plot near Yadagirigutta?',
@@ -139,14 +139,14 @@ export default async function YadagiriguttaOpenPlotsPage() {
             <MapPin className="w-3.5 h-3.5" /> Warangal Highway, near Yadagirigutta
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Exclusive Open Plots Near Yadagirigutta — <span className="text-brand-accent">DTCP & RERA Approved</span>
+            Open Plots Near Yadagirigutta — <span className="text-brand-accent">DTCP & RERA Approved</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
-            S.V. Kanaka Maple Homes is Bhuwanta Developers&apos; curated, investor-grade land asset on the Warangal Highway, near the Yadagirigutta temple corridor. Reserve a private consultation to review approvals and today&apos;s investor pricing.
+            S.V. Kanaka Maple Homes is Bhuwanta Developers&apos; open-plot development on the Warangal Highway, near the Yadagirigutta temple corridor. Request current pricing, review project documents, and book a free site visit.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/?project=S.V.%20Kanaka%20Maple%20Homes#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-              Request Investor Pricing
+              Request Price & Plot Details
             </Link>
             <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">
               Chat With Us on WhatsApp

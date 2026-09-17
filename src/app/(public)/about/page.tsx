@@ -22,7 +22,7 @@ export const revalidate = 300
 const defaults = {
   pageHeading: 'About Bhuwanta Developers',
   pageSubtitle: '',
-  storyHeading: 'The Best Real Estate Service With 20+ Years of Excellence',
+  storyHeading: 'Helping You Take the Next Step in Land Ownership',
   storyParagraphs: [
     'Bhuwanta Developers is a Hyderabad based real estate company with 20+ years of experience in delivering HMDA & DTCP approved open plots, villa plots and farmlands. Built on trust, transparency and integrity, we simplify the property buying journey for first time buyers, growing families and NRI investors alike — offering premium clear title properties across Hyderabad\'s fastest growing locations.'
   ],
@@ -35,7 +35,7 @@ const defaults = {
     { title: 'Quality Excellence', description: 'Uncompromising quality in every project we undertake — from infrastructure to documentation, we never cut corners.' },
     { title: 'Customer First', description: 'Our customers are at the heart of everything we do. Every decision we make is driven by your satisfaction and long-term benefit.' },
   ],
-  leadershipHeading: 'The Minds Behind Bhuwanta Developers',
+  leadershipHeading: 'Meet the Bhuwanta Leadership',
   leaders: [
     { name: 'Mr. S.Siva Kumar', role: 'Chairman & Managing Director', bio: 'Driving the vision of Bhuwanta Developers with strong and decisive leadership, Mr. Siva Kumar brings a proven track record of delivering successful real estate projects across Hyderabad. His expertise in identifying strategic locations, securing HMDA & DTCP approvals, and building customer-first developments has been the cornerstone of the company\'s 20+ year journey and rapid growth in Hyderabad\'s competitive real estate market.' },
     { name: 'Mr. CH.Rama Krishna Reddy', role: 'CEO & Managing Director', bio: 'With deep domain knowledge of the Hyderabad real estate market, Mr. Rama Krishna Reddy oversees end-to-end project execution and customer experience at Bhuwanta Developers. His unwavering commitment to quality infrastructure, clear-title documentation, and timely delivery has earned the trust of thousands of satisfied homebuyers, families, and NRI investors across Hyderabad.' },
@@ -47,7 +47,7 @@ const defaults = {
     { title: 'Domain Knowledge', description: 'Deep understanding of HMDA & DTCP approvals, strategic locations, and Hyderabad\'s real estate landscape.' },
     { title: 'Innovative Thinking', description: 'Thinking ahead with strategic and analytical strengths to identify the best investment opportunities for our customers.' },
   ],
-  ctaTitle: 'Ready to Invest in Your Dream Property in Hyderabad?',
+  ctaTitle: 'Explore Your Plot Options with Bhuwanta',
   ctaDescription: 'Get in touch with our experts for personalized assistance on plots, villa plots, and farmlands.',
 }
 
