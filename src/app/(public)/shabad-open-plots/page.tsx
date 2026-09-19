@@ -25,8 +25,8 @@ const getProject = cache(() => sanityFetch<ProjectData | null>({
   tags: ['projects'],
 }).catch(() => null))
 
-const title = 'Open Plots in Shabad from ₹30,999/sq. yd. | Bhuwanta'
-const description = 'Explore Vian Valley open plots in Shabad from ₹30,999 per sq. yd. Request a plot-specific quote, layout documents and a site visit with Bhuwanta.'
+const title = 'Open Plots in Shabad from ₹30,XXX/sq. yd. | Bhuwanta'
+const description = 'Explore Vian Valley open plots in Shabad from ₹30,XXX per sq. yd. Request a plot-specific quote, layout documents and a site visit with Bhuwanta.'
 
 export async function generateMetadata(): Promise<Metadata> {
   const project = await getProject()
@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const faqs = [
   {
     question: 'What is the price of open plots in Shabad?',
-    answer: 'Bhuwanta’s advertised Vian Valley offer starts at ₹30,999 per square yard. Request a written quote for a specific plot, including its area, facing, phase and applicable charges. A per-yard rate is not the total purchase price.',
+    answer: 'Bhuwanta’s advertised Vian Valley offer starts at ₹30,XXX per square yard. Request a written quote for a specific plot, including its area, facing, phase and applicable charges. A per-yard rate is not the total purchase price.',
   },
   {
     question: 'Where is Vian Valley located?',
@@ -67,7 +67,7 @@ export default async function ShabadOpenPlotsPage() {
   const project = await getProject()
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/shabad-open-plots`
-  const whatsappUrl = `https://wa.me/919666504405?text=${encodeURIComponent('Hi Bhuwanta, I am interested in Vian Valley plots in Shabad from ₹30,999 per sq. yd. Please share available plot sizes, the total cost breakdown and site visit options.')}`
+  const whatsappUrl = `https://wa.me/919666504405?text=${encodeURIComponent('Hi Bhuwanta, I am interested in Vian Valley plots in Shabad from ₹30,XXX per sq. yd. Please share available plot sizes, the total cost breakdown and site visit options.')}`
   const projects = [{ name: project?.name || 'VIAN VALLEY', location: 'Shabad' }]
 
   return (

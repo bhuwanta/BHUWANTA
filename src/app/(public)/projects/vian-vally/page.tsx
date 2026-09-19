@@ -5,8 +5,8 @@ export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildProjectPageMetadata(config,
-    'Vian Valley Plots in Shabad from ₹30,999/sq. yd. | Bhuwanta',
-    'Explore Vian Valley in Shabad with Bhuwanta. Plots from ₹30,999 per sq. yd. Request current plot options, phase-specific documents and a site visit.'
+    'Vian Valley Plots in Shabad from ₹30,XXX/sq. yd. | Bhuwanta',
+    'Explore Vian Valley in Shabad with Bhuwanta. Plots from ₹30,XXX per sq. yd. Request current plot options, phase-specific documents and a site visit.'
   )
 }
 
@@ -18,7 +18,7 @@ const config: ProjectLandingConfig = {
   corridorLabel: 'Shabad · Southwest Hyderabad',
   h1: <>Vian Valley</>,
   opportunityParagraphs: [
-    'Explore Vian Valley open plots in Shabad, Ranga Reddy district, with Bhuwanta. The advertised offer starts at ₹30,999 per square yard. Request the current plot list and a written quote for the size, facing and phase you prefer.',
+    'Explore Vian Valley open plots in Shabad, Ranga Reddy district, with Bhuwanta. The advertised offer starts at ₹30,XXX per square yard. Request the current plot list and a written quote for the size, facing and phase you prefer.',
     'The master layout includes Vian Valley 1, Vian Valley 2 and Vian Jubilee Central. Confirm the exact phase, approval documents and plot availability before choosing. A site visit helps you assess the access roads and completed amenities.',
   ],
   locationAdvantages: [
@@ -29,7 +29,7 @@ const config: ProjectLandingConfig = {
   faqs: [
     {
       question: 'What is the price of Vian Valley plots?',
-      answer: 'Bhuwanta’s advertised offer starts at ₹30,999 per square yard. Request a plot-specific quote with dimensions, facing, phase and a breakdown of applicable charges.',
+      answer: 'Bhuwanta’s advertised offer starts at ₹30,XXX per square yard. Request a plot-specific quote with dimensions, facing, phase and a breakdown of applicable charges.',
     },
     {
       question: 'How can I review the approvals?',
