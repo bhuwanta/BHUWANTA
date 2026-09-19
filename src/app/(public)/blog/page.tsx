@@ -242,12 +242,16 @@ export default async function BlogPage() {
                         <span className="text-brand-border">•</span>
                         <span className="flex items-center gap-1.5"><Tag className="w-4 h-4 text-brand-accent" /> {card.tag}</span>
                       </div>
-                      <h3 className="text-xl md:text-2xl font-bold text-brand-primary mb-3 group-hover:text-brand-accent transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-xl md:text-2xl font-bold text-brand-primary mb-3 group-hover:text-brand-accent transition-colors leading-snug text-balance">
                         {card.title}
                       </h3>
-                      <p className="text-brand-muted text-base mb-6 line-clamp-3 flex-grow">
-                        {card.excerpt}
-                      </p>
+                      {/* The wrapper takes the spare height; the clamp stays on the
+                          <p>, or a stretched box shows text past the ellipsis. */}
+                      <div className="flex-grow mb-6">
+                        <p className="text-brand-muted text-base line-clamp-3">
+                          {card.excerpt}
+                        </p>
+                      </div>
                       <div className="inline-flex items-center gap-2 text-base font-bold text-brand-accent group-hover:text-brand-accent transition-colors mt-auto">
                         Read More <ArrowRight className="w-5 h-5" />
                       </div>

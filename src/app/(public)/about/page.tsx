@@ -25,7 +25,7 @@ const defaults = {
   pageSubtitle: '',
   storyHeading: 'Helping You Take the Next Step in Land Ownership',
   storyParagraphs: [
-    'Bhuwanta Developers is a Hyderabad based real estate company with 20+ years of experience in delivering HMDA & DTCP approved open plots, villa plots and farmlands. Built on trust, transparency and integrity, we simplify the property buying journey for first time buyers, growing families and NRI investors alike — offering premium clear title properties across Hyderabad\'s fastest growing locations.'
+    'Bhuwanta Developers is a Hyderabad-based real estate company with 20+ years of experience in delivering HMDA & DTCP approved open plots, villa plots and farmlands. Built on trust, transparency and integrity, we simplify the property buying journey for first-time buyers, growing families and NRI investors alike — offering premium clear-title properties across Hyderabad\'s fastest-growing locations.'
   ],
   missionTitle: 'Our Mission',
   missionBody: 'To empower homebuyers and investors with secure, high-value real estate opportunities across Hyderabad through HMDA & DTCP approved plots, villa plots, and farmlands — ensuring transparency, trust, and excellence in every step of the property-buying journey.',
@@ -38,12 +38,12 @@ const defaults = {
   ],
   leadershipHeading: 'Meet the Bhuwanta Leadership',
   leaders: [
-    { name: 'Mr. S.Siva Kumar', role: 'Chairman & Managing Director', bio: 'Driving the vision of Bhuwanta Developers with strong and decisive leadership, Mr. Siva Kumar brings a proven track record of delivering successful real estate projects across Hyderabad. His expertise in identifying strategic locations, securing HMDA & DTCP approvals, and building customer-first developments has been the cornerstone of the company\'s 20+ year journey and rapid growth in Hyderabad\'s competitive real estate market.' },
-    { name: 'Mr. CH.Rama Krishna Reddy', role: 'CEO & Managing Director', bio: 'With deep domain knowledge of the Hyderabad real estate market, Mr. Rama Krishna Reddy oversees end-to-end project execution and customer experience at Bhuwanta Developers. His unwavering commitment to quality infrastructure, clear-title documentation, and timely delivery has earned the trust of thousands of satisfied homebuyers, families, and NRI investors across Hyderabad.' },
+    { name: 'Mr. S. Siva Kumar', role: 'Chairman & Managing Director', bio: 'Driving the vision of Bhuwanta Developers with strong and decisive leadership, Mr. Siva Kumar brings a proven track record of delivering successful real estate projects across Hyderabad. His expertise in identifying strategic locations, securing HMDA & DTCP approvals, and building customer-first developments has been the cornerstone of the company\'s 20+ year journey and rapid growth in Hyderabad\'s competitive real estate market.' },
+    { name: 'Mr. CH. Rama Krishna Reddy', role: 'CEO & Managing Director', bio: 'With deep domain knowledge of the Hyderabad real estate market, Mr. Rama Krishna Reddy oversees end-to-end project execution and customer experience at Bhuwanta Developers. His unwavering commitment to quality infrastructure, clear-title documentation, and timely delivery has earned the trust of thousands of satisfied homebuyers, families, and NRI investors across Hyderabad.' },
   ],
-  strengthsHeading: 'Why Bhuwanta Developers Stands Out',
+  strengthsHeading: 'Why Bhuwanta Developers Stand Out',
   strengths: [
-    { title: 'Strong Vision', description: 'Driven by a long-term commitment towards customers and Hyderabad\'s growing real estate market.' },
+    { title: 'Strong Vision', description: 'Driven by a long-term commitment to customers and Hyderabad\'s growing real estate market.' },
     { title: 'Experienced Leadership', description: 'Management with 20+ years of deep expertise in plots, villa plots, and farmlands across Hyderabad.' },
     { title: 'Domain Knowledge', description: 'Deep understanding of HMDA & DTCP approvals, strategic locations, and Hyderabad\'s real estate landscape.' },
     { title: 'Innovative Thinking', description: 'Thinking ahead with strategic and analytical strengths to identify the best investment opportunities for our customers.' },
@@ -112,7 +112,7 @@ export default async function AboutPage() {
                 Our Story
               </span>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.2rem] xl:text-[2.6rem] 2xl:text-5xl font-bold text-brand-ink leading-tight mx-auto w-full xl:whitespace-nowrap tracking-tight">
-                The Best Real Estate Service With <span className="text-brand-accent">20+ Years of Excellence</span>
+                The Best Real Estate Service with <span className="text-brand-accent">20+ Years of Excellence</span>
               </h2>
             </div>
 
@@ -223,7 +223,7 @@ export default async function AboutPage() {
               <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-semibold uppercase tracking-widest mb-4 border border-brand-primary/20">
                 Our Strengths
               </span>
-              <h2 className="text-3xl sm:text-4xl font-bold text-brand-ink">Why Bhuwanta Developers <span className="text-brand-accent">Stands Out</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-brand-ink">Why Bhuwanta Developers <span className="text-brand-accent">Stand Out</span></h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">

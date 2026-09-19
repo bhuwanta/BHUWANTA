@@ -140,7 +140,7 @@ export const aboutSchema = defineType({
       type: 'string',
       title: 'Strengths Section Heading',
       group: 'strengths',
-      description: 'e.g. "Why Bhuwanta Developers Stands Out"',
+      description: 'e.g. "Why Bhuwanta Developers Stand Out"',
     }),
     defineField({
       name: 'strengths',
