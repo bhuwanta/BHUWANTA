@@ -498,7 +498,13 @@
   gap: 12px;
   align-items: center;
 }
+/* Soft corners for the booking form; the site-wide field rule above uses 2px. */
+.public-site .booking-form :where(input:not([type='checkbox']):not([type='radio']), select, textarea),
+.public-site .booking-form button[type='submit'] {
+  border-radius: 10px;
+}
 .booking-form {
+  border-radius: 18px;
   padding: 36px;
   background: #fcfaf5;
   border: 1px solid #d8d5c7;

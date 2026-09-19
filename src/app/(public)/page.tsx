@@ -334,7 +334,7 @@ export default async function HomePage({
             </ul>
           </div>
           <div className="booking-form">
-            <h3>Arrange your visit</h3>
+            <h3>Book your visit</h3>
             <p>Share your details to get started.</p>
             <ContactForm
               key={preselectedProject || 'general'}
