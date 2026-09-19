@@ -25,6 +25,7 @@ import { SanityImage } from '@/components/ui/SanityImage'
 import { TrustStrip } from '@/components/ui/TrustStrip'
 import { ImmersiveHero } from '@/components/ui/ImmersiveHero'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { LeadPopup } from '@/components/ui/LeadPopup'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
@@ -129,6 +130,8 @@ export default async function HomePage({
   return (
     <>
       <ImmersiveHero highlights={highlights} />
+      {/* Enquiry popup: opens 2s after every load of the home page. */}
+      <LeadPopup projectsList={projectsList} locationNames={locationNames} />
       <TrustStrip />
       <section className="home-stats" aria-label="Bhuwanta in numbers">
         <div className="site-container home-stats-grid">
