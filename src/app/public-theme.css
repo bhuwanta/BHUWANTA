@@ -2175,3 +2175,93 @@
 .locations-heading em {
   color: #81601d;
 }
+
+/* ---- Tighter vertical rhythm on every public page ----
+   Themed sections get smaller padding directly. Pages built with Tailwind
+   padding utilities are tightened here, scoped to <section> so inner
+   components keep their spacing. Each step is roughly 30% less. */
+.home-section,
+.home-principles {
+  padding: 68px 0;
+}
+.home-booking {
+  padding: 64px 0;
+}
+.home-why,
+.home-certifications {
+  padding: 64px 0 52px;
+}
+.home-marquee-heading {
+  margin-bottom: 34px;
+}
+.section-heading {
+  margin-bottom: 32px;
+}
+.section-pin {
+  margin-bottom: 36px;
+}
+.editorial-banner {
+  padding: 128px 0 44px;
+}
+.editorial-cta {
+  padding: 52px 0;
+}
+.public-site section.py-12 { padding-block: 36px; }
+.public-site section.py-14 { padding-block: 40px; }
+.public-site section.py-16 { padding-block: 44px; }
+.public-site section.py-20 { padding-block: 56px; }
+.public-site section.py-24 { padding-block: 64px; }
+@media (min-width: 640px) {
+  .public-site section.sm\:py-14 { padding-block: 40px; }
+  .public-site section.sm\:py-16 { padding-block: 44px; }
+  .public-site section.sm\:py-20 { padding-block: 56px; }
+  .public-site section.sm\:py-24 { padding-block: 64px; }
+}
+@media (max-width: 800px) {
+  .home-section,
+  .home-principles,
+  .home-booking {
+    padding: 48px 0;
+  }
+  .home-why,
+  .home-certifications {
+    padding: 48px 0 40px;
+  }
+  .editorial-banner {
+    padding: 104px 0 32px;
+  }
+  .editorial-cta {
+    padding: 40px 0;
+  }
+}
+
+/* ---- About: Mission & Vision icon badges ---- */
+.vm-icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  color: #81601d;
+  background: radial-gradient(circle at 30% 25%, #fbf3dd, #f1e2b6);
+  box-shadow: inset 0 0 0 1px rgb(185 162 108 / 55%), 0 0 0 6px rgb(228 188 96 / 12%);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.vm-icon svg {
+  width: 54px;
+  height: 54px;
+}
+.group:hover .vm-icon {
+  transform: translateY(-2px) rotate(-4deg);
+  box-shadow: inset 0 0 0 1px #b9a26c, 0 0 0 9px rgb(228 188 96 / 18%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vm-icon { transition: none; }
+}
+
+/* Projects page: soft corners for the area filters and the overview button in
+   the same row (the directory otherwise squares every rounded element). */
+.public-site .project-directory .area-filters :where(button, a) {
+  border-radius: 10px;
+}

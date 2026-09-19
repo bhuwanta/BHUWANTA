@@ -1,10 +1,11 @@
 import { Metadata } from 'next'
-import { Eye, Target, ShieldCheck, Award, Heart, Lightbulb, Users, Navigation } from 'lucide-react'
+import { Target, ShieldCheck, Award, Heart, Lightbulb, Users, Navigation } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo'
 import { sanityFetch, aboutQuery } from '@/lib/sanity'
 import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd'
 
 import { PageBanner } from '@/components/ui/PageBanner'
+import { MissionIcon, VisionIcon } from '@/components/ui/VisionMissionIcons'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { getSiteUrl } from '@/lib/site-url'
 
@@ -139,8 +140,8 @@ export default async function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
               {/* Mission */}
               <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
-                <div className="w-14 h-14 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-6 text-brand-primary group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
-                  <Target className="w-7 h-7" />
+                <div className="vm-icon">
+                  <MissionIcon />
                 </div>
                 <h3 className="text-2xl font-bold text-brand-ink mb-4">Our <span className="text-brand-accent">Mission</span></h3>
                 <p className="text-brand-muted leading-relaxed">
@@ -150,8 +151,8 @@ export default async function AboutPage() {
 
               {/* Vision */}
               <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all">
-                <div className="w-14 h-14 bg-brand-gold/10 rounded-xl flex items-center justify-center mb-6 text-brand-accent group-hover:scale-110 group-hover:bg-brand-gold group-hover:text-brand-ink transition-all duration-300">
-                  <Eye className="w-7 h-7" />
+                <div className="vm-icon">
+                  <VisionIcon />
                 </div>
                 <h3 className="text-2xl font-bold text-brand-ink mb-4">Our <span className="text-brand-accent">Vision</span></h3>
                 <p className="text-brand-muted leading-relaxed">

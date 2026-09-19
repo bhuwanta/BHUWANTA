@@ -141,7 +141,7 @@ export function ProjectsFilterClient({
     <div ref={filterRef} className="project-directory">
       <div className="bg-white border-b border-brand-border py-4 shadow-sm z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap lg:flex-nowrap items-center justify-center gap-2.5 w-full">
+          <div className="area-filters flex flex-wrap lg:flex-nowrap items-center justify-center gap-2.5 w-full">
             {filterCategories.map((cat) => (
               <button 
                 key={cat.id} 
