@@ -2352,3 +2352,15 @@
 .public-site .btn-solid :is(svg, .text-white) {
   color: inherit;
 }
+
+/* Document download popup title. The popup renders inside the project list,
+   whose h2 rule would otherwise paint it dark green on the dark header. */
+.public-site .download-popup-title,
+.public-site .project-directory .download-popup-title {
+  margin-top: 6px;
+  color: #f7f4eb;
+  font-family: var(--font-editorial);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+}

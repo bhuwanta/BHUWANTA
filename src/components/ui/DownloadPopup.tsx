@@ -49,8 +49,6 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: '',
-    referredBy: '',
   })
 
   // Reset state and handle background scrolling
@@ -63,7 +61,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
         setError('')
         setStep(1)
         setOtp('')
-        setFormData({ name: '', phone: '', email: '', referredBy: '' })
+        setFormData({ name: '', phone: '' })
       })
       
       document.body.style.overflow = 'hidden'
@@ -188,7 +186,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
           </button>
 
           <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
-          <h2 className="text-white font-semibold text-lg sm:text-xl">Download {documentType}</h2>
+          <h2 className="download-popup-title">Download {documentType}</h2>
           <p className="text-white/80 text-xs sm:text-sm mt-1">{projectName}</p>
         </div>
 
@@ -215,46 +213,28 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <input
-                      required
-                      type="tel"
-                      placeholder="Phone Number *"
-                      minLength={10}
-                      pattern="[0-9]{10}"
-                      className={`w-full px-4 py-3 bg-brand-paper border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-deep/20'} rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:border-brand-deep/50 transition-all`}
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        const digitsOnly = val.replace(/\D/g, '');
-                        if (val !== digitsOnly || digitsOnly.length > 10) {
-                          setPhoneError('Please enter 10 digits only');
-                        } else {
-                          setPhoneError('');
-                        }
-                        setFormData({ ...formData, phone: digitsOnly.slice(0, 10) });
-                      }}
-                    />
-                    {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
-                  </div>
+                <div>
                   <input
                     required
-                    type="email"
-                    placeholder="Email Address *"
-                    className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    type="tel"
+                    placeholder="Phone Number *"
+                    minLength={10}
+                    pattern="[0-9]{10}"
+                    className={`w-full px-4 py-3 bg-brand-paper border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-deep/20'} rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:border-brand-deep/50 transition-all`}
+                    value={formData.phone}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const digitsOnly = val.replace(/\D/g, '');
+                      if (val !== digitsOnly || digitsOnly.length > 10) {
+                        setPhoneError('Please enter 10 digits only');
+                      } else {
+                        setPhoneError('');
+                      }
+                      setFormData({ ...formData, phone: digitsOnly.slice(0, 10) });
+                    }}
                   />
+                  {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                 </div>
-
-                <input
-                  type="text"
-                  placeholder="Referred by (Optional)"
-                  className="w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
-                  value={formData.referredBy}
-                  onChange={(e) => setFormData({ ...formData, referredBy: e.target.value })}
-                />
               </div>
 
               <div id="download-recaptcha-container"></div>
