@@ -149,11 +149,11 @@ export function ProjectsFilterClient({
                 onClick={() => handleFilterClick(cat.id)}
                 className={`lg:flex-1 flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 py-2 min-h-11 rounded-full transition-all duration-300 whitespace-nowrap ${
                   activeFilter === cat.id 
-                    ? 'border border-brand-gold bg-transparent text-brand-gold shadow-md hover:bg-brand-gold hover:text-white' 
+                    ? 'border border-brand-gold bg-brand-gold text-white shadow-md hover:bg-brand-gold hover:text-white' 
                     : 'bg-white border border-brand-gold text-brand-accent hover:bg-brand-gold hover:text-white shadow-sm'
                 }`}
               >
-                <MapPin className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${activeFilter === cat.id ? 'text-brand-gold' : ''}`} />
+                <MapPin className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${activeFilter === cat.id ? 'text-white' : ''}`} />
                 <span className="capitalize">{cat.label}</span>
               </button>
             ))}
