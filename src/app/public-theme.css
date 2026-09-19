@@ -407,24 +407,54 @@
   line-height: 1.8;
 }
 .journey-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 35px;
 }
+/* One continuous line joining the step markers, so the four steps read as a
+   single path rather than four unrelated dividers. It runs from the first
+   marker's centre to the last one's. */
+.journey-grid::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  right: calc((100% - 105px) / 4 - 22px);
+  height: 1px;
+  background: linear-gradient(90deg, #b9a26c, rgb(185 162 108 / 35%));
+}
 .journey-grid > div {
-  border-top: 1px solid #b9a26c;
-  padding-top: 24px;
+  position: relative;
 }
 .journey-grid span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #b9a26c;
+  background: var(--site-paper);
   color: #81601d;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.journey-grid > div:hover span {
+  background: var(--site-primary);
+  border-color: var(--site-primary);
+  color: var(--site-gold-light);
 }
 .journey-grid h3 {
   font-family: var(--font-editorial);
   font-size: 29px;
-  margin: 20px 0 12px;
+  margin: 26px 0 12px;
 }
 .journey-grid p {
+  max-width: 280px;
   font-size: 13px;
   color: var(--site-muted);
   line-height: 1.8;
@@ -628,7 +658,38 @@
     padding: 64px 0;
   }
   .journey-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  /* Stacked: the path turns vertical — a connector from each marker down to
+     the next, so it stops at the last step however long its text runs. */
+  .journey-grid::before {
+    display: none;
+  }
+  .journey-grid > div:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 44px;
+    bottom: 0;
+    left: 22px;
+    width: 1px;
+    background: #b9a26c;
+  }
+  .journey-grid > div {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    column-gap: 20px;
+    padding-bottom: 28px;
+  }
+  .journey-grid > div:last-child {
+    padding-bottom: 0;
+  }
+  .journey-grid span {
+    grid-row: 1 / span 2;
+  }
+  .journey-grid h3 {
+    margin: 6px 0 6px;
+    font-size: 24px;
   }
   .editorial-cta > .site-container {
     align-items: flex-start;
@@ -683,8 +744,8 @@
   .booking-form {
     padding: 24px 18px;
   }
-  .journey-grid {
-    gap: 24px;
+  .journey-grid h3 {
+    font-size: 22px;
   }
   .editorial-banner {
     padding-top: 128px;
