@@ -214,9 +214,11 @@ export default async function HomePage({
         </div>
       </section>
       <section className="home-principles">
+        <div className="site-container section-pin">
+          <span className="eyebrow">The Bhuwanta approach</span>
+        </div>
         <div className="site-container principles-grid">
           <div>
-            <span className="eyebrow">The Bhuwanta approach</span>
             <h2>
               A clearer path
               <br />
@@ -308,9 +310,11 @@ export default async function HomePage({
         </div>
       </section>
       <section className="home-booking" id="book-visit">
+        <div className="site-container section-pin">
+          <span className="eyebrow">Book a free site visit</span>
+        </div>
         <div className="site-container booking-grid">
           <div>
-            <span className="eyebrow">Book a free site visit</span>
             <h2>
               See the plots.
               <br />
