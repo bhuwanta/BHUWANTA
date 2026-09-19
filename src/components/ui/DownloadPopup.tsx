@@ -185,7 +185,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
+          <Image src={logoImg} alt="Bhuwanta Developers: Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
           <h2 className="download-popup-title">Download {documentType}</h2>
           <p className="text-white/80 text-xs sm:text-sm mt-1">{projectName}</p>
         </div>

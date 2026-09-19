@@ -120,7 +120,7 @@ export default async function BlogPostPage({
             <div className="w-full aspect-[16/9] relative bg-brand-soft">
               <Image
                 src={post.mainImage}
-                alt={`${post.title} — cover image`}
+                alt={`${post.title}, cover image`}
                 fill
                 sizes="(max-width: 768px) 100vw, 900px"
                 priority

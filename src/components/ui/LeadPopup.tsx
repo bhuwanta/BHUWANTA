@@ -180,7 +180,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
           </button>
 
           {/* Logo */}
-          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-24 w-auto rounded-md" sizes="264px" />
+          <Image src={logoImg} alt="Bhuwanta Developers: Your Land. Your Legacy." className="h-24 w-auto rounded-md" sizes="264px" />
         </div>
 
         {/* Form / Success States */}

@@ -13,7 +13,7 @@ import { canonicalProjectSlug } from '@/lib/project-links'
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
     'why-bhuwanta',
-    'Why Choose Bhuwanta — Trusted Open Plot Advisor in Telangana & AP',
+    'Why Choose Bhuwanta, Trusted Open Plot Advisor in Telangana & AP',
     'Bhuwanta offers HMDA, DTCP, and RERA-approved open plots across Telangana\'s growth corridors, with full transparency on approvals and no hidden pricing.'
   )
 }
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     question: 'How can I verify the HMDA/DTCP approval of a Bhuwanta project?',
-    answer: 'Ask us for the specific approval number for the project you\'re considering, then check it independently on the HMDA DPMS portal or the Telangana DTCP records, and confirm RERA registration on the TS-RERA portal. We\'d rather you verify it yourself than take our word for it — see our step-by-step verification guide for exactly how.',
+    answer: 'Ask us for the specific approval number for the project you\'re considering, then check it independently on the HMDA DPMS portal or the Telangana DTCP records, and confirm RERA registration on the TS-RERA portal. We\'d rather you verify it yourself than take our word for it: see our step-by-step verification guide for exactly how.',
   },
   {
     question: 'How do I contact Bhuwanta for pricing?',
@@ -127,11 +127,11 @@ export default async function WhyBhuwantaPage() {
             <p className="text-brand-muted leading-relaxed mb-8">
               Bhuwanta develops and sells HMDA, DTCP, and RERA-approved open plots {`across ${projects.length} projects in `}
               Telangana&apos;s growth corridors. We&apos;re a plotted-development company, not a broker or
-              aggregator — every project listed on this site is one we develop and stand behind directly, with
+              aggregator: every project listed on this site is one we develop and stand behind directly, with
               approval documentation available on request.
             </p>
 
-            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">Why Approval Status Matters — and How to Check It Yourself</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">Why Approval Status Matters: and How to Check It Yourself</h2>
             <p className="text-brand-muted leading-relaxed mb-4">
               HMDA and DTCP approval confirm a layout was legally sanctioned by the relevant authority; RERA
               registration adds a further layer of regulatory oversight and buyer protection. Rather than just
@@ -139,7 +139,7 @@ export default async function WhyBhuwantaPage() {
               considering:
             </p>
             <ul className="space-y-2 mb-4 text-brand-muted">
-              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Ask for the specific approval number for the exact layout — not a general area claim.</li>
+              <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Ask for the specific approval number for the exact layout, not a general area claim.</li>
               <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Check HMDA approval via the HMDA DPMS portal, or DTCP approval through Telangana&apos;s DTCP records.</li>
               <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Confirm RERA registration is active on the TS-RERA portal.</li>
               <li className="flex gap-2"><CheckCircle2 className="w-5 h-5 text-brand-accent shrink-0 mt-0.5" /> Request a recent Encumbrance Certificate before making any payment.</li>
@@ -171,7 +171,7 @@ export default async function WhyBhuwantaPage() {
             <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">How the Process Works</h2>
             <ol className="space-y-2 mb-8 text-brand-muted list-decimal list-inside">
               <li>{`Browse our ${projects.length} projects and shortlist`} the one that fits your budget and location preference.</li>
-              <li>Request investor pricing via WhatsApp, phone, or the contact form — we don&apos;t publish prices publicly.</li>
+              <li>Request investor pricing via WhatsApp, phone, or the contact form: we don&apos;t publish prices publicly.</li>
               <li>Review approval documents, RERA certificates, and the layout plan for your shortlisted plot.</li>
               <li>Book a free site visit to see the project in person.</li>
               <li>Complete registration with full documentation support from our team.</li>

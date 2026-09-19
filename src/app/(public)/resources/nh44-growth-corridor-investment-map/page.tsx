@@ -9,14 +9,14 @@ import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
   title: 'NH-44 Growth Corridor Investment Guide | Bhuwanta',
-  description: 'A guide to the NH-44 Bangalore Highway corridor southwest of Hyderabad — key towns, infrastructure drivers, and verified inventory.',
+  description: 'A guide to the NH-44 Bangalore Highway corridor southwest of Hyderabad, key towns, infrastructure drivers, and verified inventory.',
   url: 'https://bhuwanta.com/resources/nh44-growth-corridor-investment-map',
   ogTitle: 'NH-44 Growth Corridor',
-  ogSubtitle: 'Free Investment Guide — Shabad & Shadnagar',
+  ogSubtitle: 'Free Investment Guide: Shabad & Shadnagar',
 })
 
 const waypoints = [
-  { name: 'Shabad', note: 'Bhuwanta\'s live, HMDA & RERA approved project — Vian Valley', hasInventory: true },
+  { name: 'Shabad', note: 'Bhuwanta\'s live, HMDA & RERA approved project: Vian Valley', hasInventory: true },
   { name: 'Shadnagar', note: 'Higher search demand neighboring town; no Bhuwanta inventory yet', hasInventory: false },
   { name: 'Kothur / Balanagar / Kammadanam', note: 'Micro-locations within the broader Shadnagar belt', hasInventory: false },
 ]
@@ -24,11 +24,11 @@ const waypoints = [
 const drivers = [
   {
     title: 'NH-44 Bangalore Highway',
-    body: 'The corridor\'s core connectivity asset — a national highway connecting Hyderabad toward Bangalore, running through Shabad and Shadnagar.',
+    body: 'The corridor\'s core connectivity asset, a national highway connecting Hyderabad toward Bangalore, running through Shabad and Shadnagar.',
   },
   {
     title: 'Regional Ring Road (RRR)',
-    body: 'A Telangana government infrastructure project intended to improve connectivity around Hyderabad\'s outer periphery. Large infrastructure projects like this typically take years to move from announcement to completion — treat it as directional context, not a near-term guarantee.',
+    body: 'A Telangana government infrastructure project intended to improve connectivity around Hyderabad\'s outer periphery. Large infrastructure projects like this typically take years to move from announcement to completion, treat it as directional context, not a near-term guarantee.',
   },
   {
     title: 'Microsoft Data Center Investment',
@@ -36,7 +36,7 @@ const drivers = [
   },
   {
     title: 'Metro Extension Proposals',
-    body: 'There has been public discussion of metro extension proposals reaching further into this side of the city. Proposals of this kind can take years to move from discussion to funded construction — treat as a long-term possibility, not a committed timeline.',
+    body: 'There has been public discussion of metro extension proposals reaching further into this side of the city. Proposals of this kind can take years to move from discussion to funded construction, treat as a long-term possibility, not a committed timeline.',
   },
 ]
 
@@ -61,7 +61,7 @@ export default function Nh44CorridorGuidePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <GatedResource
             resourceName="NH-44 Growth Corridor Investment Map"
-            teaser="Enter your name and mobile number to unlock the full corridor breakdown — free, no obligation."
+            teaser="Enter your name and mobile number to unlock the full corridor breakdown, free, no obligation."
           >
             <div className="space-y-12">
               <div>

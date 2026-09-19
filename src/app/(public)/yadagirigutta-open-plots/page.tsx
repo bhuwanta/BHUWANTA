@@ -25,7 +25,7 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots Near Yadagirigutta — Warangal Highway (NH-163) | Bhuwanta'
+const PAGE_TITLE = 'Open Plots Near Yadagirigutta: Warangal Highway (NH-163) | Bhuwanta'
 const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots on the Warangal Highway, near Yadagirigutta. Contact our team for current pricing, project documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/yadagirigutta-open-plots'
 
@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }).catch(() => null)
 
   const ogImage = project?.images?.[0]
-    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots Near Yadagirigutta')}&subtitle=${encodeURIComponent('S.V. Kanaka Maple Homes — DTCP & RERA Approved')}`
+    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots Near Yadagirigutta')}&subtitle=${encodeURIComponent('S.V. Kanaka Maple Homes: DTCP & RERA Approved')}`
 
   return {
     title: { absolute: PAGE_TITLE },
@@ -61,18 +61,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const connectivityDrivers = [
   'Directly on the Warangal Highway (NH-163), connecting Hyderabad to Warangal',
-  'Close to Yadagirigutta — home to the Sri Lakshmi Narasimha Swamy Temple and its ongoing redevelopment and tourism-infrastructure activity',
+  'Close to Yadagirigutta, home to the Sri Lakshmi Narasimha Swamy Temple and its ongoing redevelopment and tourism-infrastructure activity',
   'Proximity to Bhongir, the district headquarters town on this corridor',
   'Rail connectivity via Yadagirigutta railway station, on the Hyderabad–Warangal line',
   'Positioned along the northern corridor of the Regional Ring Road (RRR) alignment',
 ]
 
 const dueDiligenceChecklist = [
-  'Confirm DTCP approval on the official Directorate of Town and Country Planning portal — never take a brochure or verbal claim at face value',
+  'Confirm DTCP approval on the official Directorate of Town and Country Planning portal: never take a brochure or verbal claim at face value',
   "Verify the project's RERA registration number directly on the TS-RERA website",
   'Ask for a recent Encumbrance Certificate covering a meaningful look-back period',
   'Cross-check the approved layout plan against what is being shown on-site',
-  'Do a physical site visit before booking — highway frontage and road access are easy to confirm in person',
+  'Do a physical site visit before booking: highway frontage and road access are easy to confirm in person',
 ]
 
 const faqs = [
@@ -82,11 +82,11 @@ const faqs = [
   },
   {
     question: 'Is S.V. Kanaka Maple Homes DTCP approved?',
-    answer: 'Yes, S.V. Kanaka Maple Homes is DTCP approved and RERA registered. The RERA certificate and layout documents are available for review — request them through the enquiry form on this page.',
+    answer: 'Yes, S.V. Kanaka Maple Homes is DTCP approved and RERA registered. The RERA certificate and layout documents are available for review: request them through the enquiry form on this page.',
   },
   {
     question: 'Why does Yadagirigutta\'s temple corridor matter for land value?',
-    answer: 'Yadagirigutta is home to the Sri Lakshmi Narasimha Swamy Temple, which has seen significant temple redevelopment and tourism-infrastructure investment. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project — a directional growth factor, not a guarantee.',
+    answer: 'Yadagirigutta is home to the Sri Lakshmi Narasimha Swamy Temple, which has seen significant temple redevelopment and tourism-infrastructure investment. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project, a directional growth factor, not a guarantee.',
   },
   {
     question: 'How is the Yadagirigutta corridor connected to Hyderabad?',
@@ -120,7 +120,7 @@ export default async function YadagiriguttaOpenPlotsPage() {
   ])
   const faqSchema = buildFaqSchema(faqs)
   const listingSchema = buildRealEstateListingSchema({
-    name: 'S.V. Kanaka Maple Homes — Open Plots Near Yadagirigutta',
+    name: 'S.V. Kanaka Maple Homes: Open Plots Near Yadagirigutta',
     description: 'DTCP & RERA approved open plots on the Warangal Highway, near Yadagirigutta.',
     url: pageUrl,
     address: 'Warangal Highway, near Yadagirigutta, Telangana',
@@ -139,7 +139,7 @@ export default async function YadagiriguttaOpenPlotsPage() {
             <MapPin className="w-3.5 h-3.5" /> Warangal Highway, near Yadagirigutta
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Open Plots Near Yadagirigutta — <span className="text-brand-accent">DTCP & RERA Approved</span>
+            Open Plots Near Yadagirigutta: <span className="text-brand-accent">DTCP & RERA Approved</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
             S.V. Kanaka Maple Homes is Bhuwanta Developers&apos; open-plot development on the Warangal Highway, near the Yadagirigutta temple corridor. Request current pricing, review project documents, and book a free site visit.
@@ -162,10 +162,10 @@ export default async function YadagiriguttaOpenPlotsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Opportunity Near Yadagirigutta</h2>
           <p className="text-brand-muted leading-relaxed mb-6">
-            This corridor sits on the Warangal Highway (NH-163), close to Yadagirigutta — home to the Sri Lakshmi Narasimha Swamy Temple, one of the most significant temple redevelopment and tourism-infrastructure efforts in the region. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project. The area also benefits from proximity to Bhongir, the district headquarters town, rail connectivity via Yadagirigutta station, and the northern alignment of the planned Regional Ring Road (RRR).
+            This corridor sits on the Warangal Highway (NH-163), close to Yadagirigutta, home to the Sri Lakshmi Narasimha Swamy Temple, one of the most significant temple redevelopment and tourism-infrastructure efforts in the region. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project. The area also benefits from proximity to Bhongir, the district headquarters town, rail connectivity via Yadagirigutta station, and the northern alignment of the planned Regional Ring Road (RRR).
           </p>
           <p className="text-brand-muted leading-relaxed">
-            S.V. Kanaka Maple Homes is Bhuwanta&apos;s live, DTCP approved and RERA registered project in this corridor — real inventory with clear legal documentation, not a pre-launch concept.
+            S.V. Kanaka Maple Homes is Bhuwanta&apos;s live, DTCP approved and RERA registered project in this corridor, real inventory with clear legal documentation, not a pre-launch concept.
           </p>
 
           {project?.images && project.images.length > 0 && (

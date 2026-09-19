@@ -56,8 +56,8 @@ const ogImage = (title: string, subtitle: string) =>
 const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/best-areas-open-plots-near-hyderabad-2026',
-    title: 'Best Areas to Buy Open Plots Near Hyderabad — 2026 Guide',
-    excerpt: 'A 2026 guide comparing Hyderabad\'s three main open-plot growth corridors — NH-44 South, Mumbai Highway West, and Warangal Highway East — with a due-diligence checklist for buyers.',
+    title: 'Best Areas to Buy Open Plots Near Hyderabad: 2026 Guide',
+    excerpt: 'A 2026 guide comparing Hyderabad\'s three main open-plot growth corridors, NH-44 South, Mumbai Highway West, and Warangal Highway East, with a due-diligence checklist for buyers.',
     fallbackImage: ogImage('Best Areas to Buy Open Plots Near Hyderabad', '2026 Guide'),
     tag: 'Investment Guide',
     publishDate: '2026-08-19',
@@ -65,7 +65,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/nri-open-plots-hyderabad-guide',
     title: 'NRI Guide to Buying Open Plots in Hyderabad (2026)',
-    excerpt: 'A general guide for NRIs buying open plots near Hyderabad — FEMA eligibility, NRE/NRO/FCNR payment routing, the Power of Attorney process, and how to verify RERA/DTCP/HMDA approval before you buy.',
+    excerpt: 'A general guide for NRIs buying open plots near Hyderabad, FEMA eligibility, NRE/NRO/FCNR payment routing, the Power of Attorney process, and how to verify RERA/DTCP/HMDA approval before you buy.',
     fallbackImage: ogImage('NRI Guide to Buying Open Plots in Hyderabad', '2026 Guide'),
     tag: 'NRI Guide',
     publishDate: '2026-08-19',
@@ -73,15 +73,15 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/best-real-estate-investment-telangana-andhra-pradesh',
     title: 'Best Real Estate Investment Options in Telangana & Andhra Pradesh: 2026 Guide',
-    excerpt: 'A 2026 guide to investing in Telangana and Andhra Pradesh real estate — why HMDA/DTCP-approved open plots near growth corridors are drawing investor interest, and what to check before you buy.',
-    fallbackImage: ogImage('Best Real Estate Investment Options', 'Telangana & Andhra Pradesh — 2026 Guide'),
+    excerpt: 'A 2026 guide to investing in Telangana and Andhra Pradesh real estate, why HMDA/DTCP-approved open plots near growth corridors are drawing investor interest, and what to check before you buy.',
+    fallbackImage: ogImage('Best Real Estate Investment Options', 'Telangana & Andhra Pradesh: 2026 Guide'),
     tag: 'Investment Guide',
     publishDate: '2026-07-16',
   },
   {
     href: '/blog/regional-ring-road-telangana-growth-areas',
     title: 'Regional Ring Road (RRR): Which Areas in Telangana Will Benefit Most?',
-    excerpt: 'A look at Telangana\'s Regional Ring Road (RRR) — its decentralization goal, which growth corridors are seeing rising investor interest, and what it means for plot buyers.',
+    excerpt: 'A look at Telangana\'s Regional Ring Road (RRR): its decentralization goal, which growth corridors are seeing rising investor interest, and what it means for plot buyers.',
     fallbackImage: ogImage('Regional Ring Road (RRR)', 'Which Areas in Telangana Will Benefit Most?'),
     tag: 'Market Insight',
     publishDate: '2026-07-16',
@@ -89,7 +89,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/nri-guide-uk-open-plots-hyderabad',
     title: 'Buying Open Plots in Hyderabad from the UK: Complete NRI Guide 2026',
-    excerpt: 'A complete 2026 guide for UK-based NRIs buying open plots near Hyderabad — FEMA eligibility, UK tax basics, the Notary Public + FCDO apostille Power of Attorney process, and how to buy remotely.',
+    excerpt: 'A complete 2026 guide for UK-based NRIs buying open plots near Hyderabad, FEMA eligibility, UK tax basics, the Notary Public + FCDO apostille Power of Attorney process, and how to buy remotely.',
     fallbackImage: ogImage('Buying Open Plots in Hyderabad from the UK', 'Complete NRI Guide 2026'),
     tag: 'NRI Guide',
     publishDate: '2026-07-16',
@@ -105,7 +105,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/hmda-vs-dtcp-plots-hyderabad',
     title: 'HMDA vs DTCP Approved Plots in Hyderabad: Complete 2026 Comparison',
-    excerpt: 'HMDA vs DTCP approved plots in Hyderabad — compare pricing, infrastructure, approval process, and appreciation potential to choose the right plot for your investment goals.',
+    excerpt: 'HMDA vs DTCP approved plots in Hyderabad: compare pricing, infrastructure, approval process, and appreciation potential to choose the right plot for your investment goals.',
     fallbackImage: ogImage('HMDA vs DTCP Approved Plots', 'Complete 2026 Comparison'),
     tag: 'Blog',
     publishDate: '2026-07-13',
@@ -114,14 +114,14 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
     href: '/blog/open-plots-shabad-hyderabad-hmda-approved-guide',
     title: 'Open Plots in Shabad, Hyderabad: HMDA Approved Plots Near Bangalore Highway (2026 Guide)',
     excerpt: 'Compare Shabad plots by price, location, phase-specific documents and total cost before arranging a site visit.',
-    fallbackImage: ogImage('Open Plots in Shabad, Hyderabad', 'HMDA Approved Plots Near Bangalore Highway — 2026 Guide'),
+    fallbackImage: ogImage('Open Plots in Shabad, Hyderabad', 'HMDA Approved Plots Near Bangalore Highway: 2026 Guide'),
     tag: 'Blog',
     publishDate: '2026-07-13',
   },
   {
     href: '/blog/dtcp-vs-hmda-plots-shadnagar-buyer-guide',
     title: "DTCP vs HMDA Approved Plots in Shadnagar: Complete Buyer's Guide (2026)",
-    excerpt: "DTCP vs HMDA approved plots in the Shadnagar area — what applies where, how to verify either approval type, and where Bhuwanta's nearest verified project fits in.",
+    excerpt: "DTCP vs HMDA approved plots in the Shadnagar area, what applies where, how to verify either approval type, and where Bhuwanta's nearest verified project fits in.",
     fallbackImage: ogImage('DTCP vs HMDA Plots in Shadnagar', "Complete Buyer's Guide (2026)"),
     tag: 'Blog',
     publishDate: '2026-07-13',
@@ -137,7 +137,7 @@ const staticGuides: (Omit<BlogCard, 'image'> & { fallbackImage: string })[] = [
   {
     href: '/blog/open-plots-shadnagar-growth-story-2026',
     title: "Open Plots for Sale in Shadnagar: What's Driving the 2026 Growth Story",
-    excerpt: "Why Shadnagar is drawing buyer interest in 2026 — micro-location context, infrastructure drivers, and the red flags to check before buying any open plot in this corridor.",
+    excerpt: "Why Shadnagar is drawing buyer interest in 2026, micro-location context, infrastructure drivers, and the red flags to check before buying any open plot in this corridor.",
     fallbackImage: ogImage('Open Plots for Sale in Shadnagar', "What's Driving the 2026 Growth Story"),
     tag: 'Blog',
     publishDate: '2026-07-13',
@@ -224,7 +224,7 @@ export default async function BlogPage() {
                     <div className="w-full aspect-[16/9] relative overflow-hidden bg-brand-paper">
                       <Image
                         src={card.image}
-                        alt={`${card.title} — cover image`}
+                        alt={`${card.title}, cover image`}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         // /api/og renders a finished 1200x630 image, so there is

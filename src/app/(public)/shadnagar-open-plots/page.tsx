@@ -57,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const faqs = [
   {
     question: 'Does Bhuwanta have plots for sale in Shadnagar itself?',
-    answer: 'Not currently. Bhuwanta\'s live, verified project on this corridor is Vian Valley in Shabad — a separate town southwest of Hyderabad. We\'d rather point you to real, approved inventory nearby than list something we don\'t have.',
+    answer: 'Not currently. Bhuwanta\'s live, verified project on this corridor is Vian Valley in Shabad, a separate town southwest of Hyderabad. We\'d rather point you to real, approved inventory nearby than list something we don\'t have.',
   },
   {
     question: 'Is Shadnagar a good area to invest in 2026?',
@@ -78,7 +78,7 @@ export default async function ShadnagarOpenPlotsPage() {
 
   const siteUrl = 'https://bhuwanta.com'
   const pageUrl = `${siteUrl}/shadnagar-open-plots`
-  const waMessage = encodeURIComponent('Hi Bhuwanta, I was looking at plots near Shadnagar — can you tell me about Vian Valley in Shabad and today\'s investor pricing?')
+  const waMessage = encodeURIComponent('Hi Bhuwanta, I was looking at plots near Shadnagar, can you tell me about Vian Valley in Shabad and today\'s investor pricing?')
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`
 
   const breadcrumb = buildBreadcrumbSchema([
@@ -99,10 +99,10 @@ export default async function ShadnagarOpenPlotsPage() {
             <MapPin className="w-3.5 h-3.5" /> Shadnagar &amp; NH-44 Corridor
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Plots Near Shadnagar / NH-44 — <span className="text-brand-accent">Curated HMDA &amp; DTCP Options</span>
+            Plots Near Shadnagar / NH-44: <span className="text-brand-accent">Curated HMDA &amp; DTCP Options</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
-            We don&apos;t have live inventory in Shadnagar itself yet. What we do have is Vian Valley — a curated, HMDA &amp; RERA approved land asset in Shabad, southwest of Hyderabad, with clear legal documentation and real inventory today.
+            We don&apos;t have live inventory in Shadnagar itself yet. What we do have is Vian Valley, a curated, HMDA &amp; RERA approved land asset in Shabad, southwest of Hyderabad, with clear legal documentation and real inventory today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/?project=Vian%20Vally#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
@@ -122,14 +122,14 @@ export default async function ShadnagarOpenPlotsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Nearest Verified Option to Shadnagar</h2>
           <p className="text-brand-muted leading-relaxed mb-6">
-            Shadnagar and Shabad are separate towns south and southwest of Hyderabad. Shadnagar is associated with NH-44; access to a Shabad project depends on its own approach roads. We&apos;d rather be direct about this than stretch the truth: Bhuwanta doesn&apos;t currently have plots for sale in Shadnagar itself. What we do have, in the wider region, is Vian Valley in Shabad — a live, HMDA approved and RERA registered project with real inventory and clear documentation.
+            Shadnagar and Shabad are separate towns south and southwest of Hyderabad. Shadnagar is associated with NH-44; access to a Shabad project depends on its own approach roads. We&apos;d rather be direct about this than stretch the truth: Bhuwanta doesn&apos;t currently have plots for sale in Shadnagar itself. What we do have, in the wider region, is Vian Valley in Shabad, a live, HMDA approved and RERA registered project with real inventory and clear documentation.
           </p>
           <p className="text-brand-muted leading-relaxed">
-            If your interest is specifically Shadnagar, we&apos;d encourage you to compare the two towns directly — see our{' '}
+            If your interest is specifically Shadnagar, we&apos;d encourage you to compare the two towns directly: see our{' '}
             <Link href="/blog/shabad-vs-shadnagar-investment-comparison" className="font-semibold text-brand-primary hover:text-brand-accent">Shabad vs Shadnagar comparison</Link>{' '}
             and our{' '}
             <Link href="/blog/open-plots-shadnagar-growth-story-2026" className="font-semibold text-brand-primary hover:text-brand-accent">Shadnagar growth story</Link>{' '}
-            — before deciding whether the nearby Shabad corridor works for your goals. You may also find our free{' '}
+, before deciding whether the nearby Shabad corridor works for your goals. You may also find our free{' '}
             <Link href="/resources/nh44-growth-corridor-investment-map" className="font-semibold text-brand-primary hover:text-brand-accent">NH-44 Growth Corridor Investment Guide</Link>{' '}
             useful before deciding.
           </p>

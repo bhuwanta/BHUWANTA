@@ -60,7 +60,7 @@ export default function PoliciesPage() {
             <div className="space-y-6 text-sm text-brand-muted leading-relaxed">
               <div>
                 <h3 className="text-lg font-semibold text-brand-deep mb-2">1. Information We Collect</h3>
-                <p>We collect only the information you voluntarily provide through our contact forms — your name, email, phone number, and message. We do not collect data without your knowledge.</p>
+                <p>We collect only the information you voluntarily provide through our contact forms: your name, email, phone number, and message. We do not collect data without your knowledge.</p>
               </div>
 
               <div>
@@ -100,7 +100,7 @@ export default function PoliciesPage() {
 
               <div>
                 <h3 className="text-lg font-semibold text-brand-deep mb-2">2. Intellectual Property</h3>
-                <p>All content on this website — including text, images, logos, and design — is the property of Bhuwanta Developers. Reproduction without written permission is strictly prohibited.</p>
+                <p>All content on this website, including text, images, logos, and design, is the property of Bhuwanta Developers. Reproduction without written permission is strictly prohibited.</p>
               </div>
 
               <div>

@@ -26,7 +26,7 @@ export function BrandLockup({
       </svg>
       <Image
         src={logo}
-        alt="Bhuwanta Developers Pvt Ltd — Your land. Your legacy."
+        alt="Bhuwanta Developers Pvt Ltd: Your land. Your legacy."
         priority={priority}
         sizes={tagline ? '340px' : '(max-width: 640px) 220px, 270px'}
         className="brand-artwork-image"

@@ -25,7 +25,7 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots in Sadashivpet — Mumbai Highway (NH-65) Corridor | Bhuwanta'
+const PAGE_TITLE = 'Open Plots in Sadashivpet: Mumbai Highway (NH-65) Corridor | Bhuwanta'
 const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots in Sadashivpet on the Mumbai Highway (NH-65) corridor, near the NIMZ industrial belt. Contact our team for current pricing, project documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/sadashivpet-open-plots'
 
@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }).catch(() => null)
 
   const ogImage = project?.images?.[0]
-    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots in Sadashivpet')}&subtitle=${encodeURIComponent('Vaibhav County — DTCP & RERA Approved')}`
+    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots in Sadashivpet')}&subtitle=${encodeURIComponent('Vaibhav County: DTCP & RERA Approved')}`
 
   return {
     title: { absolute: PAGE_TITLE },
@@ -68,21 +68,21 @@ const connectivityDrivers = [
 ]
 
 const dueDiligenceChecklist = [
-  'Confirm DTCP approval on the official Directorate of Town and Country Planning portal — never take a brochure or verbal claim at face value',
+  'Confirm DTCP approval on the official Directorate of Town and Country Planning portal: never take a brochure or verbal claim at face value',
   "Verify the project's RERA registration number directly on the TS-RERA website",
   'Ask for a recent Encumbrance Certificate covering a meaningful look-back period',
   'Cross-check the approved layout plan against what is being shown on-site',
-  'Do a physical site visit before booking — highway frontage and road access are easy to confirm in person',
+  'Do a physical site visit before booking: highway frontage and road access are easy to confirm in person',
 ]
 
 const faqs = [
   {
     question: 'Is Sadashivpet a good place to invest in open plots?',
-    answer: 'Sadashivpet sits on the Mumbai Highway (NH-65) between Hyderabad and Sangareddy, close to the NIMZ industrial corridor and along the northern alignment of the planned Regional Ring Road (RRR) — a combination of highway connectivity and nearby industrial activity that supports the corridor\'s long-term growth story. Vaibhav County, Bhuwanta\'s DTCP & RERA approved project in Sadashivpet, is a live, verified entry point into this belt.',
+    answer: 'Sadashivpet sits on the Mumbai Highway (NH-65) between Hyderabad and Sangareddy, close to the NIMZ industrial corridor and along the northern alignment of the planned Regional Ring Road (RRR), a combination of highway connectivity and nearby industrial activity that supports the corridor\'s long-term growth story. Vaibhav County, Bhuwanta\'s DTCP & RERA approved project in Sadashivpet, is a live, verified entry point into this belt.',
   },
   {
     question: 'Is Vaibhav County DTCP approved?',
-    answer: 'Yes, Vaibhav County is DTCP approved and RERA registered. The RERA certificate and layout documents are available for review — request them through the enquiry form on this page.',
+    answer: 'Yes, Vaibhav County is DTCP approved and RERA registered. The RERA certificate and layout documents are available for review: request them through the enquiry form on this page.',
   },
   {
     question: 'How close is Sadashivpet to the NIMZ industrial zone?',
@@ -120,7 +120,7 @@ export default async function SadashivpetOpenPlotsPage() {
   ])
   const faqSchema = buildFaqSchema(faqs)
   const listingSchema = buildRealEstateListingSchema({
-    name: 'Vaibhav County — Open Plots in Sadashivpet',
+    name: 'Vaibhav County: Open Plots in Sadashivpet',
     description: 'DTCP & RERA approved open plots in Sadashivpet, on the Mumbai Highway (NH-65) corridor.',
     url: pageUrl,
     address: 'Sadashivpet, Telangana',
@@ -139,10 +139,10 @@ export default async function SadashivpetOpenPlotsPage() {
             <MapPin className="w-3.5 h-3.5" /> Sadashivpet · Mumbai Highway (NH-65) Corridor
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Open Plots in Sadashivpet — <span className="text-brand-accent">DTCP & RERA Approved</span>
+            Open Plots in Sadashivpet: <span className="text-brand-accent">DTCP & RERA Approved</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
-            Vaibhav County is Bhuwanta Developers&apos; open-plot development in Sadashivpet — positioned on the Mumbai Highway (NH-65) between Hyderabad and Sangareddy, close to the NIMZ industrial belt. Request current pricing, review project documents, and book a free site visit.
+            Vaibhav County is Bhuwanta Developers&apos; open-plot development in Sadashivpet, positioned on the Mumbai Highway (NH-65) between Hyderabad and Sangareddy, close to the NIMZ industrial belt. Request current pricing, review project documents, and book a free site visit.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/?project=Vaibhav%20County#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
@@ -162,10 +162,10 @@ export default async function SadashivpetOpenPlotsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Opportunity in Sadashivpet</h2>
           <p className="text-brand-muted leading-relaxed mb-6">
-            Sadashivpet&apos;s position on the Mumbai Highway (NH-65), between Hyderabad and Sangareddy, places it close to the NIMZ industrial belt and along the northern alignment of the planned Regional Ring Road (RRR) — durable connectivity advantages that don&apos;t depend on any single project or developer. For investors looking at Hyderabad&apos;s northwest growth corridor, DTCP-approved land here typically offers a more affordable entry point than HMDA-jurisdiction plots closer to the city, with room to appreciate as infrastructure and industrial activity catch up.
+            Sadashivpet&apos;s position on the Mumbai Highway (NH-65), between Hyderabad and Sangareddy, places it close to the NIMZ industrial belt and along the northern alignment of the planned Regional Ring Road (RRR), durable connectivity advantages that don&apos;t depend on any single project or developer. For investors looking at Hyderabad&apos;s northwest growth corridor, DTCP-approved land here typically offers a more affordable entry point than HMDA-jurisdiction plots closer to the city, with room to appreciate as infrastructure and industrial activity catch up.
           </p>
           <p className="text-brand-muted leading-relaxed">
-            Vaibhav County is Bhuwanta&apos;s live, DTCP approved and RERA registered project in this corridor — real inventory with clear legal documentation, not a pre-launch concept.
+            Vaibhav County is Bhuwanta&apos;s live, DTCP approved and RERA registered project in this corridor, real inventory with clear legal documentation, not a pre-launch concept.
           </p>
 
           {project?.images && project.images.length > 0 && (

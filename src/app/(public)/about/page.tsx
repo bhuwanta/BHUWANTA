@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
     'about',
     'About Us | HMDA & DTCP Approved Plots Hyderabad',
-    'Bhuwanta Developers — Hyderabad\'s trusted real estate company, 20+ years of experience in HMDA & DTCP approved plots, villa plots, and farmlands.'
+    'Bhuwanta Developers, Hyderabad\'s trusted real estate company, 20+ years of experience in HMDA & DTCP approved plots, villa plots, and farmlands.'
   )
 }
 
@@ -25,15 +25,15 @@ const defaults = {
   pageSubtitle: '',
   storyHeading: 'Helping You Take the Next Step in Land Ownership',
   storyParagraphs: [
-    'Bhuwanta Developers is a Hyderabad-based real estate company with 20+ years of experience in delivering HMDA & DTCP approved open plots, villa plots and farmlands. Built on trust, transparency and integrity, we simplify the property buying journey for first-time buyers, growing families and NRI investors alike — offering premium clear-title properties across Hyderabad\'s fastest-growing locations.'
+    'Bhuwanta Developers is a Hyderabad-based real estate company with 20+ years of experience in delivering HMDA & DTCP approved open plots, villa plots and farmlands. Built on trust, transparency and integrity, we simplify the property buying journey for first-time buyers, growing families and NRI investors alike, offering premium clear-title properties across Hyderabad\'s fastest-growing locations.'
   ],
   missionTitle: 'Our Mission',
-  missionBody: 'To empower homebuyers and investors with secure, high-value real estate opportunities across Hyderabad through HMDA & DTCP approved plots, villa plots, and farmlands — ensuring transparency, trust, and excellence in every step of the property-buying journey.',
+  missionBody: 'To empower homebuyers and investors with secure, high-value real estate opportunities across Hyderabad through HMDA & DTCP approved plots, villa plots, and farmlands, ensuring transparency, trust, and excellence in every step of the property-buying journey.',
   visionTitle: 'Our Vision',
-  visionBody: 'To be Hyderabad\'s most trusted real estate developer, known for delivering consistent value and premium properties while shaping a future where every buyer — whether local or NRI — experiences confidence, stability, and long-term prosperity through strategic real estate investments.',
+  visionBody: 'To be Hyderabad\'s most trusted real estate developer, known for delivering consistent value and premium properties while shaping a future where every buyer, whether local or NRI, experiences confidence, stability, and long-term prosperity through strategic real estate investments.',
   coreValues: [
-    { title: 'Trust & Transparency', description: 'We believe in honest dealings and complete transparency in every real estate transaction — from plot selection to registration.' },
-    { title: 'Quality Excellence', description: 'Uncompromising quality in every project we undertake — from infrastructure to documentation, we never cut corners.' },
+    { title: 'Trust & Transparency', description: 'We believe in honest dealings and complete transparency in every real estate transaction: from plot selection to registration.' },
+    { title: 'Quality Excellence', description: 'Uncompromising quality in every project we undertake: from infrastructure to documentation, we never cut corners.' },
     { title: 'Customer First', description: 'Our customers are at the heart of everything we do. Every decision we make is driven by your satisfaction and long-term benefit.' },
   ],
   leadershipHeading: 'Meet the Bhuwanta Leadership',

@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return buildStaticOgMetadata({
     title: 'DTCP vs HMDA Plots in Shadnagar: Buyer\'s Guide | Bhuwanta',
-    description: 'DTCP vs HMDA approved plots in Shadnagar — what applies where, how to verify either type, and where Bhuwanta\'s nearest verified project fits in.',
+    description: 'DTCP vs HMDA approved plots in Shadnagar, what applies where, how to verify either type, and where Bhuwanta\'s nearest verified project fits in.',
     url: 'https://bhuwanta.com/blog/dtcp-vs-hmda-plots-shadnagar-buyer-guide',
     ogTitle: 'DTCP vs HMDA Plots in Shadnagar',
     ogSubtitle: "Complete Buyer's Guide (2026)",
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const faqs = [
   {
     question: 'Is Shadnagar under HMDA or DTCP?',
-    answer: 'It depends on the specific layout and its location relative to the Hyderabad Metropolitan Development Authority boundary — some layouts in and around Shadnagar are DTCP approved, others may fall under HMDA depending on exact location. Always verify the approval type for the specific layout, not the town as a whole.',
+    answer: 'It depends on the specific layout and its location relative to the Hyderabad Metropolitan Development Authority boundary, some layouts in and around Shadnagar are DTCP approved, others may fall under HMDA depending on exact location. Always verify the approval type for the specific layout, not the town as a whole.',
   },
   {
     question: 'Does Bhuwanta have HMDA or DTCP approved plots near Shadnagar?',
@@ -37,7 +37,7 @@ export default function DtcpVsHmdaShadnagarPage() {
     <ArticleLayout
       slug="dtcp-vs-hmda-plots-shadnagar-buyer-guide"
       title="DTCP vs HMDA Approved Plots in Shadnagar: Complete Buyer's Guide (2026)"
-      description="DTCP vs HMDA approved plots in the Shadnagar area — what applies where, how to verify either approval type, and where Bhuwanta's nearest verified project fits in."
+      description="DTCP vs HMDA approved plots in the Shadnagar area, what applies where, how to verify either approval type, and where Bhuwanta's nearest verified project fits in."
       tag="Shadnagar"
       whatsappContext="plots near Shadnagar and Vian Valley in Shabad"
       publishDate="2026-07-13"
@@ -55,8 +55,8 @@ export default function DtcpVsHmdaShadnagarPage() {
         region, applying stricter infrastructure standards. DTCP (Directorate of Town and Country Planning) approves
         layouts outside HMDA&apos;s jurisdiction, typically in emerging corridors further from the city. Both are
         legally valid, government-issued approvals, and both are bank-loan eligible when the layout is also RERA
-        registered. For the full side-by-side comparison — pricing profile, infrastructure standards, and
-        appreciation pattern — see our dedicated{' '}
+        registered. For the full side-by-side comparison, pricing profile, infrastructure standards, and
+        appreciation pattern: see our dedicated{' '}
         <Link href="/hmda-vs-dtcp-plots-hyderabad">HMDA vs DTCP Approved Plots in Hyderabad</Link> guide.
       </p>
 
@@ -64,7 +64,7 @@ export default function DtcpVsHmdaShadnagarPage() {
       <p>
         Shadnagar and the wider region, including Shabad, contain a variety of layouts: some layouts
         fall under DTCP, others under HMDA, depending on the specific parcel&apos;s location relative to the HMDA
-        boundary. There is no single blanket answer for &quot;is Shadnagar HMDA or DTCP&quot; — it depends on the exact
+        boundary. There is no single blanket answer for &quot;is Shadnagar HMDA or DTCP&quot;: it depends on the exact
         layout. This is exactly why buyers in this belt need to verify approval type per-project rather than
         assuming based on the town name.
       </p>
@@ -81,13 +81,13 @@ export default function DtcpVsHmdaShadnagarPage() {
       <h2>Where Bhuwanta Fits</h2>
       <p>
         Bhuwanta doesn&apos;t currently have inventory in Shadnagar itself. Our nearest live, verified project on this
-        corridor is <Link href="/projects/vian-vally">Vian Valley</Link>, in neighboring Shabad — HMDA approved and
+        corridor is <Link href="/projects/vian-vally">Vian Valley</Link>, in neighboring Shabad, HMDA approved and
         RERA registered, on the same NH-44 highway corridor. If you&apos;re specifically evaluating Shadnagar, see our{' '}
         <Link href="/blog/open-plots-shadnagar-growth-story-2026">Shadnagar growth story guide</Link>{' '}
         alongside this one before deciding.
       </p>
       <p>
-        As with everything on this site, we don&apos;t publish plot pricing — reach out through the enquiry form or
+        As with everything on this site, we don&apos;t publish plot pricing, reach out through the enquiry form or
         WhatsApp on the{' '}
         <Link href="/shadnagar-open-plots">Shadnagar plots page</Link> to talk to our investment team directly.
       </p>

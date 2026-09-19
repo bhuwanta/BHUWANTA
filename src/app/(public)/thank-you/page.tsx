@@ -45,7 +45,7 @@ const NEXT_STEPS = [
   {
     icon: PhoneCall,
     title: 'We call you',
-    body: 'A Bhuwanta advisor calls to understand what you are looking for — budget, location and timeline.',
+    body: 'A Bhuwanta advisor calls to understand what you are looking for, budget, location and timeline.',
   },
   {
     icon: CalendarCheck,
@@ -55,7 +55,7 @@ const NEXT_STEPS = [
   {
     icon: FileCheck2,
     title: 'You verify everything',
-    body: 'Approvals, RERA registration and title documents — reviewed openly before any commitment.',
+    body: 'Approvals, RERA registration and title documents, reviewed openly before any commitment.',
   },
 ]
 
@@ -118,7 +118,7 @@ export default function ThankYouPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <WhatsAppInlineCta
                 context="my enquiry"
-                message="Hi Bhuwanta, I just submitted an enquiry on your website — could we speak sooner on WhatsApp?"
+                message="Hi Bhuwanta, I just submitted an enquiry on your website, could we speak sooner on WhatsApp?"
                 className="w-full sm:w-auto"
                 // The saved enquiry was tracked by the form.
                 trackConversion={false}

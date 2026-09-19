@@ -75,7 +75,7 @@ export default async function ShabadOpenPlotsPage() {
       <JsonLd data={[
         buildBreadcrumbSchema([{ name: 'Home', url: siteUrl }, { name: 'Open Plots in Shabad', url: pageUrl }]),
         buildFaqSchema(faqs),
-        buildRealEstateListingSchema({ name: 'Vian Valley — Open Plots in Shabad', description, url: pageUrl, address: 'Shabad, Ranga Reddy, Telangana', ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}) }),
+        buildRealEstateListingSchema({ name: 'Vian Valley: Open Plots in Shabad', description, url: pageUrl, address: 'Shabad, Ranga Reddy, Telangana', ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}) }),
       ]} />
       <section className="relative overflow-hidden bg-brand-deep pt-32 sm:pt-40 pb-16 sm:pb-20">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/10 rounded-full blur-[100px]" />

@@ -314,7 +314,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                             {/* Duplicate images twice for seamless loop */}
                             {[...project.images, ...project.images].map((img, i) => {
                               const url = img.url
-                              const imageAlt = img.alt || img.caption || `${project.name} open plot layout in ${category} — site photo ${(i % project.images.length) + 1}`
+                              const imageAlt = img.alt || img.caption || `${project.name} open plot layout in ${category}, site photo ${(i % project.images.length) + 1}`
                               return (
                               <div
                                 key={i}

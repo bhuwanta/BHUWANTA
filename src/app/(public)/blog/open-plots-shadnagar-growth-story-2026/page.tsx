@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return buildStaticOgMetadata({
     title: 'Open Plots in Shadnagar: 2026 Growth Story | Bhuwanta',
-    description: 'Why Shadnagar is drawing buyer interest in 2026 — micro-location context, infrastructure drivers, and red flags to check before buying any open plot here.',
+    description: 'Why Shadnagar is drawing buyer interest in 2026, micro-location context, infrastructure drivers, and red flags to check before buying any open plot here.',
     url: 'https://bhuwanta.com/blog/open-plots-shadnagar-growth-story-2026',
     ogTitle: 'Open Plots for Sale in Shadnagar',
     ogSubtitle: "What's Driving the 2026 Growth Story",
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const faqs = [
   {
     question: 'What are the best micro-locations near Shadnagar?',
-    answer: 'Kothur, Balanagar, and Kammadanam are among the areas buyers commonly search for around the Shadnagar belt. Each has its own local layouts and developers — verify approval type and documentation for the specific layout, not just the general area.',
+    answer: 'Kothur, Balanagar, and Kammadanam are among the areas buyers commonly search for around the Shadnagar belt. Each has its own local layouts and developers: verify approval type and documentation for the specific layout, not just the general area.',
   },
   {
     question: 'What red flags should I check before buying an open plot near Shadnagar?',
@@ -41,7 +41,7 @@ export default function ShadnagarGrowthStoryPage() {
     <ArticleLayout
       slug="open-plots-shadnagar-growth-story-2026"
       title="Open Plots for Sale in Shadnagar: What's Driving the 2026 Growth Story"
-      description="Why Shadnagar is drawing buyer interest in 2026 — micro-location context, infrastructure drivers, and the red flags to check before buying any open plot in this corridor."
+      description="Why Shadnagar is drawing buyer interest in 2026, micro-location context, infrastructure drivers, and the red flags to check before buying any open plot in this corridor."
       tag="Shadnagar"
       whatsappContext="plots near Shadnagar and Vian Valley in Shabad"
       publishDate="2026-07-13"
@@ -63,11 +63,11 @@ export default function ShadnagarGrowthStoryPage() {
 
       <h2>Micro-Location Context</h2>
       <p>
-        Within and around the Shadnagar belt, buyers commonly search for specific micro-locations — Kothur,
+        Within and around the Shadnagar belt, buyers commonly search for specific micro-locations, Kothur,
         Balanagar, and Kammadanam among them. Each of these has its own mix of local developers and layouts. If
         you&apos;re researching this corridor, treat the town name and the micro-location as separate filters: a
         layout being &quot;in Shadnagar&quot; or &quot;near Kothur&quot; tells you nothing about its approval status or legal
-        standing on its own — that has to be verified per layout.
+        standing on its own: that has to be verified per layout.
       </p>
 
       <h2>What&apos;s Driving Appreciation</h2>
@@ -80,7 +80,7 @@ export default function ShadnagarGrowthStoryPage() {
         discussion to funded construction.
       </p>
       <p>
-        None of this should be read as a guarantee of near-term appreciation — infrastructure projects at this scale
+        None of this should be read as a guarantee of near-term appreciation, infrastructure projects at this scale
         routinely take longer than initially expected. Treat these as directional tailwinds for the corridor as a
         whole, not as a reason to skip diligence on any individual plot.
       </p>
@@ -88,9 +88,9 @@ export default function ShadnagarGrowthStoryPage() {
       <h2>Red Flags to Check Before Buying in This Belt</h2>
       <ul>
         <li><strong>Approval type not disclosed clearly:</strong> if a seller won&apos;t give you a specific HMDA or DTCP approval number, treat that as a serious red flag.</li>
-        <li><strong>No RERA registration:</strong> confirm registration status directly on the Telangana RERA portal — don&apos;t take a seller&apos;s word for it.</li>
-        <li><strong>No approved layout plan:</strong> marketing renders are not the same as an approved layout plan filed with the relevant authority — ask to see the actual plan.</li>
-        <li><strong>No Encumbrance Certificate:</strong> this document confirms the title is clear and free of disputes — insist on it before any advance payment.</li>
+        <li><strong>No RERA registration:</strong> confirm registration status directly on the Telangana RERA portal, don&apos;t take a seller&apos;s word for it.</li>
+        <li><strong>No approved layout plan:</strong> marketing renders are not the same as an approved layout plan filed with the relevant authority: ask to see the actual plan.</li>
+        <li><strong>No Encumbrance Certificate:</strong> this document confirms the title is clear and free of disputes, insist on it before any advance payment.</li>
         <li><strong>Pressure to decide immediately:</strong> a legitimate, approved layout with clear documentation doesn&apos;t require same-day decisions under pressure.</li>
       </ul>
 

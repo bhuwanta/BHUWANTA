@@ -161,7 +161,7 @@ export default async function HomePage({
             Why choose <em>Bhuwanta?</em>
           </h2>
           <p>
-            We go beyond selling plots — we deliver trust, transparency and
+            We go beyond selling plots: we deliver trust, transparency and
             long-term value, with developments planned for secure investment
             and future growth.
           </p>

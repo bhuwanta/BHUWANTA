@@ -99,7 +99,7 @@ export function GatedResource({
           phone: formData.phone,
           referredBy: formData.referredBy,
           enquiryType: `Document Download: ${resourceName}`,
-          sourcePage: `Lead Magnet — ${resourceName}`,
+          sourcePage: `Lead Magnet - ${resourceName}`,
         }),
       })
 

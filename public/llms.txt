@@ -9,14 +9,14 @@ Bhuwanta Developers specializes in legally clear, government-approved (HMDA/DTCP
 - [Projects](https://bhuwanta.com/projects): Current plot developments across Hyderabad
 
 ## Projects
-- [S.V. Kanaka Maple Homes](https://bhuwanta.com/projects/sv-kanaka-maple-homes) — Warangal Highway, near Yadagirigutta Temple corridor — DTCP & RERA approved
-- [TJR Township](https://bhuwanta.com/projects/tjr-township) — Sangareddy Junction, Mumbai Highway — HMDA & RERA approved
-- [Vaibhav County](https://bhuwanta.com/projects/vaibhav-county) — Sadashivpet, Mumbai Highway — DTCP & RERA approved
-- [Vian Vally](https://bhuwanta.com/projects/vian-vally) — Shabad, NH-44 Bangalore Highway — HMDA & RERA approved
+- [S.V. Kanaka Maple Homes](https://bhuwanta.com/projects/sv-kanaka-maple-homes): Warangal Highway, near Yadagirigutta Temple corridor: DTCP & RERA approved
+- [TJR Township](https://bhuwanta.com/projects/tjr-township): Sangareddy Junction, Mumbai Highway: HMDA & RERA approved
+- [Vaibhav County](https://bhuwanta.com/projects/vaibhav-county): Sadashivpet, Mumbai Highway: DTCP & RERA approved
+- [Vian Vally](https://bhuwanta.com/projects/vian-vally): Shabad, NH-44 Bangalore Highway: HMDA & RERA approved
 
 ## Guides
 - [How to Verify HMDA/DTCP Approval in Telangana](https://bhuwanta.com/blog/verify-hmda-dtcp-approval-telangana): Step-by-step verification process using official Telangana government portals
-- [Best Areas to Buy Open Plots Near Hyderabad — 2026 Guide](https://bhuwanta.com/blog/best-areas-open-plots-near-hyderabad-2026): Comparing the NH-44, Mumbai Highway, and Warangal Highway corridors — growth drivers, approvals, and a due-diligence checklist
+- [Best Areas to Buy Open Plots Near Hyderabad: 2026 Guide](https://bhuwanta.com/blog/best-areas-open-plots-near-hyderabad-2026): Comparing the NH-44, Mumbai Highway, and Warangal Highway corridors: growth drivers, approvals, and a due-diligence checklist
 - [HMDA vs DTCP Approved Plots](https://bhuwanta.com/hmda-vs-dtcp-plots-hyderabad): Complete comparison of approval types, pricing profile, and appreciation potential
 - [Open Plots in Shabad Guide](https://bhuwanta.com/blog/open-plots-shabad-hyderabad-hmda-approved-guide): HMDA approval, what drives value, and how to verify a Shabad plot
 - [DTCP vs HMDA Plots in Shadnagar](https://bhuwanta.com/blog/dtcp-vs-hmda-plots-shadnagar-buyer-guide): Buyer's guide to approval types in the Shadnagar belt
@@ -25,11 +25,11 @@ Bhuwanta Developers specializes in legally clear, government-approved (HMDA/DTCP
 - [NRI Guide to Buying Open Plots in Hyderabad](https://bhuwanta.com/blog/nri-open-plots-hyderabad-guide): FEMA eligibility, NRE/NRO/FCNR payment routing, Power of Attorney process, and common mistakes
 
 ## Landing Pages
-- [Open Plots in Shabad](https://bhuwanta.com/shabad-open-plots): Vian Vally — HMDA & RERA approved, on the NH-44 corridor
-- [Plots Near Shadnagar](https://bhuwanta.com/shadnagar-open-plots): Honest positioning — no Shadnagar inventory yet, nearest verified option is Vian Vally in Shabad
-- [Open Plots in Sangareddy](https://bhuwanta.com/sangareddy-open-plots): TJR Township — HMDA & RERA approved, Sangareddy Junction on the Mumbai Highway
-- [Open Plots in Sadashivpet](https://bhuwanta.com/sadashivpet-open-plots): Vaibhav County — DTCP & RERA approved, Mumbai Highway corridor near NIMZ
-- [Open Plots in Yadagirigutta](https://bhuwanta.com/yadagirigutta-open-plots): S.V. Kanaka Maple Homes — DTCP & RERA approved, Warangal Highway near the Yadagirigutta temple corridor
+- [Open Plots in Shabad](https://bhuwanta.com/shabad-open-plots): Vian Vally: HMDA & RERA approved, on the NH-44 corridor
+- [Plots Near Shadnagar](https://bhuwanta.com/shadnagar-open-plots): Honest positioning: no Shadnagar inventory yet, nearest verified option is Vian Vally in Shabad
+- [Open Plots in Sangareddy](https://bhuwanta.com/sangareddy-open-plots): TJR Township: HMDA & RERA approved, Sangareddy Junction on the Mumbai Highway
+- [Open Plots in Sadashivpet](https://bhuwanta.com/sadashivpet-open-plots): Vaibhav County: DTCP & RERA approved, Mumbai Highway corridor near NIMZ
+- [Open Plots in Yadagirigutta](https://bhuwanta.com/yadagirigutta-open-plots): S.V. Kanaka Maple Homes: DTCP & RERA approved, Warangal Highway near the Yadagirigutta temple corridor
 
 ## Free Resources
 - [Hyderabad Plot Buyer's Legal Checklist](https://bhuwanta.com/resources/hyderabad-plot-buyer-legal-checklist): 8-step legal verification checklist (HMDA/DTCP, RERA, encumbrance certificate)

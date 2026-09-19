@@ -109,7 +109,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (images.length > 0) parts.push(`${images.length} photo${images.length === 1 ? '' : 's'}`)
   const description =
     project.videosPageIntro?.slice(0, 155) ||
-    `${parts.length > 0 ? `See ${parts.join(' and ')} of` : 'Project highlights for'} ${name}${project.location ? ` in ${project.location}` : ''} — site walkthroughs, drone tours and photographs from Bhuwanta.`
+    `${parts.length > 0 ? `See ${parts.join(' and ')} of` : 'Project highlights for'} ${name}${project.location ? ` in ${project.location}` : ''}, site walkthroughs, drone tours and photographs from Bhuwanta.`
 
   const firstThumb = videos.find((v) => v.thumbnailUrl)?.thumbnailUrl || images[0]?.url || project.images?.[0]
 
@@ -211,7 +211,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
             /* The tabs read ?tab= from the URL, which needs a Suspense boundary
                on a statically rendered page. The fallback is the default tab
                rendered on the server, so the static HTML already carries the
-               content — search engines and a slow hydrate both see photos or
+               content: search engines and a slow hydrate both see photos or
                videos, never an empty box. */
             <Suspense
               fallback={

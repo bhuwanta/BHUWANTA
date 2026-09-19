@@ -42,7 +42,7 @@ export function ProjectHighlightImages({
 
   const altFor = useCallback(
     (img: ProjectHighlightImage, idx: number) =>
-      img.alt || img.caption || `${projectName} — photo ${idx + 1}`,
+      img.alt || img.caption || `${projectName}, photo ${idx + 1}`,
     [projectName]
   )
 

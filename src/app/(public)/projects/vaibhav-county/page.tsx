@@ -6,8 +6,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   return buildProjectPageMetadata(
     config,
-    'Vaibhav County — Sadashivpet, Mumbai Highway | Bhuwanta',
-    'Vaibhav County — DTCP & RERA approved open plots in Sadashivpet on the Mumbai Highway (NH 65), a curated land asset by Bhuwanta.'
+    'Vaibhav County, Sadashivpet, Mumbai Highway | Bhuwanta',
+    'Vaibhav County, DTCP & RERA approved open plots in Sadashivpet on the Mumbai Highway (NH 65), a curated land asset by Bhuwanta.'
   )
 }
 
@@ -18,18 +18,18 @@ const config: ProjectLandingConfig = {
   corridorLabel: 'Sadashivpet, Mumbai Highway',
   h1: <>Vaibhav County</>,
   opportunityParagraphs: [
-    'Vaibhav County sits in Sadashivpet, on the Mumbai Highway (NH 65) between Hyderabad and Sangareddy — a corridor that has seen growing industrial and residential development pushed outward from the city along this highway. DTCP-approved layouts in this belt typically offer a more affordable entry point than HMDA-jurisdiction land closer to the city, with room to appreciate as infrastructure catches up.',
+    'Vaibhav County sits in Sadashivpet, on the Mumbai Highway (NH 65) between Hyderabad and Sangareddy, a corridor that has seen growing industrial and residential development pushed outward from the city along this highway. DTCP-approved layouts in this belt typically offer a more affordable entry point than HMDA-jurisdiction land closer to the city, with room to appreciate as infrastructure catches up.',
     'This is a DTCP approved and RERA registered layout, built for buyers prioritizing affordability and long-term growth along an established highway corridor.',
   ],
   locationAdvantages: [
     'Located in Sadashivpet on the Mumbai Highway (NH 65)',
     'Positioned between Hyderabad and Sangareddy on an established growth corridor',
-    'DTCP approved layout — typically a more affordable entry point than HMDA-jurisdiction land',
+    'DTCP approved layout, typically a more affordable entry point than HMDA-jurisdiction land',
   ],
   faqs: [
     {
       question: 'Is Vaibhav County DTCP approved?',
-      answer: 'Yes. Vaibhav County is DTCP approved and RERA registered. Approval and RERA documents are available for review — request them through the enquiry form or WhatsApp.',
+      answer: 'Yes. Vaibhav County is DTCP approved and RERA registered. Approval and RERA documents are available for review: request them through the enquiry form or WhatsApp.',
     },
     {
       question: 'Why invest in Sadashivpet?',

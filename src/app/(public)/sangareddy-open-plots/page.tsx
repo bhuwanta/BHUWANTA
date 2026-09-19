@@ -25,7 +25,7 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots in Sangareddy — Mumbai Highway (NH-65) Corridor | Bhuwanta'
+const PAGE_TITLE = 'Open Plots in Sangareddy: Mumbai Highway (NH-65) Corridor | Bhuwanta'
 const PAGE_DESCRIPTION = 'Curated, HMDA & RERA approved open plots in Sangareddy on the Mumbai Highway (NH-65) corridor, near the Regional Ring Road. Contact our team for current pricing, project documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/sangareddy-open-plots'
 
@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }).catch(() => null)
 
   const ogImage = project?.images?.[0]
-    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots in Sangareddy')}&subtitle=${encodeURIComponent('TJR Township — HMDA & RERA Approved')}`
+    || `https://bhuwanta.com/api/og?title=${encodeURIComponent('Open Plots in Sangareddy')}&subtitle=${encodeURIComponent('TJR Township: HMDA & RERA Approved')}`
 
   return {
     title: { absolute: PAGE_TITLE },
@@ -61,18 +61,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const connectivityDrivers = [
   'Six-lane Mumbai Highway (NH-65) running directly through Sangareddy, connecting Hyderabad toward Maharashtra',
-  'Sangareddy district headquarters — an established administrative and commercial hub, not a speculative micro-market',
+  'Sangareddy district headquarters, an established administrative and commercial hub, not a speculative micro-market',
   'Close to the NIMZ (National Investment & Manufacturing Zone) industrial corridor, spanning roughly 12,635 acres between Zaheerabad and Sadashivpet',
-  "Nearby education hub — IIT Hyderabad's Kandi campus, GITAM Hyderabad, and Woxsen University",
+  "Nearby education hub, IIT Hyderabad's Kandi campus, GITAM Hyderabad, and Woxsen University",
   'Positioned along the northern alignment of the Regional Ring Road (RRR) corridor',
 ]
 
 const dueDiligenceChecklist = [
-  'Confirm HMDA approval on the official HMDA layout-approval portal — never take a brochure or verbal claim at face value',
+  'Confirm HMDA approval on the official HMDA layout-approval portal: never take a brochure or verbal claim at face value',
   "Verify the project's RERA registration number directly on the TS-RERA website",
   'Ask for a recent Encumbrance Certificate covering a meaningful look-back period',
   'Cross-check the approved layout plan against what is being shown on-site',
-  'Do a physical site visit before booking — highway frontage and road access are easy to confirm in person',
+  'Do a physical site visit before booking: highway frontage and road access are easy to confirm in person',
 ]
 
 const faqs = [
@@ -82,7 +82,7 @@ const faqs = [
   },
   {
     question: 'Is TJR Township HMDA approved?',
-    answer: 'Yes, TJR Township is HMDA approved and RERA registered. The RERA certificate and layout documents are available for review — request them through the enquiry form on this page.',
+    answer: 'Yes, TJR Township is HMDA approved and RERA registered. The RERA certificate and layout documents are available for review: request them through the enquiry form on this page.',
   },
   {
     question: 'What is the NIMZ, and how does it relate to Sangareddy?',
@@ -120,7 +120,7 @@ export default async function SangareddyOpenPlotsPage() {
   ])
   const faqSchema = buildFaqSchema(faqs)
   const listingSchema = buildRealEstateListingSchema({
-    name: 'TJR Township — Open Plots in Sangareddy',
+    name: 'TJR Township: Open Plots in Sangareddy',
     description: 'HMDA & RERA approved open plots at Sangareddy Junction, on the Mumbai Highway (NH-65) corridor.',
     url: pageUrl,
     address: 'Sangareddy, Telangana',
@@ -139,10 +139,10 @@ export default async function SangareddyOpenPlotsPage() {
             <MapPin className="w-3.5 h-3.5" /> Sangareddy · Mumbai Highway (NH-65) Corridor
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
-            Open Plots in Sangareddy — <span className="text-brand-accent">HMDA & RERA Approved</span>
+            Open Plots in Sangareddy: <span className="text-brand-accent">HMDA & RERA Approved</span>
           </h1>
           <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
-            TJR Township is Bhuwanta Developers&apos; open-plot development at Sangareddy Junction — the district headquarters town, positioned directly on the six-lane Mumbai Highway (NH-65). Request current pricing, review project documents, and book a free site visit.
+            TJR Township is Bhuwanta Developers&apos; open-plot development at Sangareddy Junction, the district headquarters town, positioned directly on the six-lane Mumbai Highway (NH-65). Request current pricing, review project documents, and book a free site visit.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/?project=TJR%20Township#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
@@ -162,10 +162,10 @@ export default async function SangareddyOpenPlotsPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-brand-ink mb-6">The Opportunity in Sangareddy</h2>
           <p className="text-brand-muted leading-relaxed mb-6">
-            Sangareddy&apos;s position on the six-lane Mumbai Highway (NH-65), combined with its status as the headquarters town of Sangareddy district, gives it connectivity and administrative durability that don&apos;t depend on any single project or developer. The corridor also sits near the NIMZ industrial belt and a growing education hub, and lies along the northern alignment of the planned Regional Ring Road (RRR) — a combination of established infrastructure and forward-looking growth drivers.
+            Sangareddy&apos;s position on the six-lane Mumbai Highway (NH-65), combined with its status as the headquarters town of Sangareddy district, gives it connectivity and administrative durability that don&apos;t depend on any single project or developer. The corridor also sits near the NIMZ industrial belt and a growing education hub, and lies along the northern alignment of the planned Regional Ring Road (RRR), a combination of established infrastructure and forward-looking growth drivers.
           </p>
           <p className="text-brand-muted leading-relaxed">
-            TJR Township is Bhuwanta&apos;s live, HMDA approved and RERA registered project in this corridor — real inventory with clear legal documentation, not a pre-launch concept.
+            TJR Township is Bhuwanta&apos;s live, HMDA approved and RERA registered project in this corridor, real inventory with clear legal documentation, not a pre-launch concept.
           </p>
 
           {project?.images && project.images.length > 0 && (

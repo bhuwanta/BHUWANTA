@@ -8,7 +8,7 @@ import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
   title: "HMDA vs DTCP Plots in Hyderabad: What's the Difference? (2026) | Bhuwanta",
-  description: 'HMDA vs DTCP approved plots in Hyderabad — compare infrastructure, approval process, and appreciation potential before you invest.',
+  description: 'HMDA vs DTCP approved plots in Hyderabad: compare infrastructure, approval process, and appreciation potential before you invest.',
   url: 'https://bhuwanta.com/hmda-vs-dtcp-plots-hyderabad',
   ogTitle: 'HMDA vs DTCP Approved Plots',
   ogSubtitle: 'Complete 2026 Comparison',
@@ -20,7 +20,7 @@ const faqs = [
     answer: 'HMDA (Hyderabad Metropolitan Development Authority) approves layouts within the Hyderabad metropolitan region, offering stricter infrastructure standards and wider roads. DTCP (Directorate of Town and Country Planning) approves layouts outside HMDA jurisdiction in emerging growth corridors, usually at a more affordable entry price with strong long-term appreciation potential.',
   },
   {
-    question: 'Which is a better investment — HMDA or DTCP plots?',
+    question: 'Which is a better investment: HMDA or DTCP plots?',
     answer: 'Both are legally valid and bank-loan eligible when RERA registered. Buyers prioritizing immediate infrastructure and faster appreciation typically choose HMDA-approved plots; buyers prioritizing affordability and long-term growth in emerging corridors typically choose DTCP-approved plots.',
   },
   {
