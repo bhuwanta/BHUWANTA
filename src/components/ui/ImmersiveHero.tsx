@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  ArrowDown,
   ArrowUpRight,
   MoveUpRight,
   ArrowLeft,
@@ -350,15 +349,15 @@ export function ImmersiveHero({
           </div>
         )}
         <div className="site-container immersive-bottom">
-          <span className="hero-coordinate">
-            Hyderabad & beyond <span>17.3850° N · 78.4867° E</span>
-          </span>
-          <a href="#locations" className="hero-scroll-link">
-            Scroll to explore <ArrowDown size={16} />
+          <a
+            href="#locations"
+            className="hero-scroll-mouse"
+            aria-label="Scroll to explore"
+          >
+            <span className="hero-mouse" aria-hidden="true">
+              <span className="hero-mouse-wheel" />
+            </span>
           </a>
-          <span className="hero-depth-hint">
-            Move your pointer to explore the depth
-          </span>
         </div>
         <div className="hero-timeline" aria-hidden="true">
           <span />

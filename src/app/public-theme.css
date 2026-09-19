@@ -1032,7 +1032,7 @@
   position: relative;
   z-index: 5;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 24px;
   border-top: 1px solid #e4bc6030;
   padding-block: 22px;
@@ -1040,29 +1040,44 @@
   font-size: 10px;
   letter-spacing: 0.06em;
 }
-.hero-coordinate {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+/* Gold mouse outline with a wheel dot that rolls down and fades, looping. */
+.hero-scroll-mouse {
+  display: grid;
+  place-items: center;
+  padding: 6px;
 }
-.hero-coordinate > span {
+.hero-mouse {
+  position: relative;
   display: block;
-  margin-top: 8px;
-  font-size: 9px;
-  color: #a6b4a5;
-  letter-spacing: 0.06em;
+  width: 24px;
+  height: 38px;
+  border: 1.5px solid #e4bc60;
+  border-radius: 14px;
+  transition: border-color 0.25s, transform 0.25s;
 }
-.hero-scroll-link {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 10px;
+.hero-scroll-mouse:hover .hero-mouse {
+  border-color: #f3d68f;
+  transform: translateY(2px);
 }
-.hero-scroll-link svg {
-  animation: scroll-nudge 2.5s ease-in-out infinite;
+.hero-mouse-wheel {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: #e4bc60;
+  animation: hero-mouse-wheel 1.8s ease-in-out infinite;
 }
-.hero-depth-hint {
-  color: #a6b4a5;
-  font-size: 9px;
+@keyframes hero-mouse-wheel {
+  0% { opacity: 0; transform: translateY(0); }
+  25% { opacity: 1; }
+  75% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 0; transform: translateY(12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-mouse-wheel { animation: none; }
 }
 .hero-timeline {
   position: absolute;
@@ -1165,15 +1180,6 @@
     transform: none;
   }
 }
-@keyframes scroll-nudge {
-  0%,
-  100% {
-    transform: translateY(-2px);
-  }
-  50% {
-    transform: translateY(4px);
-  }
-}
 @media (prefers-reduced-motion: no-preference) {
   .hero-entrance {
     animation: hero-arrive 1s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1250,9 +1256,6 @@
   }
 }
 @media (max-width: 1100px) {
-  .hero-depth-hint {
-    display: none;
-  }
   .immersive-copy h1 {
     font-size: 58px;
   }
@@ -1319,22 +1322,12 @@
   .immersive-artwork figcaption {
     font-size: 8px;
   }
-  .hero-coordinate {
-    font-size: 8px;
-  }
-  .hero-coordinate > span {
-    font-size: 8px;
-  }
-  .hero-scroll-link {
-    font-size: 9px;
-    gap: 10px;
-    padding: 5px;
+  .hero-mouse {
+    width: 20px;
+    height: 32px;
   }
 }
 @media (pointer: coarse) {
-  .hero-depth-hint {
-    display: none;
-  }
   .artwork-depth {
     transform: none;
   }
@@ -1797,9 +1790,6 @@
   font-size: 10px;
   background: #00291ed9;
   padding: 5px 9px;
-}
-.hero-highlight-active .hero-depth-hint {
-  visibility: hidden;
 }
 .immersive-hero[data-has-highlights='true'] .immersive-bottom {
   padding-block: 12px;
