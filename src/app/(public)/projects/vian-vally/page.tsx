@@ -19,7 +19,7 @@ const config: ProjectLandingConfig = {
   h1: <>Vian Valley</>,
   opportunityParagraphs: [
     'Explore Vian Valley open plots in Shabad, Ranga Reddy district, with Bhuwanta. The advertised offer starts at ₹30,999 per square yard. Request the current plot list and a written quote for the size, facing and phase you prefer.',
-    'The master layout includes Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central. Confirm the exact phase, approval documents and plot availability before choosing. A site visit helps you assess the access roads and completed amenities.',
+    'The master layout includes Vian Valley 1, Vian Valley 2 and Vian Jubilee Central. Confirm the exact phase, approval documents and plot availability before choosing. A site visit helps you assess the access roads and completed amenities.',
   ],
   locationAdvantages: [
     'Located in Shabad, southwest of Hyderabad',

@@ -39,7 +39,7 @@ export default function ShabadOpenPlotsGuidePage() {
       <li>Registration-related costs, payment schedule and written booking terms.</li>
     </ul>
     <h2>Compare project phases carefully</h2>
-    <p>The master layout contains Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central. Ask which phase the offered plot belongs to. A coloured master plan may show reserved areas, mortgage plots and proposed expansion as well as sale plots; it is not a live availability list.</p>
+    <p>The master layout contains Vian Valley 1, Vian Valley 2 and Vian Jubilee Central. Ask which phase the offered plot belongs to. A coloured master plan may show reserved areas, mortgage plots and proposed expansion as well as sale plots; it is not a live availability list.</p>
     <h2>Review approvals and title documents</h2>
     <p>Ask for the layout approval and the RERA registration details for the exact phase. The <a href="https://rera.telangana.gov.in/" target="_blank" rel="noopener noreferrer">Telangana RERA website</a> links to registered projects, agents and project progress. Use the project’s registered name and number to check its record.</p>
     <p>Match the survey numbers and plot number to the approved layout. Ask an independent property lawyer to review the title chain, encumbrances and any mortgage or release documents. Approval and registration are separate from a complete title review, and an Encumbrance Certificate alone does not prove that there are no disputes.</p>

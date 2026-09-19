@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     question: 'Which plot sizes and phases are available?',
-    answer: 'Request the current plot list with plot numbers, dimensions, facing and phase. The master layout includes Vian Valley 1, Vian Valley 2 and Vian BBG’s Jubilee Central; a combined layout is not a statement of current availability.',
+    answer: 'Request the current plot list with plot numbers, dimensions, facing and phase. The master layout includes Vian Valley 1, Vian Valley 2 and Vian Jubilee Central; a combined layout is not a statement of current availability.',
   },
   {
     question: 'How do I check the approvals before buying?',
