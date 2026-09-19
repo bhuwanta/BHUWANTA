@@ -546,9 +546,6 @@
   font-size: 15px;
   line-height: 1.8;
 }
-.editorial-banner .eyebrow span {
-  padding: 0 12px;
-}
 .editorial-cta {
   padding: 70px 0;
   background: #00291e;
@@ -778,9 +775,6 @@
   .editorial-banner .eyebrow {
     font-size: 9px;
     letter-spacing: 0.15em;
-  }
-  .editorial-banner .eyebrow span {
-    padding: 0 8px;
   }
   .editorial-banner h1 {
     font-size: clamp(30px, 8.4vw, 40px);
@@ -2133,9 +2127,9 @@
   }
 }
 
-/* Section labels on the home page as gold-bordered pills, centred with their
-   headings. The dark sections get a lighter gold for contrast. */
+/* Section labels as solid gold pills, the same on light and dark sections. */
 .home-section .eyebrow,
+.editorial-banner .eyebrow,
 .editorial-cta .eyebrow,
 .home-why .eyebrow,
 .home-certifications .eyebrow,
@@ -2144,16 +2138,17 @@
   display: inline-flex;
   align-items: center;
   padding: 7px 16px;
-  border: 1px solid #b9a26c;
+  border: 1px solid #e4bc60;
   border-radius: 999px;
-  background: rgb(228 188 96 / 10%);
+  background: #e4bc60;
+  color: #00291e;
   line-height: 1.2;
 }
-.home-why .eyebrow,
-.editorial-cta .eyebrow,
-.home-principles .eyebrow {
-  border-color: rgb(228 188 96 / 55%);
-  color: #e4bc60;
+/* Pills built with Tailwind utilities on the inner pages. */
+.public-site :is(span, div).rounded-full.uppercase.tracking-widest {
+  background: #e4bc60;
+  border-color: #e4bc60;
+  color: #00291e;
 }
 
 /* A section's label pill, centred at the top above a two-column layout. */

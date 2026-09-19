@@ -1,5 +1,4 @@
 import React from 'react'
-import Link from 'next/link'
 import { TrustStrip } from '@/components/ui/TrustStrip'
 
 interface PageBannerProps {
@@ -11,10 +10,7 @@ export function PageBanner({ title, subtitle }: PageBannerProps) {
     <>
       <section className="editorial-banner">
         <div className="site-container">
-          <div className="eyebrow">
-            <Link href="/">Bhuwanta</Link>
-            <span aria-hidden="true"> / </span> Your land. Your legacy.
-          </div>
+          <span className="eyebrow">Your land. Your legacy.</span>
           <h1>{title}</h1>
           {subtitle && <p>{subtitle}</p>}
         </div>
