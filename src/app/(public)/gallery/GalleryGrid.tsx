@@ -102,7 +102,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
               onClick={() => setActiveTab('videos')}
               className={`flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2.5 sm:py-3 min-h-11 rounded-lg text-xs sm:text-sm font-semibold transition-premium ${
                 activeTab === 'videos'
-                  ? 'gradient-gold text-white shadow-md'
+                  ? 'border border-brand-gold bg-transparent text-brand-gold shadow-md'
                   : 'text-brand-muted hover:text-brand-ink hover:bg-brand-soft'
               }`}
             >
