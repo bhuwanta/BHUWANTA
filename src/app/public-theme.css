@@ -291,7 +291,7 @@
 }
 .location-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 24px;
 }
 .location-card {
@@ -2406,5 +2406,12 @@
 @media (max-width: 800px) {
   .home-journey .journey-grid > div:not(:last-child)::after {
     background: #e6ac3a;
+  }
+}
+
+/* Five location cards: three per row on narrower laptops and tablets. */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .location-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

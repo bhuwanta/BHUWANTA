@@ -85,6 +85,15 @@ const locations = [
     match: 'yadagirigutta',
     projectMatch: 'kanaka',
   },
+  // Arudra and RPL County, near Kothur. There is no Kothur landing page yet,
+  // so this opens the Projects page on the Bangalore Highway filter.
+  {
+    name: 'Kothur',
+    href: '/projects?category=bangalore-highway',
+    detail: 'Explore the Bangalore Highway corridor',
+    match: 'bangalore',
+    projectMatch: 'arudra',
+  },
 ]
 export default async function HomePage({
   searchParams,

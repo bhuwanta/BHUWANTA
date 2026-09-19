@@ -150,6 +150,7 @@ export async function Footer() {
     { label: 'Sangareddy', href: '/sangareddy-open-plots' },
     { label: 'Sadashivpet', href: '/sadashivpet-open-plots' },
     { label: 'Yadagirigutta', href: '/yadagirigutta-open-plots' },
+    { label: 'Kothur', href: '/projects?category=bangalore-highway' },
   ]
 
   return (
