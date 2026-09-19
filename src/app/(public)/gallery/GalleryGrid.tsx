@@ -4,35 +4,7 @@ import { useState } from 'react'
 import { Image as ImageIcon, Film, X, Share2, MapPin } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-
-export interface GalleryImage {
-  url: string
-  caption?: string
-  alt?: string
-}
-
-export interface GalleryVideo {
-  url: string
-  title?: string
-  poster?: string
-}
-
-export interface GalleryYoutube {
-  id: string
-  title?: string
-}
-
-export interface ProjectGallery {
-  name: string
-  // CMS slug; the Project Highlights page is looked up by it, so without one
-  // there is no page to link to.
-  slug: string | null
-  hasHighlights: boolean
-  categoryTitle: string | null
-  images: GalleryImage[]
-  videos: GalleryVideo[]
-  youtube: GalleryYoutube[]
-}
+import { marqueeStyle, type ProjectGallery } from '@/lib/gallery-media'
 
 interface GalleryData {
   pageHeading?: string
@@ -47,15 +19,6 @@ interface GalleryData {
 interface GalleryGridProps {
   projects: ProjectGallery[]
   gallerySingleton?: GalleryData | null
-}
-
-// The marquee moves its whole track in one animation cycle, so a fixed
-// duration makes rows with more photos scroll faster. Scaling the duration by
-// photo count keeps every row at the same speed.
-const MARQUEE_SECONDS_PER_IMAGE = 6
-
-function marqueeStyle(imageCount: number) {
-  return { animationDuration: `${Math.max(imageCount, 1) * MARQUEE_SECONDS_PER_IMAGE}s` }
 }
 
 export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryGridProps) {
