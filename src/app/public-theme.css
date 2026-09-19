@@ -498,12 +498,6 @@
   gap: 12px;
   align-items: center;
 }
-.booking-hours {
-  display: block;
-  margin-top: 32px;
-  font-size: 11px;
-  color: var(--site-muted);
-}
 .booking-form {
   padding: 36px;
   background: #fcfaf5;

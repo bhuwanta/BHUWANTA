@@ -332,9 +332,6 @@ export default async function HomePage({
                 </li>
               ))}
             </ul>
-            <span className="booking-hours">
-              Team availability · Mon–Sat, 10 AM–7 PM
-            </span>
           </div>
           <div className="booking-form">
             <h3>Arrange your visit</h3>
