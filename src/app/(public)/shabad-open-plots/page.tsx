@@ -87,9 +87,8 @@ export default async function ShabadOpenPlotsPage() {
               <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-5">Open Plots in Shabad.<br /><span className="text-brand-accent">Explore Vian Valley.</span></h1>
               <p className="text-white/75 text-lg leading-relaxed">Explore Shabad’s growing industrial corridor and the developments shaping its future. Compare plot options, review the documents and visit the location with Bhuwanta.</p>
               <div className="mt-7 border-l-2 border-brand-gold pl-5">
-                <p className="text-white/70 text-sm">Plots from</p>
-                <p className="text-3xl font-bold text-brand-accent">₹30,999 <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
-                <p className="text-xs text-white/65 mt-2">Request a plot-specific quote and full cost breakdown.</p>
+                <p className="text-white/70 text-sm">Plots starting from</p>
+                <p className="text-3xl font-bold text-brand-accent">₹30,XXX <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
               </div>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Link href="#book-visit" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl btn-outline">Get Price &amp; Plot Details <ArrowRight className="w-4 h-4" /></Link>

@@ -180,7 +180,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
           </button>
 
           {/* Logo */}
-          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-16 w-auto rounded-md" sizes="176px" />
+          <Image src={logoImg} alt="Bhuwanta Developers — Your Land. Your Legacy." className="h-24 w-auto rounded-md" sizes="264px" />
         </div>
 
         {/* Form / Success States */}
@@ -248,41 +248,45 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                       />
                     </div>
 
-                    <div className="relative">
-                      <select
-                        aria-label="Select location"
-                        className="w-full appearance-none px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
-                        value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value, project: 'Not Sure' })}
-                      >
-                        <option value="All">Location: All</option>
-                        {locationNames.map((name, idx) => (
-                          <option key={idx} value={name}>{name}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-brand-deep/40">
-                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                    {/* Location and project side by side; long names end in an
+                        ellipsis instead of running under the arrow. */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="relative">
+                        <select
+                          aria-label="Select location"
+                          className="w-full appearance-none truncate pl-4 pr-10 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
+                          value={formData.location}
+                          onChange={(e) => setFormData({ ...formData, location: e.target.value, project: 'Not Sure' })}
+                        >
+                          <option value="All">All Locations</option>
+                          {locationNames.map((name, idx) => (
+                            <option key={idx} value={name}>{name}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-deep/40">
+                          <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="relative">
-                      <select
-                        aria-label="Select project"
-                        className="w-full appearance-none px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
-                        value={formData.project}
-                        onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-                      >
-                        <option value="Not Sure">Project: Not Sure</option>
-                        {Array.from(new Set(
-                          projectsList
-                            .filter(p => (formData.location && formData.location !== 'All') ? p.location === formData.location : true)
-                            .map(p => p.name)
-                        )).map((name, idx) => (
-                          <option key={idx} value={name}>{name}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-brand-deep/40">
-                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                      <div className="relative">
+                        <select
+                          aria-label="Select project"
+                          className="w-full appearance-none truncate pl-4 pr-10 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20 focus:border-brand-deep/50 transition-all"
+                          value={formData.project}
+                          onChange={(e) => setFormData({ ...formData, project: e.target.value })}
+                        >
+                          <option value="Not Sure">Any Project</option>
+                          {Array.from(new Set(
+                            projectsList
+                              .filter(p => (formData.location && formData.location !== 'All') ? p.location === formData.location : true)
+                              .map(p => p.name)
+                          )).map((name, idx) => (
+                            <option key={idx} value={name}>{name}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-brand-deep/40">
+                          <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                        </div>
                       </div>
                     </div>
 
