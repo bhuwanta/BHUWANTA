@@ -199,7 +199,7 @@ export default async function YadagiriguttaOpenPlotsPage() {
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-8">
             <h2 className="text-xl font-bold text-brand-primary mb-6">Approvals &amp; Legal Documentation</h2>
             <div className="flex flex-wrap gap-3 mb-6">
-              <span className="px-4 py-2 bg-brand-gold text-white rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="px-4 py-2 border border-brand-gold bg-transparent text-brand-gold rounded-md text-xs font-bold uppercase tracking-wider">
                 {project?.approvalBadge || 'DTCP & RERA Approved'}
               </span>
             </div>

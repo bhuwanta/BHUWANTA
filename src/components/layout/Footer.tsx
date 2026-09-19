@@ -163,12 +163,15 @@ export async function Footer() {
             >
               <BrandLockup tagline />
             </Link>
-            <p>
-              Explore open plots around Hyderabad, with guidance from your first
-              enquiry to your site visit.
-            </p>
             <h3 className="footer-hq-heading">{addressLabel}</h3>
-            <address>{address}</address>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-address-link"
+            >
+              <address>{address}</address>
+            </a>
             <a
               href={mapsUrl}
               target="_blank"

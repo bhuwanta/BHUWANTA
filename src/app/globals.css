@@ -335,25 +335,25 @@
   --site-border: #dfe4d8;
   --site-paper: #faf9f3;
   --site-soft: #f0f3e9;
-  --site-gold: #dfbb68;
-  --site-gold-hover: #d2aa50;
-  --site-gold-light: #ecd39a;
-  --site-accent: #866219;
+  --site-gold: #e6ac3a;
+  --site-gold-hover: #eebd5c;
+  --site-gold-light: #f2cd82;
+  --site-accent: #8a5a12;
   background: var(--site-paper);
   color: var(--site-ink);
   accent-color: var(--site-primary);
 }
 /* Gold lettering needs different contrast on dark and light surfaces. */
 .public-site :where(.bg-brand-deep, .bg-brand-ink, .bg-brand-primary, .from-brand-deep, .from-brand-ink, .from-brand-primary, .gradient-primary, .gradient-dark, .public-nav) {
-  --site-accent: #dfbb68;
+  --site-accent: #e6ac3a;
 }
 .public-site :where(.bg-white, .bg-brand-paper, .bg-brand-soft, .glass-card, .gradient-light) {
-  --site-accent: #866219;
+  --site-accent: #8a5a12;
 }
 .public-site .gradient-primary { background: linear-gradient(135deg, #032b20, #124c36 60%, #1c6347); }
 .public-site .gradient-dark { background: linear-gradient(180deg, #032b20, #0b3b2a); }
 .public-site .gradient-light { background: linear-gradient(180deg, #ffffff, #faf9f3); }
-.public-site .gradient-gold { background: #e4bc60; color: #153c2e; }
+.public-site .gradient-gold { background: #e6ac3a; color: #153c2e; }
 .public-site .bg-brand-gold { color: #153c2e; }
 .public-site .glass { border-color: #dfe4d8; }
 .public-site .glass-card { border-color: #dfe4d8; box-shadow: 0 2px 16px rgb(3 43 32 / 5%); }
@@ -363,8 +363,8 @@
 .public-site .glow { box-shadow: 0 0 20px rgb(23 84 62 / 15%); }
 .public-site .btn-premium { background: linear-gradient(135deg, #124c36, #1c6347); }
 .public-site .btn-premium:hover { box-shadow: 0 4px 20px rgb(23 84 62 / 25%); }
-.public-site .animated-underline::after { background: linear-gradient(90deg, #dfbb68, #17543e); }
-.public-site .divider-gold { background: linear-gradient(90deg, transparent, #dfbb68, transparent); }
+.public-site .animated-underline::after { background: linear-gradient(90deg, #e6ac3a, #17543e); }
+.public-site .divider-gold { background: linear-gradient(90deg, transparent, #e6ac3a, transparent); }
 .public-site .luxury-bg-grid::before { background-image: linear-gradient(rgb(3 43 32 / 4%) 1px, transparent 1px), linear-gradient(90deg, rgb(3 43 32 / 4%) 1px, transparent 1px); }
 .public-site :where(a, button, input, textarea, select):focus-visible { outline: 2px solid var(--site-accent); outline-offset: 4px; }
 
