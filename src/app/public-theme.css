@@ -2136,6 +2136,7 @@
 /* Section labels on the home page as gold-bordered pills, centred with their
    headings. The dark sections get a lighter gold for contrast. */
 .home-section .eyebrow,
+.editorial-cta .eyebrow,
 .home-why .eyebrow,
 .home-certifications .eyebrow,
 .home-principles .eyebrow,
@@ -2149,6 +2150,7 @@
   line-height: 1.2;
 }
 .home-why .eyebrow,
+.editorial-cta .eyebrow,
 .home-principles .eyebrow {
   border-color: rgb(228 188 96 / 55%);
   color: #e4bc60;
@@ -2266,4 +2268,35 @@
 }
 .artwork-marker {
   border-radius: 10px;
+}
+
+/* Nav Login: white button with gold text. The nav colours all its links, so
+   this is scoped under .public-nav to win over that. */
+.public-nav a.nav-login-button,
+.public-site a.nav-login-button {
+  background: #fff;
+  color: #81601d;
+  border: 1px solid #fff;
+}
+.public-nav a.nav-login-button:hover,
+.public-site a.nav-login-button:hover {
+  background: #fbf3dd;
+  border-color: #e4bc60;
+  color: #81601d;
+}
+/* The CTA's container rule spreads its children apart; the pin row has one
+   child and must stay centred. */
+.editorial-cta > .site-container.section-pin {
+  justify-content: center;
+}
+
+/* Area filters: an explicit gold hover. The utility hover classes set white
+   text but lose the gold background, which left the label invisible. */
+.public-site .project-directory .area-filters button[aria-pressed='false']:hover {
+  background: #e4bc60;
+  border-color: #e4bc60;
+  color: #00291e;
+}
+.public-site .project-directory .area-filters button[aria-pressed='false']:hover svg {
+  color: #00291e;
 }

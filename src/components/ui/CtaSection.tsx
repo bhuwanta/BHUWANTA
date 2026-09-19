@@ -20,9 +20,11 @@ export function CtaSection({
 }: CtaSectionProps = {}) {
   return (
     <section className="editorial-cta">
+      <div className="site-container section-pin">
+        <span className="eyebrow">Take the next step</span>
+      </div>
       <div className="site-container">
         <div>
-          <span className="eyebrow">Take the next step</span>
           <h2>{title}</h2>
           <p>{description}</p>
         </div>

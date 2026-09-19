@@ -65,7 +65,7 @@ export function Navbar() {
             <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
               {ctaText}
             </Link>
-            <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex px-3 py-3 rounded-lg border border-white/20 text-sm text-white/85 hover:border-brand-gold hover:text-brand-gold transition-colors">Login</Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="nav-login-button hidden sm:inline-flex px-4 py-3 rounded-lg text-sm font-semibold transition-colors">Login</Link>
             <button id="nav-mobile-toggle" type="button" aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} aria-controls="public-mobile-menu"
               className="xl:hidden inline-flex items-center justify-center w-11 h-11 text-brand-gold rounded-lg border border-white/20 hover:bg-white/10"
               onClick={() => setMenuPath(isOpen ? null : pathname)}>
@@ -84,7 +84,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center font-semibold text-sm rounded-lg gradient-gold">{ctaText}</Link>
-            <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="px-4 py-3 text-center text-sm text-white/80">Login</Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="nav-login-button px-4 py-3 text-center text-sm font-semibold rounded-lg">Login</Link>
           </div>
         </div>
       )}
