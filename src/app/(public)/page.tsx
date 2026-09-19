@@ -158,7 +158,7 @@ export default async function HomePage({
       </section>
       <section className="home-section" id="locations">
         <div className="site-container">
-          <div className="section-heading">
+          <div className="section-heading is-centered">
             <div>
               <span className="eyebrow">Our locations</span>
               <h2>
@@ -264,7 +264,9 @@ export default async function HomePage({
       <section className="home-certifications" id="certifications">
         <div className="site-container home-marquee-heading">
           <span className="eyebrow">Verified &amp; Secure</span>
-          <h2>Our Certifications &amp; Approvals</h2>
+          <h2>
+            Our <em>Certifications &amp; Approvals</em>
+          </h2>
           <p>
             We ensure every project meets the highest standards of legality and
             compliance.
