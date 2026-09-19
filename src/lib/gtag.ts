@@ -1,5 +1,5 @@
 // This Ads action records saved enquiries only. Clicks are separate GA events.
-const LEAD_CONVERSION_SEND_TO = 'AW-18267535069/8DW6COSx2c8cEN3t0YZE'
+const LEAD_CONVERSION_SEND_TO = 'AW-18301435119/N10ICO3ygPscEO_55pZE'
 
 declare global {
   interface Window {

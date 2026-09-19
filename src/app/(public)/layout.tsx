@@ -79,7 +79,7 @@ export default async function PublicLayout({
           multiple products through the same loader). */}
       {(() => {
         const gaId = settings?.googleAnalyticsId || 'G-98QJJZ5DCG';
-        const googleAdsId = 'AW-18267535069';
+        const googleAdsId = 'AW-18301435119';
         return (
           <>
             <Script

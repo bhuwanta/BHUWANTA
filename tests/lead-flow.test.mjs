@@ -37,7 +37,7 @@ test('a WhatsApp click does not fire the Google Ads lead conversion', () => {
   assert.deepEqual(events, [['event', 'whatsapp_click', { contact_method: 'whatsapp' }]])
   fireLeadConversion()
   assert.equal(events[1][1], 'conversion')
-  assert.equal(events[1][2].send_to, 'AW-18267535069/8DW6COSx2c8cEN3t0YZE')
+  assert.equal(events[1][2].send_to, 'AW-18301435119/N10ICO3ygPscEO_55pZE')
   delete globalThis.window
 })
 test('tracking safely handles server rendering and unavailable tags', () => {
