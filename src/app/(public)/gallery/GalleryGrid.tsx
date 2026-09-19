@@ -3,13 +3,35 @@
 import { useState } from 'react'
 import { Image as ImageIcon, Film, X, Share2, MapPin } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
-interface ProjectGallery {
+export interface GalleryImage {
+  url: string
+  caption?: string
+  alt?: string
+}
+
+export interface GalleryVideo {
+  url: string
+  title?: string
+  poster?: string
+}
+
+export interface GalleryYoutube {
+  id: string
+  title?: string
+}
+
+export interface ProjectGallery {
   name: string
+  // CMS slug; the Project Highlights page is looked up by it, so without one
+  // there is no page to link to.
+  slug: string | null
+  hasHighlights: boolean
   categoryTitle: string | null
-  images: string[]
-  videoUrls: string[]
-  youtubeIds: string[]
+  images: GalleryImage[]
+  videos: GalleryVideo[]
+  youtube: GalleryYoutube[]
 }
 
 interface GalleryData {
@@ -29,7 +51,7 @@ interface GalleryGridProps {
 
 export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryGridProps) {
   const [activeTab, setActiveTab] = useState<'site_visits' | 'videos' | 'photos' | 'social_media'>('site_visits')
-  const [lightboxImage, setLightboxImage] = useState<{ url: string; alt: string } | null>(null)
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; alt: string; caption?: string } | null>(null)
 
   // Append General Gallery images as a pseudo-project
   const projectsWithImages = [...projects]
@@ -38,10 +60,12 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
     if (validGeneralImages.length > 0) {
       projectsWithImages.push({
         name: 'General Gallery',
+        slug: null,
+        hasHighlights: false,
         categoryTitle: 'Other',
-        images: validGeneralImages,
-        videoUrls: [],
-        youtubeIds: []
+        images: validGeneralImages.map((url) => ({ url })),
+        videos: [],
+        youtube: []
       })
     }
   }
@@ -62,14 +86,16 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
   if (validGeneralVideos.length > 0 || generalYoutubeIds.length > 0) {
     projectsWithVideos.push({
       name: 'General Videos',
+      slug: null,
+      hasHighlights: false,
       categoryTitle: 'Other',
       images: [],
-      videoUrls: validGeneralVideos,
-      youtubeIds: generalYoutubeIds
+      videos: validGeneralVideos.map((url) => ({ url })),
+      youtube: generalYoutubeIds.map((id) => ({ id }))
     })
   }
   
-  const filteredProjectsWithVideos = projectsWithVideos.filter((p) => p.youtubeIds.length > 0 || p.videoUrls.length > 0)
+  const filteredProjectsWithVideos = projectsWithVideos.filter((p) => p.youtube.length > 0 || p.videos.length > 0)
 
   // Grouping helper
   const groupByCategory = (list: ProjectGallery[]) => {
@@ -301,7 +327,10 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                           <h3 className="text-2xl font-bold text-brand-accent">
                             {project.name}
                           </h3>
-                          <p className="text-sm text-brand-muted">{project.images.length} photo{project.images.length !== 1 ? 's' : ''}</p>
+                          <div className="flex items-center gap-4">
+                            <p className="text-sm text-brand-muted">{project.images.length} photo{project.images.length !== 1 ? 's' : ''}</p>
+                            <HighlightsLink project={project} />
+                          </div>
                         </div>
                         
                         {/* Slow scrolling marquee */}
@@ -310,13 +339,14 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                             className={`flex gap-4 sm:gap-6 w-max px-4 sm:px-6 ${pIdx % 2 === 0 ? 'animate-scroll-left' : 'animate-scroll-right'} group-hover/marquee:[animation-play-state:paused]`}
                           >
                             {/* Duplicate images twice for seamless loop */}
-                            {[...project.images, ...project.images].map((url, i) => {
-                              const imageAlt = `${project.name} open plot layout in ${category} — site photo ${(i % project.images.length) + 1}`
+                            {[...project.images, ...project.images].map((img, i) => {
+                              const url = img.url
+                              const imageAlt = img.alt || img.caption || `${project.name} open plot layout in ${category} — site photo ${(i % project.images.length) + 1}`
                               return (
                               <div
                                 key={i}
                                 className="flex-shrink-0 w-64 sm:w-72 md:w-80 cursor-pointer group/card"
-                                onClick={() => setLightboxImage({ url, alt: imageAlt })}
+                                onClick={() => setLightboxImage({ url, alt: imageAlt, caption: img.caption })}
                               >
                                 <div className="aspect-[4/3] bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden relative transition-premium group-hover/card:border-brand-gold/30 group-hover/card:shadow-md">
                                   <Image
@@ -328,6 +358,9 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                                   />
                                   <div className="absolute inset-0 bg-brand-primary/5 group-hover/card:bg-transparent transition-colors"></div>
                                 </div>
+                                {img.caption && (
+                                  <p className="mt-2 px-1 text-sm text-brand-muted truncate">{img.caption}</p>
+                                )}
                               </div>
                               )
                             })}
@@ -362,39 +395,37 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                     {catProjects.map((project, pIdx) => (
                       <div key={pIdx} className="contents">
                         {/* YouTube Videos */}
-                        {project.youtubeIds.map((youtubeId, yIdx) => (
+                        {project.youtube.map(({ id: youtubeId, title }, yIdx) => (
                           <div key={`yt-${pIdx}-${yIdx}`} className="bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden group hover:shadow-md transition-premium h-fit">
                             <div className="aspect-video relative bg-brand-soft">
                               <iframe 
                                 src={`https://www.youtube.com/embed/${youtubeId}`}
-                                title={`${project.name} - YouTube Video ${yIdx + 1}`}
+                                title={title ? `${project.name} - ${title}` : `${project.name} - YouTube Video ${yIdx + 1}`}
+                                loading="lazy"
                                 className="w-full h-full border-0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                               />
                             </div>
-                            <div className="p-4 sm:p-6">
-                              <h3 className="text-lg font-bold text-brand-ink">{project.name}</h3>
-                              <p className="text-sm text-brand-muted mt-1">YouTube Video</p>
-                            </div>
+                            <VideoCaption project={project} title={title} fallback="YouTube Video" />
                           </div>
                         ))}
 
                         {/* Uploaded Videos */}
-                        {project.videoUrls.map((videoUrl, vIdx) => (
+                        {project.videos.map(({ url: videoUrl, title, poster }, vIdx) => (
                           <div key={`vid-${pIdx}-${vIdx}`} className="bg-white border border-brand-border shadow-sm rounded-xl overflow-hidden group hover:shadow-md transition-premium h-fit">
                             <div className="relative bg-black flex items-center justify-center">
+                              {/* With a poster nothing is fetched until play, which keeps
+                                  uploaded MP4s off the Sanity bandwidth quota. */}
                               <video 
                                 src={videoUrl}
+                                poster={poster}
                                 controls
                                 className="w-full h-auto max-h-[70vh] object-contain"
-                                preload="metadata"
+                                preload={poster ? 'none' : 'metadata'}
                               />
                             </div>
-                            <div className="p-4 sm:p-6">
-                              <h3 className="text-lg font-bold text-brand-ink">{project.name}</h3>
-                              <p className="text-sm text-brand-muted mt-1">Project Video</p>
-                            </div>
+                            <VideoCaption project={project} title={title} fallback="Project Video" />
                           </div>
                         ))}
                       </div>
@@ -429,8 +460,37 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
               onClick={(e) => e.stopPropagation()}
             />
           </div>
+          {lightboxImage.caption && (
+            <p className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 max-w-[90vw] px-4 py-2 rounded-lg bg-black/60 text-white text-sm text-center">
+              {lightboxImage.caption}
+            </p>
+          )}
         </div>
       )}
+    </div>
+  )
+}
+
+function HighlightsLink({ project }: { project: ProjectGallery }) {
+  if (!project.hasHighlights || !project.slug) return null
+  return (
+    <Link
+      href={`/projects/${project.slug}/videos`}
+      className="text-sm font-semibold text-brand-primary hover:text-brand-accent whitespace-nowrap"
+    >
+      View Project Highlights →
+    </Link>
+  )
+}
+
+function VideoCaption({ project, title, fallback }: { project: ProjectGallery; title?: string; fallback: string }) {
+  return (
+    <div className="p-4 sm:p-6">
+      <h3 className="text-lg font-bold text-brand-ink">{title || project.name}</h3>
+      <div className="flex items-center justify-between gap-4 mt-1">
+        <p className="text-sm text-brand-muted">{title ? project.name : fallback}</p>
+        <HighlightsLink project={project} />
+      </div>
     </div>
   )
 }

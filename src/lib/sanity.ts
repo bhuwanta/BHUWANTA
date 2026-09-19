@@ -140,7 +140,20 @@ export const galleryQuery = `{
       "videoUrl": videoFile.asset->url,
       "videoUrls": videoFiles[].asset->url,
       youtubeUrl,
-      youtubeUrls
+      youtubeUrls,
+      "slug": slug.current,
+      highlightImages[defined(asset._ref)]{
+        caption,
+        alt,
+        "url": asset->url
+      },
+      projectVideos[]{
+        title,
+        source,
+        youtubeUrl,
+        "videoUrl": videoFile.asset->url,
+        "thumbnailUrl": thumbnail.asset->url
+      }
     }
   },
   "galleryData": *[_type == "gallery"][0]{
