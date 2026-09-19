@@ -349,7 +349,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-brand-gold to-brand-gold text-brand-ink font-semibold rounded-lg shadow-lg shadow-brand-gold/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full rounded-lg py-3 px-4 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed btn-solid"
           >
             {loading ? 'Sending OTP...' : 'Get Price & Plot Details →'}
           </button>
@@ -389,7 +389,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             <button
               type="submit"
               disabled={loading || otp.length < 6}
-              className="w-2/3 bg-gradient-to-r from-brand-gold to-brand-gold text-brand-ink font-semibold rounded-lg shadow-lg shadow-brand-gold/20 py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-2/3 rounded-lg py-3 px-4 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed btn-solid"
             >
               {loading ? 'Verifying...' : 'Verify & Submit'}
             </button>

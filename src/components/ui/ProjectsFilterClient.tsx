@@ -149,11 +149,11 @@ export function ProjectsFilterClient({
                 onClick={() => handleFilterClick(cat.id)}
                 className={`lg:flex-1 flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 py-2 min-h-11 rounded-full transition-all duration-300 whitespace-nowrap ${
                   activeFilter === cat.id 
-                    ? 'border border-brand-gold bg-brand-gold text-white shadow-md hover:bg-brand-gold hover:text-white' 
-                    : 'bg-white border border-brand-gold text-brand-accent hover:bg-brand-gold hover:text-white shadow-sm'
+                    ? 'btn-solid' 
+                    : 'btn-outline'
                 }`}
               >
-                <MapPin className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${activeFilter === cat.id ? 'text-white' : ''}`} />
+                <MapPin className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                 <span className="capitalize">{cat.label}</span>
               </button>
             ))}
@@ -168,7 +168,7 @@ export function ProjectsFilterClient({
 
       <div className="py-16 bg-brand-paper">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
-          {projects.length === 0 && <div className="border border-brand-border p-10 text-center"><h2 className="text-3xl mb-4">Let us help you find a plot</h2><p className="text-brand-muted mb-6">Project details are currently unavailable. Contact our team for current locations and availability.</p><Link href="/#book-visit" className="site-button">Request Project Details</Link></div>}
+          {projects.length === 0 && <div className="border border-brand-border p-10 text-center"><h2 className="text-3xl mb-4">Let us help you find a plot</h2><p className="text-brand-muted mb-6">Project details are currently unavailable. Contact our team for current locations and availability.</p><Link href="/#book-visit" className="site-button btn-outline">Request Project Details</Link></div>}
           {activeCategories.map((category) => (
             <section key={category.id} id={category.id} className="scroll-mt-36">
               <div className="flex items-center justify-center gap-3 mb-8 text-center">
@@ -231,11 +231,11 @@ export function ProjectsFilterClient({
 
                          <div className="mt-auto">
                             <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mb-4">
-                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white font-semibold rounded-lg shadow-sm hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline">
                                 Enquire Now
                               </Link>
                               {projectSlug && (
-                                <Link href={`/projects/${canonicalProjectSlug(projectSlug!)}`} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto bg-white border border-brand-gold text-brand-accent font-semibold rounded-lg hover:bg-brand-paper transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                                <Link href={`/projects/${canonicalProjectSlug(projectSlug!)}`} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline">
                                   View Project
                                 </Link>
                               )}

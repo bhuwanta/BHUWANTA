@@ -92,7 +92,7 @@ export default async function ShabadOpenPlotsPage() {
                 <p className="text-xs text-white/65 mt-2">Request a plot-specific quote and full cost breakdown.</p>
               </div>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="#book-visit" className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-brand-gold text-brand-deep font-bold rounded-xl hover:bg-brand-gold-light transition-colors">Get Price &amp; Plot Details <ArrowRight className="w-4 h-4" /></Link>
+                <Link href="#book-visit" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl btn-outline">Get Price &amp; Plot Details <ArrowRight className="w-4 h-4" /></Link>
                 <TrackedWhatsAppAnchor href={whatsappUrl} className="inline-flex items-center justify-center px-6 py-4 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/10">Ask on WhatsApp</TrackedWhatsAppAnchor>
               </div>
             </div>

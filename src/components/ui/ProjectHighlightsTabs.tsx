@@ -126,7 +126,7 @@ export function ProjectHighlightsTabs({
   const tabClass = (tab: Tab) =>
     `px-5 sm:px-7 py-3 font-semibold text-sm rounded-lg transition-premium flex items-center gap-2 ${
       activeTab === tab
-        ? 'gradient-gold shadow-lg shadow-brand-gold/20'
+        ? 'btn-solid'
         : 'bg-white border border-brand-border text-brand-primary hover:border-brand-gold hover:shadow-md'
     }`
 

@@ -144,20 +144,11 @@
   justify-content: center;
   gap: 22px;
   border-radius: 10px;
-  background: #e6ac3a;
-  color: #00291e;
   padding: 18px 25px;
   font-size: 13px;
   font-weight: 600;
   min-height: 52px;
-  transition:
-    background 0.2s,
-    transform 0.2s;
   white-space: normal;
-}
-.site-button:hover {
-  background: #eebd5c;
-  transform: translateY(-2px);
 }
 .site-text-link {
   display: inline-flex;
@@ -2309,4 +2300,55 @@
 }
 .public-site .project-directory .area-filters button[aria-pressed='false']:hover svg {
   color: #00291e;
+}
+
+/* ---- Buttons: two styles, used everywhere on the public site ----
+   .btn-outline  Calls to action (Book a visit, Enquire, View project...):
+                 gold border, no fill; fills gold on hover.
+   .btn-solid    Selected tabs/filters and buttons that complete an action
+                 (form submits, downloads): solid gold.
+   Text on gold is dark green: white on this gold is too low-contrast.
+   Outline text is dark gold on light sections and logo gold on dark ones,
+   following the same light/dark rule as the section badges. */
+.public-site .btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #e6ac3a;
+  border-radius: 10px;
+  background: transparent;
+  color: #8a5a12;
+  font-weight: 600;
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.public-site .btn-outline:hover {
+  background: #e6ac3a;
+  border-color: #e6ac3a;
+  color: #00291e;
+  transform: translateY(-1px);
+}
+.public-site
+  :is(.public-nav, .immersive-hero, .editorial-banner, .editorial-cta, .home-why,
+    .home-principles, .home-journey, .bg-brand-deep, .bg-brand-primary,
+    .bg-brand-ink, .gradient-primary, .gradient-dark)
+  .btn-outline:not(:hover) {
+  color: #e6ac3a;
+}
+.public-site .btn-solid {
+  border: 1px solid #e6ac3a;
+  border-radius: 10px;
+  background: #e6ac3a;
+  color: #00291e;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.public-site .btn-solid:hover:not(:disabled) {
+  background: #eebd5c;
+  border-color: #eebd5c;
+  color: #00291e;
+}
+.public-site .btn-solid :is(svg, .text-white) {
+  color: inherit;
 }

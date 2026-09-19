@@ -58,7 +58,7 @@ export function ProjectDetailActions({
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
           href={enquiryHref(name)}
-          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start"
+          className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline"
         >
           Enquire Now
         </Link>

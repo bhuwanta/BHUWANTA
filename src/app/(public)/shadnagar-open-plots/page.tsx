@@ -105,7 +105,7 @@ export default async function ShadnagarOpenPlotsPage() {
             We don&apos;t have live inventory in Shadnagar itself yet. What we do have is Vian Valley — a curated, HMDA &amp; RERA approved land asset in Shabad, southwest of Hyderabad, with clear legal documentation and real inventory today.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/?project=Vian%20Vally#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 gradient-gold text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+            <Link href="/?project=Vian%20Vally#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
               Request Price & Plot Details
             </Link>
             <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">

@@ -187,7 +187,7 @@ export function GatedResource({
           />
           <button
             disabled={loading}
-            className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
+            className="w-full py-3 rounded-xl disabled:opacity-70 flex items-center justify-center btn-solid"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export function GatedResource({
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className="w-full py-3 gradient-gold text-white font-semibold rounded-xl shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium disabled:opacity-70 flex items-center justify-center"
+              className="w-full py-3 rounded-xl disabled:opacity-70 flex items-center justify-center btn-solid"
             >
               {loading ? (
                 <span className="flex items-center gap-2">

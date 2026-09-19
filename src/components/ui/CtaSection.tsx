@@ -28,7 +28,7 @@ export function CtaSection({
           <h2>{title}</h2>
           <p>{description}</p>
         </div>
-        <Link href={primaryButtonLink} className="site-button">
+        <Link href={primaryButtonLink} className="site-button btn-outline">
           {primaryButtonText}
           <ArrowUpRight size={18} />
         </Link>

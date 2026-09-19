@@ -62,10 +62,10 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white transition-colors whitespace-nowrap">
+            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm whitespace-nowrap btn-outline">
               {ctaText}
             </Link>
-            <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white transition-colors whitespace-nowrap">Login</Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm whitespace-nowrap btn-outline">Login</Link>
             <button id="nav-mobile-toggle" type="button" aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} aria-controls="public-mobile-menu"
               className="xl:hidden inline-flex items-center justify-center w-11 h-11 text-brand-gold rounded-lg border border-white/20 hover:bg-white/10"
               onClick={() => setMenuPath(isOpen ? null : pathname)}>
@@ -83,8 +83,8 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center font-semibold text-sm rounded-lg border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white">{ctaText}</Link>
-            <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center text-sm font-semibold rounded-lg border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white">Login</Link>
+            <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center text-sm rounded-lg btn-outline">{ctaText}</Link>
+            <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center text-sm rounded-lg btn-outline">Login</Link>
           </div>
         </div>
       )}

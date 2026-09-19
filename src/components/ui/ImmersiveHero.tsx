@@ -228,7 +228,7 @@ export function ImmersiveHero({
               <Link
                 href="/#book-visit"
                 id="hero-cta-primary"
-                className="site-button"
+                className="site-button btn-outline"
               >
                 Book a Free Site Visit <ArrowUpRight size={18} />
               </Link>

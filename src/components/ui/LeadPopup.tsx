@@ -363,7 +363,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                     <button
                       type="submit"
                       disabled={isSubmitting || otp.length !== 6}
-                      className="w-full py-3.5 bg-brand-deep text-white text-base font-semibold rounded-xl hover:bg-brand-primary hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex items-center justify-center"
+                      className="w-full py-3.5 text-base rounded-xl active:scale-[0.98] disabled:opacity-70 flex items-center justify-center btn-solid"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">

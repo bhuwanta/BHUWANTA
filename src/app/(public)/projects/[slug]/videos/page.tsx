@@ -237,13 +237,13 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href={enquiryHref(name)}
-                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-sm"
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm btn-outline"
                 >
                   Enquire Now
                 </Link>
                 <Link
                   href={`/projects/${slug}`}
-                  className="w-full sm:w-auto px-6 py-3 bg-white border border-brand-gold text-brand-accent font-semibold rounded-lg hover:bg-brand-paper transition-premium text-sm"
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm btn-outline"
                 >
                   View Project
                 </Link>
@@ -260,7 +260,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Link
                   href={enquiryHref(name)}
-                  className="w-full sm:w-auto px-6 py-3 gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-sm text-center"
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm text-center btn-outline"
                 >
                   Enquire Now
                 </Link>

@@ -247,7 +247,7 @@ export default async function AboutPage() {
       <CtaSection
         title={<>Ready to Invest in Your <br className="hidden lg:block" /><span className="text-brand-accent">Dream Property in Hyderabad?</span></>}
         description={d.ctaDescription}
-        primaryButtonText="Contact Us"
+        primaryButtonText="Book a Free Site Visit"
         primaryButtonLink="/#book-visit"
       />
     </>
