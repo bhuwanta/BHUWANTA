@@ -161,10 +161,8 @@ export default async function HomePage({
           <div className="section-heading is-centered">
             <div>
               <span className="eyebrow">Our locations</span>
-              <h2>
-                Explore the area.
-                <br />
-                <em>Find the right fit.</em>
+              <h2 className="locations-heading">
+                Explore the area. <em>Find the right fit.</em>
               </h2>
             </div>
             <Link className="site-text-link" href="/projects">

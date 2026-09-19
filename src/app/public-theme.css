@@ -2138,3 +2138,9 @@
     margin-bottom: 32px;
   }
 }
+
+/* Locations heading: one line, second half in gold. It may wrap on phones,
+   where one line would need an unreadably small size. */
+.locations-heading em {
+  color: #81601d;
+}
