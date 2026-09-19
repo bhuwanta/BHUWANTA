@@ -5,8 +5,8 @@ import { motion } from 'framer-motion'
 import { X, Download } from 'lucide-react'
 import Image from 'next/image'
 import logoImg from '@/images/bhuwanta-logo-horizontal.png'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
+import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 
 interface DownloadPopupProps {
   isOpen: boolean
@@ -89,6 +89,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     setError('')
 
     try {
+      const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
       if (!recaptchaRef.current) {
         recaptchaRef.current = new RecaptchaVerifier(auth, 'download-recaptcha-container', {
           size: 'invisible',

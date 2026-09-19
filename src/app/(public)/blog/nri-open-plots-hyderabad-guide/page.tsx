@@ -4,8 +4,8 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'NRI Guide to Buying Open Plots in Hyderabad (2026) | Bhuwanta',
-  description: 'A general guide for NRIs buying open plots near Hyderabad, FEMA eligibility, NRE/NRO/FCNR payment routing, the Power of Attorney process, and how to verify RERA/DTCP/HMDA approval before you buy.',
+  title: 'NRI Guide to Buying Open Plots in Hyderabad | Bhuwanta',
+  description: 'For NRIs buying open plots near Hyderabad: FEMA eligibility, NRE/NRO/FCNR payments, Power of Attorney, and verifying RERA, DTCP and HMDA approval.',
   url: 'https://bhuwanta.com/blog/nri-open-plots-hyderabad-guide',
   ogTitle: 'NRI Guide to Buying Open Plots in Hyderabad',
   ogSubtitle: '2026 Guide',

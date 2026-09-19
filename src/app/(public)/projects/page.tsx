@@ -1,17 +1,19 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import { generatePageMetadata } from '@/lib/seo'
 import { sanityFetch, projectsQuery, projectCategoriesQuery } from '@/lib/sanity'
 import { JsonLd, buildBreadcrumbSchema, buildRealEstateListingSchema } from '@/components/seo/JsonLd'
 import { PageBanner } from '../../../components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
-import { ProjectsFilterClient } from '@/components/ui/ProjectsFilterClient'
+import { ProjectsFilterClient, ProjectsDirectory } from '@/components/ui/ProjectsFilterClient'
 import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata('projects', 'Our Projects', 'Explore Bhuwanta projects around Hyderabad. Compare locations, request project documents and book a free site visit.')
 }
 
-export const revalidate = 0
+// Refreshed on publish by the Sanity webhook; 60s is only the fallback.
+export const revalidate = 60
 
 
 interface ProjectEntry {
@@ -85,12 +87,23 @@ export default async function ProjectsPage() {
         title={<>Our <span className="text-brand-accent">Projects</span></>}
       />
 
-      <ProjectsFilterClient
-        projects={projects}
-        categories={categories}
-        overviewUrls={overviewUrls}
-        overviewButtonLabel={overviewButtonLabel}
-      />
+      <Suspense
+        fallback={
+          <ProjectsDirectory
+            projects={projects}
+            categories={categories}
+            overviewUrls={overviewUrls}
+            overviewButtonLabel={overviewButtonLabel}
+          />
+        }
+      >
+        <ProjectsFilterClient
+          projects={projects}
+          categories={categories}
+          overviewUrls={overviewUrls}
+          overviewButtonLabel={overviewButtonLabel}
+        />
+      </Suspense>
 
       <CtaSection />
     </>

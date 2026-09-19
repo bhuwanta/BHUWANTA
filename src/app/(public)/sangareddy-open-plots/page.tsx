@@ -25,8 +25,8 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots in Sangareddy: Mumbai Highway (NH-65) Corridor | Bhuwanta'
-const PAGE_DESCRIPTION = 'Curated, HMDA & RERA approved open plots in Sangareddy on the Mumbai Highway (NH-65) corridor, near the Regional Ring Road. Contact our team for current pricing, project documents and a free site visit.'
+const PAGE_TITLE = 'Open Plots in Sangareddy, Mumbai Highway | Bhuwanta'
+const PAGE_DESCRIPTION = 'HMDA and RERA approved open plots at TJR Township, Sangareddy, on the Mumbai Highway near the Regional Ring Road. Get pricing, documents and a site visit.'
 const PAGE_URL = 'https://bhuwanta.com/sangareddy-open-plots'
 
 export async function generateMetadata(): Promise<Metadata> {

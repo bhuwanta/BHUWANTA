@@ -5,7 +5,7 @@ import { JsonLd, buildBreadcrumbSchema } from '@/components/seo/JsonLd'
 import { getSiteUrl } from '@/lib/site-url'
 
 export async function generateMetadata(): Promise<Metadata> {
-  return generatePageMetadata('policies', 'Terms & Privacy', 'Privacy policy and terms of service for Bhuwanta.')
+  return generatePageMetadata('policies', 'Terms & Privacy', "Read Bhuwanta Developers' privacy policy and terms of service: how your enquiry details are collected, used and protected.")
 }
 
 export default function PoliciesPage() {

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Lock, Printer } from 'lucide-react'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
+import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { fireLeadConversion } from '@/lib/gtag'
 
 export function GatedResource({
@@ -62,6 +62,7 @@ export function GatedResource({
     setError('')
 
     try {
+      const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
       if (!recaptchaRef.current) {
         recaptchaRef.current = new RecaptchaVerifier(auth, 'gated-recaptcha-container', {
           size: 'invisible',

@@ -25,8 +25,8 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots Near Yadagirigutta: Warangal Highway (NH-163) | Bhuwanta'
-const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots on the Warangal Highway, near Yadagirigutta. Contact our team for current pricing, project documents and a free site visit.'
+const PAGE_TITLE = 'Open Plots Near Yadagirigutta, Warangal Highway | Bhuwanta'
+const PAGE_DESCRIPTION = 'DTCP and RERA approved open plots at S.V. Kanaka Maple Homes on the Warangal Highway near Yadagirigutta. Get pricing, documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/yadagirigutta-open-plots'
 
 export async function generateMetadata(): Promise<Metadata> {

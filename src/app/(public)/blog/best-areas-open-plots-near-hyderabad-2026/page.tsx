@@ -4,8 +4,8 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'Best Areas to Buy Open Plots Near Hyderabad: 2026 Guide | Bhuwanta',
-  description: 'A 2026 guide comparing Hyderabad\'s three main open-plot growth corridors, NH-44 South, Mumbai Highway West, and Warangal Highway East, with a due-diligence checklist for buyers.',
+  title: 'Best Areas for Open Plots Near Hyderabad 2026 | Bhuwanta',
+  description: 'Compare Hyderabad\'s three open-plot growth corridors, NH-44 South, Mumbai Highway West and Warangal Highway East, with a due-diligence checklist.',
   url: 'https://bhuwanta.com/blog/best-areas-open-plots-near-hyderabad-2026',
   ogTitle: 'Best Areas to Buy Open Plots Near Hyderabad',
   ogSubtitle: '2026 Guide',

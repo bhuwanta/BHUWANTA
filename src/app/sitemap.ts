@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { sanityFetch, blogListQuery, projectSlugsQuery, projectSlugsWithHighlightsQuery } from '@/lib/sanity'
 import { getSiteUrl } from '@/lib/site-url'
 import { canonicalProjectSlug } from '@/lib/project-links'
+import { DUPLICATE_POST_CANONICALS } from '@/lib/blog-canonical'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl()
@@ -64,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     if (posts) {
       posts.forEach(post => {
-        if (post.slug?.current) {
+        if (post.slug?.current && !DUPLICATE_POST_CANONICALS[post.slug.current]) {
           routes.push({
             url: `${siteUrl}/blog/${post.slug.current}`,
             ...(post._updatedAt || post.publishDate ? { lastModified: post._updatedAt || post.publishDate } : {}),

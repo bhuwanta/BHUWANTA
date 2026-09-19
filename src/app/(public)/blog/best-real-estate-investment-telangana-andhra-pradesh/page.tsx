@@ -4,8 +4,8 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'Best Real Estate Investment Options in Telangana & AP (2026 Guide) | Bhuwanta',
-  description: 'A 2026 guide to investing in Telangana and Andhra Pradesh real estate, why HMDA/DTCP-approved open plots near growth corridors are drawing investor interest, and what to check before you buy.',
+  title: 'Telangana & AP Real Estate Investment Guide 2026 | Bhuwanta',
+  description: 'Why HMDA and DTCP approved open plots near Telangana\'s growth corridors are drawing investors in 2026, and what to check before you buy.',
   url: 'https://bhuwanta.com/blog/best-real-estate-investment-telangana-andhra-pradesh',
   ogTitle: 'Best Real Estate Investment Options',
   ogSubtitle: 'Telangana & Andhra Pradesh: 2026 Guide',

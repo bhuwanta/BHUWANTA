@@ -4,8 +4,8 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'Buying Open Plots in Hyderabad from the UK: Complete NRI Guide 2026 | Bhuwanta',
-  description: 'A complete 2026 guide for UK-based NRIs buying open plots near Hyderabad, FEMA eligibility, UK tax basics, the Notary Public + FCDO apostille Power of Attorney process, and how to buy remotely from London, Birmingham, or Manchester.',
+  title: 'UK NRI Guide to Buying Open Plots in Hyderabad | Bhuwanta',
+  description: 'For UK-based NRIs buying open plots near Hyderabad: FEMA rules, UK tax basics, the apostilled Power of Attorney process and how to buy remotely.',
   url: 'https://bhuwanta.com/blog/nri-guide-uk-open-plots-hyderabad',
   ogTitle: 'Buying Open Plots in Hyderabad from the UK',
   ogSubtitle: 'Complete NRI Guide 2026',

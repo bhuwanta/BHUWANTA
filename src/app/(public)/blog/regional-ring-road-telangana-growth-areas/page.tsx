@@ -4,8 +4,8 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'Regional Ring Road (RRR): Which Areas in Telangana Will Benefit Most? | Bhuwanta',
-  description: 'A look at Telangana\'s Regional Ring Road (RRR): its decentralization goal, which growth corridors are seeing rising investor interest, and what it means for plot buyers.',
+  title: 'Regional Ring Road (RRR): Areas That Will Benefit | Bhuwanta',
+  description: 'Telangana\'s Regional Ring Road explained: its decentralisation goal, the growth corridors drawing investor interest, and what it means for plot buyers.',
   url: 'https://bhuwanta.com/blog/regional-ring-road-telangana-growth-areas',
   ogTitle: 'Regional Ring Road (RRR)',
   ogSubtitle: 'Which Areas in Telangana Will Benefit Most?',

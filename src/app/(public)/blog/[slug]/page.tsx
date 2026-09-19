@@ -4,7 +4,8 @@ import { PortableText } from '@portabletext/react'
 import { ArrowLeft, Calendar, Tag } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { sanityFetch, blogPostQuery } from '@/lib/sanity'
+import { sanityFetch, blogPostQuery, blogSlugsQuery } from '@/lib/sanity'
+import { DUPLICATE_POST_CANONICALS } from '@/lib/blog-canonical'
 import { JsonLd, buildBreadcrumbSchema, buildArticleSchema, buildFaqSchema } from '@/components/seo/JsonLd'
 import { formatDate, calculateReadingTime } from '@/lib/utils'
 import { getSiteUrl } from '@/lib/site-url'
@@ -22,6 +23,15 @@ interface BlogPostData {
   canonicalUrl?: string
   focusKeyword?: string
   faqs?: { question: string; answer: string }[]
+}
+
+// Pre-render every published post; posts added later render on first visit
+// and are then cached like the rest.
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  const slugs = await sanityFetch<string[]>({ query: blogSlugsQuery, tags: ['blog'] }).catch(() => [])
+  return (slugs || []).map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({
@@ -45,7 +55,10 @@ export async function generateMetadata({
     // at an old/renamed URL.
     const siteUrl = getSiteUrl()
     const liveUrl = `${siteUrl}/blog/${slug}`
-    const canonical = post.canonicalUrl?.endsWith(`/blog/${slug}`) ? post.canonicalUrl : liveUrl
+    const standalone = DUPLICATE_POST_CANONICALS[slug]
+    const canonical = standalone
+      ? `${siteUrl}${standalone}`
+      : post.canonicalUrl?.endsWith(`/blog/${slug}`) ? post.canonicalUrl : liveUrl
 
     return {
       title: post.metaTitle || post.title,

@@ -322,6 +322,9 @@ export const blogListQuery = `*[_type == "blog"] | order(publishDate desc){
   metaDescription
 }`
 
+// Slugs of every published Sanity post, for pre-rendering /blog/[slug].
+export const blogSlugsQuery = `*[_type == "blog" && defined(slug.current)].slug.current`
+
 export const blogPostQuery = `*[_type == "blog" && slug.current == $slug][0]{
   title,
   slug,

@@ -189,7 +189,7 @@ export function ImmersiveHero({
               {active.image && (
                 <SanityImage
                   src={active.image}
-                  alt=""
+                  alt={active.title}
                   fill
                   sizes="100vw"
                   className="object-cover"

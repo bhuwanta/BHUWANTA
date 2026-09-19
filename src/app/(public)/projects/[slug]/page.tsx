@@ -7,6 +7,7 @@ import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectDetailActions } from '@/components/ui/ProjectDetailActions'
 import { getSiteUrl } from '@/lib/site-url'
+import { displayProjectName, displayProjectPlace, projectPageTitle } from '@/lib/project-links'
 
 interface ProjectDetail {
   name: string
@@ -114,8 +115,11 @@ export async function generateMetadata({
   if (!project) return { title: 'Project Not Found' }
 
   const siteUrl = getSiteUrl()
-  const title = { absolute: `${project.name}: ${project.location} | Bhuwanta Developers` }
-  const description = `${project.name} in ${project.location}${project.approvalBadge ? `, ${project.approvalBadge}` : ''}. ${project.description?.slice(0, 130) || 'Explore plot sizes, approvals, and pricing.'}`
+  const name = displayProjectName(project.name)
+  const place = displayProjectPlace(project.location)
+  const badge = project.approvalBadge?.replace(/\s+/g, ' ').trim()
+  const title = { absolute: projectPageTitle(name, project.categoryTitle?.trim() || place) }
+  const description = `${name}: open plots${place ? ` near ${place}` : ''}${badge ? `, ${badge}` : ''}. See plot sizes, approvals and pricing, and book a free site visit.`.slice(0, 160)
 
   return {
     title,
@@ -125,7 +129,13 @@ export async function generateMetadata({
       title: title.absolute,
       description,
       type: 'website',
-      ...(project.images?.[0] ? { images: [{ url: project.images[0] }] } : {}),
+      images: [
+        {
+          url:
+            project.images?.[0] ||
+            `${siteUrl}/api/og?title=${encodeURIComponent(name)}&subtitle=${encodeURIComponent('Bhuwanta Developers')}`,
+        },
+      ],
     },
   }
 }

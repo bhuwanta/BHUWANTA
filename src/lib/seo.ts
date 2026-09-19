@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { unstable_cache } from 'next/cache'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { getSiteUrl } from '@/lib/site-url'
 
 // Builds full title/description/canonical/OG/Twitter metadata for hand-authored
@@ -77,34 +78,50 @@ const DEFAULT_GLOBAL: SeoGlobal = {
   bing_verification: null,
 }
 
-// Get global SEO defaults
-async function getSeoGlobal(): Promise<SeoGlobal> {
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('seo_global')
-      .select('*')
-      .single()
-    return data || DEFAULT_GLOBAL
-  } catch {
-    return DEFAULT_GLOBAL
-  }
+// SEO overrides are public and identical for every visitor, so they are read
+// with a cookie-free client and cached. The cookie-based server client made
+// every page using generatePageMetadata render from scratch on each request
+// (reading cookies opts a route out of static caching), with two database
+// round trips before any HTML could be sent.
+function publicSupabase() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
+  )
 }
 
+// Get global SEO defaults
+const getSeoGlobal = unstable_cache(
+  async (): Promise<SeoGlobal> => {
+    try {
+      const { data } = await publicSupabase().from('seo_global').select('*').single()
+      return data || DEFAULT_GLOBAL
+    } catch {
+      return DEFAULT_GLOBAL
+    }
+  },
+  ['seo-global'],
+  { revalidate: 300, tags: ['seo'] },
+)
+
 // Get per-page SEO overrides
-async function getSeoSettings(pageSlug: string): Promise<SeoSettings | null> {
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('seo_settings')
-      .select('*')
-      .eq('page_slug', pageSlug)
-      .single()
-    return data
-  } catch {
-    return null
-  }
-}
+const getSeoSettings = unstable_cache(
+  async (pageSlug: string): Promise<SeoSettings | null> => {
+    try {
+      const { data } = await publicSupabase()
+        .from('seo_settings')
+        .select('*')
+        .eq('page_slug', pageSlug)
+        .single()
+      return data
+    } catch {
+      return null
+    }
+  },
+  ['seo-settings'],
+  { revalidate: 300, tags: ['seo'] },
+)
 
 // Main metadata generator used by every page
 export async function generatePageMetadata(
@@ -122,8 +139,13 @@ export async function generatePageMetadata(
     absolute: settings?.meta_title || global.title_template.replace('{page_title}', defaultTitle),
   }
   const description = settings?.meta_description || defaultDescription || global.default_description
-  const ogImage = settings?.og_image || global.default_og_image
   const siteUrl = getSiteUrl()
+  // Without an image set in the SEO tables, fall back to the branded preview
+  // generator so shared links always show a card rather than a bare URL.
+  const ogImage =
+    settings?.og_image ||
+    global.default_og_image ||
+    `${siteUrl}/api/og?title=${encodeURIComponent(defaultTitle)}&subtitle=${encodeURIComponent('Bhuwanta Developers')}`
 
   const metadata: Metadata = {
     title,
@@ -171,7 +193,7 @@ export async function generatePageMetadata(
 // Get LocalBusiness schema data from Supabase
 export async function getLocalBusinessSchema() {
   try {
-    const supabase = await createClient()
+    const supabase = publicSupabase()
     const { data } = await supabase
       .from('local_business')
       .select('*')
@@ -185,7 +207,7 @@ export async function getLocalBusinessSchema() {
 // Get Organization entity data from Supabase
 export async function getOrganizationSchema() {
   try {
-    const supabase = await createClient()
+    const supabase = publicSupabase()
     const { data } = await supabase
       .from('entity_markup')
       .select('*')
@@ -200,7 +222,7 @@ export async function getOrganizationSchema() {
 // Get FAQ entries for a specific page
 export async function getFaqEntries(pageSlug: string) {
   try {
-    const supabase = await createClient()
+    const supabase = publicSupabase()
     const { data } = await supabase
       .from('faq_entries')
       .select('*')

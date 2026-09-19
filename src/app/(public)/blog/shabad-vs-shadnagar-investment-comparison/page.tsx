@@ -4,7 +4,7 @@ import { ArticleLayout } from '@/components/ui/ArticleLayout'
 import { buildStaticOgMetadata } from '@/lib/seo'
 
 export const metadata: Metadata = buildStaticOgMetadata({
-  title: 'Shabad vs Shadnagar: Compare Plot Locations & Costs | Bhuwanta',
+  title: 'Shabad vs Shadnagar: Plot Locations & Costs | Bhuwanta',
   description: 'Compare Shabad and Shadnagar plots by actual location, road access, documents, total cost and intended use. Explore Bhuwanta’s Vian Valley offer in Shabad.',
   url: 'https://bhuwanta.com/blog/shabad-vs-shadnagar-investment-comparison',
   ogTitle: 'Shabad vs Shadnagar', ogSubtitle: 'A Practical Plot Comparison',

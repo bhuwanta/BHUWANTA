@@ -13,7 +13,7 @@ import { canonicalProjectSlug } from '@/lib/project-links'
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
     'why-bhuwanta',
-    'Why Choose Bhuwanta, Trusted Open Plot Advisor in Telangana & AP',
+    'Why Choose Bhuwanta for Approved Open Plots',
     'Bhuwanta offers HMDA, DTCP, and RERA-approved open plots across Telangana\'s growth corridors, with full transparency on approvals and no hidden pricing.'
   )
 }

@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import logoImg from '@/images/bhuwanta-logo-horizontal.png'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
+import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { fireLeadConversion } from '@/lib/gtag'
 
 declare global {
@@ -90,6 +90,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
     setError('')
 
     try {
+      const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
       if (!recaptchaRef.current) {
         recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-popup', {
           size: 'invisible',

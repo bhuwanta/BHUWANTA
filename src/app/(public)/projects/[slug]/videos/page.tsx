@@ -1,4 +1,4 @@
-import { enquiryHref } from '@/lib/project-links'
+import { enquiryHref, displayProjectName, displayProjectPlace } from '@/lib/project-links'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
@@ -96,11 +96,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const project = await getProject(slug)
   if (!project) return { title: 'Project Not Found' }
 
-  const name = project.name.trim()
+  const name = displayProjectName(project.name)
   const siteUrl = getSiteUrl()
   const videos = withLegacyFallback(project)
   const images = usableImages(project)
-  const title = `${name} Project Highlights | Bhuwanta`
+  const longTitle = `${name} Project Highlights | Bhuwanta`
+  const title = longTitle.length <= 60 ? longTitle : `${name} Highlights | Bhuwanta`
 
   // Describes what the page actually holds, so a photos-only project doesn't
   // advertise videos it does not have.
@@ -109,9 +110,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (images.length > 0) parts.push(`${images.length} photo${images.length === 1 ? '' : 's'}`)
   const description =
     project.videosPageIntro?.slice(0, 155) ||
-    `${parts.length > 0 ? `See ${parts.join(' and ')} of` : 'Project highlights for'} ${name}${project.location ? ` in ${project.location}` : ''}, site walkthroughs, drone tours and photographs from Bhuwanta.`
+    `${parts.length > 0 ? `See ${parts.join(' and ')} of` : 'Project highlights for'} ${name}${project.location ? ` in ${displayProjectPlace(project.location)}` : ''}, site walkthroughs, drone tours and photographs from Bhuwanta.`
 
-  const firstThumb = videos.find((v) => v.thumbnailUrl)?.thumbnailUrl || images[0]?.url || project.images?.[0]
+  const firstThumb =
+    videos.find((v) => v.thumbnailUrl)?.thumbnailUrl ||
+    images[0]?.url ||
+    project.images?.[0] ||
+    `${siteUrl}/api/og?title=${encodeURIComponent(name)}&subtitle=${encodeURIComponent('Project Highlights')}`
 
   return {
     title: { absolute: title },

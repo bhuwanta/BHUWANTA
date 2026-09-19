@@ -1,4 +1,6 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
+import { PreselectedContactForm } from '@/components/ui/PreselectedContactForm'
 import Link from 'next/link'
 import {
   ArrowUpRight,
@@ -25,7 +27,7 @@ import { SanityImage } from '@/components/ui/SanityImage'
 import { TrustStrip } from '@/components/ui/TrustStrip'
 import { ImmersiveHero } from '@/components/ui/ImmersiveHero'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
-import { LeadPopup } from '@/components/ui/LeadPopup'
+import { LazyLeadPopup } from '@/components/ui/LazyLeadPopup'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
@@ -95,12 +97,7 @@ const locations = [
     projectMatch: 'arudra',
   },
 ]
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ project?: string }>
-}) {
-  const { project: preselectedProject } = await searchParams
+export default async function HomePage() {
   const [data, home] = await Promise.all([
     sanityFetch<{ projectEntries?: Project[] }>({
       query: projectsQuery,
@@ -140,7 +137,7 @@ export default async function HomePage({
     <>
       <ImmersiveHero highlights={highlights} />
       {/* Enquiry popup: opens 2s after every load of the home page. */}
-      <LeadPopup projectsList={projectsList} locationNames={locationNames} />
+      <LazyLeadPopup projectsList={projectsList} locationNames={locationNames} />
       <TrustStrip />
       <section className="home-stats" aria-label="Bhuwanta in numbers">
         <div className="site-container home-stats-grid">
@@ -350,12 +347,18 @@ export default async function HomePage({
           <div className="booking-form">
             <h3>Book your visit</h3>
             <p>Share your details to get started.</p>
-            <ContactForm
-              key={preselectedProject || 'general'}
-              projectsList={projectsList}
-              locationNames={locationNames}
-              initialProject={preselectedProject}
-            />
+            {/* The fallback is the same form without a preselected project,
+                so nothing shifts when the URL's ?project= is applied. */}
+            <Suspense
+              fallback={
+                <ContactForm projectsList={projectsList} locationNames={locationNames} />
+              }
+            >
+              <PreselectedContactForm
+                projectsList={projectsList}
+                locationNames={locationNames}
+              />
+            </Suspense>
           </div>
         </div>
       </section>

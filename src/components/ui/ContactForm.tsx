@@ -2,8 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase/config'
+import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
+import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { matchEnquiryProject } from '@/lib/project-links'
 import { fireLeadConversion } from '@/lib/gtag'
 import Link from 'next/link'
@@ -103,6 +103,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
     setError('')
 
     try {
+      const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
       if (!recaptchaRef.current) {
         recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',

@@ -58,21 +58,31 @@ function getProjectSlug(project: ProjectEntry): string | undefined {
   return project.slug?.current || getKnownSlug(project.name)
 }
 
-export function ProjectsFilterClient({
-  projects,
-  categories = [],
-  overviewUrls,
-  overviewButtonLabel,
-}: {
+interface ProjectsDirectoryProps {
   projects: ProjectEntry[]
   categories?: { id: string; title: string; label: string; order?: number }[]
   overviewUrls?: string[] | null
   overviewButtonLabel?: string
-}) {
+}
+
+// Reads ?category= in the browser and hands it to the directory. Kept apart
+// so the page can be statically cached: the page renders <ProjectsDirectory>
+// with no category as the Suspense fallback, which puts the full project list
+// in the pre-rendered HTML for search engines.
+export function ProjectsFilterClient(props: ProjectsDirectoryProps) {
+  const requestedCategory = useSearchParams().get('category')
+  return <ProjectsDirectory {...props} requestedCategory={requestedCategory} />
+}
+
+export function ProjectsDirectory({
+  projects,
+  categories = [],
+  overviewUrls,
+  overviewButtonLabel,
+  requestedCategory = null,
+}: ProjectsDirectoryProps & { requestedCategory?: string | null }) {
   // Deep link from the homepage category cards: /projects?category=<slug>
   // opens that filter directly instead of dropping the visitor on "All".
-  const searchParams = useSearchParams()
-  const requestedCategory = searchParams.get('category')
   const isKnownCategory = Boolean(requestedCategory && (categories.some((c) => c.id === requestedCategory) || projects.some((p) => (p.category || 'other-projects') === requestedCategory)))
 
   // Derived rather than synced: the URL decides unless the visitor has clicked

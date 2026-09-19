@@ -25,8 +25,8 @@ interface ProjectData {
 
 export const revalidate = 60
 
-const PAGE_TITLE = 'Open Plots in Sadashivpet: Mumbai Highway (NH-65) Corridor | Bhuwanta'
-const PAGE_DESCRIPTION = 'Curated, DTCP & RERA approved open plots in Sadashivpet on the Mumbai Highway (NH-65) corridor, near the NIMZ industrial belt. Contact our team for current pricing, project documents and a free site visit.'
+const PAGE_TITLE = 'Open Plots in Sadashivpet, Mumbai Highway | Bhuwanta'
+const PAGE_DESCRIPTION = 'DTCP and RERA approved open plots at Vaibhav County, Sadashivpet, on the Mumbai Highway near the NIMZ belt. Get pricing, documents and a free site visit.'
 const PAGE_URL = 'https://bhuwanta.com/sadashivpet-open-plots'
 
 export async function generateMetadata(): Promise<Metadata> {
