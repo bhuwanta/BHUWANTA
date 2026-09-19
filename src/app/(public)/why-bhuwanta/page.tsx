@@ -126,7 +126,7 @@ export default async function WhyBhuwantaPage() {
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
             <h2 className="text-xl font-bold text-brand-primary mb-4">What Bhuwanta Actually Does</h2>
             <p className="text-brand-muted leading-relaxed mb-8">
-              Bhuwanta develops and sells HMDA, DTCP, and RERA-approved open plots across {`${projects.length} projects`} in
+              Bhuwanta develops and sells HMDA, DTCP, and RERA-approved open plots {`across ${projects.length} projects in `}
               Telangana&apos;s growth corridors. We&apos;re a plotted-development company, not a broker or
               aggregator — every project listed on this site is one we develop and stand behind directly, with
               approval documentation available on request.
@@ -171,7 +171,7 @@ export default async function WhyBhuwantaPage() {
 
             <h2 className="text-xl font-bold text-brand-primary mb-4">How the Process Works</h2>
             <ol className="space-y-2 mb-8 text-brand-muted list-decimal list-inside">
-              <li>Browse our {`${projects.length} projects`} and shortlist the one that fits your budget and location preference.</li>
+              <li>{`Browse our ${projects.length} projects and shortlist`} the one that fits your budget and location preference.</li>
               <li>Request investor pricing via WhatsApp, phone, or the contact form — we don&apos;t publish prices publicly.</li>
               <li>Review approval documents, RERA certificates, and the layout plan for your shortlisted plot.</li>
               <li>Book a free site visit to see the project in person.</li>
