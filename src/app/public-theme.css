@@ -1563,11 +1563,18 @@
 @media (pointer: coarse) {
   .footer-inline-link,
   .footer-visit-link,
-  .footer-email,
   .footer-link-column li a,
   .footer-bottom-row a {
     min-height: 44px;
     display: inline-flex;
+    align-items: center;
+  }
+  /* The email is a row of its own. It is `display: flex` outside this query,
+     and inline-flex here pulled it up onto the same line as "Get Directions",
+     leaving the two touching. It still needs the 44px touch target. */
+  .footer-email {
+    min-height: 44px;
+    display: flex;
     align-items: center;
   }
   .footer-socials a {
