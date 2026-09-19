@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { TrustStrip } from '@/components/ui/TrustStrip'
 import { cache } from 'react'
 import { MapPin, ArrowRight, FileCheck2, IndianRupee, CalendarCheck } from 'lucide-react'
 import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
@@ -77,34 +78,45 @@ export default async function ShabadOpenPlotsPage() {
         buildFaqSchema(faqs),
         buildRealEstateListingSchema({ name: 'Vian Valley: Open Plots in Shabad', description, url: pageUrl, address: 'Shabad, Ranga Reddy, Telangana', ...(project?.images?.[0] ? { imageUrl: project.images[0] } : {}) }),
       ]} />
-      <section className="relative overflow-hidden bg-brand-deep pt-32 sm:pt-40 pb-16 sm:pb-20">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand-gold/10 rounded-full blur-[100px]" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-          <nav aria-label="Breadcrumb" className="text-sm text-white/60 mb-8"><Link href="/" className="hover:text-white">Home</Link><span className="mx-2">/</span>Open Plots in Shabad</nav>
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <p className="flex items-center gap-2 text-brand-accent text-sm font-semibold mb-5"><MapPin className="w-4 h-4" /> Shabad · Southwest Hyderabad</p>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-5">Open Plots in Shabad.<br /><span className="text-brand-accent">Explore Vian Valley.</span></h1>
-              <p className="text-white/75 text-lg leading-relaxed">Explore Shabad’s growing industrial corridor and the developments shaping its future. Compare plot options, review the documents and visit the location with Bhuwanta.</p>
-              <div className="mt-7 border-l-2 border-brand-gold pl-5">
-                <p className="text-white/70 text-sm">Plots starting from</p>
-                <p className="text-3xl font-bold text-brand-accent">₹30,XXX <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
-              </div>
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="#book-visit" className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl btn-outline">Get Price &amp; Plot Details <ArrowRight className="w-4 h-4" /></Link>
-                <TrackedWhatsAppAnchor href={whatsappUrl} className="inline-flex items-center justify-center px-6 py-4 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/10">Ask on WhatsApp</TrackedWhatsAppAnchor>
-              </div>
-            </div>
-            {project?.images?.length ? (
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-white/10 border border-white/15">
-                <ProjectImageCarousel images={project.images} projectName="Vian Valley, Shabad" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-white/20 p-8 text-white/80"><h2 className="text-xl font-semibold text-white mb-4">Start with the details that matter</h2><p className="leading-relaxed">Ask for available plot numbers, phase-specific documents and a route to the entrance before your visit.</p></div>
-            )}
+      {/* Same centred hero as the other location pages. */}
+      <section className="relative overflow-hidden bg-brand-deep luxury-bg-grid-white pt-32 sm:pt-40 pb-16 sm:pb-20">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[150px]" />
+        <div className="max-w-5xl mx-auto px-4 relative z-10 text-center">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-accent text-xs font-semibold uppercase tracking-widest border border-brand-gold/20 mb-6">
+            <MapPin className="w-3.5 h-3.5" /> Shabad · Southwest Hyderabad
+          </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-6">
+            Open Plots in Shabad: <span className="text-brand-accent">Explore Vian Valley</span>
+          </h1>
+          <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+            Explore Shabad&apos;s growing industrial corridor and the developments shaping its future. Compare plot options, review the documents and visit the location with Bhuwanta.
+          </p>
+          <div className="mb-8">
+            <p className="text-white/70 text-sm">Plots starting from</p>
+            <p className="text-3xl font-bold text-brand-accent">₹30,XXX <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
+              Request Price &amp; Plot Details
+            </Link>
+            <TrackedWhatsAppAnchor href={whatsappUrl} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">
+              Chat With Us on WhatsApp
+            </TrackedWhatsAppAnchor>
           </div>
         </div>
       </section>
+
+      <TrustStrip />
+
+      {project?.images?.length ? (
+        <section className="py-14 bg-brand-paper">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-brand-deep border border-brand-border">
+              <ProjectImageCarousel images={project.images} projectName="Vian Valley, Shabad" videoUrl={project.videoUrl} youtubeUrl={project.youtubeUrl} />
+            </div>
+          </div>
+        </section>
+      ) : null}
       <section className="py-14 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-3 gap-7">
           {[
