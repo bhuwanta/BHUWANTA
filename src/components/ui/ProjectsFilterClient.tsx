@@ -149,11 +149,11 @@ export function ProjectsFilterClient({
                 onClick={() => handleFilterClick(cat.id)}
                 className={`lg:flex-1 flex items-center justify-center gap-1.5 text-xs lg:text-sm font-semibold px-4 py-2 min-h-11 rounded-full transition-all duration-300 whitespace-nowrap ${
                   activeFilter === cat.id 
-                    ? 'gradient-gold text-white shadow-md' 
+                    ? 'border border-brand-gold bg-transparent text-brand-gold shadow-md hover:bg-brand-gold hover:text-white' 
                     : 'bg-white border border-brand-gold text-brand-accent hover:bg-brand-gold hover:text-white shadow-sm'
                 }`}
               >
-                <MapPin className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${activeFilter === cat.id ? 'text-white' : ''}`} />
+                <MapPin className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${activeFilter === cat.id ? 'text-brand-gold' : ''}`} />
                 <span className="capitalize">{cat.label}</span>
               </button>
             ))}
@@ -231,7 +231,7 @@ export function ProjectsFilterClient({
 
                          <div className="mt-auto">
                             <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mb-4">
-                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto gradient-gold text-white font-semibold rounded-lg shadow-lg shadow-brand-gold/20 hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
+                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto border border-brand-gold bg-transparent text-brand-gold hover:bg-brand-gold hover:text-white font-semibold rounded-lg shadow-sm hover:scale-105 transition-premium text-xs sm:text-sm text-center flex items-center justify-center md:justify-start">
                                 Enquire Now
                               </Link>
                               {projectSlug && (
