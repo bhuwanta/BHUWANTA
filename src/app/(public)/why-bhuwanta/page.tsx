@@ -76,7 +76,6 @@ export default function WhyBhuwantaPage() {
 
       <PageBanner
         title={<>Why Choose <span className="text-brand-accent">Bhuwanta</span></>}
-        subtitle="A Trusted Open Plot Advisor in Telangana"
       />
 
       <section className="py-16 bg-brand-paper">
