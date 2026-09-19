@@ -62,7 +62,7 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
+            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold text-white hover:brightness-110 transition-colors whitespace-nowrap">
               {ctaText}
             </Link>
             <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="nav-login-button hidden sm:inline-flex px-4 py-3 rounded-lg text-sm font-semibold transition-colors">Login</Link>
@@ -83,7 +83,7 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center font-semibold text-sm rounded-lg gradient-gold">{ctaText}</Link>
+            <Link href={ctaLink} onClick={() => setMenuPath(null)} className="mt-3 px-4 py-3 text-center font-semibold text-sm rounded-lg gradient-gold text-white">{ctaText}</Link>
             <Link href="/REALESTATE_SOFTWARE/login" id="nav-mobile-login" onClick={() => setMenuPath(null)} className="nav-login-button px-4 py-3 text-center text-sm font-semibold rounded-lg">Login</Link>
           </div>
         </div>
