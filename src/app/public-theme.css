@@ -260,9 +260,9 @@
 }
 .trust-strip > div {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 16px 48px;
 }
 .trust-strip span {
   display: flex;
@@ -525,13 +525,24 @@
   border-bottom: 1px solid #e4bc6050;
   --site-accent: #e4bc60;
 }
+.editorial-banner > .site-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 .editorial-banner h1 {
   font-size: clamp(36px, 5.2vw, 68px);
   max-width: 1000px;
+  margin-inline: auto;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 .editorial-banner p {
   max-width: 720px;
+  margin-inline: auto;
   margin-top: 24px;
+  text-wrap: pretty;
   color: #c5cebf;
   font-size: 15px;
   line-height: 1.8;
@@ -710,8 +721,8 @@
     flex-direction: column;
   }
   .trust-strip > div {
-    justify-content: flex-start;
-    gap: 14px 26px;
+    justify-content: center;
+    gap: 12px 22px;
   }
   .section-heading {
     align-items: flex-start;
@@ -762,12 +773,24 @@
     font-size: 22px;
   }
   .editorial-banner {
-    padding-top: 128px;
-    padding-bottom: 48px;
+    padding-top: 118px;
+    padding-bottom: 40px;
   }
   .editorial-banner .eyebrow {
-    font-size: 8px;
+    font-size: 9px;
     letter-spacing: 0.15em;
+  }
+  .editorial-banner .eyebrow span {
+    padding: 0 8px;
+  }
+  .editorial-banner h1 {
+    font-size: clamp(30px, 8.4vw, 40px);
+    line-height: 1.12;
+  }
+  .editorial-banner p {
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.7;
   }
   .trust-strip span {
     font-size: 10px;
@@ -1040,11 +1063,28 @@
   font-size: 10px;
   letter-spacing: 0.06em;
 }
-/* Gold mouse outline with a wheel dot that rolls down and fades, looping. */
+/* Gold mouse outline that bobs up and down, with a wheel dot rolling inside
+   it and a "Scroll" label underneath. */
 .hero-scroll-mouse {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   padding: 6px;
+  color: #e4bc60;
+  animation: hero-mouse-bob 2s ease-in-out infinite;
+}
+.hero-mouse-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  /* letter-spacing adds trailing space; offset it so the word stays centred */
+  margin-right: -0.28em;
+}
+@keyframes hero-mouse-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
 }
 .hero-mouse {
   position: relative;
@@ -1077,7 +1117,8 @@
   100% { opacity: 0; transform: translateY(12px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-mouse-wheel { animation: none; }
+  .hero-mouse-wheel,
+  .hero-scroll-mouse { animation: none; }
 }
 .hero-timeline {
   position: absolute;

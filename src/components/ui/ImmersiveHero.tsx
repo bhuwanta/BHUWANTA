@@ -357,6 +357,9 @@ export function ImmersiveHero({
             <span className="hero-mouse" aria-hidden="true">
               <span className="hero-mouse-wheel" />
             </span>
+            <span className="hero-mouse-label" aria-hidden="true">
+              Scroll
+            </span>
           </a>
         </div>
         <div className="hero-timeline" aria-hidden="true">
