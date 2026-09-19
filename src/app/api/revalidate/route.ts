@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
         // expired. The tag above already covers the data fetch; this makes
         // the page itself regenerate rather than relying on that alone.
         revalidatePath('/')
+        // Why Bhuwanta lists every project and counts them.
+        revalidatePath('/why-bhuwanta')
         break
       case 'blog':
         safeRevalidateTag('blog')

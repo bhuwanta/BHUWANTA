@@ -33,7 +33,7 @@ const faqs = [
   },
 ]
 
-export const revalidate = 300
+export const revalidate = 60
 
 interface ProjectEntry {
   name?: string
@@ -104,7 +104,6 @@ export default async function WhyBhuwantaPage() {
   }).catch(() => null)
   const entries = data?.projectEntries?.length ? data.projectEntries : FALLBACK_PROJECTS
   const projects = entries.map(toCard).filter((p): p is ProjectCard => p !== null)
-  const corridorCount = new Set(projects.map((p) => p.corridor).filter(Boolean)).size
 
   const siteUrl = getSiteUrl()
   const breadcrumb = buildBreadcrumbSchema([
@@ -124,7 +123,7 @@ export default async function WhyBhuwantaPage() {
       <section className="py-16 bg-brand-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
-            <h2 className="text-xl font-bold text-brand-primary mb-4">What Bhuwanta Actually Does</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">What Bhuwanta Actually Does</h2>
             <p className="text-brand-muted leading-relaxed mb-8">
               Bhuwanta develops and sells HMDA, DTCP, and RERA-approved open plots {`across ${projects.length} projects in `}
               Telangana&apos;s growth corridors. We&apos;re a plotted-development company, not a broker or
@@ -132,7 +131,7 @@ export default async function WhyBhuwantaPage() {
               approval documentation available on request.
             </p>
 
-            <h2 className="text-xl font-bold text-brand-primary mb-4">Why Approval Status Matters — and How to Check It Yourself</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">Why Approval Status Matters — and How to Check It Yourself</h2>
             <p className="text-brand-muted leading-relaxed mb-4">
               HMDA and DTCP approval confirm a layout was legally sanctioned by the relevant authority; RERA
               registration adds a further layer of regulatory oversight and buyer protection. Rather than just
@@ -152,7 +151,7 @@ export default async function WhyBhuwantaPage() {
               </Link>.
             </p>
 
-            <h2 className="text-xl font-bold text-brand-primary mb-4">{`${projects.length} Projects, ${corridorCount} Growth Corridors`}</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">{`${projects.length} Projects`}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               {projects.map((p) => (
                 <Link
@@ -169,7 +168,7 @@ export default async function WhyBhuwantaPage() {
               ))}
             </div>
 
-            <h2 className="text-xl font-bold text-brand-primary mb-4">How the Process Works</h2>
+            <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">How the Process Works</h2>
             <ol className="space-y-2 mb-8 text-brand-muted list-decimal list-inside">
               <li>{`Browse our ${projects.length} projects and shortlist`} the one that fits your budget and location preference.</li>
               <li>Request investor pricing via WhatsApp, phone, or the contact form — we don&apos;t publish prices publicly.</li>
@@ -183,7 +182,7 @@ export default async function WhyBhuwantaPage() {
             </div>
 
             <div className="pt-8 border-t border-brand-border">
-              <h2 className="text-xl font-bold text-brand-primary mb-4">Frequently Asked Questions</h2>
+              <h2 className="text-xl font-bold text-brand-primary mb-4 text-center">Frequently Asked Questions</h2>
               <div className="space-y-5">
                 {faqs.map((faq, i) => (
                   <div key={i}>
