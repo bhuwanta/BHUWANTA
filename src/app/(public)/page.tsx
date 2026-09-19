@@ -6,6 +6,14 @@ import {
   FileText,
   CalendarDays,
   Check,
+  ShieldCheck,
+  Building2,
+  FileCheck,
+  IndianRupee,
+  Compass,
+  Hammer,
+  BadgeCheck,
+  type LucideIcon,
 } from 'lucide-react'
 import { generatePageMetadata } from '@/lib/seo'
 import { sanityFetch, projectsQuery, homeQuery } from '@/lib/sanity'
@@ -16,6 +24,7 @@ const ContactForm = dynamic(() =>
 import { SanityImage } from '@/components/ui/SanityImage'
 import { TrustStrip } from '@/components/ui/TrustStrip'
 import { ImmersiveHero } from '@/components/ui/ImmersiveHero'
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
@@ -30,6 +39,22 @@ interface Project {
   categoryTitle?: string
   images?: string[]
 }
+const whyFeatures: Array<{ icon: LucideIcon; title: string }> = [
+  { icon: ShieldCheck, title: 'HMDA Approved Layouts' },
+  { icon: Building2, title: 'DTCP Approved Layouts' },
+  { icon: FileCheck, title: 'Clear Legal Documentation' },
+  { icon: MapPin, title: 'Prime Growth Locations' },
+  { icon: IndianRupee, title: 'Transparent Pricing' },
+  { icon: Compass, title: 'Vastu-Compliant Planning' },
+  { icon: Hammer, title: 'Ready-for-Construction Plots' },
+]
+const certifications: Array<{ icon: LucideIcon; title: string }> = [
+  { icon: ShieldCheck, title: 'HMDA Approved' },
+  { icon: Building2, title: 'DTCP Approved' },
+  { icon: Check, title: 'YTDA Approved' },
+  { icon: BadgeCheck, title: 'RERA Certified' },
+  { icon: FileCheck, title: 'Verified Documentation' },
+]
 const locations = [
   {
     name: 'Shabad',
@@ -92,10 +117,45 @@ export default async function HomePage({
   const locationNames = [
     ...new Set(projectsList.map((p) => p.location).filter(Boolean)),
   ]
+  // Ongoing Projects is counted from the live Sanity list: a hand-typed number
+  // drifted to "4+" while six projects were published. The other three are
+  // marketing figures with no source in the CMS.
+  const stats = [
+    { label: 'Years of Experience', value: '20+' },
+    { label: 'Projects Completed', value: '15' },
+    { label: 'Happy Customers', value: '1000+' },
+    { label: 'Ongoing Projects', value: `${projectsList.length}+` },
+  ]
   return (
     <>
       <ImmersiveHero highlights={highlights} />
       <TrustStrip />
+      <section className="home-stats" aria-label="Bhuwanta in numbers">
+        <div className="site-container home-stats-grid">
+          {stats.map((stat) => (
+            <div key={stat.label}>
+              <strong>
+                <AnimatedCounter value={stat.value} />
+              </strong>
+              <span>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="home-why" id="why-choose">
+        <div className="site-container home-marquee-heading">
+          <span className="eyebrow">Why Us</span>
+          <h2>
+            Why choose <em>Bhuwanta?</em>
+          </h2>
+          <p>
+            We go beyond selling plots — we deliver trust, transparency and
+            long-term value, with developments planned for secure investment
+            and future growth.
+          </p>
+        </div>
+        <Marquee items={whyFeatures} variant="feature" />
+      </section>
       <section className="home-section" id="locations">
         <div className="site-container">
           <div className="section-heading">
@@ -201,6 +261,17 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+      <section className="home-certifications" id="certifications">
+        <div className="site-container home-marquee-heading">
+          <span className="eyebrow">Verified &amp; Secure</span>
+          <h2>Our Certifications &amp; Approvals</h2>
+          <p>
+            We ensure every project meets the highest standards of legality and
+            compliance.
+          </p>
+        </div>
+        <Marquee items={certifications} variant="certification" />
+      </section>
       <section className="home-section">
         <div className="site-container">
           <div className="section-heading">
@@ -276,5 +347,35 @@ export default async function HomePage({
         </div>
       </section>
     </>
+  )
+}
+
+// Two identical tracks side by side; the CSS animation slides the pair by
+// half its width, so the second track lands exactly where the first began and
+// the loop has no visible jump.
+function Marquee({
+  items,
+  variant,
+}: {
+  items: Array<{ icon: LucideIcon; title: string }>
+  variant: 'feature' | 'certification'
+}) {
+  return (
+    <div className={`home-marquee is-${variant}`}>
+      <div className="home-marquee-track">
+        {[0, 1].map((copy) => (
+          <ul key={copy} aria-hidden={copy === 1 || undefined}>
+            {items.map(({ icon: Icon, title }) => (
+              <li key={title}>
+                <span className="home-marquee-icon">
+                  <Icon size={20} strokeWidth={1.6} aria-hidden="true" />
+                </span>
+                {title}
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
   )
 }
