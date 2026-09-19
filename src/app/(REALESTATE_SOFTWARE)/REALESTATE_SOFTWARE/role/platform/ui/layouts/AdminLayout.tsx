@@ -110,7 +110,7 @@ export default function AdminLayout({ children, basePath, roleLabel, showModules
               src="/logo-icon.png"
               alt="Bhuwanta"
               title="Bhuwanta"
-              className="w-10 h-10 object-contain brightness-0 animate-in fade-in duration-300"
+              className="w-10 h-10 object-contain animate-in fade-in duration-300"
             />
           ) : (
             <div className="overflow-hidden whitespace-nowrap animate-in fade-in duration-300 text-center">
