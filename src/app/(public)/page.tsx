@@ -203,7 +203,7 @@ export default async function HomePage({
       </section>
       <section className="home-section">
         <div className="site-container">
-          <div className="section-heading">
+          <div className="section-heading is-centered">
             <div>
               <span className="eyebrow">From enquiry to ownership</span>
               <h2>Know what comes next.</h2>

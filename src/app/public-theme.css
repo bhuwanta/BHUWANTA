@@ -293,6 +293,11 @@
 .section-heading .eyebrow {
   margin-bottom: 16px;
 }
+/* The journey steps are centred, so their heading is too. */
+.section-heading.is-centered {
+  justify-content: center;
+  text-align: center;
+}
 .location-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -413,19 +418,24 @@
   gap: 35px;
 }
 /* One continuous line joining the step markers, so the four steps read as a
-   single path rather than four unrelated dividers. It runs from the first
-   marker's centre to the last one's. */
+   single path rather than four unrelated dividers. Steps are centred in their
+   columns, so it runs from the middle of the first column to the middle of the
+   last: half a column width (4 columns, 3 gaps of 35px) in from each side. */
 .journey-grid::before {
   content: '';
   position: absolute;
   top: 22px;
-  left: 22px;
-  right: calc((100% - 105px) / 4 - 22px);
+  left: calc((100% - 105px) / 8);
+  right: calc((100% - 105px) / 8);
   height: 1px;
   background: linear-gradient(90deg, #b9a26c, rgb(185 162 108 / 35%));
 }
 .journey-grid > div {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .journey-grid span {
   position: relative;
@@ -677,6 +687,8 @@
   }
   .journey-grid > div {
     display: grid;
+    align-items: start;
+    text-align: left;
     grid-template-columns: 44px 1fr;
     column-gap: 20px;
     padding-bottom: 28px;
