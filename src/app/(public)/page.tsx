@@ -277,7 +277,7 @@ export default async function HomePage({
         </div>
         <Marquee items={certifications} variant="certification" />
       </section>
-      <section className="home-section">
+      <section className="home-section home-journey">
         <div className="site-container">
           <div className="section-heading is-centered">
             <div>

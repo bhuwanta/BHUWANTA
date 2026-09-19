@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { ArrowUpRight, CalendarDays, Mail, MapPin } from 'lucide-react'
+import { ArrowUpRight, CalendarDays, Mail } from 'lucide-react'
 import { sanityFetch } from '@/lib/sanity'
 import { BrandLockup } from './BrandLockup'
+import { GoogleMapsIcon } from '@/components/ui/GoogleMapsIcon'
 
 const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -178,8 +179,7 @@ export async function Footer() {
               rel="noopener noreferrer"
               className="footer-inline-link"
             >
-              <MapPin size={14} aria-hidden="true" /> Get Directions{' '}
-              <ArrowUpRight size={14} aria-hidden="true" />
+              <GoogleMapsIcon size={16} /> Google Maps
             </a>
           </div>
 

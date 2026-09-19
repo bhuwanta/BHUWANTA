@@ -2067,11 +2067,12 @@
 }
 .is-feature li {
   background: #fff;
-  border: 1px solid #fff;
+  border: 1px solid #e6ac3a;
+  box-shadow: 0 0 0 1px #e6ac3a;
   color: var(--site-ink);
 }
 .is-feature li:hover {
-  border-color: #e6ac3a;
+  box-shadow: 0 0 0 2px #e6ac3a, 0 10px 24px rgb(0 0 0 / 25%);
 }
 .is-certification li {
   flex-direction: column;
@@ -2084,7 +2085,8 @@
   color: var(--site-ink);
 }
 .is-certification li:hover {
-  border-color: #d3a24a;
+  border-color: #e6ac3a;
+  box-shadow: 0 0 0 1px #e6ac3a, 0 10px 24px rgb(0 41 30 / 10%);
 }
 .home-marquee-icon {
   display: grid;
@@ -2135,14 +2137,16 @@
   }
 }
 
-/* Section labels as outline gold pills, the same on light and dark sections. */
+/* Section label pills. One rule for the whole site: dark green outline on
+   light (white/cream) sections, logo-gold outline on dark green sections. */
 .home-section .eyebrow,
 .editorial-banner .eyebrow,
 .editorial-cta .eyebrow,
 .home-why .eyebrow,
 .home-certifications .eyebrow,
 .home-principles .eyebrow,
-.home-booking .eyebrow {
+.home-booking .eyebrow,
+.public-site :is(span, div).rounded-full.uppercase.tracking-widest {
   display: inline-flex;
   align-items: center;
   padding: 7px 16px;
@@ -2152,10 +2156,16 @@
   color: #00291e;
   line-height: 1.2;
 }
-/* Pills built with Tailwind utilities on the inner pages. */
-.public-site :is(span, div).rounded-full.uppercase.tracking-widest {
-  background: transparent;
-  border: 1px solid #e6ac3a;
+/* Dark green surfaces: the themed dark sections, plus Tailwind-built ones. */
+.editorial-banner .eyebrow,
+.editorial-cta .eyebrow,
+.home-why .eyebrow,
+.home-principles .eyebrow,
+.home-journey .eyebrow,
+.public-site
+  :is(.bg-brand-deep, .bg-brand-primary, .bg-brand-ink, .gradient-primary, .gradient-dark)
+  :is(span, div).rounded-full.uppercase.tracking-widest {
+  border-color: #e6ac3a;
   color: #e6ac3a;
 }
 
@@ -2365,4 +2375,36 @@
   font-size: 24px;
   font-weight: 400;
   line-height: 1.2;
+}
+
+/* "Know what comes next" sits on dark green so the home page alternates
+   light and dark sections all the way down. */
+.home-journey {
+  background: var(--site-deep);
+  color: #f7f4eb;
+}
+.home-journey .section-heading h2,
+.home-journey .journey-grid h3 {
+  color: #f7f4eb;
+}
+.home-journey .journey-grid p {
+  color: #aebfb2;
+}
+.home-journey .journey-grid::before {
+  background: linear-gradient(90deg, #e6ac3a, rgb(230 172 58 / 35%));
+}
+.home-journey .journey-grid span {
+  background: var(--site-deep);
+  border-color: #e6ac3a;
+  color: #e6ac3a;
+}
+.home-journey .journey-grid > div:hover span {
+  background: #e6ac3a;
+  border-color: #e6ac3a;
+  color: #00291e;
+}
+@media (max-width: 800px) {
+  .home-journey .journey-grid > div:not(:last-child)::after {
+    background: #e6ac3a;
+  }
 }
