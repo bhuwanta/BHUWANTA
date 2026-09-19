@@ -49,6 +49,15 @@ interface GalleryGridProps {
   gallerySingleton?: GalleryData | null
 }
 
+// The marquee moves its whole track in one animation cycle, so a fixed
+// duration makes rows with more photos scroll faster. Scaling the duration by
+// photo count keeps every row at the same speed.
+const MARQUEE_SECONDS_PER_IMAGE = 6
+
+function marqueeStyle(imageCount: number) {
+  return { animationDuration: `${Math.max(imageCount, 1) * MARQUEE_SECONDS_PER_IMAGE}s` }
+}
+
 export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryGridProps) {
   const [activeTab, setActiveTab] = useState<'site_visits' | 'videos' | 'photos' | 'social_media'>('site_visits')
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt: string; caption?: string } | null>(null)
@@ -228,7 +237,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                   {/* Site Visit Images */}
                   {validSiteVisitImages.length > 0 && (
                     <div className="overflow-hidden group/marquee w-full bg-brand-paper py-8 border-y border-brand-border">
-                      <div className="flex gap-4 sm:gap-6 w-max px-4 sm:px-6 animate-scroll-left group-hover/marquee:[animation-play-state:paused]">
+                      <div className="flex gap-4 sm:gap-6 w-max px-4 sm:px-6 animate-scroll-left group-hover/marquee:[animation-play-state:paused]" style={marqueeStyle(validSiteVisitImages.length)}>
                         {/* Duplicate images twice for seamless loop */}
                         {[...validSiteVisitImages, ...validSiteVisitImages].map((url, i) => {
                           const imageAlt = `Site visit photo ${(i % validSiteVisitImages.length) + 1}`
@@ -337,6 +346,7 @@ export function GalleryGrid({ projects = [], gallerySingleton = null }: GalleryG
                         <div className="overflow-hidden group/marquee w-full bg-brand-paper py-8 border-y border-brand-border">
                           <div 
                             className={`flex gap-4 sm:gap-6 w-max px-4 sm:px-6 ${pIdx % 2 === 0 ? 'animate-scroll-left' : 'animate-scroll-right'} group-hover/marquee:[animation-play-state:paused]`}
+                            style={marqueeStyle(project.images.length)}
                           >
                             {/* Duplicate images twice for seamless loop */}
                             {[...project.images, ...project.images].map((img, i) => {
