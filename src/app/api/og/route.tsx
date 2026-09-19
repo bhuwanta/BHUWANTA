@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#002935',
-          backgroundImage: 'linear-gradient(135deg, #002935 0%, #00303f 50%, #002935 100%)',
+          backgroundColor: '#032b20',
+          backgroundImage: 'linear-gradient(135deg, #032b20 0%, #124c36 60%, #1c6347 100%)',
           padding: '60px',
         }}
       >
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
             width: '400px',
             height: '400px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(186, 152, 50, 0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(223, 187, 104, 0.18) 0%, transparent 70%)',
           }}
         />
         <div
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
             width: '400px',
             height: '400px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(186, 152, 50, 0.1) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(223, 187, 104, 0.12) 0%, transparent 70%)',
           }}
         />
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`${new URL(request.url).origin}/logo.png`}
+            src={`${new URL(request.url).origin}/apple-touch-icon.png`}
             alt="Bhuwanta"
             style={{
               height: '120px',
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
           style={{
             fontSize: '56px',
             fontWeight: 800,
-            color: '#f0f0f5',
+            color: '#faf9f3',
             textAlign: 'center',
             lineHeight: 1.2,
             maxWidth: '900px',
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
         <div
           style={{
             fontSize: '24px',
-            color: '#8888a0',
+            color: '#aebfb2',
             textAlign: 'center',
             maxWidth: '700px',
           }}
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
             left: '0',
             right: '0',
             height: '4px',
-            background: 'linear-gradient(90deg, #B69A4E 0%, #003d4f 50%, #B69A4E 100%)',
+            background: 'linear-gradient(90deg, #dfbb68 0%, #124c36 50%, #dfbb68 100%)',
           }}
         />
       </div>
