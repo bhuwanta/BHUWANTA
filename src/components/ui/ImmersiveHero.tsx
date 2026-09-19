@@ -8,7 +8,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SanityImage } from '@/components/ui/SanityImage'
 
@@ -16,6 +16,8 @@ export interface HeroHighlight {
   title: string
   image?: string
 }
+
+const AUTOPLAY_MS = 5000
 
 /** Cinematic depth for the concept artwork; project-layout 3D is a separate feature. */
 export function ImmersiveHero({
@@ -44,6 +46,45 @@ export function ImmersiveHero({
     }
   }
   const root = useRef<HTMLElement>(null)
+
+  // Autoplay: move to the next highlight every few seconds. The timer restarts
+  // whenever the slide changes, so a manual choice gets the full interval
+  // before the carousel moves on. It holds while the visitor is hovering or
+  // keyboard-focused inside the hero, while the hero is off screen or the tab
+  // is hidden, and never runs for visitors who prefer reduced motion.
+  const [held, setHeld] = useState({ hover: false, focus: false, offscreen: false, hidden: false })
+  const hold = useCallback(
+    (key: 'hover' | 'focus' | 'offscreen' | 'hidden', value: boolean) =>
+      setHeld((current) => (current[key] === value ? current : { ...current, [key]: value })),
+    [],
+  )
+  const selectRef = useRef(select)
+  useEffect(() => {
+    selectRef.current = select
+  })
+
+  useEffect(() => {
+    const section = root.current
+    if (!section) return
+    const onVisibility = () => hold('hidden', document.visibilityState === 'hidden')
+    document.addEventListener('visibilitychange', onVisibility)
+    const observer = new IntersectionObserver(([entry]) => hold('offscreen', !entry.isIntersecting), {
+      threshold: 0.25,
+    })
+    observer.observe(section)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      observer.disconnect()
+    }
+  }, [hold])
+
+  useEffect(() => {
+    if (highlights.length === 0) return
+    if (held.hover || held.focus || held.offscreen || held.hidden) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const timer = window.setTimeout(() => selectRef.current(selected + 1), AUTOPLAY_MS)
+    return () => window.clearTimeout(timer)
+  }, [selected, held, highlights.length])
 
   useEffect(() => {
     const section = root.current
@@ -163,6 +204,16 @@ export function ImmersiveHero({
       data-has-highlights={highlights.length > 0 ? 'true' : undefined}
       id="hero"
       aria-label="Explore Bhuwanta open plots"
+      onMouseEnter={() => hold('hover', true)}
+      onMouseLeave={() => hold('hover', false)}
+      onFocus={(event) => {
+        // Only keyboard focus holds the carousel; a mouse click also focuses
+        // the button, and that should restart the timer rather than stop it.
+        if (event.target.matches(':focus-visible')) hold('focus', true)
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) hold('focus', false)
+      }}
     >
       <div className="immersive-stage">
         <div className="hero-atmosphere" aria-hidden="true" />
