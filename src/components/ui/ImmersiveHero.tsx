@@ -226,14 +226,14 @@ export function ImmersiveHero({
             </p>
             <div className="hero-actions hero-entrance hero-entrance-4">
               <Link
-                href="/projects"
+                href="/#book-visit"
                 id="hero-cta-primary"
                 className="site-button"
               >
-                Explore Projects <ArrowUpRight size={18} />
+                Book a Free Site Visit <ArrowUpRight size={18} />
               </Link>
-              <Link href="/#book-visit" className="site-text-link">
-                Book a Free Site Visit <ArrowUpRight size={16} />
+              <Link href="/projects" className="site-text-link">
+                Explore Projects <ArrowUpRight size={16} />
               </Link>
             </div>
           </div>
