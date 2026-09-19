@@ -56,7 +56,7 @@ export function Navbar() {
             {navLinks.map(link => (
               <Link key={link.href} href={link.href} id={`nav-${link.label.toLowerCase().replaceAll(' ', '-')}`}
                 aria-current={active(link.href) ? 'page' : undefined}
-                className={cn('px-3 py-2 text-sm font-medium rounded-md transition-colors', active(link.href) ? 'text-brand-gold bg-white/5' : 'text-white/85 hover:text-brand-gold hover:bg-white/5')}>
+                className={cn('px-3 py-2 text-sm font-medium rounded-md transition-colors border', active(link.href) ? 'border-brand-gold text-brand-gold bg-transparent' : 'border-transparent text-white/85 hover:text-brand-gold hover:bg-white/5')}>
                 {link.label}
               </Link>
             ))}
@@ -79,7 +79,7 @@ export function Navbar() {
           <div className="max-w-7xl mx-auto grid gap-1">
             {navLinks.map(link => (
               <Link key={link.href} href={link.href} aria-current={active(link.href) ? 'page' : undefined} onClick={() => setMenuPath(null)}
-                className={cn('block px-4 py-3 rounded-lg text-sm font-medium', active(link.href) ? 'text-brand-gold bg-white/5' : 'text-white/85 hover:bg-white/5 hover:text-brand-gold')}>
+                className={cn('block px-4 py-3 rounded-lg text-sm font-medium border', active(link.href) ? 'border-brand-gold text-brand-gold bg-transparent' : 'border-transparent text-white/85 hover:bg-white/5 hover:text-brand-gold')}>
                 {link.label}
               </Link>
             ))}
