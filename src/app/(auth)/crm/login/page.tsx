@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
-import logoFallback from '@/images/logo.png'
+import { BrandLockup } from '@/components/layout/BrandLockup'
 import { login } from './actions'
 import { BackToWebsiteButton } from '@/components/ui/BackToWebsiteButton'
 
@@ -29,13 +28,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
 
         <div className="flex justify-center mb-6">
-          <Image
-            src={logoFallback}
-            alt="Bhuwanta Logo"
-            width={150}
-            height={50}
-            className="h-12 w-auto object-contain"
-          />
+          <BrandLockup priority />
         </div>
 
         <div className="text-center mb-8">

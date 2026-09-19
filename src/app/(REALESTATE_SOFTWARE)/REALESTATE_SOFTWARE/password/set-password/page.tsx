@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
-import logoFallback from '@/images/logo.png'
+import { BrandLockup } from '@/components/layout/BrandLockup'
 import { createClient } from '@/lib/supabase/client'
 import { BackToWebsiteButton } from '@/components/ui/BackToWebsiteButton'
 
@@ -157,13 +156,7 @@ export default function SetPassword() {
       <div className="w-full max-w-md bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-8">
         
         <div className="flex justify-center mb-6">
-          <Image 
-            src={logoFallback} 
-            alt="Bhuwanta Logo" 
-            width={150} 
-            height={50} 
-            className="h-12 w-auto object-contain"
-          />
+          <BrandLockup priority />
         </div>
 
         {success ? (
