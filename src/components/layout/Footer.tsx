@@ -167,21 +167,17 @@ export async function Footer() {
               Explore open plots around Hyderabad, with guidance from your first
               enquiry to your site visit.
             </p>
-            <h3 className="footer-socials-heading">Social Links</h3>
-            <div className="footer-socials" aria-label="Follow Bhuwanta">
-              {socialItems.map(({ name, url, icon: Icon }) => (
-                <a
-                  key={name}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Bhuwanta on ${name}`}
-                  title={name}
-                >
-                  <Icon width={17} height={17} aria-hidden="true" />
-                </a>
-              ))}
-            </div>
+            <h3 className="footer-hq-heading">{addressLabel}</h3>
+            <address>{address}</address>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-inline-link"
+            >
+              <MapPin size={14} aria-hidden="true" /> Get Directions{' '}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
           </div>
 
           <nav className="footer-link-column" aria-label="Footer navigation">
@@ -210,17 +206,6 @@ export async function Footer() {
           </nav>
 
           <div className="footer-contact-column">
-            <h3>{addressLabel}</h3>
-            <address>{address}</address>
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-inline-link"
-            >
-              <MapPin size={14} aria-hidden="true" /> Get Directions{' '}
-              <ArrowUpRight size={14} aria-hidden="true" />
-            </a>
             <h3 className="footer-contact-heading">Contact Us</h3>
             <ul className="footer-contact-list">
               <li>
@@ -236,6 +221,21 @@ export async function Footer() {
                 </Link>
               </li>
             </ul>
+            <h3 className="footer-socials-heading">Social Links</h3>
+            <div className="footer-socials" aria-label="Follow Bhuwanta">
+              {socialItems.map(({ name, url, icon: Icon }) => (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Bhuwanta on ${name}`}
+                  title={name}
+                >
+                  <Icon width={17} height={17} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
         <div className="footer-bottom-row">
