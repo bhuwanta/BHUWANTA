@@ -2153,10 +2153,10 @@
   display: inline-flex;
   align-items: center;
   padding: 7px 16px;
-  border: 1px solid #e6ac3a;
+  border: 1px solid #00291e;
   border-radius: 999px;
   background: transparent;
-  color: #e6ac3a;
+  color: #00291e;
   line-height: 1.2;
 }
 /* Pills built with Tailwind utilities on the inner pages. */

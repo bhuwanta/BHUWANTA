@@ -205,9 +205,9 @@ export function ProjectsFilterClient({
                       {/* Right: Content */}
                       <div className="p-6 md:p-8 flex flex-col w-full">
                          <div className="flex flex-wrap gap-2 mb-3">
-                           <span className="px-3 py-1 border border-brand-gold bg-transparent text-brand-gold rounded-md text-[10px] font-bold uppercase tracking-wider">Open Plots</span>
+                           <span className="px-3 py-1 border border-brand-primary bg-transparent text-brand-primary rounded-md text-[10px] font-bold uppercase tracking-wider">Open Plots</span>
                            {project.approvalBadge && (
-                             <span className="px-3 py-1 border border-brand-gold bg-transparent text-brand-gold rounded-md text-[10px] font-bold uppercase tracking-wider">{project.approvalBadge}</span>
+                             <span className="px-3 py-1 border border-brand-primary bg-transparent text-brand-primary rounded-md text-[10px] font-bold uppercase tracking-wider">{project.approvalBadge}</span>
                            )}
                          </div>
 
