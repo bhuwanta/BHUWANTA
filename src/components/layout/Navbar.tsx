@@ -62,7 +62,7 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-sm px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
+            <Link href={ctaLink} id="nav-cta" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold gradient-gold hover:brightness-110 transition-colors whitespace-nowrap">
               {ctaText}
             </Link>
             <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex px-3 py-3 rounded-lg border border-white/20 text-sm text-white/85 hover:border-brand-gold hover:text-brand-gold transition-colors">Login</Link>

@@ -34,9 +34,6 @@
 .public-site :where(.bg-white, .bg-gray-50) {
   background-color: #fcfaf5;
 }
-.public-site :where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
-  border-radius: 4px;
-}
 .public-site :where(.shadow-xl, .shadow-2xl, .shadow-lg) {
   box-shadow: 0 12px 40px rgb(0 41 30 / 7%);
 }
@@ -48,7 +45,7 @@
   color: #00291e;
 }
 .public-site :where(button, a).gradient-gold {
-  border-radius: 2px;
+  border-radius: 10px;
   box-shadow: none;
 }
 .public-site :where(button, a).gradient-gold:hover {
@@ -57,7 +54,7 @@
 }
 .public-site
   :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
-  border-radius: 2px;
+  border-radius: 10px;
   border-color: #d4d4c5;
   background-color: #fffefb;
   color: #12392c;
@@ -146,6 +143,7 @@
   align-items: center;
   justify-content: center;
   gap: 22px;
+  border-radius: 10px;
   background: #e4bc60;
   color: #00291e;
   padding: 18px 25px;
@@ -312,6 +310,7 @@
   position: relative;
   aspect-ratio: 4/4.3;
   overflow: hidden;
+  border-radius: 14px;
   background: #dce0cd;
   display: flex;
   flex-direction: column;
@@ -348,6 +347,7 @@
   color: #e4bc60;
   padding: 8px 10px;
   font-size: 10px;
+  border-radius: 8px;
 }
 .location-info {
   display: grid;
@@ -498,8 +498,7 @@
   gap: 12px;
   align-items: center;
 }
-/* Soft corners for the booking form; the site-wide field rule above uses 2px. */
-.public-site .booking-form :where(input:not([type='checkbox']):not([type='radio']), select, textarea),
+/* The submit button is not a gold-class button, so match the fields. */
 .public-site .booking-form button[type='submit'] {
   border-radius: 10px;
 }
@@ -847,7 +846,7 @@
   font-weight: 400;
 }
 .public-site .project-directory .rounded-full {
-  border-radius: 2px;
+  border-radius: 10px;
 }
 .public-site .project-directory .text-center.mb-8 {
   justify-content: flex-start;
@@ -857,7 +856,7 @@
   padding-top: 20px;
 }
 .public-site article > div {
-  border-radius: 2px;
+  border-radius: 14px;
   box-shadow: none;
 }
 .public-site article h1 {
@@ -1750,7 +1749,7 @@
   overflow: hidden;
   text-align: left;
   border: 1px solid #ffffff30;
-  border-radius: 4px;
+  border-radius: 12px;
   background: #174735;
   padding: 38px 34px 17px 17px;
   display: flex;
@@ -1797,7 +1796,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 12px;
   background: #174735;
   animation: hero-arrive 0.6s ease both;
 }
@@ -2263,5 +2262,8 @@
 /* Projects page: soft corners for the area filters and the overview button in
    the same row (the directory otherwise squares every rounded element). */
 .public-site .project-directory .area-filters :where(button, a) {
+  border-radius: 10px;
+}
+.artwork-marker {
   border-radius: 10px;
 }

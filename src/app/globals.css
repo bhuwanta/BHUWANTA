@@ -353,7 +353,7 @@
 .public-site .gradient-primary { background: linear-gradient(135deg, #032b20, #124c36 60%, #1c6347); }
 .public-site .gradient-dark { background: linear-gradient(180deg, #032b20, #0b3b2a); }
 .public-site .gradient-light { background: linear-gradient(180deg, #ffffff, #faf9f3); }
-.public-site .gradient-gold { background: linear-gradient(120deg, #ecd39a, #dfbb68); color: #153c2e; }
+.public-site .gradient-gold { background: #e4bc60; color: #153c2e; }
 .public-site .bg-brand-gold { color: #153c2e; }
 .public-site .glass { border-color: #dfe4d8; }
 .public-site .glass-card { border-color: #dfe4d8; box-shadow: 0 2px 16px rgb(3 43 32 / 5%); }
