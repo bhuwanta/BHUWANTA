@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, Mail, MapPin } from 'lucide-react'
+import { ArrowUpRight, CalendarDays, Mail, MapPin } from 'lucide-react'
 import { sanityFetch } from '@/lib/sanity'
 import { BrandLockup } from './BrandLockup'
 
@@ -167,6 +167,7 @@ export async function Footer() {
               Explore open plots around Hyderabad, with guidance from your first
               enquiry to your site visit.
             </p>
+            <h3 className="footer-socials-heading">Social Links</h3>
             <div className="footer-socials" aria-label="Follow Bhuwanta">
               {socialItems.map(({ name, url, icon: Icon }) => (
                 <a
@@ -220,14 +221,21 @@ export async function Footer() {
               <MapPin size={14} aria-hidden="true" /> Get Directions{' '}
               <ArrowUpRight size={14} aria-hidden="true" />
             </a>
-            <a href={`mailto:${email}`} className="footer-email">
-              <Mail size={16} aria-hidden="true" />
-              <span>{email}</span>
-            </a>
-            <Link href="/#book-visit" className="footer-visit-link">
-              Book a Free Site Visit{' '}
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
+            <h3 className="footer-contact-heading">Contact Us</h3>
+            <ul className="footer-contact-list">
+              <li>
+                <a href={`mailto:${email}`}>
+                  <Mail size={16} aria-hidden="true" />
+                  <span>{email}</span>
+                </a>
+              </li>
+              <li>
+                <Link href="/#book-visit">
+                  <CalendarDays size={16} aria-hidden="true" />
+                  <span>Book a Free Site Visit</span>
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="footer-bottom-row">
