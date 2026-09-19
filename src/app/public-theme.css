@@ -2166,6 +2166,7 @@
 .editorial-cta .eyebrow,
 .home-why .eyebrow,
 .home-principles .eyebrow,
+.home-journey .eyebrow,
 .public-site
   :is(.bg-brand-deep, .bg-brand-primary, .bg-brand-ink, .gradient-primary, .gradient-dark)
   :is(span, div).rounded-full.uppercase.tracking-widest {
@@ -2316,4 +2317,36 @@
 }
 .public-site .project-directory .area-filters button[aria-pressed='false']:hover svg {
   color: #00291e;
+}
+
+/* "Know what comes next" sits on dark green so the home page alternates
+   light and dark sections all the way down. */
+.home-journey {
+  background: var(--site-deep);
+  color: #f7f4eb;
+}
+.home-journey .section-heading h2,
+.home-journey .journey-grid h3 {
+  color: #f7f4eb;
+}
+.home-journey .journey-grid p {
+  color: #aebfb2;
+}
+.home-journey .journey-grid::before {
+  background: linear-gradient(90deg, #e6ac3a, rgb(230 172 58 / 35%));
+}
+.home-journey .journey-grid span {
+  background: var(--site-deep);
+  border-color: #e6ac3a;
+  color: #e6ac3a;
+}
+.home-journey .journey-grid > div:hover span {
+  background: #e6ac3a;
+  border-color: #e6ac3a;
+  color: #00291e;
+}
+@media (max-width: 800px) {
+  .home-journey .journey-grid > div:not(:last-child)::after {
+    background: #e6ac3a;
+  }
 }
