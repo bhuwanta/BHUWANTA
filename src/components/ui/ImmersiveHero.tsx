@@ -383,14 +383,17 @@ export function ImmersiveHero({
                   {slide.image && (
                     <SanityImage
                       src={slide.image}
-                      alt=""
+                      alt={`${slide.title} — Bhuwanta open plots`}
                       fill
                       sizes="(max-width: 600px) 65vw, 280px"
                       className="object-cover"
                     />
                   )}
                   <span className="hero-highlight-card-shade" />
-                  <span className="hero-highlight-card-title">
+                  {/* The photo's alt text already names the highlight, so the
+                      caption is hidden from screen readers to avoid reading
+                      the same words twice inside one button. */}
+                  <span className="hero-highlight-card-title" aria-hidden="true">
                     {slide.title}
                   </span>
                   <ArrowUpRight size={16} aria-hidden="true" />

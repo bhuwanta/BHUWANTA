@@ -6,9 +6,15 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Crown, Check, Download, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
-import { DownloadPopup } from '@/components/ui/DownloadPopup'
+import dynamic from 'next/dynamic'
 import { canonicalProjectSlug } from '@/lib/project-links'
 import { OverviewDownloadButton } from '@/components/ui/OverviewDownloadButton'
+
+// Opens only after a click, so its code (and framer-motion) loads then.
+const DownloadPopup = dynamic(
+  () => import('@/components/ui/DownloadPopup').then((m) => m.DownloadPopup),
+  { ssr: false },
+)
 
 export interface ProjectEntry {
   name: string

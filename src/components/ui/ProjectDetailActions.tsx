@@ -5,8 +5,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { MapPin, Download, CreditCard, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
-import { DownloadPopup } from '@/components/ui/DownloadPopup'
+import dynamic from 'next/dynamic'
 import { trackWhatsAppClick } from '@/lib/gtag'
+
+// Opens only after a click, so its code (and framer-motion) loads then.
+const DownloadPopup = dynamic(
+  () => import('@/components/ui/DownloadPopup').then((m) => m.DownloadPopup),
+  { ssr: false },
+)
 
 interface ProjectDetailActionsProps {
   name: string

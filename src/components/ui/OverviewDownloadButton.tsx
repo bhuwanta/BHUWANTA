@@ -2,7 +2,13 @@
 
 import { useState } from 'react'
 import { Download } from 'lucide-react'
-import { DownloadPopup } from '@/components/ui/DownloadPopup'
+import dynamic from 'next/dynamic'
+
+// Opens only after a click, so its code (and framer-motion) loads then.
+const DownloadPopup = dynamic(
+  () => import('@/components/ui/DownloadPopup').then((m) => m.DownloadPopup),
+  { ssr: false },
+)
 
 /**
  * The "Download Projects Overview" action, shared by the /projects filter row

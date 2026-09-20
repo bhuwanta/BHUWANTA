@@ -32,7 +32,7 @@ import { LazyLeadPopup } from '@/components/ui/LazyLeadPopup'
 export async function generateMetadata(): Promise<Metadata> {
   return generatePageMetadata(
     'home',
-    'Open Plots around Hyderabad',
+    'Open Plots near Hyderabad: HMDA & DTCP Approved',
     'Explore Bhuwanta projects in Shabad, Sangareddy, Sadashivpet and Yadagirigutta. Request plot availability, project documents and a free site visit.',
   )
 }
