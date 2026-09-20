@@ -1,3 +1,4 @@
+import { cleanAttribution, campaignSource } from '@/lib/lead-attribution'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { contactRateLimiter } from '@/lib/redis'
@@ -77,6 +78,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { name, email, phone, location, project, enquiryType, message, sourcePage, referredBy } = body
 
+    const attribution = cleanAttribution(body.attribution)
+    const campaign = campaignSource(attribution)
+    const attributedSource = `${campaign ? campaign + ' | ' : ''}${sourcePage || 'Website'}`
+    const attributionNote = Object.keys(attribution).length ? `\nCampaign metadata (browser supplied): ${JSON.stringify(attribution)}` : ''
+    let leadId: string
+
     // Create a summarized budget string for CRM (Sanity/Supabase) backwards compatibility
     const locationStr = location && location !== 'Not Sure' ? `Location: ${location} | ` : ''
     const budget = `${locationStr}Project: ${project} | Type: ${enquiryType} | Message: ${message}`
@@ -98,16 +105,18 @@ export async function POST(request: NextRequest) {
 
     // Insert into Sanity (Primary CRM)
     try {
-      await writeClient.create({
+      const savedLead = await writeClient.create({
         _type: 'lead',
         name,
         email: email || '',
         phone: phone || '',
         budget: budget || '',
-        sourcePage: sourcePage || 'Website',
+        sourcePage: attributedSource,
+        attribution,
         referredBy: referredBy || '',
         status: 'new',
       })
+      leadId = savedLead._id
     } catch (dbError) {
       console.error('Sanity insert error:', dbError)
       return NextResponse.json(
@@ -124,19 +133,20 @@ export async function POST(request: NextRequest) {
       const isDownload = enquiryType?.includes('Document Download')
       const downloadedItem = isDownload ? enquiryType.replace('Document Download: ', '') : null
 
-      await supabase.from('leads').insert({
+      const { error: backupError } = await supabase.from('leads').insert({
         name,
-        email: email || null,
+        email: email || '',
         phone: phone || null,
-        message: message || '',
+        message: `${message || ''}${attributionNote}`,
         location: location && location !== 'All' ? location : null,
         project: project && project !== 'Not Sure' ? project : null,
         enquiry_type: enquiryType || 'Website Inquiry',
         downloaded_item: downloadedItem,
-        source_page: sourcePage || 'Website',
+        source_page: attributedSource,
         referred_by: referredBy || null,
         status: 'new',
       })
+      if (backupError) throw backupError
     } catch (backupErr) {
       console.error('Supabase backup insert failed (non-critical):', backupErr)
     }
@@ -154,7 +164,7 @@ export async function POST(request: NextRequest) {
       // Don't fail the request, lead is saved
     }
 
-    return NextResponse.json({ success: true, message: 'Message sent successfully!' })
+    return NextResponse.json({ success: true, leadId, message: 'Message sent successfully!' })
   } catch (error) {
     console.error('Contact API error:', error)
     return NextResponse.json(

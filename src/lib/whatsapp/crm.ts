@@ -1,3 +1,4 @@
+import { whatsappSourceHint } from '@/lib/lead-attribution'
 import { createClient } from '@supabase/supabase-js'
 
 // We use the service role key to bypass RLS for webhook operations
@@ -6,7 +7,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-export async function upsertWhatsAppLead(phone: string, name: string) {
+export async function upsertWhatsAppLead(phone: string, name: string, incomingMessage = '') {
   try {
     // Try to find existing lead with this phone
     const { data: existingLead } = await supabase
@@ -38,7 +39,7 @@ export async function upsertWhatsAppLead(phone: string, name: string) {
         phone,
         email: `${phone}@whatsapp.lead`,
         message: 'Enquiry via WhatsApp Bot',
-        source_page: 'WhatsApp Bot',
+        source_page: whatsappSourceHint(incomingMessage) ? 'WhatsApp Bot | Google Ads (website message hint)' : 'WhatsApp Bot',
         status: 'new'
       })
       .select()

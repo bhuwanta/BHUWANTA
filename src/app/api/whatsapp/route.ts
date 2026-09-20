@@ -164,7 +164,7 @@ export async function POST(request: Request) {
         if (isGreeting || session.step === 'INIT') {
           console.log('🔄 Starting greeting flow for', senderPhone)
           
-          const leadResult = await upsertWhatsAppLead(senderPhone, profileName)
+          const leadResult = await upsertWhatsAppLead(senderPhone, profileName, userInput)
           await logLeadActivity(senderPhone, 'Bot Started', 'User initiated chat or sent greeting')
           console.log('💾 Lead upsert result:', leadResult ? 'OK' : 'FAILED (but continuing)')
           

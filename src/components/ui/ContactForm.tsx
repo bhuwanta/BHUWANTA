@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { matchEnquiryProject } from '@/lib/project-links'
+import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion } from '@/lib/gtag'
 import Link from 'next/link'
 
@@ -144,6 +145,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          attribution: getLeadAttribution(),
           name: formData.name,
           email: formData.email || undefined,
           phone: formData.phone,
@@ -163,7 +165,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
       clearRecaptcha()
 
-      fireLeadConversion()
+      fireLeadConversion(data.leadId)
       router.push('/thank-you')
     } catch (err: unknown) {
       console.error(err)

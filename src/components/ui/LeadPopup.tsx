@@ -7,6 +7,7 @@ import Image from 'next/image'
 import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
+import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion } from '@/lib/gtag'
 
 declare global {
@@ -124,14 +125,16 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          attribution: getLeadAttribution(),
           ...formData,
           sourcePage: 'Website Popup',
         }),
       })
 
       if (response.ok) {
+        const data = await response.json()
         setIsSubmitted(true)
-        fireLeadConversion()
+        fireLeadConversion(data.leadId)
         setTimeout(() => setIsOpen(false), 3000)
       } else {
         throw new Error('Failed to send message.')

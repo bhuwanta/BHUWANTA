@@ -35,7 +35,7 @@ test('a WhatsApp click does not fire the Google Ads lead conversion', () => {
   globalThis.window = { gtag: (...args) => events.push(args) }
   trackWhatsAppClick()
   assert.deepEqual(events, [['event', 'whatsapp_click', { contact_method: 'whatsapp' }]])
-  fireLeadConversion()
+  fireLeadConversion('saved-lead-123')
   assert.equal(events[1][1], 'conversion')
   assert.equal(events[1][2].send_to, 'AW-18301435119/N10ICO3ygPscEO_55pZE')
   delete globalThis.window
@@ -45,4 +45,36 @@ test('tracking safely handles server rendering and unavailable tags', () => {
   globalThis.window = {}
   assert.doesNotThrow(() => { trackWhatsAppClick(); fireLeadConversion() })
   delete globalThis.window
+})
+
+const { cleanAttribution, campaignSource, getLeadAttribution, whatsappSourceHint } = await importTypescript('../src/lib/lead-attribution.ts')
+test('conversion queues before Google finishes loading, carries saved ID, and ignores missing ID', () => {
+  globalThis.window = {}
+  fireLeadConversion()
+  assert.equal(window.dataLayer, undefined)
+  fireLeadConversion('saved-lead-456')
+  const event = Array.from(window.dataLayer[0])
+  assert.equal(event[1], 'conversion')
+  assert.equal(event[2].transaction_id, 'saved-lead-456')
+  assert.equal(event[2].send_to, 'AW-18301435119/N10ICO3ygPscEO_55pZE')
+  delete globalThis.window
+})
+test('campaign metadata survives internal navigation without mixing a later campaign', () => {
+  const store = new Map()
+  globalThis.window = { location: { search: '?gclid=sample-click&utm_source=google&email=private' }, sessionStorage: { getItem: k => store.get(k), setItem: (k,v) => store.set(k,v) } }
+  assert.deepEqual(getLeadAttribution(), { gclid:'sample-click', utm_source:'google' })
+  window.location.search = ''
+  assert.equal(campaignSource(getLeadAttribution()), 'Google Ads')
+  window.location.search = '?utm_source=facebook&utm_medium=paid'
+  assert.equal(getLeadAttribution().gclid, undefined)
+  assert.equal(campaignSource(getLeadAttribution()), undefined)
+  delete globalThis.window
+})
+test('invalid metadata and unavailable storage do not block enquiries', () => {
+  assert.deepEqual(cleanAttribution({ gclid: '<script>', utm_source:'x'.repeat(201), phone:'123' }), {})
+  globalThis.window = { location:{ search:'?gclid=test' }, get sessionStorage() { throw Error('blocked') } }
+  assert.deepEqual(getLeadAttribution(), {gclid:'test'})
+  delete globalThis.window
+  assert.equal(whatsappSourceHint('Hi'), undefined)
+  assert.equal(whatsappSourceHint('Hi [Bhuwanta website source: Google Ads]'), 'Google Ads')
 })

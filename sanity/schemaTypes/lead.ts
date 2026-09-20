@@ -9,6 +9,10 @@ export const leadSchema = defineType({
   readOnly: false, // Allows admin to edit notes/status
   fields: [
     defineField({
+      name: 'attribution', type: 'object', title: 'Campaign metadata (browser supplied)', readOnly: true,
+      fields: ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].map(name => ({ name, type: 'string', title: name })),
+    }),
+    defineField({
       name: 'name',
       type: 'string',
       title: 'Full Name',

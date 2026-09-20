@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { attributedWhatsAppUrl } from '@/lib/lead-attribution'
 import { trackWhatsAppClick } from '@/lib/gtag'
 
 const WHATSAPP_NUMBER = '919666504405'
@@ -40,7 +41,7 @@ export function WhatsAppFloat() {
         type="button"
         onClick={() => {
           trackWhatsAppClick()
-          window.open(whatsappUrl, '_blank')
+          window.open(attributedWhatsAppUrl(whatsappUrl), '_blank', 'noopener,noreferrer')
         }}
         aria-label="Chat With Us on WhatsApp"
         className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:scale-110 hover:shadow-xl hover:shadow-[#25D366]/40 transition-all duration-300 cursor-pointer border-none outline-none"

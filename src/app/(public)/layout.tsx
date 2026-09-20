@@ -1,3 +1,4 @@
+import { LeadAttributionCapture } from '@/components/ui/LeadAttributionCapture'
 import { PublicMotion } from '@/components/ui/PublicMotion'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -84,9 +85,9 @@ export default async function PublicLayout({
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="lazyOnload"
+              strategy="afterInteractive"
             />
-            <Script id="google-analytics" strategy="lazyOnload">
+            <Script id="google-analytics" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){window.dataLayer.push(arguments);}
@@ -130,6 +131,7 @@ export default async function PublicLayout({
 
       <div className="public-site flex min-h-screen flex-1 flex-col">
         <a href="#main-content" className="skip-link">Skip to content</a>
+        <LeadAttributionCapture />
         <Navbar />
         <PublicMotion />
         <main id="main-content" className="flex-1 flex flex-col">{children}</main>

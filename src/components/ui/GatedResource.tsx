@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Lock, Printer } from 'lucide-react'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
+import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion } from '@/lib/gtag'
 
 export function GatedResource({
@@ -96,6 +97,7 @@ export function GatedResource({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          attribution: getLeadAttribution(),
           name: formData.name,
           phone: formData.phone,
           referredBy: formData.referredBy,
@@ -105,8 +107,9 @@ export function GatedResource({
       })
 
       if (!res.ok) throw new Error('Failed to save your details. Please try again.')
+      const data = await res.json()
       setUnlocked(true)
-      fireLeadConversion()
+      fireLeadConversion(data.leadId)
 
       clearRecaptcha()
     } catch (err: unknown) {
