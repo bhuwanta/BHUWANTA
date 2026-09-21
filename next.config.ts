@@ -63,6 +63,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Tag Assistant needs its opener connection on this public test page.
+        // Keep strict isolation for normal visits and all authenticated routes.
+        source: '/shabad-open-plots',
+        has: [{ type: 'query', key: 'tracking_debug', value: '1' }],
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
+        ],
+      },
     ];
   },
   async redirects() {
@@ -107,4 +116,3 @@ export default withSentryConfig(nextConfig, {
   },
 
 });
-
