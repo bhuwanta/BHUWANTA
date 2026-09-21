@@ -809,7 +809,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                           : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
                           : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
                       >
-                        <option value="new">New</option>
+                        <option value="new">{lead.source_page?.toLowerCase().includes('whatsapp') ? 'Unverified contact' : 'New'}</option>
                         <option value="contacted">Contacted</option>
                         <option value="uncontacted">Uncontacted</option>
                         <option value="qualified">Qualified</option>
@@ -918,7 +918,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                       : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
                       : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
                   >
-                    <option value="new">New</option>
+                    <option value="new">{lead.source_page?.toLowerCase().includes('whatsapp') ? 'Unverified contact' : 'New'}</option>
                     <option value="contacted">Contacted</option>
                     <option value="uncontacted">Uncontacted</option>
                     <option value="qualified">Qualified</option>
@@ -1127,15 +1127,16 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                   <MessageCircle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#0f1d33]">Chat History</h2>
+                  <h2 className="text-xl font-bold text-[#0f1d33]">WhatsApp Activity</h2>
                   <p className="text-sm text-[#5a6a82]">{whatsappLead.name} ({whatsappLead.phone})</p>
                 </div>
               </div>
-              <button onClick={closeWhatsappHistory} className="text-[#5a6a82] hover:text-[#0f1d33]">
+              <button aria-label="Close WhatsApp activity" onClick={closeWhatsappHistory} className="text-[#5a6a82] hover:text-[#0f1d33]">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
+            <p className="text-sm text-[#5a6a82] mb-4">A bot start or document request does not establish buying intent. Older entries may not contain the original message or acquisition source.</p>
             <div className="flex-1 overflow-y-auto pr-2 space-y-4">
               {isLoadingActivities ? (
                 <div className="text-center py-8 text-[#5a6a82]">Loading history...</div>
@@ -1155,7 +1156,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                           </span>
                         </div>
                         {activity.details && (
-                          <p className="text-sm text-[#5a6a82]">{activity.details}</p>
+                          <p className="text-sm text-[#5a6a82] whitespace-pre-wrap break-words">{activity.details}</p>
                         )}
                         <span className="text-[10px] text-[#5a6a82] mt-2 block">
                           {new Date(activity.created_at).toLocaleString()}

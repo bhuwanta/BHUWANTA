@@ -1,6 +1,7 @@
+import { verifyWhatsAppSignature, incomingEvidence } from '@/lib/whatsapp/evidence'
 import { NextResponse } from 'next/server'
 import { getSession, setSession, clearSession } from '@/lib/whatsapp/state'
-import { upsertWhatsAppLead, logLeadActivity, triggerSalesNotification } from '@/lib/whatsapp/crm'
+import { upsertWhatsAppLead, logLeadActivity, triggerSalesNotification, recordIncomingWhatsApp } from '@/lib/whatsapp/crm'
 import { getActiveAreas, getProjectsByArea, getProjectDetails } from '@/lib/whatsapp/sanity'
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'bhuwanta_verify_2026'
@@ -109,7 +110,13 @@ export async function GET(request: Request) {
 // Handle Incoming Messages (POST request from Meta)
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const secret = process.env.WHATSAPP_APP_SECRET
+    if (!secret) return new NextResponse('Webhook verification is not configured', { status: 503 })
+    const rawBody = await request.text()
+    if (!verifyWhatsAppSignature(rawBody, request.headers.get('x-hub-signature-256'), secret)) {
+      return new NextResponse('Invalid webhook signature', { status: 401 })
+    }
+    const body = JSON.parse(rawBody)
     
     if (body.object === 'whatsapp_business_account') {
       const entry = body.entry?.[0]
@@ -122,6 +129,9 @@ export async function POST(request: Request) {
       if (value?.messages && value?.messages[0]) {
         const message = value.messages[0]
         const senderPhone = message.from
+        if (typeof message.id !== 'string' || !message.id || typeof senderPhone !== 'string' || !/^\d{7,15}$/.test(senderPhone)) {
+          return new NextResponse('Invalid message identity', { status: 400 })
+        }
         
         // Extract WhatsApp Profile Name if available
         const profileName = value.contacts?.[0]?.profile?.name || 'WhatsApp User'
@@ -143,7 +153,9 @@ export async function POST(request: Request) {
           }
         }
 
-        console.log(`📩 Received from ${senderPhone}: ${userInput}`)
+        const incomingLead = await upsertWhatsAppLead(senderPhone, profileName, userInput)
+        if (!incomingLead) throw new Error('Could not save WhatsApp contact')
+        await recordIncomingWhatsApp(incomingLead.id, message.id, incomingEvidence(message))
 
         // 1. Get or Create Session
         const session = await getSession(senderPhone, profileName)
@@ -164,7 +176,7 @@ export async function POST(request: Request) {
         if (isGreeting || session.step === 'INIT') {
           console.log('🔄 Starting greeting flow for', senderPhone)
           
-          const leadResult = await upsertWhatsAppLead(senderPhone, profileName, userInput)
+          const leadResult = incomingLead
           await logLeadActivity(senderPhone, 'Bot Started', 'User initiated chat or sent greeting')
           console.log('💾 Lead upsert result:', leadResult ? 'OK' : 'FAILED (but continuing)')
           

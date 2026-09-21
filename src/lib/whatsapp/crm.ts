@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { whatsappSourceHint } from '@/lib/lead-attribution'
 import { createClient } from '@supabase/supabase-js'
 
@@ -38,7 +39,7 @@ export async function upsertWhatsAppLead(phone: string, name: string, incomingMe
         name,
         phone,
         email: `${phone}@whatsapp.lead`,
-        message: 'Enquiry via WhatsApp Bot',
+        message: 'Unverified WhatsApp contact — buying interest has not been confirmed.',
         source_page: whatsappSourceHint(incomingMessage) ? 'WhatsApp Bot | Google Ads (website message hint)' : 'WhatsApp Bot',
         status: 'new'
       })
@@ -80,4 +81,15 @@ export async function triggerSalesNotification(phone: string, project: string) {
   // Here we can trigger an email via Resend to the sales team
   // For now we just log it
   console.log(`[ALERT] Sales team notified for callback request from ${phone} regarding ${project}`)
+}
+
+/** Preserve evidence once per provider message; do not qualify the contact. */
+export async function recordIncomingWhatsApp(leadId: string, messageId: string, details: string) {
+  const hash = createHash('sha256').update(`whatsapp:${messageId}`).digest('hex')
+  const id = `${hash.slice(0,8)}-${hash.slice(8,12)}-5${hash.slice(13,16)}-a${hash.slice(17,20)}-${hash.slice(20,32)}`
+  const { error } = await supabase.from('lead_activities').insert({
+    id, lead_id: leadId, activity_type: 'Incoming WhatsApp message', details
+  })
+  // Provider retries must not create another copy of the evidence.
+  if (error && error.code !== '23505') throw new Error('Could not preserve incoming WhatsApp evidence')
 }
