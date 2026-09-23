@@ -49,10 +49,44 @@ export async function GET(request: Request) {
 
     const getUtcStr = (istDate: Date) => new Date(istDate.getTime() - (5.5 * 60 * 60 * 1000)).toISOString();
 
-    if (istHour >= 17) {
-      // 6 PM Logic
-      reportPeriod = "6 PM Evening Report";
-      
+    // ── Determine time slot based on current IST hour ──
+    // Master reports (6 AM, 6 PM): 3 PDFs — slot leads, today total, all-time
+    // Regular reports (9 AM, 12 PM, 3 PM, 9 PM): PDF + Excel for the slot
+    let startIst: Date;
+    let isMaster = false;
+
+    if (istHour >= 20) {
+      // 9 PM Report: 6 PM → 9 PM
+      reportPeriod = '9 PM Report (6 PM – 9 PM)';
+      startIst = new Date(midnightIst.getTime() + (18 * 60 * 60 * 1000));
+    } else if (istHour >= 17) {
+      // 6 PM Master Report: 3 PM → 6 PM + today total + all-time
+      reportPeriod = '6 PM Master Report';
+      startIst = new Date(midnightIst.getTime() + (15 * 60 * 60 * 1000));
+      isMaster = true;
+    } else if (istHour >= 14) {
+      // 3 PM Report: 12 PM → 3 PM
+      reportPeriod = '3 PM Report (12 PM – 3 PM)';
+      startIst = new Date(midnightIst.getTime() + (12 * 60 * 60 * 1000));
+    } else if (istHour >= 11) {
+      // 12 PM Report: 9 AM → 12 PM
+      reportPeriod = '12 PM Report (9 AM – 12 PM)';
+      startIst = new Date(midnightIst.getTime() + (9 * 60 * 60 * 1000));
+    } else if (istHour >= 8) {
+      // 9 AM Report: 6 AM → 9 AM
+      reportPeriod = '9 AM Report (6 AM – 9 AM)';
+      startIst = new Date(midnightIst.getTime() + (6 * 60 * 60 * 1000));
+    } else {
+      // 6 AM Master Report: 9 PM yesterday → 6 AM today
+      reportPeriod = '6 AM Master Report (9 PM – 6 AM)';
+      startIst = new Date(midnightIst.getTime() - (3 * 60 * 60 * 1000));
+      isMaster = true;
+    }
+
+    const startUtc = getUtcStr(startIst);
+
+    if (isMaster) {
+      // ── Master reports: 3 PDFs (slot + today + all-time) ──
       const { data: allTimeLeads } = await supabase
         .from('leads')
         .select('*')
@@ -60,54 +94,44 @@ export async function GET(request: Request) {
 
       if (allTimeLeads) {
         const allTime = allTimeLeads.map(formatLead);
-        
+
+        // Slot leads
+        const slotLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startUtc);
+
+        // Today's leads
         const startOfTodayUtc = getUtcStr(midnightIst);
         const todayLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startOfTodayUtc);
-        
-        const threePmIst = new Date(midnightIst.getTime() + (15 * 60 * 60 * 1000));
-        const threePmUtc = getUtcStr(threePmIst);
-        const slotLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= threePmUtc);
 
-        // 3 PDFs as requested
-        attachments.push({ filename: `1_leads_3pm_to_6pm_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeadsRaw.map(formatLead), "Leads (3 PM - 6 PM)") });
-        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeadsRaw.map(formatLead), "Total Leads Today") });
-        attachments.push({ filename: `3_total_leads_all_time_${dateStr}.pdf`, content: await generatePDFBuffer(allTime, "Total Leads All Time") });
-        
+        const slotTitle = istHour >= 17
+          ? 'Leads (3 PM – 6 PM)'
+          : 'Leads (9 PM Yesterday – 6 AM Today)';
+
+        attachments.push({ filename: `1_slot_leads_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeadsRaw.map(formatLead), slotTitle) });
+        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeadsRaw.map(formatLead), 'Total Leads Today') });
+        attachments.push({ filename: `3_total_leads_all_time_${dateStr}.pdf`, content: await generatePDFBuffer(allTime, 'Total Leads All Time') });
+
         emailHtml = `
-          <h2>Bhuwanta 6 PM Leads Report</h2>
-          <p>Attached are the 3 requested PDF reports.</p>
-          ${slotLeadsRaw.length === 0 && todayLeadsRaw.length === 0 ? '<p style="color:red; font-weight:bold;">Notice: No new leads came in today.</p>' : ''}
+          <h2>Bhuwanta ${reportPeriod}</h2>
+          <p>Attached are the 3 Master PDF reports.</p>
+          ${slotLeadsRaw.length === 0 && todayLeadsRaw.length === 0 ? '<p style="color:red; font-weight:bold;">Notice: No new leads came in during this period.</p>' : ''}
           <ul>
-            <li><strong>3 PM to 6 PM:</strong> ${slotLeadsRaw.length} leads</li>
+            <li><strong>Slot Leads:</strong> ${slotLeadsRaw.length} leads</li>
             <li><strong>Total Leads Today:</strong> ${todayLeadsRaw.length} leads</li>
-            <li><strong>Total Leads Till Now:</strong> ${allTime.length} leads</li>
+            <li><strong>Total Leads All Time:</strong> ${allTime.length} leads</li>
           </ul>
         `;
       }
     } else {
-      let startIst = new Date(midnightIst);
-      if (istHour >= 14) {
-        startIst = new Date(midnightIst.getTime() + (12 * 60 * 60 * 1000)); // 12 PM Today
-        reportPeriod = "Afternoon Report (12 PM - 3 PM)";
-      } else if (istHour >= 11) {
-        startIst = new Date(midnightIst.getTime() + (9 * 60 * 60 * 1000)); // 9 AM Today
-        reportPeriod = "Mid-Day Report (9 AM - 12 PM)";
-      } else {
-        startIst = new Date(midnightIst.getTime() - (6 * 60 * 60 * 1000)); // 6 PM Yesterday
-        reportPeriod = "Morning Report (6 PM Yesterday - 9 AM Today)";
-      }
-      
-      const startUtc = getUtcStr(startIst);
+      // ── Regular slot reports: PDF + Excel ──
       const { data: leads } = await supabase
         .from('leads')
         .select('*')
         .gte('created_at', startUtc)
         .order('created_at', { ascending: false });
 
-      // Remove early return, allow 0 leads to pass through
       const reportData = leads ? leads.map(formatLead) : [];
       const reportTitle = `Bhuwanta Leads - ${reportPeriod}`;
-      
+
       attachments.push({ filename: `leads_report_${dateStr}.xlsx`, content: generateExcelBuffer(reportData) });
       attachments.push({ filename: `leads_report_${dateStr}.pdf`, content: await generatePDFBuffer(reportData, reportTitle) });
 
