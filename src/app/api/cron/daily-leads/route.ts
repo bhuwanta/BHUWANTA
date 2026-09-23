@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { resend } from '@/lib/resend'
 
-// Required to make sure Next.js doesn't passively cache background cron runs
+// Triggered externally via cron-job.org — ensure CRON_SECRET matches the Authorization header
 export const dynamic = 'force-dynamic'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
