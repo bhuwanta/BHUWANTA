@@ -37,7 +37,11 @@ export async function GET(request: Request) {
 
     const nowUtc = new Date();
     const nowIst = new Date(nowUtc.getTime() + (5.5 * 60 * 60 * 1000));
-    const istHour = nowIst.getUTCHours();
+
+    // Allow ?testHour=6 to simulate a specific IST hour (for testing all slots)
+    const url = new URL(request.url);
+    const testHourParam = url.searchParams.get('testHour');
+    const istHour = testHourParam ? parseInt(testHourParam, 10) : nowIst.getUTCHours();
     
     const midnightIst = new Date(nowIst);
     midnightIst.setUTCHours(0, 0, 0, 0);
