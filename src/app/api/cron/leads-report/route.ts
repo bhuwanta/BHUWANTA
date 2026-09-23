@@ -151,7 +151,7 @@ export async function GET(request: Request) {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'info@bhuwanta.com';
       const { error: emailError } = await resend.emails.send({
         from: `Bhuwanta Reports <${fromEmail}>`,
-        to: ['info@bhuwanta.com'],
+        to: ['bhuwanta9@gmail.com'],
         subject: `[Bhuwanta CRM] ${reportPeriod}`,
         html: emailHtml + `<br/><p><small>This is an automated system email.</small></p>`,
         attachments
