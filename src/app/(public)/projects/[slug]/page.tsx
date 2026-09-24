@@ -6,6 +6,7 @@ import { JsonLd, buildBreadcrumbSchema, buildRealEstateListingSchema, buildFaqSc
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectDetailActions } from '@/components/ui/ProjectDetailActions'
+import { ContactForm } from '@/components/ui/ContactForm'
 import { getSiteUrl } from '@/lib/site-url'
 import { displayProjectName, displayProjectPlace, projectPageTitle } from '@/lib/project-links'
 
@@ -156,6 +157,7 @@ export default async function ProjectDetailPage({
 
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/projects/${slug}`
+  const hasInlineEnquiry = slug === 'arudra'
 
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
@@ -199,6 +201,7 @@ export default async function ProjectDetailPage({
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
             <ProjectDetailActions
               name={project.name}
+              enquiryLink={hasInlineEnquiry ? '#book-visit' : undefined}
               images={project.images}
               videoUrl={project.videoUrl}
               youtubeUrl={project.youtubeUrl}
@@ -212,6 +215,20 @@ export default async function ProjectDetailPage({
               videoCount={project.videoCount}
               highlightCount={project.highlightCount}
             />
+
+            {hasInlineEnquiry && (
+              <section id="book-visit" aria-label="Arudra plot enquiry" className="mt-8 scroll-mt-28 rounded-xl border border-brand-border bg-brand-paper p-5 sm:p-8">
+                <p className="mb-4 text-sm text-brand-muted">
+                  Enquire about {displayProjectName(project.name)}. Get current plot prices, layout details and site visit options from Bhuwanta.
+                </p>
+                <ContactForm
+                  compact
+                  initialProject={project.name}
+                  projectsList={[{ name: project.name, location: project.location }]}
+                />
+                <p className="mt-3 text-xs text-brand-muted">Verify your mobile number by OTP to send your enquiry.</p>
+              </section>
+            )}
 
             {project.description && (
               <p className="mt-8 text-brand-muted leading-relaxed">{project.description}</p>
@@ -245,7 +262,7 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
-      <CtaSection />
+      <CtaSection primaryButtonLink={hasInlineEnquiry ? '#book-visit' : undefined} />
     </>
   )
 }

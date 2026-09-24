@@ -16,6 +16,7 @@ const DownloadPopup = dynamic(
 
 interface ProjectDetailActionsProps {
   name: string
+  enquiryLink?: string
   images?: string[]
   videoUrl?: string
   youtubeUrl?: string
@@ -35,6 +36,7 @@ interface ProjectDetailActionsProps {
 
 export function ProjectDetailActions({
   name,
+  enquiryLink,
   images,
   videoUrl,
   youtubeUrl,
@@ -63,7 +65,7 @@ export function ProjectDetailActions({
 
       <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
-          href={enquiryHref(name)}
+          href={enquiryLink || enquiryHref(name)}
           className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline"
         >
           Enquire Now
