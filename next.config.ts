@@ -63,15 +63,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      {
-        // Tag Assistant needs its opener connection on this public test page.
+      ...['/shabad-open-plots', '/projects/arudra'].map((source) => ({
+        // Tag Assistant needs its opener connection on these public test pages.
         // Keep strict isolation for normal visits and all authenticated routes.
-        source: '/shabad-open-plots',
-        has: [{ type: 'query', key: 'tracking_debug', value: '1' }],
+        source,
+        has: [{ type: 'query' as const, key: 'tracking_debug', value: '1' }],
         headers: [
           { key: 'Cross-Origin-Opener-Policy', value: 'unsafe-none' },
         ],
-      },
+      })),
     ];
   },
   async redirects() {
