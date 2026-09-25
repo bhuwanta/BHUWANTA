@@ -5,7 +5,7 @@ import { Lock, Printer } from 'lucide-react'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { getLeadAttribution } from '@/lib/lead-attribution'
-import { fireLeadConversion } from '@/lib/gtag'
+import { trackDocumentDownload } from '@/lib/gtag'
 
 export function GatedResource({
   resourceName,
@@ -109,7 +109,7 @@ export function GatedResource({
       if (!res.ok) throw new Error('Failed to save your details. Please try again.')
       const data = await res.json()
       setUnlocked(true)
-      fireLeadConversion(data.leadId)
+      trackDocumentDownload(data.leadId)
 
       clearRecaptcha()
     } catch (err: unknown) {

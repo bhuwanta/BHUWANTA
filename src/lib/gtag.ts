@@ -13,11 +13,23 @@ export function fireLeadConversion(leadId?: string) {
   if (typeof window === 'undefined' || !leadId) return
   // Queue safely even if the network loader has not finished.
   window.dataLayer = window.dataLayer || []
+  // Google tag's bootstrap queues IArguments, not a plain data-layer event object.
+  // eslint-disable-next-line prefer-rest-params
   window.gtag = window.gtag || function () { window.dataLayer!.push(arguments) }
   window.gtag('event', 'conversion', {
     send_to: LEAD_CONVERSION_SEND_TO,
     transaction_id: leadId,
   })
+}
+
+/** A requested document is engagement, not the primary sales-enquiry action. */
+export function trackDocumentDownload(leadId?: string) {
+  if (typeof window === 'undefined' || !leadId) return
+  window.dataLayer = window.dataLayer || []
+  // Google tag's bootstrap queues IArguments, not a plain data-layer event object.
+  // eslint-disable-next-line prefer-rest-params
+  window.gtag = window.gtag || function () { window.dataLayer!.push(arguments) }
+  window.gtag('event', 'document_download', { transaction_id: leadId })
 }
 
 /** Opening WhatsApp does not establish that the visitor sent a message. */

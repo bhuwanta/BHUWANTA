@@ -9,7 +9,7 @@ async function importTypescript(path) {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 }
 const { enquiryHref, matchEnquiryProject, canonicalProjectSlug } = await importTypescript('../src/lib/project-links.ts')
-const { fireLeadConversion, trackWhatsAppClick } = await importTypescript('../src/lib/gtag.ts')
+const { fireLeadConversion, trackWhatsAppClick, trackDocumentDownload } = await importTypescript('../src/lib/gtag.ts')
 const projects = [{ name: 'VIAN VALLEY ', location: 'Shabad' }, { name: 'S.V.KANAKA MAPLE HOMES', location: 'Warangal Highway' }]
 
 test('enquiry links preserve an encoded project query before the real fragment', () => {
@@ -45,6 +45,17 @@ test('tracking safely handles server rendering and unavailable tags', () => {
   globalThis.window = {}
   assert.doesNotThrow(() => { trackWhatsAppClick(); fireLeadConversion() })
   delete globalThis.window
+})
+
+test('document downloads never send the primary enquiry conversion', () => {
+  const events = []
+  globalThis.window = { gtag: (...args) => events.push(args) }
+  trackDocumentDownload()
+  assert.equal(events.length, 0)
+  trackDocumentDownload('document-lead-123')
+  assert.deepEqual(events, [['event', 'document_download', { transaction_id: 'document-lead-123' }]])
+  delete globalThis.window
+  assert.doesNotThrow(() => trackDocumentDownload('server-render'))
 })
 
 const { cleanAttribution, campaignSource, getLeadAttribution, whatsappSourceHint } = await importTypescript('../src/lib/lead-attribution.ts')

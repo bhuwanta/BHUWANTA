@@ -13,7 +13,7 @@ export const metadata: Metadata = buildStaticOgMetadata({
 const faqs = [
   { question: 'Are Shabad and Shadnagar the same place?', answer: 'No. They are distinct towns south and southwest of Hyderabad. Shadnagar is associated with the NH-44 corridor; Shabad has its own approach roads and industrial surroundings. Check each project entrance and route separately.' },
   { question: 'Which location is better for buying a plot?', answer: 'There is no universal winner. Compare specific plots on total cost, access, completed services, documentation and your intended use. Nearby development does not guarantee future returns.' },
-  { question: 'Where is Bhuwanta’s Vian Valley offer?', answer: 'Vian Valley is in Shabad. The advertised starting rate is ₹30,XXX per square yard. Ask Bhuwanta for the current phase, plot availability and a written cost breakdown.' },
+  { question: 'Where is Bhuwanta’s Vian Valley offer?', answer: 'Vian Valley is in Shabad.  Ask Bhuwanta for the current phase, plot availability and a written cost breakdown.' },
 ]
 
 export default function ShabadVsShadnagarPage() {
@@ -37,7 +37,7 @@ export default function ShabadVsShadnagarPage() {
     <p>Shabad buyers frequently ask about Chandanvelly and Seetharampur. Corporate facilities and public infrastructure plans should be checked individually for location, status and date. A region-wide investment figure is not the investment in one neighbouring site.</p>
     <p>Use dated project announcements and what you can observe on the ground when making comparisons. Ask which facilities are operational and which are still planned.</p>
     <h2>What Bhuwanta can help you explore</h2>
-    <p><Link href="/projects/vian-vally">Vian Valley is in Shabad</Link>. Bhuwanta’s advertised offer starts at ₹30,XXX per square yard. Ask for the available plot numbers, phase-specific documents and full cost before shortlisting. This rate should not be treated as a market-wide Shabad or Shadnagar price.</p>
+    <p><Link href="/projects/vian-vally">Vian Valley is in Shabad</Link>. Request current plot-specific prices from Bhuwanta. Ask for the available plot numbers, phase-specific documents and full cost before shortlisting. A project-specific quote should not be treated as a market-wide Shabad or Shadnagar price.</p>
     <p>If you are comparing other developments, bring their written quotations and document lists to the discussion. Compare equivalent plot sizes, legal status and completed amenities rather than assuming that one locality or brand is always the better purchase.</p>
     <p><Link href="/shabad-open-plots#book-visit">Request Shabad plot details and a site visit</Link>.</p>
   </ArticleLayout>

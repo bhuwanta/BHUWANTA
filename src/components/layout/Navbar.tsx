@@ -22,7 +22,7 @@ export function Navbar() {
   const [menuPath, setMenuPath] = useState<string | null>(null)
   const isOpen = menuPath === pathname
   const ctaText = 'Free Site Visit'
-  const ctaLink = pathname === '/shabad-open-plots' ? '#book-visit' : '/#book-visit'
+  const ctaLink = ['/shabad-open-plots', '/projects/arudra'].includes(pathname) ? '#book-visit' : '/#book-visit'
 
   useEffect(() => {
     const timeout = setTimeout(() => {

@@ -26,8 +26,8 @@ const getProject = cache(() => sanityFetch<ProjectData | null>({
   tags: ['projects'],
 }).catch(() => null))
 
-const title = 'Open Plots in Shabad from ₹30,XXX/sq. yd. | Bhuwanta'
-const description = 'Explore Vian Valley open plots in Shabad from ₹30,XXX per sq. yd. Request a plot-specific quote, layout documents and a site visit with Bhuwanta.'
+const title = 'Open Plots in Shabad | Vian Valley | Bhuwanta'
+const description = 'Explore Vian Valley premium villa plots in Shabad. Request current plot prices, layout details and a site visit with Bhuwanta.'
 
 export async function generateMetadata(): Promise<Metadata> {
   const project = await getProject()
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const faqs = [
   {
     question: 'What is the price of open plots in Shabad?',
-    answer: 'Bhuwanta’s advertised Vian Valley offer starts at ₹30,XXX per square yard. Request a written quote for a specific plot, including its area, facing, phase and applicable charges. A per-yard rate is not the total purchase price.',
+    answer: 'Request current Vian Valley plot prices from Bhuwanta. Ask for a written quote for a specific plot, including its area, facing, phase and applicable charges. A per-yard rate is not the total purchase price.',
   },
   {
     question: 'Where is Vian Valley located?',
@@ -68,7 +68,7 @@ export default async function ShabadOpenPlotsPage() {
   const project = await getProject()
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/shabad-open-plots`
-  const whatsappUrl = `https://wa.me/919666504405?text=${encodeURIComponent('Hi Bhuwanta, I am interested in Vian Valley plots in Shabad from ₹30,XXX per sq. yd. Please share available plot sizes, the total cost breakdown and site visit options.')}`
+  const whatsappUrl = `https://wa.me/919666504405?text=${encodeURIComponent('Hi Bhuwanta, I am interested in Vian Valley plots in Shabad. Please share available plot sizes, the total cost breakdown and site visit options.')}`
   const projects = [{ name: project?.name || 'VIAN VALLEY', location: 'Shabad' }]
 
   return (
@@ -92,8 +92,9 @@ export default async function ShabadOpenPlotsPage() {
             Explore Shabad&apos;s growing industrial corridor and the developments shaping its future. Compare plot options, review the documents and visit the location with Bhuwanta.
           </p>
           <div className="mb-8">
-            <p className="text-white/70 text-sm">Plots starting from</p>
-            <p className="text-3xl font-bold text-brand-accent">₹30,XXX <span className="text-base font-normal text-white/80">per sq. yd.</span></p>
+            <p className="text-white/70 text-sm">Premium villa plots in Vian Valley</p>
+            <p className="text-2xl sm:text-3xl font-bold text-brand-accent">Request Current Plot Prices</p>
+            <p className="text-sm text-white/70 mt-2">Get a quote for your preferred size, facing and phase.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">

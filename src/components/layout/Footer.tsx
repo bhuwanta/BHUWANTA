@@ -3,6 +3,7 @@ import { ArrowUpRight, CalendarDays, Mail } from 'lucide-react'
 import { sanityFetch } from '@/lib/sanity'
 import { BrandLockup } from './BrandLockup'
 import { GoogleMapsIcon } from '@/components/ui/GoogleMapsIcon'
+import { ProjectVisitLink } from '@/components/ui/ProjectVisitLink'
 
 const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -219,10 +220,10 @@ export async function Footer() {
                 </a>
               </li>
               <li>
-                <Link href="/#book-visit">
+                <ProjectVisitLink>
                   <CalendarDays size={16} aria-hidden="true" />
                   <span>Book a Free Site Visit</span>
-                </Link>
+                </ProjectVisitLink>
               </li>
             </ul>
             <h3 className="footer-socials-heading">Social Links</h3>
