@@ -26,6 +26,18 @@ export const projectsSchema = defineType({
       description: 'The combined overview document offered at the top of the Projects page. Visitors enter their details and verify by OTP before it opens, exactly like a project brochure. Leave empty to hide the button.',
     }),
     defineField({
+      name: 'sectionOrder',
+      type: 'array',
+      title: 'Sections / Locations Order',
+      description: 'Drag and drop to set the exact display order of location sections and filter tabs on the Projects page (e.g. Warangal Highway, Mumbai Highway, Bangalore Highway, Shabad, Sharkarpally Highway, Apartments). Any categories not listed here will appear at the end.',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'projectCategory' }],
+        },
+      ],
+    }),
+    defineField({
       name: 'projectEntries',
       type: 'array',
       title: 'Project Entries',

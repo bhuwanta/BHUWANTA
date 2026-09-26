@@ -186,6 +186,12 @@ export const projectsQuery = `*[_type == "projects"][0]{
   pageHeading,
   overviewButtonLabel,
   "overviewUrls": overviewPdf[].asset->url,
+  sectionOrder[]->{
+    "id": slug.current,
+    title,
+    "label": title,
+    order
+  },
   projectEntries[]{
     name,
     "category": category->slug.current,

@@ -65,7 +65,16 @@ export function PublicMotion() {
         if (parent) reveal(parent)
       }
     }
+    let collectTimeout: ReturnType<typeof setTimeout> | undefined
+    const scheduleCollect = () => {
+      if (collectTimeout) clearTimeout(collectTimeout)
+      collectTimeout = setTimeout(() => {
+        requestAnimationFrame(collect)
+      }, 50)
+    }
+
     const clear = () => {
+      if (collectTimeout) clearTimeout(collectTimeout)
       observer?.disconnect()
       mutation?.disconnect()
       tracked.forEach((element) => {
@@ -87,8 +96,8 @@ export function PublicMotion() {
         },
         { threshold: 0, rootMargin: '0px 0px -35px 0px' },
       )
-      collect()
-      mutation = new MutationObserver(collect)
+      scheduleCollect()
+      mutation = new MutationObserver(scheduleCollect)
       mutation.observe(main, { childList: true, subtree: true })
       update()
     }

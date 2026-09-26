@@ -67,6 +67,7 @@ function getProjectSlug(project: ProjectEntry): string | undefined {
 interface ProjectsDirectoryProps {
   projects: ProjectEntry[]
   categories?: { id: string; title: string; label: string; order?: number }[]
+  sectionOrder?: { id: string; title: string; label: string; order?: number }[]
   overviewUrls?: string[] | null
   overviewButtonLabel?: string
 }
@@ -83,6 +84,7 @@ export function ProjectsFilterClient(props: ProjectsDirectoryProps) {
 export function ProjectsDirectory({
   projects,
   categories = [],
+  sectionOrder,
   overviewUrls,
   overviewButtonLabel,
   requestedCategory = null,
@@ -134,13 +136,19 @@ export function ProjectsDirectory({
       resolvedCategories.push({ id, title: project.categoryTitle || 'Other Projects', label: project.categoryTitle || 'Other Projects' })
     }
   }
+
+  // Map order from Sanity's sectionOrder if configured
+  const orderMap = new Map<string, number>()
+  if (sectionOrder && sectionOrder.length > 0) {
+    sectionOrder.forEach((sec, idx) => {
+      if (sec?.id) orderMap.set(sec.id, idx)
+    })
+  }
+
   const sortedCategories = resolvedCategories.sort((a, b) => {
-    const aHasProjects = projects.some(p => p.category === a.id)
-    const bHasProjects = projects.some(p => p.category === b.id)
-    
-    if (aHasProjects && !bHasProjects) return -1
-    if (!aHasProjects && bHasProjects) return 1
-    
+    const aOrder = orderMap.has(a.id) ? orderMap.get(a.id)! : 1000 + (a.order || 99)
+    const bOrder = orderMap.has(b.id) ? orderMap.get(b.id)! : 1000 + (b.order || 99)
+    if (aOrder !== bOrder) return aOrder - bOrder
     return (a.order || 99) - (b.order || 99)
   })
 

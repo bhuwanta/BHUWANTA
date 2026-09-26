@@ -90,6 +90,14 @@ export default defineConfig({
                           .documentId('projects')
                           .title('Projects Page — Listings & Details')
                       ),
+                    S.listItem()
+                      .title('Project Categories / Locations')
+                      .id('project-categories')
+                      .icon(CaseIcon)
+                      .child(
+                        S.documentTypeList('projectCategory')
+                          .title('Project Categories & Locations')
+                      ),
 
                     S.listItem()
                       .title('Gallery Page')

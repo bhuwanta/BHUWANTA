@@ -42,12 +42,15 @@ export default async function ProjectsPage() {
   let overviewUrls: string[] | null = null
   let overviewButtonLabel: string | undefined
 
+  let sectionOrder: { id: string; title: string; label: string; order?: number }[] | undefined
+
   try {
     const sanityData = await sanityFetch<{
       pageHeading?: string
       projectEntries?: ProjectEntry[]
       overviewUrls?: string[] | null
       overviewButtonLabel?: string
+      sectionOrder?: { id: string; title: string; label: string; order?: number }[]
     }>({
       query: projectsQuery,
       tags: ['projects'],
@@ -58,6 +61,11 @@ export default async function ProjectsPage() {
     })
     
     if (sanityCategories) categories = sanityCategories.filter((c) => c.title.toLowerCase() !== 'farmlands' && c.label.toLowerCase() !== 'farmlands')
+    if (sanityData?.sectionOrder) {
+      sectionOrder = sanityData.sectionOrder.filter(
+        (c) => c?.id && c.title.toLowerCase() !== 'farmlands' && c.label.toLowerCase() !== 'farmlands'
+      )
+    }
     if (sanityData?.overviewUrls) overviewUrls = sanityData.overviewUrls
     if (sanityData?.overviewButtonLabel) overviewButtonLabel = sanityData.overviewButtonLabel
     if (sanityData?.projectEntries) projects = sanityData.projectEntries.map((p: ProjectEntry) => ({ ...p, description: p.description || '' }))
@@ -92,6 +100,7 @@ export default async function ProjectsPage() {
           <ProjectsDirectory
             projects={projects}
             categories={categories}
+            sectionOrder={sectionOrder}
             overviewUrls={overviewUrls}
             overviewButtonLabel={overviewButtonLabel}
           />
@@ -100,6 +109,7 @@ export default async function ProjectsPage() {
         <ProjectsFilterClient
           projects={projects}
           categories={categories}
+          sectionOrder={sectionOrder}
           overviewUrls={overviewUrls}
           overviewButtonLabel={overviewButtonLabel}
         />
