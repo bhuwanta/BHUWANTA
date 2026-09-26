@@ -89,20 +89,20 @@
 }
 .brand-artwork {
   position: relative;
-  width: 250px;
-  aspect-ratio: 1510 / 445;
-  display: block;
+  width: 220px;
+  aspect-ratio: 1600 / 612;
+  display: inline-flex;
+  align-items: center;
   max-width: 100%;
-  overflow: hidden;
 }
-/* Frame the approved artwork itself, excluding its baked-in outer padding. */
+/* Display the complete artwork naturally without clipping or arbitrary offsets. */
 .brand-artwork .brand-artwork-image {
-  position: absolute;
-  width: 137.484%;
-  max-width: none;
+  position: relative;
+  width: 100%;
   height: auto;
-  left: -19.205%;
-  top: -32.584%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
 }
 .brand-artwork-footer {
   width: 240px;
