@@ -8,7 +8,7 @@ import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { getLeadAttribution } from '@/lib/lead-attribution'
-import { fireLeadConversion } from '@/lib/gtag'
+import { fireLeadConversion, trackEnquiryStep } from '@/lib/gtag'
 
 declare global {
   interface Window {
@@ -18,6 +18,13 @@ declare global {
 
 export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsList?: { name: string, location: string }[], locationNames?: string[] }) {
   const [isOpen, setIsOpen] = useState(false)
+  const startedRef = useRef(false)
+  const trackStart = () => {
+    if (!startedRef.current) {
+      startedRef.current = true
+      trackEnquiryStep('start', 'popup')
+    }
+  }
 
   // Scoped to this component instead of window.recaptchaVerifier. That global
   // was shared by every OTP form while each bound it to a different container,
@@ -89,6 +96,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
 
     setIsSubmitting(true)
     setError('')
+    trackEnquiryStep('otp_requested', 'popup')
 
     try {
       const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
@@ -102,7 +110,9 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
+      trackEnquiryStep('otp_sent', 'popup')
     } catch (err: unknown) {
+      trackEnquiryStep('otp_failed', 'popup')
       console.error('Firebase OTP Error:', err)
       setError((err instanceof Error ? err.message : null) || 'Failed to send OTP. Please try again.')
       clearRecaptcha()
@@ -117,10 +127,14 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
 
     setIsSubmitting(true)
     setError('')
+    let verified = false
 
     try {
       await confirmationResult.confirm(otp)
+      verified = true
+      trackEnquiryStep('otp_verified', 'popup')
 
+      trackEnquiryStep('submission_started', 'popup')
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,6 +149,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
         const data = await response.json()
         setIsSubmitted(true)
         fireLeadConversion(data.leadId)
+        if (data.leadId) trackEnquiryStep('submission_succeeded', 'popup')
         setTimeout(() => setIsOpen(false), 3000)
       } else {
         throw new Error('Failed to send message.')
@@ -142,6 +157,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
 
       clearRecaptcha()
     } catch (err: unknown) {
+      trackEnquiryStep(verified ? 'submission_failed' : 'verification_failed', 'popup')
       console.error(err)
       setError('Invalid OTP or error submitting form. Please try again.')
     } finally {
@@ -198,6 +214,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   onSubmit={handleSendOTP}
+                  onFocusCapture={trackStart}
                   className="space-y-4"
                 >
                   {error && (

@@ -9,7 +9,7 @@ async function importTypescript(path) {
   return import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 }
 const { enquiryHref, matchEnquiryProject, canonicalProjectSlug } = await importTypescript('../src/lib/project-links.ts')
-const { fireLeadConversion, trackWhatsAppClick, trackDocumentDownload } = await importTypescript('../src/lib/gtag.ts')
+const { fireLeadConversion, trackWhatsAppClick, trackDocumentDownload, trackEnquiryStep } = await importTypescript('../src/lib/gtag.ts')
 const projects = [{ name: 'VIAN VALLEY ', location: 'Shabad' }, { name: 'S.V.KANAKA MAPLE HOMES', location: 'Warangal Highway' }]
 
 test('enquiry links preserve an encoded project query before the real fragment', () => {
@@ -56,6 +56,43 @@ test('document downloads never send the primary enquiry conversion', () => {
   assert.deepEqual(events, [['event', 'document_download', { transaction_id: 'document-lead-123' }]])
   delete globalThis.window
   assert.doesNotThrow(() => trackDocumentDownload('server-render'))
+})
+
+test('enquiry diagnostics go only to GA4, without contact details or URL queries', () => {
+  const events = []
+  globalThis.window = {
+    location: { pathname: '/projects/arudra', search: '?phone=private&otp=private' },
+    gtag: (...args) => events.push(args),
+  }
+  for (const step of ['start', 'otp_requested', 'otp_sent', 'otp_failed', 'otp_verified', 'verification_failed', 'submission_started', 'submission_failed', 'submission_succeeded']) {
+    trackEnquiryStep(step, 'contact')
+  }
+  assert.equal(events.length, 9)
+  for (const [command, name, params] of events) {
+    assert.equal(command, 'event')
+    assert.match(name, /^enquiry_/)
+    assert.deepEqual(params, { send_to: 'G-98QJJZ5DCG', form_id: 'contact', project_group: 'arudra' })
+    assert.notEqual(name, 'conversion')
+  }
+  assert.equal(JSON.stringify(events).includes('private'), false)
+  delete globalThis.window
+})
+
+test('enquiry diagnostics queue before tag loading and classify only known pages', () => {
+  globalThis.window = { location: { pathname: '/shabad-open-plots' } }
+  trackEnquiryStep('start', 'contact')
+  assert.equal(Array.from(window.dataLayer[0])[2].project_group, 'vian_valley')
+  window.location.pathname = '/private-contact-value'
+  trackEnquiryStep('start', 'popup')
+  assert.deepEqual(Array.from(window.dataLayer[1])[2], { send_to: 'G-98QJJZ5DCG', form_id: 'popup', project_group: 'other' })
+  delete globalThis.window
+})
+
+test('unavailable or failing analytics cannot block the enquiry flow', () => {
+  assert.doesNotThrow(() => trackEnquiryStep('start', 'contact'))
+  globalThis.window = { gtag: () => { throw Error('blocked analytics') } }
+  assert.doesNotThrow(() => trackEnquiryStep('submission_started', 'contact'))
+  delete globalThis.window
 })
 
 const { cleanAttribution, campaignSource, getLeadAttribution, whatsappSourceHint } = await importTypescript('../src/lib/lead-attribution.ts')

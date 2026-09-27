@@ -6,7 +6,7 @@ import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { matchEnquiryProject } from '@/lib/project-links'
 import { getLeadAttribution } from '@/lib/lead-attribution'
-import { fireLeadConversion } from '@/lib/gtag'
+import { fireLeadConversion, trackEnquiryStep } from '@/lib/gtag'
 import Link from 'next/link'
 
 declare global {
@@ -18,6 +18,13 @@ declare global {
 export function ContactForm({ projectsList = [], locationNames = [], initialProject, compact = false }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string, compact?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const startedRef = useRef(false)
+  const trackStart = () => {
+    if (!startedRef.current) {
+      startedRef.current = true
+      trackEnquiryStep('start', 'contact')
+    }
+  }
 
   // Scoped to this component instead of window.recaptchaVerifier. That global
   // was shared by every OTP form while each bound it to a different container,
@@ -102,6 +109,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
     setLoading(true)
     setError('')
+    trackEnquiryStep('otp_requested', 'contact')
 
     try {
       const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
@@ -115,7 +123,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setStep(2)
+      trackEnquiryStep('otp_sent', 'contact')
     } catch (err: unknown) {
+      trackEnquiryStep('otp_failed', 'contact')
       const firebaseErr = err as { code?: string; message?: string }
       console.error('Firebase OTP Error:', {
         code: firebaseErr.code,
@@ -135,12 +145,16 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
     setLoading(true)
     setError('')
+    let verified = false
 
     try {
       // 1. Verify OTP with Firebase
       await confirmationResult.confirm(otp)
+      verified = true
+      trackEnquiryStep('otp_verified', 'contact')
 
       // 2. If successful, save lead to database
+      trackEnquiryStep('submission_started', 'contact')
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,8 +180,10 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
       clearRecaptcha()
 
       fireLeadConversion(data.leadId)
+      if (data.leadId) trackEnquiryStep('submission_succeeded', 'contact')
       router.push('/thank-you')
     } catch (err: unknown) {
+      trackEnquiryStep(verified ? 'submission_failed' : 'verification_failed', 'contact')
       console.error(err)
       setError('Invalid OTP or error submitting form. Please try again.')
     } finally {
@@ -186,7 +202,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
       )}
 
       {step === 1 ? (
-        <form onSubmit={handleSendOTP} className="space-y-5">
+        <form onSubmit={handleSendOTP} onFocusCapture={trackStart} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-brand-ink mb-1">Full Name <span className="text-red-500">*</span></label>
