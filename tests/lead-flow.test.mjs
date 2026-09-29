@@ -92,6 +92,8 @@ test('unavailable or failing analytics cannot block the enquiry flow', () => {
   assert.doesNotThrow(() => trackEnquiryStep('start', 'contact'))
   globalThis.window = { gtag: () => { throw Error('blocked analytics') } }
   assert.doesNotThrow(() => trackEnquiryStep('submission_started', 'contact'))
+  assert.doesNotThrow(() => fireLeadConversion('already-saved-enquiry'))
+  assert.doesNotThrow(() => trackDocumentDownload('already-saved-download'))
   delete globalThis.window
 })
 

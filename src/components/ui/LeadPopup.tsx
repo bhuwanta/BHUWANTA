@@ -1,12 +1,15 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle2 } from 'lucide-react'
 import Image from 'next/image'
 import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
+import { createOtpVerificationSession } from '@/lib/firebase/otp-verification'
+import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { submitContactLead } from '@/lib/lead-submission'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion, trackEnquiryStep } from '@/lib/gtag'
 
@@ -33,8 +36,10 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
   // holding a dead one, and Firebase rejected the token with
   // auth/invalid-app-credential.
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null)
+  const verificationRef = useRef(createOtpVerificationSession())
 
-  const clearRecaptcha = () => {
+  const clearRecaptcha = useCallback(() => {
     if (recaptchaRef.current) {
       try {
         recaptchaRef.current.clear()
@@ -43,9 +48,23 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
       }
       recaptchaRef.current = null
     }
-    const container = document.getElementById('recaptcha-container-popup')
-    if (container) container.innerHTML = ''
-  }
+    recaptchaContainerRef.current?.replaceChildren()
+  }, [])
+
+  useEffect(() => {
+    const verification = verificationRef.current
+    return () => {
+      clearRecaptcha()
+      verification.reset()
+    }
+  }, [clearRecaptcha])
+
+  useEffect(() => {
+    if (!isOpen) {
+      clearRecaptcha()
+      verificationRef.current.reset()
+    }
+  }, [isOpen, clearRecaptcha])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -65,6 +84,17 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
     message: '',
     referredBy: '',
   })
+
+  const closePopup = () => {
+    clearRecaptcha()
+    verificationRef.current.reset()
+    setConfirmationResult(null)
+    setOtp('')
+    setError('')
+    setStep(1)
+    setIsSubmitted(false)
+    setIsOpen(false)
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setIsOpen(true), 2000)
@@ -100,15 +130,18 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
 
     try {
       const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-popup', {
-          size: 'invisible',
-        })
-      }
+      clearRecaptcha()
+      verificationRef.current.reset()
+      const container = recaptchaContainerRef.current
+      if (!container) throw new Error('Please try requesting your code again.')
+      recaptchaRef.current = new RecaptchaVerifier(auth, container, {
+        size: 'invisible',
+      })
 
       const formattedPhone = `+91${formData.phone}`
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
+      setOtp('')
       setStep(2)
       trackEnquiryStep('otp_sent', 'popup')
     } catch (err: unknown) {
@@ -130,36 +163,29 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
     let verified = false
 
     try {
-      await confirmationResult.confirm(otp)
+      const newlyVerified = await verificationRef.current.verify(confirmationResult, otp)
       verified = true
-      trackEnquiryStep('otp_verified', 'popup')
+      if (newlyVerified) trackEnquiryStep('otp_verified', 'popup')
 
       trackEnquiryStep('submission_started', 'popup')
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          attribution: getLeadAttribution(),
-          ...formData,
-          sourcePage: 'Website Popup',
-        }),
+      const data = await submitContactLead({
+        attribution: getLeadAttribution(),
+        ...formData,
+        sourcePage: 'Website Popup',
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        setIsSubmitted(true)
-        fireLeadConversion(data.leadId)
-        if (data.leadId) trackEnquiryStep('submission_succeeded', 'popup')
-        setTimeout(() => setIsOpen(false), 3000)
-      } else {
-        throw new Error('Failed to send message.')
-      }
+      setIsSubmitted(true)
+      fireLeadConversion(data.leadId)
+      if (data.leadId) trackEnquiryStep('submission_succeeded', 'popup')
+      setTimeout(closePopup, 3000)
 
       clearRecaptcha()
     } catch (err: unknown) {
       trackEnquiryStep(verified ? 'submission_failed' : 'verification_failed', 'popup')
       console.error(err)
-      setError('Invalid OTP or error submitting form. Please try again.')
+      setError(verified
+        ? 'Your phone is verified, but we could not confirm your enquiry was saved. Please retry.'
+        : 'We could not verify that code. Please check it or request a new one.')
     } finally {
       setIsSubmitting(false)
     }
@@ -174,7 +200,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={() => setIsOpen(false)}
+        onClick={closePopup}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
       />
 
@@ -186,13 +212,13 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
         transition={{ duration: 0.25, ease: 'easeOut' }}
         className="relative w-full max-w-sm sm:max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] overflow-y-auto"
       >
-        <div id="recaptcha-container-popup"></div>
+        <div ref={recaptchaContainerRef} />
 
         {/* Header */}
         <div className="bg-brand-deep px-6 py-6 flex flex-col items-center justify-center text-center relative shrink-0">
           {/* Close button */}
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={closePopup}
             className="absolute top-4 right-4 p-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/20 rounded-full transition-all z-10"
             aria-label="Close"
           >
@@ -247,13 +273,13 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                           value={formData.phone}
                           onChange={(e) => {
                             const val = e.target.value;
-                            const digitsOnly = val.replace(/\D/g, '');
-                            if (val !== digitsOnly || digitsOnly.length > 10) {
+                            const digitsOnly = normalizeIndianPhoneInput(val);
+                            if (digitsOnly.length > 10) {
                               setPhoneError('Please enter 10 digits only');
                             } else {
                               setPhoneError('');
                             }
-                            setFormData({ ...formData, phone: digitsOnly.slice(0, 10) });
+                            setFormData({ ...formData, phone: digitsOnly });
                           }}
                         />
                         {phoneError && <p className="text-red-500 text-[10px] mt-1">{phoneError}</p>}
@@ -405,6 +431,9 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                     <button
                       type="button"
                       onClick={() => {
+                        clearRecaptcha();
+                        verificationRef.current.reset();
+                        setConfirmationResult(null);
                         setStep(1);
                         setOtp('');
                         setError('');

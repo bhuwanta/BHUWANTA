@@ -6,6 +6,7 @@ import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { trackDocumentDownload } from '@/lib/gtag'
+import { normalizeIndianPhoneInput } from '@/lib/phone-input'
 
 export function GatedResource({
   resourceName,
@@ -174,9 +175,9 @@ export function GatedResource({
               value={formData.phone}
               onChange={(e) => {
                 const val = e.target.value
-                const digitsOnly = val.replace(/\D/g, '')
-                setPhoneError(val !== digitsOnly || digitsOnly.length > 10 ? 'Please enter 10 digits only' : '')
-                setFormData({ ...formData, phone: digitsOnly.slice(0, 10) })
+                const digitsOnly = normalizeIndianPhoneInput(val)
+                setPhoneError(digitsOnly.length > 10 ? 'Please enter 10 digits only' : '')
+                setFormData({ ...formData, phone: digitsOnly })
               }}
             />
             {phoneError && <p className="text-red-500 text-xs mt-1 text-left">{phoneError}</p>}

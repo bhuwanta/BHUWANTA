@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
+import { createOtpVerificationSession } from '@/lib/firebase/otp-verification'
+import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { submitContactLead } from '@/lib/lead-submission'
 import { matchEnquiryProject } from '@/lib/project-links'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion, trackEnquiryStep } from '@/lib/gtag'
@@ -33,8 +36,10 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
   // holding a dead one, and Firebase rejected the token with
   // auth/invalid-app-credential.
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null)
+  const verificationRef = useRef(createOtpVerificationSession())
 
-  const clearRecaptcha = () => {
+  const clearRecaptcha = useCallback(() => {
     if (recaptchaRef.current) {
       try {
         recaptchaRef.current.clear()
@@ -43,9 +48,16 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
       }
       recaptchaRef.current = null
     }
-    const container = document.getElementById('recaptcha-container')
-    if (container) container.innerHTML = ''
-  }
+    recaptchaContainerRef.current?.replaceChildren()
+  }, [])
+
+  useEffect(() => {
+    const verification = verificationRef.current
+    return () => {
+      clearRecaptcha()
+      verification.reset()
+    }
+  }, [clearRecaptcha])
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [step, setStep] = useState<1 | 2>(1)
@@ -75,13 +87,13 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
     let finalValue = value
     if (name === 'phone') {
-      const digitsOnly = value.replace(/\D/g, '')
-      if (value !== digitsOnly || digitsOnly.length > 10) {
+      const digitsOnly = normalizeIndianPhoneInput(value)
+      if (digitsOnly.length > 10) {
         setPhoneError('Please enter 10 digits only')
       } else {
         setPhoneError('')
       }
-      finalValue = digitsOnly.slice(0, 10)
+      finalValue = digitsOnly
     }
 
     setFormData(prev => {
@@ -113,15 +125,18 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
     try {
       const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-        })
-      }
+      clearRecaptcha()
+      verificationRef.current.reset()
+      const container = recaptchaContainerRef.current
+      if (!container) throw new Error('Please try requesting your code again.')
+      recaptchaRef.current = new RecaptchaVerifier(auth, container, {
+        size: 'invisible',
+      })
 
       const formattedPhone = `+91${formData.phone}`
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
+      setOtp('')
       setStep(2)
       trackEnquiryStep('otp_sent', 'contact')
     } catch (err: unknown) {
@@ -149,33 +164,24 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
     try {
       // 1. Verify OTP with Firebase
-      await confirmationResult.confirm(otp)
+      const newlyVerified = await verificationRef.current.verify(confirmationResult, otp)
       verified = true
-      trackEnquiryStep('otp_verified', 'contact')
+      if (newlyVerified) trackEnquiryStep('otp_verified', 'contact')
 
       // 2. If successful, save lead to database
       trackEnquiryStep('submission_started', 'contact')
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          attribution: getLeadAttribution(),
-          name: formData.name,
-          email: formData.email || undefined,
-          phone: formData.phone,
-          location: formData.location,
-          project: formData.project,
-          enquiryType: formData.enquiryType,
-          message: formData.message,
-          referredBy: formData.referredBy,
-          sourcePage: `Website - ${window.location.pathname} - Contact Section`,
-        })
+      const data = await submitContactLead({
+        attribution: getLeadAttribution(),
+        name: formData.name,
+        email: formData.email || undefined,
+        phone: formData.phone,
+        location: formData.location,
+        project: formData.project,
+        enquiryType: formData.enquiryType,
+        message: formData.message,
+        referredBy: formData.referredBy,
+        sourcePage: `Website - ${window.location.pathname} - Contact Section`,
       })
-
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send message.')
-      }
 
       clearRecaptcha()
 
@@ -185,7 +191,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
     } catch (err: unknown) {
       trackEnquiryStep(verified ? 'submission_failed' : 'verification_failed', 'contact')
       console.error(err)
-      setError('Invalid OTP or error submitting form. Please try again.')
+      setError(verified
+        ? 'Your phone is verified, but we could not confirm your enquiry was saved. Please retry.'
+        : 'We could not verify that code. Please check it or request a new one.')
     } finally {
       setLoading(false)
     }
@@ -194,6 +202,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
   return (
     <div className="space-y-5">
       <h3 className="text-2xl font-bold text-brand-ink mb-2">Request Prices or a Site Visit</h3>
+      <div ref={recaptchaContainerRef} />
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm font-medium mb-6">
@@ -363,8 +372,6 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             </label>
           </div>
 
-          <div id="recaptcha-container"></div>
-
           <button
             type="submit"
             disabled={loading}
@@ -399,7 +406,14 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={() => setStep(1)}
+              onClick={() => {
+                clearRecaptcha()
+                verificationRef.current.reset()
+                setConfirmationResult(null)
+                setOtp('')
+                setError('')
+                setStep(1)
+              }}
               disabled={loading}
               className="w-1/3 bg-white border border-brand-border text-brand-muted font-semibold rounded-lg py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-70"
             >

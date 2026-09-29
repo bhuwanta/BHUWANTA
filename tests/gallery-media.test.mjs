@@ -1,17 +1,18 @@
-import test from 'node:test'
+import test, { after } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises'
+import { pathToFileURL } from 'node:url'
 import ts from 'typescript'
 
 // gallery-media.ts imports ./utils, which imports clsx, so the transpiled files
 // are written inside the repo (not a data: URL) where node_modules resolves.
-const outDir = new URL('../node_modules/.cache/gallery-media-test/', import.meta.url)
+const outDir = pathToFileURL(`${await mkdtemp(new URL('./.gallery-media-test-', import.meta.url))}/`)
+after(() => rm(outDir, { recursive: true, force: true }))
 async function transpile(src, out) {
   const source = await readFile(new URL(src, import.meta.url), 'utf8')
   const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } })
   await writeFile(new URL(out, outDir), outputText.replace(/from '\.\/utils'/, "from './utils.mjs'"))
 }
-await mkdir(outDir, { recursive: true })
 await transpile('../src/lib/utils.ts', 'utils.mjs')
 await transpile('../src/lib/gallery-media.ts', 'gallery-media.mjs')
 const { toProjectGallery, marqueeStyle, MARQUEE_SECONDS_PER_IMAGE } = await import(new URL('gallery-media.mjs', outDir))

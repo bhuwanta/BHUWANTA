@@ -1,12 +1,18 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { X, Download } from 'lucide-react'
 import Image from 'next/image'
 import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
+import { createOtpVerificationSession } from '@/lib/firebase/otp-verification'
+import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { submitContactLead } from '@/lib/lead-submission'
+import { getLeadAttribution } from '@/lib/lead-attribution'
+import { trackDocumentDownload } from '@/lib/gtag'
+import { documentDownloadHref } from '@/lib/document-links'
 
 interface DownloadPopupProps {
   isOpen: boolean
@@ -23,6 +29,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
   const [otp, setOtp] = useState('')
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   const [error, setError] = useState('')
+  const [downloadReady, setDownloadReady] = useState(false)
 
   // Owned by this component instance rather than shared through
   // window.recaptchaVerifier. That global is also used by ContactForm,
@@ -32,8 +39,10 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
   // container holding a dead one. Firebase rejects the resulting token as
   // auth/invalid-app-credential.
   const recaptchaRef = useRef<RecaptchaVerifier | null>(null)
+  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null)
+  const verificationRef = useRef(createOtpVerificationSession())
 
-  const clearRecaptcha = () => {
+  const clearRecaptcha = useCallback(() => {
     if (recaptchaRef.current) {
       try {
         recaptchaRef.current.clear()
@@ -42,9 +51,16 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
       }
       recaptchaRef.current = null
     }
-    const container = document.getElementById('download-recaptcha-container')
-    if (container) container.innerHTML = ''
-  }
+    recaptchaContainerRef.current?.replaceChildren()
+  }, [])
+
+  useEffect(() => {
+    const verification = verificationRef.current
+    return () => {
+      clearRecaptcha()
+      verification.reset()
+    }
+  }, [clearRecaptcha])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -53,30 +69,32 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
   // Reset state and handle background scrolling
   useEffect(() => {
+    // Reset on both close and open so a consumed code is never shown on reopen.
+    queueMicrotask(() => {
+      setIsSubmitting(false)
+      setPhoneError('')
+      setError('')
+      setDownloadReady(false)
+      setStep(1)
+      setOtp('')
+      setConfirmationResult(null)
+      setFormData({ name: '', phone: '' })
+    })
     if (isOpen) {
-      // Batch state resets outside synchronous effect to avoid cascading renders
-      queueMicrotask(() => {
-        setIsSubmitting(false)
-        setPhoneError('')
-        setError('')
-        setStep(1)
-        setOtp('')
-        setFormData({ name: '', phone: '' })
-      })
-      
       document.body.style.overflow = 'hidden'
       document.documentElement.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
       clearRecaptcha()
+      verificationRef.current.reset()
     }
     
     return () => {
       document.body.style.overflow = ''
       document.documentElement.style.overflow = ''
     }
-  }, [isOpen])
+  }, [isOpen, clearRecaptcha])
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,15 +108,16 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
     try {
       const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await loadPhoneAuth()
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(auth, 'download-recaptcha-container', {
-          size: 'invisible',
-        })
-      }
+      clearRecaptcha()
+      verificationRef.current.reset()
+      const container = recaptchaContainerRef.current
+      if (!container) throw new Error('Please try requesting your code again.')
+      recaptchaRef.current = new RecaptchaVerifier(auth, container, { size: 'invisible' })
 
       const formattedPhone = `+91${formData.phone}`
       const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
       setConfirmationResult(confirmation)
+      setOtp('')
       setStep(2)
     } catch (err: unknown) {
       console.error(err)
@@ -117,45 +136,35 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
     setIsSubmitting(true)
     setError('')
+    let verified = false
 
     try {
-      // 1. Verify OTP
-      await confirmationResult.confirm(otp)
+      await verificationRef.current.verify(confirmationResult, otp)
+      verified = true
 
-      // 2. Open documents IMMEDIATELY in a new tab
-      if (urls && urls.length > 0) {
-        urls.forEach((url) => {
-          if (url.toLowerCase().includes('.pdf')) {
-            window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(url)}`, '_blank')
-          } else {
-            window.open(url, '_blank')
-          }
-        })
-      }
-
-      // 3. Save lead
-      await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          project: projectName,
-          enquiryType: `Document Download: ${documentType}`,
-          message: `Requested to download ${documentType} for ${projectName}`,
-          sourcePage: 'Website Document Download',
-        }),
+      const data = await submitContactLead({
+        attribution: getLeadAttribution(),
+        ...formData,
+        project: projectName,
+        enquiryType: `Document Download: ${documentType}`,
+        message: `Requested to download ${documentType} for ${projectName}`,
+        sourcePage: 'Website Document Download',
       })
-
-      onClose() // Close the popup immediately after success
+      trackDocumentDownload(data.leadId)
+      clearRecaptcha()
+      setDownloadReady(true)
     } catch (err: unknown) {
       console.error('Submission error:', err)
-      setError('Invalid OTP or submission error.')
+      setError(verified
+        ? 'Your phone is verified, but we could not confirm your request was saved. Please retry.'
+        : 'We could not verify that code. Please check it or request a new one.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   if (!isOpen) return null
+  const documentLinks = urls.map(documentDownloadHref).filter((href): href is string => Boolean(href))
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -193,13 +202,36 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
         {/* Form */}
         <div className="px-6 py-6 sm:py-7">
+          <div ref={recaptchaContainerRef} />
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium mb-4 text-center">
               {error}
             </div>
           )}
 
-          {step === 1 ? (
+          {downloadReady ? (
+            <div className="space-y-4 text-center" role="status">
+              <h3 className="text-lg font-semibold text-brand-deep">Your request is saved</h3>
+              <p className="text-sm text-brand-muted">
+                {documentLinks.length ? 'Open your documents below.' : 'The documents are currently unavailable. Our team can help you with them.'}
+              </p>
+              {documentLinks.map((href, index) => (
+                <a
+                  key={`${href}-${index}`}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 btn-solid"
+                >
+                  <Download className="w-4 h-4" />
+                  Open {documentType}{documentLinks.length > 1 ? ` ${index + 1}` : ''}
+                </a>
+              ))}
+              <button type="button" onClick={onClose} className="w-full py-3 rounded-xl border border-brand-border text-brand-deep font-medium">
+                Done
+              </button>
+            </div>
+          ) : step === 1 ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div className="text-center mb-4">
                 <p className="text-sm text-brand-deep/70">Please enter your details to access this document.</p>
@@ -225,20 +257,18 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                     value={formData.phone}
                     onChange={(e) => {
                       const val = e.target.value;
-                      const digitsOnly = val.replace(/\D/g, '');
-                      if (val !== digitsOnly || digitsOnly.length > 10) {
+                      const digitsOnly = normalizeIndianPhoneInput(val);
+                      if (digitsOnly.length > 10) {
                         setPhoneError('Please enter 10 digits only');
                       } else {
                         setPhoneError('');
                       }
-                      setFormData({ ...formData, phone: digitsOnly.slice(0, 10) });
+                      setFormData({ ...formData, phone: digitsOnly });
                     }}
                   />
                   {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                 </div>
               </div>
-
-              <div id="download-recaptcha-container"></div>
 
               <div className="pt-2">
                 <button
@@ -282,7 +312,14 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => {
+                    clearRecaptcha()
+                    verificationRef.current.reset()
+                    setConfirmationResult(null)
+                    setOtp('')
+                    setError('')
+                    setStep(1)
+                  }}
                   disabled={isSubmitting}
                   className="w-1/3 py-3 sm:py-3.5 bg-brand-paper border border-brand-border text-brand-deep text-sm sm:text-base font-semibold rounded-xl hover:bg-gray-100 transition-all disabled:opacity-70"
                 >
