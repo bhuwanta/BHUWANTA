@@ -14,7 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  MessageCircle
+  MessageCircle,
+  SlidersHorizontal
 } from "lucide-react";
 
 const navigation = [
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Brochures', href: '/crm/brochures', icon: FileText },
   { name: 'Layouts', href: '/crm/layouts', icon: Map },
   { name: 'Reports', href: '/crm/reports', icon: LineChart },
+  { name: 'Modules', href: '/crm/modules', icon: SlidersHorizontal },
   { name: 'Users', href: '/crm/users', icon: Shield },
 ];
 
