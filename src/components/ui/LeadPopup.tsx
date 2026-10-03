@@ -12,6 +12,7 @@ import { normalizeIndianPhoneInput } from '@/lib/phone-input'
 import { submitContactLead } from '@/lib/lead-submission'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { fireLeadConversion, trackEnquiryStep } from '@/lib/gtag'
+import { useOtpConfig } from '@/lib/hooks/useOtpConfig'
 
 declare global {
   interface Window {
@@ -20,6 +21,7 @@ declare global {
 }
 
 export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsList?: { name: string, location: string }[], locationNames?: string[] }) {
+  const { isOtpEnabled } = useOtpConfig()
   const [isOpen, setIsOpen] = useState(false)
   const startedRef = useRef(false)
   const trackStart = () => {
@@ -121,6 +123,32 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
     e.preventDefault()
     if (formData.phone.length !== 10) {
       setPhoneError('Please enter a valid 10-digit number')
+      return
+    }
+
+    // When OTP is disabled in CRM modules -> Directly submit without OTP verification
+    if (!isOtpEnabled) {
+      setIsSubmitting(true)
+      setError('')
+      try {
+        trackEnquiryStep('submission_started', 'popup')
+        const data = await submitContactLead({
+          attribution: getLeadAttribution(),
+          ...formData,
+          sourcePage: 'Website Popup',
+        })
+
+        setIsSubmitted(true)
+        fireLeadConversion(data.leadId)
+        if (data.leadId) trackEnquiryStep('submission_succeeded', 'popup')
+        setTimeout(closePopup, 3000)
+      } catch (err: unknown) {
+        trackEnquiryStep('submission_failed', 'popup')
+        console.error(err)
+        setError('Failed to submit. Please try again.')
+      } finally {
+        setIsSubmitting(false)
+      }
       return
     }
 
@@ -367,7 +395,7 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Sending OTP...
+                          {isOtpEnabled ? 'Sending OTP...' : 'Submitting...'}
                         </span>
                       ) : (
                         'Book Visit'
