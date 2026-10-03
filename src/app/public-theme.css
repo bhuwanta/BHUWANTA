@@ -1326,7 +1326,13 @@
     padding-top: 95px;
   }
   .immersive-copy h1 {
-    font-size: 48px;
+    font-size: clamp(34px, 8.5vw, 44px);
+  }
+  .site-button {
+    padding: 13px 20px;
+    gap: 12px;
+    font-size: 13px;
+    min-height: 48px;
   }
   .immersive-copy .eyebrow {
     font-size: 9px;
@@ -1661,6 +1667,19 @@
 .public-nav .h-20 {
   height: 84px;
 }
+/* On mobile screens (< 640px), keep the top navigation bar clean with
+   only the logo and the mobile menu toggle. The CTA and Login buttons
+   are accessible within the mobile slide-out drawer. */
+.public-nav #nav-cta,
+.public-nav #nav-login {
+  display: none !important;
+}
+@media (min-width: 640px) {
+  .public-nav #nav-cta,
+  .public-nav #nav-login {
+    display: inline-flex !important;
+  }
+}
 @media (max-width: 640px) {
   .public-nav .brand-artwork {
     width: 160px;
@@ -1893,17 +1912,28 @@
     display: block;
   }
   .hero-highlights-heading h2 {
-    font-size: 21px;
+    font-size: clamp(18px, 5.2vw, 21px);
   }
   .hero-highlights-heading p {
     margin-top: 6px;
   }
   .hero-highlight-controls {
-    gap: 6px;
+    gap: 8px;
   }
   .hero-highlight-controls button {
-    width: 40px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
+    aspect-ratio: 1 / 1;
+  }
+  .hero-highlight-rail {
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    padding-inline-end: 68px;
+  }
+  .hero-highlight-rail::-webkit-scrollbar {
+    display: none;
   }
   .hero-highlight-card {
     flex-basis: 78%;
@@ -1913,7 +1943,7 @@
     padding: 27px 20px 60px;
   }
   .hero-highlight-active .immersive-copy h1 {
-    font-size: 34px;
+    font-size: clamp(26px, 7.2vw, 34px);
   }
   .hero-highlight-shade {
     background: linear-gradient(90deg, #001f18ed, #001f18b5);
@@ -2322,7 +2352,7 @@
    Text on gold is dark green: white on this gold is too low-contrast.
    Outline text is dark gold on light sections and logo gold on dark ones,
    following the same light/dark rule as the section badges. */
-.public-site .btn-outline {
+.public-site :where(.btn-outline) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2335,7 +2365,7 @@
   box-shadow: none;
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
 }
-.public-site .btn-outline:hover {
+.public-site :where(.btn-outline):hover {
   background: #e6ac3a;
   border-color: #e6ac3a;
   color: #00291e;
@@ -2345,10 +2375,10 @@
   :is(.public-nav, .immersive-hero, .editorial-banner, .editorial-cta, .home-why,
     .home-principles, .home-journey, .bg-brand-deep, .bg-brand-primary,
     .bg-brand-ink, .gradient-primary, .gradient-dark)
-  .btn-outline:not(:hover) {
+  :where(.btn-outline):not(:hover) {
   color: #e6ac3a;
 }
-.public-site .btn-solid {
+.public-site :where(.btn-solid) {
   border: 1px solid #e6ac3a;
   border-radius: 10px;
   background: #e6ac3a;
@@ -2356,12 +2386,12 @@
   font-weight: 600;
   transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
-.public-site .btn-solid:hover:not(:disabled) {
+.public-site :where(.btn-solid):hover:not(:disabled) {
   background: #eebd5c;
   border-color: #eebd5c;
   color: #00291e;
 }
-.public-site .btn-solid :is(svg, .text-white) {
+.public-site :where(.btn-solid) :is(svg, .text-white) {
   color: inherit;
 }
 

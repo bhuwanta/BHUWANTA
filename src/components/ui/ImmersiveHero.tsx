@@ -37,8 +37,9 @@ export function ImmersiveHero({
       `[data-slide="${next}"]`,
     )
     if (button && rail.current) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600
       rail.current.scrollTo({
-        left: button.offsetLeft - 10,
+        left: Math.max(0, button.offsetLeft - (isMobile ? 6 : 10)),
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'instant'
           : 'smooth',
