@@ -6,19 +6,31 @@
 
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git branch --show-current 2>/dev/null)
 
+# Rule: If on main/master, coding & direct commits are forbidden.
+# Exception: Merge commits (merging a feature/hotfix branch into main) are ALLOWED.
 if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  # Check if a merge operation is in progress (MERGE_HEAD exists)
+  if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+    # Merge commit in progress — this is an integration of a tested branch, ALLOW it.
+    exit 0
+  fi
+
   echo ""
   echo "🚨 ======================================================================"
-  echo "   [GIT HOOK REJECTED] COMMIT BLOCKED ON PROTECTED BRANCH: '$BRANCH'"
+  echo "   [GIT HOOK REJECTED] DIRECT COMMIT BLOCKED ON PROTECTED BRANCH: '$BRANCH'"
   echo "======================================================================"
-  echo "❌ Direct commits to '$BRANCH' are strictly forbidden by repository rules!"
-  echo "   See AGENTS.md, CLAUDE.md, and GEMINI.md for full governance details."
+  echo "❌ You CANNOT code or commit directly on '$BRANCH'!"
+  echo "   All coding MUST happen on a dedicated branch (feature/*, hotfix/*, fix/*)."
   echo ""
-  echo "👉 Action Required: Create and switch to a feature or hotfix branch:"
+  echo "✅ What IS allowed on '$BRANCH':"
+  echo "   1. Merging a tested branch:   git merge <branch-name>"
+  echo "   2. Pushing to remote:          git push origin $BRANCH"
+  echo ""
+  echo "👉 Action Required: Move your changes to a feature/hotfix branch:"
   echo "   git checkout -b feature/<your-feature-name>"
   echo "   git checkout -b hotfix/<your-hotfix-name>"
   echo ""
-  echo "   Your staged changes will safely carry over to the new branch."
+  echo "   Your staged changes will safely move with you to the new branch."
   echo "======================================================================"
   echo ""
   exit 1

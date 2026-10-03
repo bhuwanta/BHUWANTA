@@ -1,8 +1,8 @@
 # Cursor Rules for Bhuwanta Repository
 
-# ⛔ CRITICAL RULE: NEVER WORK OR COMMIT ON MAIN
-- You are strictly forbidden from modifying files or running `git commit` directly on `main` or `master`.
-- Before making any code modifications or running commands that mutate code, always check current branch with `git branch --show-current`.
-- If on `main`, immediately instruct the user or run: `git checkout -b feature/<name>` or `git checkout -b hotfix/<name>`.
-- Always run `npm test` and `npx tsc --noEmit` to verify correctness.
+# ⛔ CRITICAL RULE: NEVER CODE DIRECTLY ON MAIN
+- You are strictly forbidden from modifying files or making direct code commits on `main` or `master`.
+- All development and edits must happen on a dedicated branch (`feature/*`, `hotfix/*`, `fix/*`).
+- Merging tested branches into `main` and pushing `main` to remote is allowed once `npm test` and `npx tsc --noEmit` pass.
+- Before editing files, always check branch with `git branch --show-current`. If on `main`, switch to a branch first.
 - Full details in AGENTS.md.
