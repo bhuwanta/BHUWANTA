@@ -4,9 +4,6 @@ import { useState, useTransition } from 'react'
 import {
   Blocks,
   KeyRound,
-  MessageCircle,
-  Mail,
-  Shield,
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -64,13 +61,13 @@ export default function ModulesClient({ initialOtpEnabled }: ModulesClientProps)
           Modules
         </h1>
         <p className="text-[#5a6a82] text-sm mt-1">
-          Configure and manage CRM system modules and public website controls.
+          Configure and manage CRM system modules.
         </p>
       </div>
 
       {/* Modules Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Module 1: Website Downloads OTP (Interactive Toggle) */}
+        {/* Module: Website Downloads OTP */}
         <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -124,102 +121,6 @@ export default function ModulesClient({ initialOtpEnabled }: ModulesClientProps)
                 {isPending && <Loader2 className="h-3 w-3 animate-spin text-[#5a6a82]" />}
               </span>
             </button>
-          </div>
-        </div>
-
-        {/* Module 2: WhatsApp Lead Sync */}
-        <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0">
-                  <MessageCircle className="w-5 h-5 text-[#1e3a5f]" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-[#0f1d33]">WhatsApp Sync</h3>
-                  <p className="text-xs text-[#5a6a82]">Key: whatsapp_lead_sync</p>
-                </div>
-              </div>
-
-              <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Active
-              </span>
-            </div>
-
-            <p className="text-sm text-[#5a6a82] mb-6">
-              Automatically routes incoming website leads into the CRM WhatsApp inbox with telecaller assignment and instant response triggers.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-[#e8ecf2] flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0f1d33]">
-              Module Status
-            </span>
-            <span className="text-xs text-[#5a6a82] font-medium">Core System</span>
-          </div>
-        </div>
-
-        {/* Module 3: Email Autoresponder */}
-        <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-[#1e3a5f]" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-[#0f1d33]">Email Autoresponder</h3>
-                  <p className="text-xs text-[#5a6a82]">Key: email_autoresponder</p>
-                </div>
-              </div>
-
-              <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Resend
-              </span>
-            </div>
-
-            <p className="text-sm text-[#5a6a82] mb-6">
-              Dispatches automated branded welcome emails with downloadable project brochures and attachments managed through Sanity CMS.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-[#e8ecf2] flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0f1d33]">
-              Module Status
-            </span>
-            <span className="text-xs text-[#5a6a82] font-medium">Core System</span>
-          </div>
-        </div>
-
-        {/* Module 4: Anti-Spam Rate Limiter */}
-        <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0">
-                  <Shield className="w-5 h-5 text-[#1e3a5f]" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-[#0f1d33]">Anti-Spam Limiter</h3>
-                  <p className="text-xs text-[#5a6a82]">Key: redis_rate_limiter</p>
-                </div>
-              </div>
-
-              <span className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-1 rounded font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Redis
-              </span>
-            </div>
-
-            <p className="text-sm text-[#5a6a82] mb-6">
-              Enforces a sliding-window rate limit (5 requests per hour per IP) via Upstash Redis to prevent bot scraping and denial-of-service abuse.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-[#e8ecf2] flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#0f1d33]">
-              Module Status
-            </span>
-            <span className="text-xs text-[#5a6a82] font-medium">5 req/hr sliding</span>
           </div>
         </div>
       </div>
