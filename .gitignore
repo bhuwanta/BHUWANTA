@@ -86,14 +86,9 @@ ngrok.log
 /add_*.ts
 *.log
 
-# Internal-only docs and AI tooling. Private company project: these stay on
-# local disk and must never reach the remote. NOTE: they were already
-# pushed before this rule existed, so they remain in the remote's HISTORY
-# until it is rewritten — untracking only stops future commits.
-AGENTS.md
-CLAUDE.md
+# Internal-only docs. Private company project: these stay on
+# local disk and must never reach the remote.
 PROJECT_SPECIFICATION.md
-.agents/
 graphify-out/
 
 # supabase CLI scratch

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# BHUWANTA REPOSITORY GIT PRE-COMMIT HOOK
+# Enforces branch protection policy defined in AGENTS.md & CLAUDE.md
+# ==============================================================================
+
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git branch --show-current 2>/dev/null)
+
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  echo ""
+  echo "🚨 ======================================================================"
+  echo "   [GIT HOOK REJECTED] COMMIT BLOCKED ON PROTECTED BRANCH: '$BRANCH'"
+  echo "======================================================================"
+  echo "❌ Direct commits to '$BRANCH' are strictly forbidden by repository rules!"
+  echo "   See AGENTS.md, CLAUDE.md, and GEMINI.md for full governance details."
+  echo ""
+  echo "👉 Action Required: Create and switch to a feature or hotfix branch:"
+  echo "   git checkout -b feature/<your-feature-name>"
+  echo "   git checkout -b hotfix/<your-hotfix-name>"
+  echo ""
+  echo "   Your staged changes will safely carry over to the new branch."
+  echo "======================================================================"
+  echo ""
+  exit 1
+fi
+
+exit 0

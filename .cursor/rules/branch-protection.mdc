@@ -1,0 +1,15 @@
+---
+description: Branch Protection and Git Workflow Rules for Bhuwanta Repository
+globs: *
+alwaysApply: true
+---
+
+# Git Branch Protection Rules
+
+- **PROTECTED BRANCH**: `main` and `master` are strictly protected branches.
+- **NEVER WRITE OR COMMIT ON MAIN**: You must never write code or commit to `main`.
+- **BRANCH CREATION**: Always create a feature or hotfix branch before editing files:
+  - `git checkout -b feature/<feature-name>`
+  - `git checkout -b hotfix/<fix-name>`
+- **TESTING REQUIREMENT**: Always run `npm test` and `npx tsc --noEmit` before declaring any task done.
+- See `AGENTS.md` for complete architecture and guidelines.
