@@ -7,9 +7,9 @@ alwaysApply: true
 # Git Branch Protection Rules
 
 - **PROTECTED BRANCH**: `main` and `master` are strictly protected branches.
-- **NEVER WRITE OR COMMIT ON MAIN**: You must never write code or commit to `main`.
+- **NEVER CODE DIRECTLY ON MAIN**: You must never write code or directly commit code to `main`.
 - **BRANCH CREATION**: Always create a feature or hotfix branch before editing files:
   - `git checkout -b feature/<feature-name>`
   - `git checkout -b hotfix/<fix-name>`
-- **TESTING REQUIREMENT**: Always run `npm test` and `npx tsc --noEmit` before declaring any task done.
+- **MERGING & PUSHING ALLOWED**: Once `npm test` and `npx tsc --noEmit` pass on the feature branch, you may switch to `main`, merge the branch, and push `main` to remote.
 - See `AGENTS.md` for complete architecture and guidelines.
