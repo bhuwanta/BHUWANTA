@@ -245,3 +245,30 @@ ALTER TABLE leads ADD COLUMN IF NOT EXISTS provider_id TEXT UNIQUE;
 
 -- Add referred_by to leads
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS referred_by TEXT;
+
+-- ===================
+-- SYSTEM MODULES TABLE
+-- ===================
+CREATE TABLE IF NOT EXISTS s_modules (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  module_key TEXT UNIQUE NOT NULL,
+  module_name TEXT NOT NULL,
+  description TEXT,
+  enabled_roles TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE s_modules ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Authenticated users can view s_modules" ON s_modules FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Authenticated users can manage s_modules" ON s_modules FOR ALL USING (auth.role() = 'authenticated');
+
+-- Seed Website Downloads OTP Verification module
+INSERT INTO s_modules (module_key, module_name, description, enabled_roles)
+VALUES (
+  'website_downloads_otp',
+  'Website Downloads OTP Verification',
+  'Requires OTP phone verification on public brochure and document downloads.',
+  ARRAY['public_downloads']
+)
+ON CONFLICT (module_key) DO NOTHING;
