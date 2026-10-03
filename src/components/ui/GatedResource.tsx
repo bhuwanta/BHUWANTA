@@ -7,6 +7,7 @@ import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { trackDocumentDownload } from '@/lib/gtag'
 import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { useOtpConfig } from '@/lib/hooks/useOtpConfig'
 
 export function GatedResource({
   resourceName,
@@ -17,6 +18,7 @@ export function GatedResource({
   teaser: string
   children: React.ReactNode
 }) {
+  const { isOtpEnabled } = useOtpConfig()
   const [unlocked, setUnlocked] = useState(false)
 
   // Scoped to this component instead of window.recaptchaVerifier. That global
@@ -79,6 +81,42 @@ export function GatedResource({
       console.error('Firebase OTP Error:', err)
       setError((err instanceof Error ? err.message : null) || 'Failed to send OTP. Please try again.')
       clearRecaptcha()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleInstantUnlock = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (formData.phone.length !== 10) {
+      setPhoneError('Please enter a valid 10-digit number')
+      return
+    }
+    setLoading(true)
+    setError('')
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attribution: getLeadAttribution(),
+          name: formData.name,
+          phone: formData.phone,
+          referredBy: formData.referredBy,
+          enquiryType: `Document Download: ${resourceName}`,
+          sourcePage: `Lead Magnet - ${resourceName}`,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to save your details. Please try again.')
+      const data = await res.json()
+      clearRecaptcha()
+      setUnlocked(true)
+      trackDocumentDownload(data.leadId)
+    } catch (err: unknown) {
+      console.error('Instant unlock error:', err)
+      setError('Failed to unlock guide. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -153,7 +191,7 @@ export function GatedResource({
       )}
 
       {step === 1 ? (
-        <form onSubmit={handleSendOTP} className="max-w-sm mx-auto space-y-3">
+        <form onSubmit={isOtpEnabled ? handleSendOTP : handleInstantUnlock} className="max-w-sm mx-auto space-y-3">
           <input
             required
             type="text"
@@ -200,7 +238,7 @@ export function GatedResource({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Sending OTP...
+                {isOtpEnabled ? 'Sending OTP...' : 'Unlocking...'}
               </span>
             ) : (
               'Unlock This Guide'

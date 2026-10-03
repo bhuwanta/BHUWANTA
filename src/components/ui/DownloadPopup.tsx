@@ -13,6 +13,7 @@ import { submitContactLead } from '@/lib/lead-submission'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { trackDocumentDownload } from '@/lib/gtag'
 import { documentDownloadHref } from '@/lib/document-links'
+import { useOtpConfig } from '@/lib/hooks/useOtpConfig'
 
 interface DownloadPopupProps {
   isOpen: boolean
@@ -23,6 +24,7 @@ interface DownloadPopupProps {
 }
 
 export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType }: DownloadPopupProps) {
+  const { isOtpEnabled } = useOtpConfig()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneError, setPhoneError] = useState('')
   const [step, setStep] = useState<1 | 2>(1)
@@ -130,6 +132,36 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     }
   }
 
+  const handleInstantDownload = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (formData.phone.length !== 10) {
+      setPhoneError('Please enter a valid 10-digit number')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const data = await submitContactLead({
+        attribution: getLeadAttribution(),
+        ...formData,
+        project: projectName,
+        enquiryType: `Document Download: ${documentType}`,
+        message: `Requested to download ${documentType} for ${projectName}`,
+        sourcePage: 'Website Document Download',
+      })
+      trackDocumentDownload(data.leadId)
+      clearRecaptcha()
+      setDownloadReady(true)
+    } catch (err: unknown) {
+      console.error('Instant download submission error:', err)
+      setError('We could not confirm your request was saved. Please retry.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!confirmationResult || !otp) return
@@ -232,9 +264,13 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
               </button>
             </div>
           ) : step === 1 ? (
-            <form onSubmit={handleSendOTP} className="space-y-4">
+            <form onSubmit={isOtpEnabled ? handleSendOTP : handleInstantDownload} className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-sm text-brand-deep/70">Please enter your details to access this document.</p>
+                <p className="text-sm text-brand-deep/70">
+                  {isOtpEnabled
+                    ? 'Please enter your details to verify and access this document.'
+                    : 'Please enter your details to access this document.'}
+                </p>
               </div>
               <div className="space-y-3">
                 <input
@@ -281,11 +317,11 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Sending OTP...
+                      {isOtpEnabled ? 'Sending OTP...' : 'Preparing Download...'}
                     </span>
                   ) : (
                     <>
-                      <Download className="w-4 h-4" /> Verify to Download
+                      <Download className="w-4 h-4" /> {isOtpEnabled ? 'Verify to Download' : 'Download Now'}
                     </>
                   )}
                 </button>
