@@ -23,6 +23,9 @@ function loadPostHog(): Promise<PostHog | null> {
         capture_pageleave: true,
         disable_surveys: true,
         disable_session_recording: true, // Sentry handles replays
+        capture_dead_clicks: false, // Prevents loading external dead-clicks-autocapture.js script
+        capture_heatmaps: false,
+
       })
       client = posthog
       return posthog
