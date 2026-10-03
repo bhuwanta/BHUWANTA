@@ -231,7 +231,7 @@ export default function ModulesClient({ initialOtpEnabled }: ModulesClientProps)
                   </span>
                 ) : (
                   <span className="text-amber-800 font-medium">
-                    ⚠ Currently DISABLED: Visitors can download documents immediately after entering their name & phone, without waiting for SMS or entering an OTP code.
+                    ⚠ Currently DISABLED: Visitors can download documents directly without being asked for name, phone number, or OTP verification.
                   </span>
                 )}
               </p>
@@ -352,13 +352,13 @@ export default function ModulesClient({ initialOtpEnabled }: ModulesClientProps)
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 p-4 items-center gap-2">
                 <span className="font-medium text-[#0f1d33]">Visitor Download Experience</span>
-                <span className="text-[#5a6a82]">Step 1: Enter Phone → Step 2: Enter OTP → Download</span>
-                <span className="text-[#5a6a82]">Step 1: Enter Phone → Instant Download</span>
+                <span className="text-[#5a6a82]">Step 1: Enter Name & Phone → Step 2: Enter OTP → Download</span>
+                <span className="text-[#5a6a82]">Direct Instant Download (No Name, Phone, or OTP Asked)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 p-4 items-center gap-2">
                 <span className="font-medium text-[#0f1d33]">Lead Data Collection</span>
                 <span className="text-[#5a6a82]">Saved in Supabase CRM + High Intent Verified</span>
-                <span className="text-[#5a6a82]">Saved in Supabase CRM + Instant Lead Capture</span>
+                <span className="text-[#5a6a82]">Open Direct Download (Zero Friction)</span>
               </div>
             </div>
           </div>

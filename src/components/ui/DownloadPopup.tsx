@@ -241,11 +241,15 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
             </div>
           )}
 
-          {downloadReady ? (
+          {downloadReady || !isOtpEnabled ? (
             <div className="space-y-4 text-center" role="status">
-              <h3 className="text-lg font-semibold text-brand-deep">Your request is saved</h3>
+              <h3 className="text-lg font-semibold text-brand-deep">
+                {downloadReady ? 'Your download is ready' : `Download ${documentType}`}
+              </h3>
               <p className="text-sm text-brand-muted">
-                {documentLinks.length ? 'Open your documents below.' : 'The documents are currently unavailable. Our team can help you with them.'}
+                {documentLinks.length
+                  ? 'Click below to view or download your document.'
+                  : 'The documents are currently unavailable. Our team can help you with them.'}
               </p>
               {documentLinks.map((href, index) => (
                 <a
@@ -253,23 +257,26 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackDocumentDownload()}
                   className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 btn-solid"
                 >
                   <Download className="w-4 h-4" />
                   Open {documentType}{documentLinks.length > 1 ? ` ${index + 1}` : ''}
                 </a>
               ))}
-              <button type="button" onClick={onClose} className="w-full py-3 rounded-xl border border-brand-border text-brand-deep font-medium">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-2.5 rounded-xl border border-brand-border text-brand-deep font-medium hover:bg-gray-50 transition-colors"
+              >
                 Done
               </button>
             </div>
           ) : step === 1 ? (
-            <form onSubmit={isOtpEnabled ? handleSendOTP : handleInstantDownload} className="space-y-4">
+            <form onSubmit={handleSendOTP} className="space-y-4">
               <div className="text-center mb-4">
                 <p className="text-sm text-brand-deep/70">
-                  {isOtpEnabled
-                    ? 'Please enter your details to verify and access this document.'
-                    : 'Please enter your details to access this document.'}
+                  Please enter your details to verify and access this document.
                 </p>
               </div>
               <div className="space-y-3">
@@ -317,11 +324,11 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      {isOtpEnabled ? 'Sending OTP...' : 'Preparing Download...'}
+                      Sending OTP...
                     </span>
                   ) : (
                     <>
-                      <Download className="w-4 h-4" /> {isOtpEnabled ? 'Verify to Download' : 'Download Now'}
+                      <Download className="w-4 h-4" /> Verify to Download
                     </>
                   )}
                 </button>

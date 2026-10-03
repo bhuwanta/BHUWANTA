@@ -112,43 +112,20 @@ test('DownloadPopup imports useOtpConfig and checks OTP requirement', () => {
   )
 })
 
-test('DownloadPopup has handleInstantDownload that bypasses phone OTP when disabled', () => {
+test('DownloadPopup directly displays download links and bypasses name/phone inputs when OTP is disabled', () => {
   assert.match(
     downloadPopupContent,
-    /handleInstantDownload/,
-    'DownloadPopup must define handleInstantDownload function'
+    /downloadReady\s*\|\|\s*!isOtpEnabled/,
+    'DownloadPopup must directly show download links when !isOtpEnabled without asking for name or phone'
   )
   assert.match(
     downloadPopupContent,
-    /submitContactLead\(\{[\s\S]*?attribution:[\s\S]*?project:[\s\S]*?enquiryType:[\s\S]*?\}\)/,
-    'Instant download must capture lead directly into CRM'
-  )
-  assert.match(
-    downloadPopupContent,
-    /setDownloadReady\(true\)/,
-    'Instant download must unlock file download immediately'
-  )
-  assert.match(
-    downloadPopupContent,
-    /onSubmit=\{isOtpEnabled\s*\?\s*handleSendOTP\s*:\s*handleInstantDownload\}/,
-    'Form submit handler must switch dynamically between OTP and instant download'
+    /step\s*===\s*1\s*\?/,
+    'Name and phone input form is only rendered when OTP verification is active'
   )
 })
 
-test('DownloadPopup button label reflects OTP state', () => {
-  assert.match(
-    downloadPopupContent,
-    /isOtpEnabled\s*\?\s*['"]Verify to Download['"]\s*:\s*['"]Download Now['"]/,
-    'Download button label must display "Verify to Download" when enabled and "Download Now" when disabled'
-  )
-  assert.match(
-    downloadPopupContent,
-    /isOtpEnabled\s*\?\s*['"]Sending OTP\.\.\.['"]\s*:\s*['"]Preparing Download\.\.\.['"]/,
-    'Submitting label must display "Sending OTP..." when enabled and "Preparing Download..." when disabled'
-  )
-})
-
-test('GatedResource supports instant unlock when OTP is disabled', () => {
+test('GatedResource directly unlocks content without asking for name or phone when OTP is disabled', () => {
   assert.match(
     gatedResourceContent,
     /import\s*\{\s*useOtpConfig\s*\}\s*from\s*['"]@\/lib\/hooks\/useOtpConfig['"]/,
@@ -156,13 +133,8 @@ test('GatedResource supports instant unlock when OTP is disabled', () => {
   )
   assert.match(
     gatedResourceContent,
-    /handleInstantUnlock/,
-    'GatedResource must define handleInstantUnlock function'
-  )
-  assert.match(
-    gatedResourceContent,
-    /onSubmit=\{isOtpEnabled\s*\?\s*handleSendOTP\s*:\s*handleInstantUnlock\}/,
-    'GatedResource form must conditionally use instant unlock when OTP is disabled'
+    /unlocked\s*\|\|\s*!isOtpEnabled/,
+    'GatedResource must immediately render children and print button without form when OTP is disabled'
   )
 })
 

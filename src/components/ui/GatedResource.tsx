@@ -159,7 +159,7 @@ export function GatedResource({
     }
   }
 
-  if (unlocked) {
+  if (unlocked || !isOtpEnabled) {
     return (
       <div>
         <div className="flex justify-end mb-6 print:hidden">
