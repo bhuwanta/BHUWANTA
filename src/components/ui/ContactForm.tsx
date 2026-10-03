@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-export function ContactForm({ projectsList = [], locationNames = [], initialProject, compact = false }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string, compact?: boolean }) {
+export function ContactForm({ projectsList = [], locationNames = [], initialProject, compact = false, hideTitle = false }: { projectsList?: { name: string, location: string }[], locationNames?: string[], initialProject?: string, compact?: boolean, hideTitle?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
@@ -238,7 +238,9 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
 
   return (
     <div className="space-y-5">
-      <h3 className="text-2xl font-bold text-brand-ink mb-2">Request Prices or a Site Visit</h3>
+      {!hideTitle && (
+        <h3 className="text-2xl font-bold text-brand-ink mb-2">Request Prices or a Site Visit</h3>
+      )}
       <div ref={recaptchaContainerRef} />
 
       {error && (
@@ -394,7 +396,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex items-start gap-2.5 pt-1">
             <input
               type="checkbox"
               id="agree"
@@ -402,7 +404,7 @@ export function ContactForm({ projectsList = [], locationNames = [], initialProj
               checked={formData.agree}
               onChange={handleChange}
               required
-              className="w-4 h-4 rounded border-brand-border text-brand-primary focus:ring-brand-gold"
+              className="w-4 h-4 mt-0.5 shrink-0 rounded border-brand-border text-brand-primary focus:ring-brand-gold"
             />
             <label htmlFor="agree" className="text-xs text-brand-muted leading-tight">
               I agree to the <Link href="/policies" target="_blank" className="underline">Terms &amp; Privacy Policy</Link> and to being contacted about my enquiry.

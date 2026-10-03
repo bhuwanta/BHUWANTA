@@ -351,12 +351,13 @@ export default async function HomePage() {
                 so nothing shifts when the URL's ?project= is applied. */}
             <Suspense
               fallback={
-                <ContactForm projectsList={projectsList} locationNames={locationNames} />
+                <ContactForm projectsList={projectsList} locationNames={locationNames} hideTitle />
               }
             >
               <PreselectedContactForm
                 projectsList={projectsList}
                 locationNames={locationNames}
+                hideTitle
               />
             </Suspense>
           </div>
