@@ -69,8 +69,8 @@ export function parseOtpConfig(raw: unknown, fallback: boolean = true): boolean 
 }
 
 /**
- * Gets whether OTP verification is required for public document downloads.
- * Checks Redis cache first, then falls back to Supabase PostgreSQL `s_modules` table.
+ * Gets whether OTP verification is required for public document downloads and lead forms.
+ * Checks Redis cache first, then falls back to Supabase PostgreSQL `crm_modules` table.
  */
 export async function getOtpDownloadEnabled(): Promise<boolean> {
   // 1. Try Redis cache first for sub-millisecond response
@@ -87,18 +87,18 @@ export async function getOtpDownloadEnabled(): Promise<boolean> {
     }
   }
 
-  // 2. Query Supabase Database (s_modules table)
+  // 2. Query Supabase Database (crm_modules table)
   try {
     const supabase = await getSupabaseAdmin()
     if (supabase) {
       const { data, error } = await supabase
-        .from('s_modules')
-        .select('enabled_roles')
+        .from('crm_modules')
+        .select('enabled')
         .eq('module_key', MODULE_KEY)
         .maybeSingle()
 
       if (!error && data) {
-        const isEnabled = Array.isArray(data.enabled_roles) && data.enabled_roles.length > 0
+        const isEnabled = typeof data.enabled === 'boolean' ? data.enabled : true
         memoryOtpDownloadEnabled = isEnabled
 
         // Re-populate Redis cache
@@ -121,46 +121,47 @@ export async function getOtpDownloadEnabled(): Promise<boolean> {
 }
 
 /**
- * Sets whether OTP verification is required for public document downloads.
- * Persists to Supabase `s_modules` table AND synchronizes with Upstash Redis cache.
+ * Sets whether OTP verification is required for public document downloads and lead forms.
+ * Persists to Supabase `crm_modules` table AND synchronizes with Upstash Redis cache.
  */
 export async function setOtpDownloadEnabled(enabled: boolean, updatedBy?: string): Promise<boolean> {
   memoryOtpDownloadEnabled = Boolean(enabled)
-  const roles = enabled ? ['public_downloads'] : []
   const now = new Date().toISOString()
 
-  // 1. Persist directly to Supabase PostgreSQL (s_modules table)
+  // 1. Persist directly to Supabase PostgreSQL (crm_modules table)
   try {
     const supabase = await getSupabaseAdmin()
     if (supabase) {
-      const { data: existing } = await supabase
-        .from('s_modules')
+      const { data: existing, error: selectError } = await supabase
+        .from('crm_modules')
         .select('id')
         .eq('module_key', MODULE_KEY)
         .maybeSingle()
 
-      if (existing) {
+      if (!selectError && existing) {
         await supabase
-          .from('s_modules')
+          .from('crm_modules')
           .update({
-            enabled_roles: roles,
+            enabled: Boolean(enabled),
             updated_at: now,
+            updated_by: updatedBy || 'CRM Admin',
           })
           .eq('module_key', MODULE_KEY)
-      } else {
+      } else if (!selectError) {
         await supabase
-          .from('s_modules')
+          .from('crm_modules')
           .insert({
             module_key: MODULE_KEY,
-            module_name: 'Website Downloads OTP Verification',
-            description: 'Requires OTP phone verification on public brochure and document downloads.',
-            enabled_roles: roles,
+            module_name: 'Website Downloads & Form OTP Verification',
+            description: 'Requires OTP phone verification on public brochure downloads and lead contact forms.',
+            enabled: Boolean(enabled),
             updated_at: now,
+            updated_by: updatedBy || 'CRM Admin',
           })
       }
     }
   } catch (dbError) {
-    console.error('[otp-config] Supabase database update error:', dbError)
+    console.warn('[otp-config] Supabase crm_modules update error (will sync with Redis):', dbError)
   }
 
   // 2. Synchronize to Redis cache
@@ -179,3 +180,4 @@ export async function setOtpDownloadEnabled(enabled: boolean, updatedBy?: string
 
   return memoryOtpDownloadEnabled
 }
+
