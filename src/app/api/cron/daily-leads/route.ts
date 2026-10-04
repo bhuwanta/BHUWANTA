@@ -85,12 +85,19 @@ export async function GET(request: Request) {
     // 5. Build and Fire the Secure Email
     // Using Buffer to smoothly stream our memory string into a physical attachment
     const attachmentContent = Buffer.from(csvContent, 'utf-8')
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'info@bhuwanta.com'
+    const fallbackAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'bhuwanta9@gmail.com'
+    
+    let emailList: string[] = [fallbackAdminEmail];
+    const { data: recipients } = await supabase.from('report_recipients').select('email');
+    if (recipients && recipients.length > 0) {
+      // Always include the master admin email
+      emailList = [...new Set([fallbackAdminEmail, ...recipients.map(r => r.email)])];
+    }
 
     if (resend) {
       await resend.emails.send({
         from: 'Bhuwanta Automation <info@bhuwanta.com>',
-        to: adminEmail,
+        to: emailList,
         subject: `[Bhuwanta Daily CRM] You have ${leads.length} new leads!`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px;">

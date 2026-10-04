@@ -25,27 +25,16 @@ export async function addAdminUser(formData: FormData) {
     }
   )
 
-  // 1. First create the user with a role allowed by the profiles table check constraint
-  // The profiles table only allows: 'Admin', 'Sales Manager', 'Sales Executive'
-  // If we pass 'Telecaller' during creation, the database trigger might fail on the check constraint
-  const tempRole = role === 'Telecaller' ? 'Sales Executive' : role;
-  
+  // The profiles table only allows: 'Admin', 'Super Admin', 'Telecaller'
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: { role: tempRole, full_name: name }
+    user_metadata: { role, full_name: name }
   })
 
   if (error) {
     return { error: error.message }
-  }
-
-  // 2. Now update the user metadata to the actual role (e.g. Telecaller) in auth.users
-  if (data?.user && role !== tempRole) {
-    await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
-      user_metadata: { role: role, full_name: name }
-    })
   }
 
   // 3. Write the profiles row. Upsert, not update.
@@ -174,6 +163,80 @@ export async function toggleAdminStatus(id: string, disable: boolean) {
   const { error } = await supabaseAdmin.auth.admin.updateUserById(id, {
     user_metadata: { is_disabled: disable }
   })
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function editAdminUser(formData: FormData) {
+  const id = formData.get('id') as string
+  const role = formData.get('role') as string
+  const name = formData.get('name') as string
+
+  if (!id || !role || !name) return { error: 'ID, role and name are required' }
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+    user_metadata: { role, full_name: name }
+  })
+  if (authError) return { error: authError.message }
+
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .update({ role, name })
+    .eq('id', id)
+    
+  if (profileError) return { error: profileError.message }
+
+  return { success: true }
+}
+
+export async function getRoles() {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+  const { data, error } = await supabaseAdmin
+    .from('roles')
+    .select('id, name')
+    .order('created_at', { ascending: true })
+
+  if (error) return { error: error.message, data: null }
+  return { data, error: null }
+}
+
+export async function addRole(name: string) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+  const { data, error } = await supabaseAdmin
+    .from('roles')
+    .insert({ name })
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+  return { success: true, data }
+}
+
+export async function deleteRole(id: string) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+  const { error } = await supabaseAdmin
+    .from('roles')
+    .delete()
+    .eq('id', id)
+
   if (error) return { error: error.message }
   return { success: true }
 }

@@ -52,14 +52,14 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
-  // If no user and trying to access admin dashboard, redirect to login.
-  // /crm/login is the ONLY exemption on purpose: /crm/signup is left to
-  // fall through to this redirect so nobody can self-register a CRM
+  // /crm/login and /crm/update-password are the ONLY exemptions on purpose: 
+  // /crm/signup is left to fall through to this redirect so nobody can self-register a CRM
   // account. CRM users are created by an admin. Don't add it here.
   if (
     !user &&
     request.nextUrl.pathname.startsWith('/crm') &&
-    request.nextUrl.pathname !== '/crm/login'
+    request.nextUrl.pathname !== '/crm/login' &&
+    request.nextUrl.pathname !== '/crm/update-password'
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/crm/login'
@@ -81,8 +81,21 @@ export async function updateSession(request: NextRequest) {
   // same reason: Edge middleware cannot run the service-role client.
   let isCrmMember = false
   if (user && request.nextUrl.pathname.startsWith('/crm')) {
-    const { data: crmProfile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle()
-    isCrmMember = Boolean(crmProfile)
+    if (request.cookies.has('crm_access_granted')) {
+      isCrmMember = true
+    } else {
+      const { data: crmProfile } = await supabase.from('profiles').select('id').eq('id', user.id).maybeSingle()
+      isCrmMember = Boolean(crmProfile)
+      if (isCrmMember) {
+        supabaseResponse.cookies.set('crm_access_granted', '1', {
+          path: '/crm',
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          secure: process.env.NODE_ENV === 'production',
+          httpOnly: true,
+          sameSite: 'lax',
+        })
+      }
+    }
   }
 
   // Disabled accounts are shown the door regardless of membership.

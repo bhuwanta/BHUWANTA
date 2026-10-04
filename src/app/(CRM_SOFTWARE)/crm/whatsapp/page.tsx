@@ -16,9 +16,9 @@ export default async function WhatsappDashboardPage() {
   // Get user role from app_metadata if available, default to Admin
   const userRole = user.app_metadata?.role || 'Admin'
 
-  const { data: initialLeads } = await getWhatsappLeadsWithActivity()
+  const { data: initialLeads, count: totalCount } = await getWhatsappLeadsWithActivity(1, 50)
 
   return (
-    <WhatsappDashboardClient initialLeads={initialLeads || []} userRole={userRole} />
+    <WhatsappDashboardClient initialLeads={initialLeads || []} totalCount={totalCount || 0} userRole={userRole} />
   )
 }

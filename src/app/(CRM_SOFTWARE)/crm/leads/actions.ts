@@ -3,19 +3,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function getLeads() {
+export async function getLeads(page: number = 1, limit: number = 50) {
   const supabase = await createClient()
-  const { data, error } = await supabase
+  const from = (page - 1) * limit
+  const to = from + limit - 1
+
+  const { data, error, count } = await supabase
     .from('leads')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (error) {
     console.error('Error fetching leads:', error)
-    return []
+    return { data: [], count: 0 }
   }
 
-  return data
+  return { data, count: count || 0 }
 }
 
 export async function createLead(formData: FormData) {

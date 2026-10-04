@@ -199,7 +199,13 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
                 <BarChart data={sourceData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
                   <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={100} tick={{ fill: '#5a6a82', fontSize: 12 }} />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={130} 
+                    tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
+                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                  />
                   <Tooltip 
                     cursor={{ fill: '#f3f5f8' }}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
@@ -223,9 +229,15 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
           {projectData.length > 0 ? (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={projectData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={projectData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
-                  <XAxis dataKey="name" tick={{ fill: '#5a6a82', fontSize: 12 }} />
+                  <XAxis 
+                    dataKey="name" 
+                    tickFormatter={(val) => val.length > 15 ? val.substring(0, 13) + '...' : val}
+                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                    angle={-45}
+                    textAnchor="end"
+                  />
                   <YAxis />
                   <Tooltip 
                     cursor={{ fill: '#f3f5f8' }}
@@ -246,9 +258,14 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
           {recentLeadsData.length > 0 ? (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={recentLeadsData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={recentLeadsData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
-                  <XAxis dataKey="name" tick={{ fill: '#5a6a82', fontSize: 12 }} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                    angle={-45}
+                    textAnchor="end"
+                  />
                   <YAxis />
                   <Tooltip 
                     cursor={{ fill: '#f3f5f8' }}
@@ -272,7 +289,13 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
                 <BarChart data={downloadData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
                   <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={120} tick={{ fill: '#5a6a82', fontSize: 12 }} />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    width={130} 
+                    tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
+                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                  />
                   <Tooltip 
                     cursor={{ fill: '#f3f5f8' }}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}

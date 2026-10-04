@@ -3,7 +3,7 @@ import LeadsClient from './LeadsClient'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function LeadsPage() {
-  const initialLeads = await getLeads()
+  const { data: initialLeads, count: totalCount } = await getLeads(1, 50)
   
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -11,7 +11,7 @@ export default async function LeadsPage() {
 
   return (
     <div className="w-full">
-      <LeadsClient initialLeads={initialLeads} userRole={userRole} />
+      <LeadsClient initialLeads={initialLeads} totalCount={totalCount} userRole={userRole} />
     </div>
   )
 }

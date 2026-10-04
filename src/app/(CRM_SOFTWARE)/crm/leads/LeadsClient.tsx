@@ -5,7 +5,7 @@ import { Plus, Edit2, Trash2, X, Search, Globe, FilterX, Download, MessageCircle
 
 
 import { createClient } from '@/lib/supabase/client'
-import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStatus, getLeadActivities, getMetaForms, addMetaForm, deleteMetaForm, updateMetaFormName } from './actions'
+import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStatus, getLeadActivities, getMetaForms, addMetaForm, deleteMetaForm, updateMetaFormName, getLeads } from './actions'
 import { useRouter } from 'next/navigation'
 
 const LinkedinIcon = (props: any) => (
@@ -99,14 +99,36 @@ const SourceBadge = ({ source }: { source: string }) => {
   );
 };
 
-export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { initialLeads: any[], userRole?: string }) {
+export default function LeadsClient({ initialLeads, totalCount = 0, userRole = 'Admin' }: { initialLeads: any[], totalCount?: number, userRole?: string }) {
   const router = useRouter()
   const [leads, setLeads] = useState(initialLeads)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalLeadsCount, setTotalLeadsCount] = useState(totalCount || initialLeads.length)
+  const [isPageLoading, setIsPageLoading] = useState(false)
+  const pageSize = 50
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingLead, setEditingLead] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+
+  const handlePageChange = async (newPage: number) => {
+    if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
+    setIsPageLoading(true);
+    try {
+      const res = await getLeads(newPage, pageSize);
+      setLeads(res.data);
+      setTotalLeadsCount(res.count);
+      setCurrentPage(newPage);
+      
+      // Update selected sources or reset selection if needed
+      setSelectedLeadIds([]);
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
   const [selectedSources, setSelectedSources] = useState<string[]>([])
   const [dateFilterType, setDateFilterType] = useState<'single' | 'range'>('single')
   const [startDate, setStartDate] = useState<string>('')
@@ -516,6 +538,8 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
     return result;
   }, [leads, searchQuery, selectedSources, startDate, endDate, sortField, sortOrder]);
 
+  const isFiltering = searchQuery.trim() !== '' || selectedSources.length > 0 || !!startDate || !!endDate;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -526,7 +550,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {selectedLeadIds.length > 0 && userRole !== 'Telecaller' && (
+          {selectedLeadIds.length > 0 && userRole === 'Super Admin' && (
             <button
               onClick={handleBulkDelete}
               className="inline-flex items-center w-full sm:w-auto justify-center rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors"
@@ -677,7 +701,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
               <FilterX className="w-4 h-4" /> Clear Filters
             </button>
           )}
-          {userRole !== 'Telecaller' && (
+          {userRole === 'Super Admin' && (
             <>
               <button
                 onClick={handleManualSync}
@@ -710,10 +734,10 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
       <div className="rounded-xl border border-[#e8ecf2] bg-white shadow-sm flex flex-col overflow-hidden h-[65vh] md:h-[75vh]">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-auto">
-          <table className="w-full text-sm text-left relative">
+          <table className="w-full text-xs text-left relative">
             <thead className="bg-[#f7f8fa] text-[#5a6a82] sticky top-0 z-10">
               <tr>
-                <th className="px-6 py-4 font-medium w-10">
+                <th className="px-3 py-2 font-medium w-10">
                   <input
                     type="checkbox"
                     checked={filteredLeads.length > 0 && filteredLeads.every(l => selectedLeadIds.includes(l.id))}
@@ -721,23 +745,24 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                     className="rounded border-[#e8ecf2] text-[#1e3a5f] focus:ring-[#1e3a5f]"
                   />
                 </th>
-                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors" onClick={() => handleSort('created_at')}>
+                <th className="px-3 py-2 font-medium w-16 text-[#1e3a5f]">Sr. No</th>
+                <th className="px-3 py-2 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors whitespace-nowrap" onClick={() => handleSort('created_at')}>
                   <div className="flex items-center">Date <SortIcon field="created_at" /></div>
                 </th>
-                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors" onClick={() => handleSort('name')}>
+                <th className="px-3 py-2 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors whitespace-nowrap" onClick={() => handleSort('name')}>
                   <div className="flex items-center">Name <SortIcon field="name" /></div>
                 </th>
-                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors" onClick={() => handleSort('phone')}>
+                <th className="px-3 py-2 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors whitespace-nowrap" onClick={() => handleSort('phone')}>
                   <div className="flex items-center">Contact <SortIcon field="phone" /></div>
                 </th>
-                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors" onClick={() => handleSort('source_page')}>
+                <th className="px-3 py-2 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors whitespace-nowrap" onClick={() => handleSort('source_page')}>
                   <div className="flex items-center">Source <SortIcon field="source_page" /></div>
                 </th>
-                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors" onClick={() => handleSort('status')}>
+                <th className="px-3 py-2 font-medium cursor-pointer hover:bg-[#e8ecf2] transition-colors whitespace-nowrap" onClick={() => handleSort('status')}>
                   <div className="flex items-center">Status <SortIcon field="status" /></div>
                 </th>
-                {userRole !== 'Telecaller' && (
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
+                {userRole === 'Super Admin' && (
+                  <th className="px-3 py-2 font-medium text-right">Actions</th>
                 )}
               </tr>
             </thead>
@@ -745,7 +770,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
               {filteredLeads && filteredLeads.length > 0 ? (
                 filteredLeads.map((lead: any) => (
                   <tr key={lead.id} className="hover:bg-[#f3f5f8] transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <input
                         type="checkbox"
                         checked={selectedLeadIds.includes(lead.id)}
@@ -753,7 +778,10 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                         className="rounded border-[#e8ecf2] text-[#1e3a5f] focus:ring-[#1e3a5f]"
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-2 text-[#5a6a82] text-sm">
+                      {(currentPage - 1) * pageSize + filteredLeads.indexOf(lead) + 1}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
                       <div className="font-medium text-[#0f1d33]">
                         {new Date(lead.created_at).toLocaleDateString('en-US', {
                           month: 'short',
@@ -768,7 +796,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                         })}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
                         <div className="font-medium text-[#0f1d33]">{lead.name}</div>
                         {lead.bot_interactions_count > 1 && (
@@ -778,11 +806,11 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-[#0f1d33]">{lead.phone || '-'}</div>
-                      <div className="text-xs text-[#5a6a82]">{lead.email}</div>
+                    <td className="px-3 py-2">
+                      <div className="text-[#0f1d33] whitespace-nowrap">{lead.phone || '-'}</div>
+                      <div className="text-xs text-[#5a6a82] break-all max-w-[150px]">{lead.email}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <div className="flex flex-col items-start gap-1">
                         <SourceBadge source={lead.source_page} />
                         {lead.project && (
@@ -797,7 +825,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-2">
                       <select
                         value={lead.status || 'new'}
                         onChange={(e) => handleStatusChange(lead.id, e.target.value)}
@@ -809,7 +837,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                           : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
                           : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
                       >
-                        <option value="new">{lead.source_page?.toLowerCase().includes('whatsapp') ? 'Unverified contact' : 'New'}</option>
+                        <option value="new">New</option>
                         <option value="contacted">Contacted</option>
                         <option value="uncontacted">Uncontacted</option>
                         <option value="qualified">Qualified</option>
@@ -817,8 +845,8 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                         <option value="closed">Closed</option>
                       </select>
                     </td>
-                    {userRole !== 'Telecaller' && (
-                      <td className="px-6 py-4 text-right">
+                    {userRole === 'Super Admin' && (
+                      <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end space-x-3">
                           {lead.source_page?.toLowerCase().includes('whatsapp') && (
                             <button
@@ -850,7 +878,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                 ))
               ) : (
                 <tr>
-                  <td colSpan={userRole === 'Telecaller' ? 6 : 7} className="px-6 py-8 text-center text-[#5a6a82]">
+                  <td colSpan={userRole !== 'Super Admin' ? 6 : 7} className="px-6 py-8 text-center text-[#5a6a82]">
                     No leads found.
                   </td>
                 </tr>
@@ -858,6 +886,61 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
             </tbody>
           </table>
         </div>
+
+        {/* Pagination UI */}
+        {!isFiltering && totalLeadsCount > pageSize && (
+          <div className="flex items-center justify-between border-t border-[#e8ecf2] bg-white px-4 py-3 sm:px-6 mt-auto">
+            <div className="flex flex-1 justify-between sm:hidden">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1 || isPageLoading}
+                className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
+                className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to <span className="font-medium">{Math.min(currentPage * pageSize, totalLeadsCount)}</span> of{' '}
+                  <span className="font-medium">{totalLeadsCount}</span> results
+                  {isPageLoading && <span className="ml-2 text-[#c4a55a]">Loading...</span>}
+                </p>
+              </div>
+              <div>
+                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1 || isPageLoading}
+                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    <span className="sr-only">Previous</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
+                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                  >
+                    <span className="sr-only">Next</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Card View */}
         <div className="md:hidden flex flex-col divide-y divide-[#e8ecf2] overflow-y-auto">
@@ -918,7 +1001,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                       : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
                       : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
                   >
-                    <option value="new">{lead.source_page?.toLowerCase().includes('whatsapp') ? 'Unverified contact' : 'New'}</option>
+                    <option value="new">New</option>
                     <option value="contacted">Contacted</option>
                     <option value="uncontacted">Uncontacted</option>
                     <option value="qualified">Qualified</option>
@@ -926,7 +1009,7 @@ export default function LeadsClient({ initialLeads, userRole = 'Admin' }: { init
                     <option value="closed">Closed</option>
                   </select>
 
-                  {userRole !== 'Telecaller' && (
+                  {userRole === 'Super Admin' && (
                     <div className="flex items-center space-x-3">
                       {lead.source_page?.toLowerCase().includes('whatsapp') && (
                         <button

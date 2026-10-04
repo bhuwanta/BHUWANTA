@@ -149,17 +149,125 @@ export async function GET(request: Request) {
 
     if (attachments.length > 0) {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'info@bhuwanta.com';
-      const { error: emailError } = await resend.emails.send({
-        from: `Bhuwanta Reports <${fromEmail}>`,
-        to: ['bhuwanta9@gmail.com'],
-        subject: `[Bhuwanta CRM] ${reportPeriod}`,
-        html: emailHtml + `<br/><p><small>This is an automated system email.</small></p>`,
-        attachments
-      });
+      
+      const testEmail = url.searchParams.get('testEmail');
+      const testWaPhone = url.searchParams.get('testWaPhone');
+      
+      // -- 1. Send Emails --
+      if (!testWaPhone) { // Skip emails if testing only WA
+        let emailList: string[] = ['bhuwanta9@gmail.com'];
+        
+        if (testEmail) {
+          emailList = [testEmail];
+        } else {
+          const { data: recipients } = await supabase.from('report_recipients').select('email');
+          if (recipients && recipients.length > 0) {
+            emailList = [...new Set(['bhuwanta9@gmail.com', ...recipients.map(r => r.email)])];
+          }
+        }
 
-      if (emailError) {
-        console.error('Resend Error:', emailError);
-        return NextResponse.json({ error: emailError.message }, { status: 500 });
+        const { error: emailError } = await resend.emails.send({
+          from: `Bhuwanta Reports <${fromEmail}>`,
+          to: emailList,
+          subject: `[Bhuwanta CRM] ${reportPeriod}${testEmail ? ' (TEST)' : ''}`,
+          html: emailHtml + `<br/><p><small>This is an automated system email.</small></p>`,
+          attachments
+        });
+
+        if (emailError) {
+          console.error('Resend Error:', emailError);
+          if (testEmail) return NextResponse.json({ error: emailError.message }, { status: 500 });
+        }
+      }
+
+      // -- 2. Send WhatsApp Messages --
+      if (!testEmail) { // Skip WA if testing only email
+        let waList: string[] = [];
+        if (testWaPhone) {
+          waList = [testWaPhone];
+        } else {
+          const { data: waRecipients } = await supabase.from('whatsapp_report_recipients').select('phone_number');
+          if (waRecipients && waRecipients.length > 0) {
+            waList = [...new Set(waRecipients.map(r => r.phone_number))];
+          }
+        }
+
+        if (waList.length > 0) {
+          const waToken = process.env.WHATSAPP_ACCESS_TOKEN;
+          const waPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+          if (waToken && waPhoneId) {
+            // Upload attachments and send
+            for (const phone of waList) {
+              // Send summary text first
+              const formattedDate = nowIst.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+              const formattedTime = nowIst.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+              const summaryText = `📊 *Automated Bhuwanta CRM Report*\n\n*Date:* ${formattedDate}\n*Time:* ${formattedTime}\n*Period:* ${reportPeriod}\n\nPlease find the attached excel report below.`;
+              
+              await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${waToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  messaging_product: 'whatsapp',
+                  to: phone,
+                  type: 'text',
+                  text: { body: summaryText }
+                })
+              });
+
+              // Upload and send attachments (ONLY Excel for WhatsApp)
+              const excelAttachments = attachments.filter(a => a.filename.endsWith('.xlsx'));
+              for (const attachment of excelAttachments) {
+                try {
+                  const form = new FormData();
+                  form.append('messaging_product', 'whatsapp');
+                  const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                  form.append('file', new Blob([attachment.content], { type: mimeType }), attachment.filename);
+
+                  // Upload
+                  const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/media`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${waToken}` },
+                    body: form
+                  });
+
+                  if (uploadRes.ok) {
+                    const uploadData = await uploadRes.json();
+                    const mediaId = uploadData.id;
+
+                    // Send document
+                    await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': `Bearer ${waToken}`,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: phone,
+                        type: 'document',
+                        document: {
+                          id: mediaId,
+                          filename: attachment.filename
+                        }
+                      })
+                    });
+                  } else {
+                    console.error('WhatsApp Upload failed:', await uploadRes.text());
+                  }
+                } catch (e) {
+                  console.error('Error sending WA attachment:', e);
+                }
+              }
+            }
+          } else {
+            console.warn('WhatsApp API credentials are not configured.');
+            if (testWaPhone) return NextResponse.json({ error: 'WhatsApp API credentials missing' }, { status: 500 });
+          }
+        }
       }
     }
 
