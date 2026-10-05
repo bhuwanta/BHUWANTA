@@ -18,18 +18,31 @@ export async function upsertWhatsAppLead(phone: string, name: string, incomingMe
       .single()
 
     if (existingLead) {
-      // Increment interaction count
+      // Increment interaction count and bump to top of CRM leads
       const newCount = (existingLead.bot_interactions_count || 1) + 1
+      const now = new Date().toISOString()
+      
+      const updatePayload: Record<string, any> = { 
+        bot_interactions_count: newCount,
+        updated_at: now,
+        created_at: now, // Bump lead to the top of CRM leads list
+      }
+
+      if (name && name !== 'WhatsApp User') {
+        updatePayload.name = name
+      }
+
+      if (incomingMessage) {
+        updatePayload.message = `Latest WhatsApp message: "${incomingMessage}"`
+      }
+
       await supabase
         .from('leads')
-        .update({ 
-          bot_interactions_count: newCount,
-          updated_at: new Date().toISOString()
-        })
+        .update(updatePayload)
         .eq('id', existingLead.id)
         
-      // Lead already exists, just return it
-      return existingLead
+      // Lead already exists, return updated record
+      return { ...existingLead, ...updatePayload }
     }
 
     // Create new lead — email and message are NOT NULL in the DB
