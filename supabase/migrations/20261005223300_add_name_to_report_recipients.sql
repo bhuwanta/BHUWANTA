@@ -1,0 +1,1 @@
+ALTER TABLE report_recipients ADD COLUMN IF NOT EXISTS name TEXT;

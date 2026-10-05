@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { 
   toggleOtpModuleStatus, 
   removeReportRecipient, 
+  updateReportRecipient,
   testReportEmail, 
   sendEmailOtp,
   verifyAndAddEmail,
@@ -40,12 +41,16 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [activeModal, setActiveModal] = useState<'email' | 'wa' | null>(null)
 
   // Add Email Flow States
+  const [newEmailName, setNewEmailName] = useState('')
   const [newEmail, setNewEmail] = useState('')
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [showOtpField, setShowOtpField] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [deletingEmailId, setDeletingEmailId] = useState<string | null>(null)
+  const [editingEmailId, setEditingEmailId] = useState<string | null>(null)
+  const [editEmailName, setEditEmailName] = useState('')
+  const [isSavingEmailEdit, setIsSavingEmailEdit] = useState(false)
 
   // Inline Test Trigger States
   const [testingRowId, setTestingRowId] = useState<string | null>(null)
@@ -120,20 +125,55 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     }
 
     setIsVerifying(true)
-    const res = await verifyAndAddEmail(newEmail.toLowerCase().trim(), otpCode.trim())
+    const trimmedEmail = newEmail.toLowerCase().trim()
+    const trimmedName = newEmailName.trim() || null
+    const res = await verifyAndAddEmail(trimmedEmail, otpCode.trim(), trimmedName)
     if (res.success) {
       toast.success('Email verified and added!')
       setRecipients([
         ...recipients, 
-        { id: Date.now().toString(), email: newEmail.toLowerCase().trim(), created_at: new Date().toISOString() }
+        { 
+          id: Date.now().toString(), 
+          email: trimmedEmail, 
+          name: trimmedName, 
+          created_at: new Date().toISOString() 
+        }
       ])
       setNewEmail('')
+      setNewEmailName('')
       setOtpCode('')
       setShowOtpField(false)
     } else {
       toast.error('Verification failed', { description: res.error })
     }
     setIsVerifying(false)
+  }
+
+  const handleStartEditEmail = (r: ReportRecipient) => {
+    if (testingRowId === r.id) setTestingRowId(null)
+    setEditingEmailId(r.id)
+    setEditEmailName(r.name || '')
+  }
+
+  const handleSaveEmailEdit = async (id: string) => {
+    setIsSavingEmailEdit(true)
+    const trimmedName = editEmailName.trim() || null
+
+    const res = await updateReportRecipient(id, {
+      name: trimmedName
+    })
+
+    if (res.success) {
+      toast.success('Email recipient updated!')
+      setRecipients(recipients.map(r => r.id === id ? {
+        ...r,
+        name: trimmedName
+      } : r))
+      setEditingEmailId(null)
+    } else {
+      toast.error('Failed to update recipient', { description: res.error })
+    }
+    setIsSavingEmailEdit(false)
   }
 
   const handleDeleteEmail = async (id: string, email: string) => {
@@ -293,6 +333,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         <div className="space-y-6">
           <EmailReportsModule
             recipientsCount={recipients.length + 1}
+            newName={newEmailName}
+            setNewName={setNewEmailName}
             newEmail={newEmail}
             setNewEmail={setNewEmail}
             isSendingOtp={isSendingOtp}
@@ -325,8 +367,16 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         onClose={() => {
           setActiveModal(null)
           setTestingRowId(null)
+          setEditingEmailId(null)
         }}
         recipients={recipients}
+        editingEmailId={editingEmailId}
+        editEmailName={editEmailName}
+        setEditEmailName={setEditEmailName}
+        isSavingEmailEdit={isSavingEmailEdit}
+        onStartEditEmail={handleStartEditEmail}
+        onSaveEmailEdit={handleSaveEmailEdit}
+        onCancelEditEmail={() => setEditingEmailId(null)}
         testingRowId={testingRowId}
         onToggleInlineTest={handleToggleInlineTest}
         selectedTestHour={selectedTestHour}

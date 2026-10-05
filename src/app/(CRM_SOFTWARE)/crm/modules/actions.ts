@@ -71,6 +71,7 @@ export async function toggleOtpModuleStatus(enabled: boolean): Promise<OtpModule
 export interface ReportRecipient {
   id: string
   email: string
+  name: string | null
   created_at: string
 }
 
@@ -95,12 +96,15 @@ export async function getReportRecipients(): Promise<{ data: ReportRecipient[], 
   }
 }
 
-export async function addReportRecipient(email: string): Promise<{ success: boolean, error?: string }> {
+export async function addReportRecipient(email: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
   try {
     const supabase = createServiceClient()
     const { error } = await supabase
       .from('report_recipients')
-      .insert([{ email }])
+      .insert([{ 
+        email,
+        name: name && name.trim() ? name.trim() : null
+      }])
 
     if (error) throw error
     revalidatePath('/crm/modules')
@@ -108,6 +112,41 @@ export async function addReportRecipient(email: string): Promise<{ success: bool
   } catch (err: any) {
     console.error('Error adding report recipient:', err)
     return { success: false, error: err.message || 'Failed to add recipient' }
+  }
+}
+
+export async function updateReportRecipient(
+  id: string,
+  updates: { name?: string | null; email?: string }
+): Promise<{ success: boolean, error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    const payload: { name?: string | null; email?: string } = {}
+
+    if (updates.name !== undefined) {
+      payload.name = updates.name && updates.name.trim() ? updates.name.trim() : null
+    }
+
+    if (updates.email !== undefined) {
+      payload.email = updates.email.trim().toLowerCase()
+    }
+
+    const { data, error } = await supabase
+      .from('report_recipients')
+      .update(payload)
+      .eq('id', id)
+      .select()
+
+    if (error) throw error
+    if (!data || data.length === 0) {
+      throw new Error('Recipient not found in database')
+    }
+
+    revalidatePath('/crm/modules')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error updating report recipient:', err)
+    return { success: false, error: err.message || 'Failed to update recipient' }
   }
 }
 
@@ -225,7 +264,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean, e
   }
 }
 
-export async function verifyAndAddEmail(email: string, otp: string): Promise<{ success: boolean, error?: string }> {
+export async function verifyAndAddEmail(email: string, otp: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
   try {
     if (!redis) throw new Error('Redis is not configured for OTP services.')
     
@@ -237,7 +276,7 @@ export async function verifyAndAddEmail(email: string, otp: string): Promise<{ s
     }
     
     // Add to DB
-    const res = await addReportRecipient(email)
+    const res = await addReportRecipient(email, name)
     if (!res.success) throw new Error(res.error)
     
     // Cleanup OTP

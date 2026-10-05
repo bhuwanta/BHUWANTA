@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Mail, Clock, ShieldCheck, CheckCircle2, Loader2, Users } from 'lucide-react'
+import { Mail, Clock, ShieldCheck, CheckCircle2, Loader2, Users, User } from 'lucide-react'
 
 interface EmailReportsModuleProps {
   recipientsCount: number
+  newName: string
+  setNewName: (name: string) => void
   newEmail: string
   setNewEmail: (email: string) => void
   isSendingOtp: boolean
@@ -20,6 +22,8 @@ interface EmailReportsModuleProps {
 
 export default function EmailReportsModule({
   recipientsCount,
+  newName,
+  setNewName,
   newEmail,
   setNewEmail,
   isSendingOtp,
@@ -56,22 +60,37 @@ export default function EmailReportsModule({
         </div>
 
         {!showOtpField ? (
-          <form onSubmit={onSendOtp} className="flex gap-3 mb-6">
-            <input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="Enter email address..."
-              className="flex-1 rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-3 py-2 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
-              required
-            />
+          <form onSubmit={onSendOtp} className="space-y-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="relative">
+                <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Name (e.g. John Doe, Admin)"
+                  className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] pl-9 pr-3 py-2 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                />
+              </div>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] pl-9 pr-3 py-2 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                  required
+                />
+              </div>
+            </div>
             <button
               type="submit"
               disabled={isSendingOtp || !newEmail}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f1d33] disabled:opacity-50 transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0f1d33] disabled:opacity-50 transition-colors"
             >
               {isSendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-              Verify
+              Verify Email Address
             </button>
           </form>
         ) : (
@@ -116,6 +135,7 @@ export default function EmailReportsModule({
                     setShowOtpField(false)
                     setOtpCode('')
                     setNewEmail('')
+                    setNewName('')
                   }}
                   className="inline-flex items-center justify-center rounded-lg border border-[#e8ecf2] bg-white px-3 py-2 text-sm font-medium text-[#5a6a82] hover:bg-gray-50 transition-colors"
                 >
