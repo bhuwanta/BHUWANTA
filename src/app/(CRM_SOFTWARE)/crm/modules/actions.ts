@@ -128,17 +128,17 @@ export async function removeReportRecipient(id: string): Promise<{ success: bool
   }
 }
 
-export async function testReportEmail(email: string): Promise<{ success: boolean, error?: string }> {
+export async function testReportEmail(email: string, testHour?: number): Promise<{ success: boolean, error?: string }> {
   try {
-    // Simply fetch the cron endpoint, but maybe we should let the user trigger the actual cron 
-    // by making a GET request to the absolute URL of the API.
-    // For a test, we can invoke the leads-report endpoint manually. 
-    // It's tricky to get the base URL in server actions perfectly, so we can just use NEXT_PUBLIC_SITE_URL or localhost
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     const cronSecret = process.env.CRON_SECRET || ''
     
-    // We pass testEmail=... to override the recipient list temporarily for testing
-    const response = await fetch(`${baseUrl}/api/cron/leads-report?testEmail=${encodeURIComponent(email)}`, {
+    let url = `${baseUrl}/api/cron/leads-report?testEmail=${encodeURIComponent(email)}`
+    if (typeof testHour === 'number') {
+      url += `&testHour=${testHour}`
+    }
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${cronSecret}`
@@ -281,12 +281,15 @@ export async function getWaRecipients(): Promise<{ data: WaRecipient[], error: s
   }
 }
 
-export async function addWaRecipient(phone_number: string): Promise<{ success: boolean, error?: string }> {
+export async function addWaRecipient(phone_number: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
   try {
     const supabase = await createClient()
     const { error } = await supabase
       .from('whatsapp_report_recipients')
-      .insert([{ phone_number }])
+      .insert([{ 
+        phone_number,
+        name: name && name.trim() ? name.trim() : null
+      }])
 
     if (error) throw error
     revalidatePath('/crm/modules')
@@ -295,6 +298,47 @@ export async function addWaRecipient(phone_number: string): Promise<{ success: b
     console.error('Error adding WA recipient:', err)
     return { success: false, error: err.message || 'Failed to add WhatsApp number' }
   }
+}
+
+export async function updateWaRecipient(
+  id: string, 
+  updates: { name?: string | null; phone_number?: string }
+): Promise<{ success: boolean, error?: string }> {
+  try {
+    const supabase = await createClient()
+    const payload: { name?: string | null; phone_number?: string } = {}
+
+    if (updates.name !== undefined) {
+      payload.name = updates.name && updates.name.trim() ? updates.name.trim() : null
+    }
+
+    if (updates.phone_number !== undefined) {
+      let cleanPhone = updates.phone_number.replace(/\D/g, '')
+      if (cleanPhone.length === 10) {
+        cleanPhone = `91${cleanPhone}`
+      }
+      if (!/^\d{10,15}$/.test(cleanPhone)) {
+        return { success: false, error: 'Invalid phone number format' }
+      }
+      payload.phone_number = cleanPhone
+    }
+
+    const { error } = await supabase
+      .from('whatsapp_report_recipients')
+      .update(payload)
+      .eq('id', id)
+
+    if (error) throw error
+    revalidatePath('/crm/modules')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error updating WA recipient:', err)
+    return { success: false, error: err.message || 'Failed to update recipient' }
+  }
+}
+
+export async function updateWaRecipientName(id: string, name: string): Promise<{ success: boolean, error?: string }> {
+  return updateWaRecipient(id, { name })
 }
 
 export async function removeWaRecipient(id: string): Promise<{ success: boolean, error?: string }> {
@@ -392,12 +436,17 @@ export async function verifyAndAddWa(phone: string, otp: string): Promise<{ succ
   }
 }
 
-export async function testReportWa(phone: string): Promise<{ success: boolean, error?: string }> {
+export async function testReportWa(phone: string, testHour?: number): Promise<{ success: boolean, error?: string }> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     const cronSecret = process.env.CRON_SECRET || ''
     
-    const response = await fetch(`${baseUrl}/api/cron/leads-report?testWaPhone=${encodeURIComponent(phone)}`, {
+    let url = `${baseUrl}/api/cron/leads-report?testWaPhone=${encodeURIComponent(phone)}`
+    if (typeof testHour === 'number') {
+      url += `&testHour=${testHour}`
+    }
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${cronSecret}`
