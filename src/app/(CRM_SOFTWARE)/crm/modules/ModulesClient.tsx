@@ -18,11 +18,9 @@ import {
   removeWaRecipient
 } from './actions'
 
-import OtpDownloadModule from './components/OtpDownloadModule'
-import EmailReportsModule from './components/EmailReportsModule'
-import WhatsAppReportsModule from './components/WhatsAppReportsModule'
-import EmailRecipientsModal from './components/EmailRecipientsModal'
-import WhatsAppRecipientsModal from './components/WhatsAppRecipientsModal'
+import WebsiteDownloadsOtp from './components/WebsiteDownloadsOtp'
+import AutomatedReportsEmail from './components/AutomatedReportsEmail'
+import WhatsAppReports from './components/WhatsAppReports'
 
 interface ModulesClientProps {
   initialOtpEnabled: boolean
@@ -337,7 +335,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start pb-20">
         {/* Left Column: Downloads OTP */}
         <div className="space-y-6">
-          <OtpDownloadModule
+          <WebsiteDownloadsOtp
             otpEnabled={otpEnabled}
             isPending={isPending}
             onToggleOtp={handleToggleOtp}
@@ -346,8 +344,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
 
         {/* Right Column: Reports Modules */}
         <div className="space-y-6">
-          <EmailReportsModule
-            recipientsCount={recipients.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com') ? recipients.length : recipients.length + 1}
+          <AutomatedReportsEmail
+            recipients={recipients}
             newName={newEmailName}
             setNewName={setNewEmailName}
             newEmail={newEmail}
@@ -360,10 +358,34 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
             isVerifying={isVerifying}
             onSendOtp={handleSendOtp}
             onVerifyOtp={handleVerifyOtp}
-            onOpenManageModal={() => setActiveModal('email')}
+            isModalOpen={activeModal === 'email'}
+            onOpenModal={() => setActiveModal('email')}
+            onCloseModal={() => {
+              setActiveModal(null)
+              setTestingRowId(null)
+              setEditingEmailId(null)
+            }}
+            editingEmailId={editingEmailId}
+            editEmailName={editEmailName}
+            setEditEmailName={setEditEmailName}
+            editEmailAddress={editEmailAddress}
+            setEditEmailAddress={setEditEmailAddress}
+            isSavingEmailEdit={isSavingEmailEdit}
+            onStartEditEmail={handleStartEditEmail}
+            onSaveEmailEdit={handleSaveEmailEdit}
+            onCancelEditEmail={() => setEditingEmailId(null)}
+            testingRowId={testingRowId}
+            onToggleInlineTest={handleToggleInlineTest}
+            selectedTestHour={selectedTestHour}
+            onSelectTestHour={setSelectedTestHour}
+            isExecutingTest={isExecutingTest}
+            onExecuteInlineTest={handleExecuteInlineTest}
+            onCancelInlineTest={() => setTestingRowId(null)}
+            deletingEmailId={deletingEmailId}
+            onDeleteEmail={handleDeleteEmail}
           />
 
-          <WhatsAppReportsModule
+          <WhatsAppReports
             recipientsCount={waRecipients.length}
             newWaName={newWaName}
             setNewWaName={setNewWaName}
@@ -371,67 +393,35 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
             setNewWaNumber={setNewWaNumber}
             isAddingWa={isAddingWa}
             onAddWa={handleAddWa}
-            onOpenManageModal={() => setActiveModal('wa')}
+            isModalOpen={activeModal === 'wa'}
+            onOpenModal={() => setActiveModal('wa')}
+            onCloseModal={() => {
+              setActiveModal(null)
+              setTestingRowId(null)
+              setEditingWaId(null)
+            }}
+            waRecipients={waRecipients}
+            editingWaId={editingWaId}
+            editWaName={editWaName}
+            setEditWaName={setEditWaName}
+            editWaPhone={editWaPhone}
+            setEditWaPhone={setEditWaPhone}
+            isSavingWaEdit={isSavingWaEdit}
+            onStartEditWa={handleStartEditWa}
+            onSaveWaEdit={handleSaveWaEdit}
+            onCancelEditWa={() => setEditingWaId(null)}
+            testingRowId={testingRowId}
+            onToggleInlineTest={handleToggleInlineTest}
+            selectedTestHour={selectedTestHour}
+            onSelectTestHour={setSelectedTestHour}
+            isExecutingTest={isExecutingTest}
+            onExecuteInlineTest={handleExecuteInlineTest}
+            onCancelInlineTest={() => setTestingRowId(null)}
+            deletingWaId={deletingWaId}
+            onDeleteWa={handleDeleteWa}
           />
         </div>
       </div>
-
-      {/* Modals */}
-      <EmailRecipientsModal
-        isOpen={activeModal === 'email'}
-        onClose={() => {
-          setActiveModal(null)
-          setTestingRowId(null)
-          setEditingEmailId(null)
-        }}
-        recipients={recipients}
-        editingEmailId={editingEmailId}
-        editEmailName={editEmailName}
-        setEditEmailName={setEditEmailName}
-        editEmailAddress={editEmailAddress}
-        setEditEmailAddress={setEditEmailAddress}
-        isSavingEmailEdit={isSavingEmailEdit}
-        onStartEditEmail={handleStartEditEmail}
-        onSaveEmailEdit={handleSaveEmailEdit}
-        onCancelEditEmail={() => setEditingEmailId(null)}
-        testingRowId={testingRowId}
-        onToggleInlineTest={handleToggleInlineTest}
-        selectedTestHour={selectedTestHour}
-        onSelectTestHour={setSelectedTestHour}
-        isExecutingTest={isExecutingTest}
-        onExecuteInlineTest={handleExecuteInlineTest}
-        onCancelInlineTest={() => setTestingRowId(null)}
-        deletingEmailId={deletingEmailId}
-        onDeleteEmail={handleDeleteEmail}
-      />
-
-      <WhatsAppRecipientsModal
-        isOpen={activeModal === 'wa'}
-        onClose={() => {
-          setActiveModal(null)
-          setTestingRowId(null)
-          setEditingWaId(null)
-        }}
-        waRecipients={waRecipients}
-        editingWaId={editingWaId}
-        editWaName={editWaName}
-        setEditWaName={setEditWaName}
-        editWaPhone={editWaPhone}
-        setEditWaPhone={setEditWaPhone}
-        isSavingWaEdit={isSavingWaEdit}
-        onStartEditWa={handleStartEditWa}
-        onSaveWaEdit={handleSaveWaEdit}
-        onCancelEditWa={() => setEditingWaId(null)}
-        testingRowId={testingRowId}
-        onToggleInlineTest={handleToggleInlineTest}
-        selectedTestHour={selectedTestHour}
-        onSelectTestHour={setSelectedTestHour}
-        isExecutingTest={isExecutingTest}
-        onExecuteInlineTest={handleExecuteInlineTest}
-        onCancelInlineTest={() => setTestingRowId(null)}
-        deletingWaId={deletingWaId}
-        onDeleteWa={handleDeleteWa}
-      />
     </div>
   )
 }

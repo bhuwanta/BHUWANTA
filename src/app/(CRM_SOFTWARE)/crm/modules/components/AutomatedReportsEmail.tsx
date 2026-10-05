@@ -1,10 +1,103 @@
 'use client'
 
 import React from 'react'
-import { Mail, X, Send, Trash2, Loader2, User, Edit2, Check } from 'lucide-react'
+import { 
+  Mail, 
+  Clock, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Loader2, 
+  Users, 
+  User, 
+  X, 
+  Send, 
+  Trash2, 
+  Edit2, 
+  Check, 
+  ChevronDown 
+} from 'lucide-react'
 import { ReportRecipient } from '../actions'
-import InlineTestBar from './InlineTestBar'
 
+// --- Internal Test Bar Component ---
+interface InlineTestBarProps {
+  type: 'email' | 'wa'
+  target: string
+  selectedTestHour: string
+  onSelectTestHour: (hour: string) => void
+  isExecutingTest: boolean
+  onExecuteTest: (type: 'email' | 'wa', target: string) => void
+  onClose: () => void
+}
+
+function InlineTestBar({
+  type,
+  target,
+  selectedTestHour,
+  onSelectTestHour,
+  isExecutingTest,
+  onExecuteTest,
+  onClose
+}: InlineTestBarProps) {
+  return (
+    <div className="mt-3 pt-3 border-t border-[#e8ecf2] space-y-2.5 bg-[#f8fafc] p-3 rounded-lg">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-[#1e3a5f]" />
+          Select Cron Slot to Simulate
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-gray-400 hover:text-gray-600 p-0.5"
+          title="Cancel"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="relative flex-1">
+          <select
+            value={selectedTestHour}
+            onChange={(e) => onSelectTestHour(e.target.value)}
+            className="w-full appearance-none rounded-lg border border-[#cbd5e1] bg-white pl-3 pr-8 py-2 text-xs font-medium text-[#0f1d33] outline-none focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] cursor-pointer"
+          >
+            <option value="current">Current Real-Time (Live leads right now)</option>
+            <option value="6">6:00 AM IST (Master Report - All-Time Database Leads)</option>
+            <option value="9">9:00 AM IST (Window: 6:00 AM - 9:00 AM)</option>
+            <option value="12">12:00 PM IST (Window: 9:00 AM - 12:00 PM)</option>
+            <option value="15">3:00 PM IST (Window: 12:00 PM - 3:00 PM)</option>
+            <option value="18">6:00 PM IST (Master Report - All-Time Database Leads)</option>
+            <option value="21">9:00 PM IST (Window: 6:00 PM - 9:00 PM)</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          disabled={isExecutingTest}
+          onClick={() => onExecuteTest(type, target)}
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] rounded-lg transition-colors disabled:opacity-50 shrink-0"
+        >
+          {isExecutingTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          Send Test
+        </button>
+      </div>
+
+      <p className="text-[11px] text-[#5a6a82] leading-relaxed">
+        {selectedTestHour === '6' || selectedTestHour === '18'
+          ? 'Master Slot: Generates the comprehensive Excel report containing all leads in the CRM database.'
+          : selectedTestHour === 'current'
+          ? 'Current Slot: Evaluates leads based on current live clock time.'
+          : '3-Hour Delta Slot: Queries leads captured strictly within this 3-hour window.'}
+      </p>
+    </div>
+  )
+}
+
+// --- Email Recipients Modal ---
 interface EmailRecipientsModalProps {
   isOpen: boolean
   onClose: () => void
@@ -29,7 +122,7 @@ interface EmailRecipientsModalProps {
   onDeleteEmail: (id: string, email: string) => void
 }
 
-export default function EmailRecipientsModal({
+function EmailRecipientsModal({
   isOpen,
   onClose,
   recipients,
@@ -374,5 +467,232 @@ export default function EmailRecipientsModal({
         </div>
       </div>
     </div>
+  )
+}
+
+// --- Main AutomatedReportsEmail Component ---
+export interface AutomatedReportsEmailProps {
+  recipients: ReportRecipient[]
+  newName: string
+  setNewName: (name: string) => void
+  newEmail: string
+  setNewEmail: (email: string) => void
+  isSendingOtp: boolean
+  showOtpField: boolean
+  setShowOtpField: (show: boolean) => void
+  otpCode: string
+  setOtpCode: (code: string) => void
+  isVerifying: boolean
+  onSendOtp: (e: React.FormEvent) => void
+  onVerifyOtp: (e: React.FormEvent) => void
+  // Modal props
+  isModalOpen: boolean
+  onOpenModal: () => void
+  onCloseModal: () => void
+  editingEmailId: string | null
+  editEmailName: string
+  setEditEmailName: (name: string) => void
+  editEmailAddress: string
+  setEditEmailAddress: (email: string) => void
+  isSavingEmailEdit: boolean
+  onStartEditEmail: (recipient: ReportRecipient) => void
+  onSaveEmailEdit: (id: string) => void
+  onCancelEditEmail: () => void
+  testingRowId: string | null
+  onToggleInlineTest: (id: string) => void
+  selectedTestHour: string
+  onSelectTestHour: (hour: string) => void
+  isExecutingTest: boolean
+  onExecuteInlineTest: (type: 'email' | 'wa', target: string) => void
+  onCancelInlineTest: () => void
+  deletingEmailId: string | null
+  onDeleteEmail: (id: string, email: string) => void
+}
+
+export default function AutomatedReportsEmail({
+  recipients,
+  newName,
+  setNewName,
+  newEmail,
+  setNewEmail,
+  isSendingOtp,
+  showOtpField,
+  setShowOtpField,
+  otpCode,
+  setOtpCode,
+  isVerifying,
+  onSendOtp,
+  onVerifyOtp,
+  isModalOpen,
+  onOpenModal,
+  onCloseModal,
+  editingEmailId,
+  editEmailName,
+  setEditEmailName,
+  editEmailAddress,
+  setEditEmailAddress,
+  isSavingEmailEdit,
+  onStartEditEmail,
+  onSaveEmailEdit,
+  onCancelEditEmail,
+  testingRowId,
+  onToggleInlineTest,
+  selectedTestHour,
+  onSelectTestHour,
+  isExecutingTest,
+  onExecuteInlineTest,
+  onCancelInlineTest,
+  deletingEmailId,
+  onDeleteEmail
+}: AutomatedReportsEmailProps) {
+  const hasMaster = recipients.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com')
+  const totalCount = hasMaster ? recipients.length : recipients.length + 1
+
+  return (
+    <>
+      <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+              <Mail className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#0f1d33]">Automated Report Emails</h3>
+              <p className="text-xs text-[#5a6a82]">Resend Mail Integration</p>
+            </div>
+          </div>
+          
+          <div className="text-sm text-[#5a6a82] mb-6 space-y-2">
+            <p>
+              Add email addresses below to receive automated PDF and Excel CRM reports at scheduled intervals.
+            </p>
+            <p className="font-medium text-[#1e3a5f] bg-[#f3f5f8] px-3 py-2 rounded-lg inline-block text-xs border border-[#e8ecf2]">
+              <Clock className="w-3 h-3 inline-block mr-1 -mt-0.5" />
+              <strong>Schedule (IST):</strong> 6:00 AM, 9:00 AM, 12:00 PM, 3:00 PM, 6:00 PM, and 9:00 PM
+            </p>
+          </div>
+
+          {!showOtpField ? (
+            <form onSubmit={onSendOtp} className="space-y-3 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="relative">
+                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Name (e.g. John Doe, Admin)"
+                    className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] pl-9 pr-3 py-2 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                  />
+                </div>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] pl-9 pr-3 py-2 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                    required
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={isSendingOtp || !newEmail}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0f1d33] disabled:opacity-50 transition-colors"
+              >
+                {isSendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                Verify & Add Email Recipient
+              </button>
+            </form>
+          ) : (
+            <div className="bg-[#f3f5f8] border border-[#e8ecf2] rounded-lg p-4 mb-6">
+              <div className="flex justify-between items-start mb-3">
+                <p className="text-sm font-medium text-[#0f1d33]">
+                  Enter the 6-digit code sent to <strong className="text-[#1e3a5f]">{newEmail}</strong>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOtpField(false)
+                    setOtpCode('')
+                  }}
+                  className="text-xs text-[#1e3a5f] underline hover:text-[#0f1d33]"
+                >
+                  Change Email
+                </button>
+              </div>
+              <form onSubmit={onVerifyOtp} className="flex gap-3">
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="123456"
+                  className="flex-1 rounded-lg border border-[#e8ecf2] bg-white px-3 py-2 text-center tracking-widest text-lg font-bold text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                  required
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={isVerifying || otpCode.length !== 6}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#c4a55a] px-4 py-2 text-sm font-bold text-white hover:bg-[#b09451] disabled:opacity-50 transition-colors"
+                  >
+                    {isVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                    Confirm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOtpField(false)
+                      setOtpCode('')
+                      setNewEmail('')
+                      setNewName('')
+                    }}
+                    className="inline-flex items-center justify-center rounded-lg border border-[#e8ecf2] bg-white px-3 py-2 text-sm font-medium text-[#5a6a82] hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <button
+            onClick={onOpenModal}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-[#e8ecf2] bg-[#f8fafc] hover:bg-[#f1f5f9] text-[#1e3a5f] font-semibold text-sm transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Manage Recipients ({totalCount})
+          </button>
+        </div>
+      </div>
+
+      {/* Recipient Modal */}
+      <EmailRecipientsModal
+        isOpen={isModalOpen}
+        onClose={onCloseModal}
+        recipients={recipients}
+        editingEmailId={editingEmailId}
+        editEmailName={editEmailName}
+        setEditEmailName={setEditEmailName}
+        editEmailAddress={editEmailAddress}
+        setEditEmailAddress={setEditEmailAddress}
+        isSavingEmailEdit={isSavingEmailEdit}
+        onStartEditEmail={onStartEditEmail}
+        onSaveEmailEdit={onSaveEmailEdit}
+        onCancelEditEmail={onCancelEditEmail}
+        testingRowId={testingRowId}
+        onToggleInlineTest={onToggleInlineTest}
+        selectedTestHour={selectedTestHour}
+        onSelectTestHour={onSelectTestHour}
+        isExecutingTest={isExecutingTest}
+        onExecuteInlineTest={onExecuteInlineTest}
+        onCancelInlineTest={onCancelInlineTest}
+        deletingEmailId={deletingEmailId}
+        onDeleteEmail={onDeleteEmail}
+      />
+    </>
   )
 }

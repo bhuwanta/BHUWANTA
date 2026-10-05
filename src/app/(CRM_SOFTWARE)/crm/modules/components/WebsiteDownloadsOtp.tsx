@@ -3,17 +3,17 @@
 import React from 'react'
 import { KeyRound, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
 
-interface OtpDownloadModuleProps {
+interface WebsiteDownloadsOtpProps {
   otpEnabled: boolean
   isPending: boolean
   onToggleOtp: (nextState: boolean) => void
 }
 
-export default function OtpDownloadModule({
+export default function WebsiteDownloadsOtp({
   otpEnabled,
   isPending,
   onToggleOtp
-}: OtpDownloadModuleProps) {
+}: WebsiteDownloadsOtpProps) {
   return (
     <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
       <div>
