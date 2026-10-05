@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { generateExcelBuffer, generatePDFBuffer, LeadReportData } from '@/lib/reports/generator';
+import { generateExcelBuffer, generateMasterExcelBuffer, generatePDFBuffer, LeadReportData } from '@/lib/reports/generator';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,14 +13,14 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 function formatLead(lead: any): LeadReportData {
   return {
-    name: lead.name,
-    phone: lead.phone,
-    email: lead.email,
+    name: lead.name || 'Unknown',
+    phone: lead.phone || '-',
+    email: lead.email || '-',
     source: lead.source_page || 'Unknown',
     message: lead.message || '-',
     project: lead.project || '-',
     downloads: lead.downloaded_item || '-',
-    date: new Date(lead.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+    date: lead.created_at ? new Date(lead.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '-'
   };
 }
 
@@ -36,61 +36,96 @@ export async function GET(request: Request) {
     }
 
     const nowUtc = new Date();
-    const nowIst = new Date(nowUtc.getTime() + (5.5 * 60 * 60 * 1000));
+
+    // Helper functions for clean IST formatting (directly from UTC dates, avoiding double-offset)
+    const formatIstDate = (d: Date) => d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
+    const formatIstTime = (d: Date) => d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+    const formatIstDateTime = (d: Date) => `${formatIstDate(d)}, ${formatIstTime(d)}`;
+
+    // Current date and yesterday date in IST (YYYY-MM-DD)
+    const todayIstStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(nowUtc);
+    const yesterdayUtc = new Date(nowUtc.getTime() - 24 * 60 * 60 * 1000);
+    const yesterdayIstStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(yesterdayUtc);
 
     // Allow ?testHour=6 to simulate a specific IST hour (for testing all slots)
     const url = new URL(request.url);
     const testHourParam = url.searchParams.get('testHour');
-    const istHour = testHourParam ? parseInt(testHourParam, 10) : nowIst.getUTCHours();
-    
-    const midnightIst = new Date(nowIst);
-    midnightIst.setUTCHours(0, 0, 0, 0);
+    const istHour = testHourParam 
+      ? parseInt(testHourParam, 10) 
+      : parseInt(new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', hour12: false }).format(nowUtc), 10);
 
     const attachments: any[] = [];
-    const dateStr = nowIst.toISOString().split('T')[0];
+    const dateStr = todayIstStr;
     let reportPeriod = '';
-    let emailHtml = '';
-
-    const getUtcStr = (istDate: Date) => new Date(istDate.getTime() - (5.5 * 60 * 60 * 1000)).toISOString();
-
-    // ── Determine time slot based on current IST hour ──
-    // Master reports (6 AM, 6 PM): 3 PDFs — slot leads, today total, all-time
-    // Regular reports (9 AM, 12 PM, 3 PM, 9 PM): PDF + Excel for the slot
-    let startIst: Date;
+    let slotTitle = '';
+    let slotSheetName = '';
+    let startSlotDate: Date;
+    let endSlotDate: Date;
+    let coverageWindowText = '';
     let isMaster = false;
+    let emailHtml = '';
 
     if (istHour >= 20) {
       // 9 PM Report: 6 PM → 9 PM
       reportPeriod = '9 PM Report (6 PM – 9 PM)';
-      startIst = new Date(midnightIst.getTime() + (18 * 60 * 60 * 1000));
+      slotTitle = 'Leads (6 PM – 9 PM)';
+      slotSheetName = 'Slot (6 PM - 9 PM)';
+      startSlotDate = new Date(`${todayIstStr}T18:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T21:00:00+05:30`);
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)}`;
     } else if (istHour >= 17) {
       // 6 PM Master Report: 3 PM → 6 PM + today total + all-time
       reportPeriod = '6 PM Master Report';
-      startIst = new Date(midnightIst.getTime() + (15 * 60 * 60 * 1000));
+      slotTitle = 'Leads (3 PM – 6 PM)';
+      slotSheetName = 'Slot (3 PM - 6 PM)';
+      startSlotDate = new Date(`${todayIstStr}T15:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T18:00:00+05:30`);
       isMaster = true;
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)} (Slot) + Today & All-Time Master`;
     } else if (istHour >= 14) {
       // 3 PM Report: 12 PM → 3 PM
       reportPeriod = '3 PM Report (12 PM – 3 PM)';
-      startIst = new Date(midnightIst.getTime() + (12 * 60 * 60 * 1000));
+      slotTitle = 'Leads (12 PM – 3 PM)';
+      slotSheetName = 'Slot (12 PM - 3 PM)';
+      startSlotDate = new Date(`${todayIstStr}T12:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T15:00:00+05:30`);
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)}`;
     } else if (istHour >= 11) {
       // 12 PM Report: 9 AM → 12 PM
       reportPeriod = '12 PM Report (9 AM – 12 PM)';
-      startIst = new Date(midnightIst.getTime() + (9 * 60 * 60 * 1000));
+      slotTitle = 'Leads (9 AM – 12 PM)';
+      slotSheetName = 'Slot (9 AM - 12 PM)';
+      startSlotDate = new Date(`${todayIstStr}T09:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T12:00:00+05:30`);
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)}`;
     } else if (istHour >= 8) {
       // 9 AM Report: 6 AM → 9 AM
       reportPeriod = '9 AM Report (6 AM – 9 AM)';
-      startIst = new Date(midnightIst.getTime() + (6 * 60 * 60 * 1000));
+      slotTitle = 'Leads (6 AM – 9 AM)';
+      slotSheetName = 'Slot (6 AM - 9 AM)';
+      startSlotDate = new Date(`${todayIstStr}T06:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T09:00:00+05:30`);
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)}`;
     } else {
       // 6 AM Master Report: 9 PM yesterday → 6 AM today
-      reportPeriod = '6 AM Master Report (9 PM – 6 AM)';
-      startIst = new Date(midnightIst.getTime() - (3 * 60 * 60 * 1000));
+      reportPeriod = '6 AM Master Report (Yesterday 9 PM – Today 6 AM)';
+      slotTitle = 'Leads (Yesterday 9 PM – Today 6 AM)';
+      slotSheetName = 'Slot (9 PM - 6 AM)';
+      startSlotDate = new Date(`${yesterdayIstStr}T21:00:00+05:30`);
+      endSlotDate = new Date(`${todayIstStr}T06:00:00+05:30`);
       isMaster = true;
+      coverageWindowText = `${formatIstDateTime(startSlotDate)} – ${formatIstDateTime(endSlotDate)} (Yesterday 9 PM to Today 6 AM)`;
     }
 
-    const startUtc = getUtcStr(startIst);
+    const startUtc = startSlotDate.toISOString();
+    const startOfTodayUtc = new Date(`${todayIstStr}T00:00:00+05:30`).toISOString();
+
+    let slotLeadsCount = 0;
+    let todayLeadsCount = 0;
+    let allTimeCount = 0;
 
     if (isMaster) {
-      // ── Master reports: 3 PDFs (slot + today + all-time) ──
+      // ── Master reports: 3 PDFs (slot + today + all-time) + 1 Master Excel Workbook ──
       const { data: allTimeLeads } = await supabase
         .from('leads')
         .select('*')
@@ -103,24 +138,32 @@ export async function GET(request: Request) {
         const slotLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startUtc);
 
         // Today's leads
-        const startOfTodayUtc = getUtcStr(midnightIst);
         const todayLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startOfTodayUtc);
 
-        const slotTitle = istHour >= 17
-          ? 'Leads (3 PM – 6 PM)'
-          : 'Leads (9 PM Yesterday – 6 AM Today)';
+        const slotLeads = slotLeadsRaw.map(formatLead);
+        const todayLeads = todayLeadsRaw.map(formatLead);
 
-        attachments.push({ filename: `1_slot_leads_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeadsRaw.map(formatLead), slotTitle) });
-        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeadsRaw.map(formatLead), 'Total Leads Today') });
+        slotLeadsCount = slotLeads.length;
+        todayLeadsCount = todayLeads.length;
+        allTimeCount = allTime.length;
+
+        attachments.push({ filename: `1_slot_leads_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeads, slotTitle) });
+        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeads, 'Total Leads Today') });
         attachments.push({ filename: `3_total_leads_all_time_${dateStr}.pdf`, content: await generatePDFBuffer(allTime, 'Total Leads All Time') });
+
+        // Master Excel containing all 3 sheets: Slot, Today Total, All Time
+        attachments.push({ 
+          filename: `leads_master_report_${dateStr}.xlsx`, 
+          content: generateMasterExcelBuffer(slotLeads, todayLeads, allTime, slotSheetName) 
+        });
 
         emailHtml = `
           <h2>Bhuwanta ${reportPeriod}</h2>
-          <p>Attached are the 3 Master PDF reports.</p>
-          ${slotLeadsRaw.length === 0 && todayLeadsRaw.length === 0 ? '<p style="color:red; font-weight:bold;">Notice: No new leads came in during this period.</p>' : ''}
+          <p>Attached are the 3 Master PDF reports and the complete Master Excel workbook.</p>
+          ${slotLeads.length === 0 && todayLeads.length === 0 ? '<p style="color:red; font-weight:bold;">Notice: No new leads came in during this period.</p>' : ''}
           <ul>
-            <li><strong>Slot Leads:</strong> ${slotLeadsRaw.length} leads</li>
-            <li><strong>Total Leads Today:</strong> ${todayLeadsRaw.length} leads</li>
+            <li><strong>Slot Leads (${slotTitle}):</strong> ${slotLeads.length} leads</li>
+            <li><strong>Total Leads Today:</strong> ${todayLeads.length} leads</li>
             <li><strong>Total Leads All Time:</strong> ${allTime.length} leads</li>
           </ul>
         `;
@@ -134,9 +177,10 @@ export async function GET(request: Request) {
         .order('created_at', { ascending: false });
 
       const reportData = leads ? leads.map(formatLead) : [];
+      slotLeadsCount = reportData.length;
       const reportTitle = `Bhuwanta Leads - ${reportPeriod}`;
 
-      attachments.push({ filename: `leads_report_${dateStr}.xlsx`, content: generateExcelBuffer(reportData) });
+      attachments.push({ filename: `leads_report_${dateStr}.xlsx`, content: generateExcelBuffer(reportData, slotSheetName) });
       attachments.push({ filename: `leads_report_${dateStr}.pdf`, content: await generatePDFBuffer(reportData, reportTitle) });
 
       emailHtml = `
@@ -199,10 +243,23 @@ export async function GET(request: Request) {
           if (waToken && waPhoneId) {
             // Upload attachments and send
             for (const phone of waList) {
-              // Send summary text first
-              const formattedDate = nowIst.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
-              const formattedTime = nowIst.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
-              const summaryText = `📊 *Automated Bhuwanta CRM Report*\n\n*Date:* ${formattedDate}\n*Time:* ${formattedTime}\n*Period:* ${reportPeriod}\n\nPlease find the attached excel report below.`;
+              const formattedCurrentDate = formatIstDate(nowUtc);
+              const formattedCurrentTime = formatIstTime(nowUtc);
+
+              let summaryText = `📊 *Automated Bhuwanta CRM Report*\n\n` +
+                `*Report:* ${reportPeriod}\n` +
+                `*Generated:* ${formattedCurrentDate} at ${formattedCurrentTime}\n` +
+                `*Coverage Window:*\n${coverageWindowText}\n\n`;
+
+              if (isMaster) {
+                summaryText += `*Slot Leads:* ${slotLeadsCount}\n` +
+                  `*Total Leads Today:* ${todayLeadsCount}\n` +
+                  `*Total Leads All-Time:* ${allTimeCount}\n\n`;
+              } else {
+                summaryText += `*Total Leads in Slot:* ${slotLeadsCount}\n\n`;
+              }
+
+              summaryText += `Please find the attached excel report below.`;
               
               await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
                 method: 'POST',
@@ -225,7 +282,9 @@ export async function GET(request: Request) {
                   const form = new FormData();
                   form.append('messaging_product', 'whatsapp');
                   const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                  form.append('file', new Blob([attachment.content], { type: mimeType }), attachment.filename);
+                  form.append('type', mimeType);
+                  const file = new File([attachment.content], attachment.filename, { type: mimeType });
+                  form.append('file', file);
 
                   // Upload
                   const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/media`, {
@@ -239,7 +298,7 @@ export async function GET(request: Request) {
                     const mediaId = uploadData.id;
 
                     // Send document
-                    await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
+                    const sendRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
                       method: 'POST',
                       headers: {
                         'Authorization': `Bearer ${waToken}`,
@@ -255,11 +314,17 @@ export async function GET(request: Request) {
                         }
                       })
                     });
+
+                    if (!sendRes.ok) {
+                      console.error(`❌ WhatsApp Document send failed to ${phone}:`, sendRes.status, await sendRes.text());
+                    } else {
+                      console.log(`✅ WhatsApp Excel report successfully sent to ${phone}`);
+                    }
                   } else {
-                    console.error('WhatsApp Upload failed:', await uploadRes.text());
+                    console.error('❌ WhatsApp Media Upload failed:', uploadRes.status, await uploadRes.text());
                   }
                 } catch (e) {
-                  console.error('Error sending WA attachment:', e);
+                  console.error('❌ Error sending WA attachment:', e);
                 }
               }
             }

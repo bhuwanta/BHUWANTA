@@ -13,7 +13,7 @@ export interface LeadReportData {
   date: string;
 }
 
-export function generateExcelBuffer(leads: LeadReportData[]): Buffer {
+export function generateExcelBuffer(leads: LeadReportData[], sheetName = 'Leads'): Buffer {
   // If no leads, provide a dummy row so the Excel file isn't completely blank
   const dataForExcel = leads.length > 0 ? leads : [{
     name: 'NO NEW LEADS', phone: '-', email: '-', source: '-', message: '-', project: '-', downloads: '-', date: '-'
@@ -33,9 +33,44 @@ export function generateExcelBuffer(leads: LeadReportData[]): Buffer {
   ];
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+  const safeSheetName = sheetName.replace(/[:\\/?*\[\]]/g, '').slice(0, 31) || 'Leads';
+  XLSX.utils.book_append_sheet(workbook, worksheet, safeSheetName);
   
   // Return buffer
+  return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+}
+
+export function generateMasterExcelBuffer(
+  slotLeads: LeadReportData[],
+  todayLeads: LeadReportData[],
+  allTimeLeads: LeadReportData[],
+  slotSheetName: string = 'Slot Leads'
+): Buffer {
+  const workbook = XLSX.utils.book_new();
+
+  const addSheet = (leads: LeadReportData[], sheetName: string) => {
+    const dataForExcel = leads.length > 0 ? leads : [{
+      name: 'NO NEW LEADS', phone: '-', email: '-', source: '-', message: '-', project: '-', downloads: '-', date: '-'
+    }];
+    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+    worksheet['!cols'] = [
+      { wch: 20 }, // name
+      { wch: 15 }, // phone
+      { wch: 25 }, // email
+      { wch: 15 }, // source
+      { wch: 40 }, // message
+      { wch: 20 }, // project
+      { wch: 30 }, // downloads
+      { wch: 20 }, // date
+    ];
+    const safeSheetName = sheetName.replace(/[:\\/?*\[\]]/g, '').slice(0, 31) || 'Leads';
+    XLSX.utils.book_append_sheet(workbook, worksheet, safeSheetName);
+  };
+
+  addSheet(slotLeads, slotSheetName);
+  addSheet(todayLeads, 'Today Total Leads');
+  addSheet(allTimeLeads, 'All Time Leads');
+
   return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 }
 
