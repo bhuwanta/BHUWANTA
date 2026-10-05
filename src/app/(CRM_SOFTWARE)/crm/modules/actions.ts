@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getOtpDownloadEnabled, setOtpDownloadEnabled } from '@/lib/otp-config'
 import { redis } from '@/lib/redis'
 import { Resend } from 'resend'
@@ -76,7 +76,7 @@ export interface ReportRecipient {
 
 export async function getReportRecipients(): Promise<{ data: ReportRecipient[], error: string | null }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { data, error } = await supabase
       .from('report_recipients')
       .select('*')
@@ -97,7 +97,7 @@ export async function getReportRecipients(): Promise<{ data: ReportRecipient[], 
 
 export async function addReportRecipient(email: string): Promise<{ success: boolean, error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { error } = await supabase
       .from('report_recipients')
       .insert([{ email }])
@@ -113,7 +113,7 @@ export async function addReportRecipient(email: string): Promise<{ success: bool
 
 export async function removeReportRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { error } = await supabase
       .from('report_recipients')
       .delete()
@@ -263,7 +263,7 @@ export interface WaRecipient {
 
 export async function getWaRecipients(): Promise<{ data: WaRecipient[], error: string | null }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { data, error } = await supabase
       .from('whatsapp_report_recipients')
       .select('*')
@@ -283,7 +283,7 @@ export async function getWaRecipients(): Promise<{ data: WaRecipient[], error: s
 
 export async function addWaRecipient(phone_number: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { error } = await supabase
       .from('whatsapp_report_recipients')
       .insert([{ 
@@ -305,7 +305,7 @@ export async function updateWaRecipient(
   updates: { name?: string | null; phone_number?: string }
 ): Promise<{ success: boolean, error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const payload: { name?: string | null; phone_number?: string } = {}
 
     if (updates.name !== undefined) {
@@ -323,12 +323,17 @@ export async function updateWaRecipient(
       payload.phone_number = cleanPhone
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('whatsapp_report_recipients')
       .update(payload)
       .eq('id', id)
+      .select()
 
     if (error) throw error
+    if (!data || data.length === 0) {
+      throw new Error('Recipient not found in database')
+    }
+
     revalidatePath('/crm/modules')
     return { success: true }
   } catch (err: any) {
@@ -343,7 +348,7 @@ export async function updateWaRecipientName(id: string, name: string): Promise<{
 
 export async function removeWaRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceClient()
     const { error } = await supabase
       .from('whatsapp_report_recipients')
       .delete()
