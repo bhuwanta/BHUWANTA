@@ -5,6 +5,7 @@ import { generateExcelBuffer, generateMasterExcelBuffer, generatePDFBuffer, Lead
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -241,7 +242,38 @@ export async function GET(request: Request) {
           const waPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
           if (waToken && waPhoneId) {
-            // Upload attachments and send
+            // 1. Upload Excel attachments once to Meta Graph API
+            const excelAttachments = attachments.filter(a => a.filename.endsWith('.xlsx'));
+            const uploadedMediaMap = new Map<string, string>();
+
+            for (const attachment of excelAttachments) {
+              try {
+                const form = new FormData();
+                form.append('messaging_product', 'whatsapp');
+                const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                form.append('type', mimeType);
+                const file = new File([attachment.content], attachment.filename, { type: mimeType });
+                form.append('file', file);
+
+                const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/media`, {
+                  method: 'POST',
+                  headers: { 'Authorization': `Bearer ${waToken}` },
+                  body: form
+                });
+
+                if (uploadRes.ok) {
+                  const uploadData = await uploadRes.json();
+                  uploadedMediaMap.set(attachment.filename, uploadData.id);
+                  console.log(`✅ Pre-uploaded ${attachment.filename} to Meta Media API (ID: ${uploadData.id})`);
+                } else {
+                  console.error('❌ WhatsApp Media Upload failed:', uploadRes.status, await uploadRes.text());
+                }
+              } catch (e) {
+                console.error('❌ Error uploading WA attachment to Meta:', e);
+              }
+            }
+
+            // 2. Deliver text summary + document to each recipient
             for (const phone of waList) {
               const formattedCurrentDate = formatIstDate(nowUtc);
               const formattedCurrentTime = formatIstTime(nowUtc);
@@ -275,56 +307,39 @@ export async function GET(request: Request) {
                 })
               });
 
-              // Upload and send attachments (ONLY Excel for WhatsApp)
-              const excelAttachments = attachments.filter(a => a.filename.endsWith('.xlsx'));
+              // Send pre-uploaded document attachments
               for (const attachment of excelAttachments) {
-                try {
-                  const form = new FormData();
-                  form.append('messaging_product', 'whatsapp');
-                  const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                  form.append('type', mimeType);
-                  const file = new File([attachment.content], attachment.filename, { type: mimeType });
-                  form.append('file', file);
+                const mediaId = uploadedMediaMap.get(attachment.filename);
+                if (!mediaId) {
+                  console.warn(`⚠️ Skipping document send to ${phone} because mediaId was not generated for ${attachment.filename}`);
+                  continue;
+                }
 
-                  // Upload
-                  const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/media`, {
+                try {
+                  const sendRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${waToken}` },
-                    body: form
+                    headers: {
+                      'Authorization': `Bearer ${waToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      messaging_product: 'whatsapp',
+                      to: phone,
+                      type: 'document',
+                      document: {
+                        id: mediaId,
+                        filename: attachment.filename
+                      }
+                    })
                   });
 
-                  if (uploadRes.ok) {
-                    const uploadData = await uploadRes.json();
-                    const mediaId = uploadData.id;
-
-                    // Send document
-                    const sendRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${waToken}`,
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                        messaging_product: 'whatsapp',
-                        to: phone,
-                        type: 'document',
-                        document: {
-                          id: mediaId,
-                          filename: attachment.filename
-                        }
-                      })
-                    });
-
-                    if (!sendRes.ok) {
-                      console.error(`❌ WhatsApp Document send failed to ${phone}:`, sendRes.status, await sendRes.text());
-                    } else {
-                      console.log(`✅ WhatsApp Excel report successfully sent to ${phone}`);
-                    }
+                  if (!sendRes.ok) {
+                    console.error(`❌ WhatsApp Document send failed to ${phone}:`, sendRes.status, await sendRes.text());
                   } else {
-                    console.error('❌ WhatsApp Media Upload failed:', uploadRes.status, await uploadRes.text());
+                    console.log(`✅ WhatsApp Excel report successfully sent to ${phone}`);
                   }
                 } catch (e) {
-                  console.error('❌ Error sending WA attachment:', e);
+                  console.error('❌ Error sending WA document message:', e);
                 }
               }
             }
