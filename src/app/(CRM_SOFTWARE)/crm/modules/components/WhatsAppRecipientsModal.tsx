@@ -56,10 +56,10 @@ export default function WhatsAppRecipientsModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 sm:p-6 backdrop-blur-sm overflow-hidden">
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90dvh] md:max-h-[85vh]">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90dvh] md:max-h-[85vh]">
         
         {/* Modal Header */}
-        <div className="p-5 border-b border-[#e8ecf2] flex items-center justify-between shrink-0">
+        <div className="p-5 sm:p-6 border-b border-[#e8ecf2] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center shrink-0 border border-green-100">
               <MessageCircle className="w-5 h-5 text-green-600" />
@@ -82,7 +82,7 @@ export default function WhatsAppRecipientsModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-5 pb-8 overflow-y-auto flex-1 space-y-3 bg-[#f8fafc] rounded-b-2xl">
+        <div className="p-5 sm:p-6 pb-8 overflow-y-auto flex-1 space-y-3 bg-[#f8fafc] rounded-b-2xl">
           {waRecipients.length === 0 && (
             <div className="text-center py-10">
               <MessageCircle className="w-10 h-10 text-gray-300 mx-auto mb-3" />

@@ -50,6 +50,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [deletingEmailId, setDeletingEmailId] = useState<string | null>(null)
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null)
   const [editEmailName, setEditEmailName] = useState('')
+  const [editEmailAddress, setEditEmailAddress] = useState('')
   const [isSavingEmailEdit, setIsSavingEmailEdit] = useState(false)
 
   // Inline Test Trigger States
@@ -153,22 +154,36 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     if (testingRowId === r.id) setTestingRowId(null)
     setEditingEmailId(r.id)
     setEditEmailName(r.name || '')
+    setEditEmailAddress(r.email)
   }
 
   const handleSaveEmailEdit = async (id: string) => {
     setIsSavingEmailEdit(true)
     const trimmedName = editEmailName.trim() || null
+    const trimmedEmail = editEmailAddress.trim().toLowerCase()
+    const isMaster = id === 'master-admin-default' || trimmedEmail === 'bhuwanta9@gmail.com'
 
     const res = await updateReportRecipient(id, {
-      name: trimmedName
+      name: trimmedName,
+      email: trimmedEmail || undefined
     })
 
     if (res.success) {
-      toast.success('Email recipient updated!')
-      setRecipients(recipients.map(r => r.id === id ? {
-        ...r,
-        name: trimmedName
-      } : r))
+      toast.success('Recipient updated successfully!')
+      setRecipients(prev => {
+        const hasMaster = prev.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com')
+        if (isMaster && !hasMaster) {
+          return [
+            { id: '8afdf3c6-c3c9-4dba-bfac-cc8fc2446e3f', email: 'bhuwanta9@gmail.com', name: trimmedName, created_at: new Date().toISOString() },
+            ...prev
+          ]
+        }
+        return prev.map(r => (r.id === id || (isMaster && r.email.toLowerCase() === 'bhuwanta9@gmail.com')) ? {
+          ...r,
+          name: trimmedName,
+          email: trimmedEmail || r.email
+        } : r)
+      })
       setEditingEmailId(null)
     } else {
       toast.error('Failed to update recipient', { description: res.error })
@@ -332,7 +347,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         {/* Right Column: Reports Modules */}
         <div className="space-y-6">
           <EmailReportsModule
-            recipientsCount={recipients.length + 1}
+            recipientsCount={recipients.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com') ? recipients.length : recipients.length + 1}
             newName={newEmailName}
             setNewName={setNewEmailName}
             newEmail={newEmail}
@@ -373,6 +388,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         editingEmailId={editingEmailId}
         editEmailName={editEmailName}
         setEditEmailName={setEditEmailName}
+        editEmailAddress={editEmailAddress}
+        setEditEmailAddress={setEditEmailAddress}
         isSavingEmailEdit={isSavingEmailEdit}
         onStartEditEmail={handleStartEditEmail}
         onSaveEmailEdit={handleSaveEmailEdit}

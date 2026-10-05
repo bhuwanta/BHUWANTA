@@ -40,18 +40,18 @@ export default function EmailReportsModule({
     <div className="bg-white border border-[#e8ecf2] shadow-sm rounded-xl p-6 flex flex-col justify-between">
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-lg bg-[#f3f5f8] flex items-center justify-center shrink-0">
-            <Mail className="w-5 h-5 text-[#1e3a5f]" />
+          <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+            <Mail className="w-5 h-5 text-blue-600" />
           </div>
           <div>
             <h3 className="font-bold text-[#0f1d33]">Automated Report Emails</h3>
-            <p className="text-xs text-[#5a6a82]">Manage recipients for cron job reports</p>
+            <p className="text-xs text-[#5a6a82]">Resend Mail Integration</p>
           </div>
         </div>
         
         <div className="text-sm text-[#5a6a82] mb-6 space-y-2">
           <p>
-            Add email addresses below to receive the automated PDF and Excel CRM reports.
+            Add email addresses below to receive automated PDF and Excel CRM reports at scheduled intervals.
           </p>
           <p className="font-medium text-[#1e3a5f] bg-[#f3f5f8] px-3 py-2 rounded-lg inline-block text-xs border border-[#e8ecf2]">
             <Clock className="w-3 h-3 inline-block mr-1 -mt-0.5" />
@@ -90,7 +90,7 @@ export default function EmailReportsModule({
               className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#0f1d33] disabled:opacity-50 transition-colors"
             >
               {isSendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-              Verify Email Address
+              Verify & Add Email Recipient
             </button>
           </form>
         ) : (

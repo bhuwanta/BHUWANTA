@@ -89,7 +89,19 @@ export async function getReportRecipients(): Promise<{ data: ReportRecipient[], 
       return { data: [], error: null }
     }
 
-    return { data: data || [], error: null }
+    let recipientsList: ReportRecipient[] = (data || []) as ReportRecipient[]
+    const hasMaster = recipientsList.some((r: ReportRecipient) => r.email?.toLowerCase() === 'bhuwanta9@gmail.com')
+    if (!hasMaster) {
+      const { data: insertedMaster } = await supabase
+        .from('report_recipients')
+        .insert([{ email: 'bhuwanta9@gmail.com', name: 'Master Admin' }])
+        .select()
+      if (insertedMaster && insertedMaster.length > 0) {
+        recipientsList = [insertedMaster[0] as ReportRecipient, ...recipientsList]
+      }
+    }
+
+    return { data: recipientsList, error: null }
   } catch (err: any) {
     console.error('Error fetching report recipients:', err)
     return { data: [], error: null } // return gracefully instead of crashing
@@ -131,6 +143,28 @@ export async function updateReportRecipient(
       payload.email = updates.email.trim().toLowerCase()
     }
 
+    // Check if ID is a valid UUID format
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    const isMasterAdmin = id === 'master-admin-default' || updates.email?.toLowerCase() === 'bhuwanta9@gmail.com'
+
+    if (isMasterAdmin) {
+      // Upsert master admin by email to guarantee record exists and has updated name
+      const { error: upsertError } = await supabase
+        .from('report_recipients')
+        .upsert([{ 
+          email: 'bhuwanta9@gmail.com', 
+          name: payload.name !== undefined ? payload.name : 'Master Admin' 
+        }], { onConflict: 'email' })
+
+      if (upsertError) throw upsertError
+      revalidatePath('/crm/modules')
+      return { success: true }
+    }
+
+    if (!isUuid) {
+      throw new Error(`Invalid recipient ID format: ${id}`)
+    }
+
     const { data, error } = await supabase
       .from('report_recipients')
       .update(payload)
@@ -153,6 +187,18 @@ export async function updateReportRecipient(
 export async function removeReportRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
     const supabase = createServiceClient()
+
+    // Protect Master Admin from deletion
+    const { data: target } = await supabase
+      .from('report_recipients')
+      .select('email')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (target?.email?.toLowerCase() === 'bhuwanta9@gmail.com') {
+      return { success: false, error: 'Master Admin cannot be removed.' }
+    }
+
     const { error } = await supabase
       .from('report_recipients')
       .delete()
