@@ -19,7 +19,8 @@ import {
   Users,
   User,
   Edit2,
-  Check
+  Check,
+  ChevronDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -61,13 +62,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   
   const [deletingEmailId, setDeletingEmailId] = useState<string | null>(null)
 
-  // Test Modal State (with Dropdown for Cron Slot)
-  const [testModal, setTestModal] = useState<{
-    type: 'email' | 'wa'
-    id: string
-    target: string
-    name?: string | null
-  } | null>(null)
+  // Inline Test Trigger States (no popup inside popup)
+  const [testingRowId, setTestingRowId] = useState<string | null>(null)
   const [selectedTestHour, setSelectedTestHour] = useState<string>('current')
   const [isExecutingTest, setIsExecutingTest] = useState(false)
 
@@ -198,6 +194,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   }
 
   const handleStartEditWa = (r: WaRecipient) => {
+    if (testingRowId === r.id) setTestingRowId(null)
     setEditingWaId(r.id)
     setEditWaName(r.name || '')
     const cleanPhone = r.phone_number.startsWith('91') ? r.phone_number.slice(2) : r.phone_number
@@ -246,31 +243,34 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     setDeletingWaId(null)
   }
 
-  // --- Test Trigger Handlers ---
-  const handleOpenTestModal = (type: 'email' | 'wa', id: string, target: string, name?: string | null) => {
-    setTestModal({ type, id, target, name })
-    setSelectedTestHour('current')
+  // --- Inline Test Handlers ---
+  const handleToggleInlineTest = (id: string) => {
+    if (testingRowId === id) {
+      setTestingRowId(null)
+    } else {
+      setTestingRowId(id)
+      setSelectedTestHour('current')
+    }
   }
 
-  const handleExecuteTest = async () => {
-    if (!testModal) return
+  const handleExecuteInlineTest = async (type: 'email' | 'wa', target: string) => {
     setIsExecutingTest(true)
     const hourNum = selectedTestHour === 'current' ? undefined : parseInt(selectedTestHour, 10)
 
     try {
-      if (testModal.type === 'email') {
-        const res = await testReportEmail(testModal.target, hourNum)
+      if (type === 'email') {
+        const res = await testReportEmail(target, hourNum)
         if (res.success) {
-          toast.success(`Test report email sent to ${testModal.target}!`)
-          setTestModal(null)
+          toast.success(`Test report email sent to ${target}`)
+          setTestingRowId(null)
         } else {
           toast.error('Failed to send test email', { description: res.error })
         }
       } else {
-        const res = await testReportWa(testModal.target, hourNum)
+        const res = await testReportWa(target, hourNum)
         if (res.success) {
-          toast.success(`Test report WhatsApp sent to +${testModal.target}!`)
-          setTestModal(null)
+          toast.success(`Test report WhatsApp sent to +${target}`)
+          setTestingRowId(null)
         } else {
           toast.error('Failed to send test message', { description: res.error })
         }
@@ -281,6 +281,64 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
       setIsExecutingTest(false)
     }
   }
+
+  const renderInlineTestBar = (type: 'email' | 'wa', target: string) => (
+    <div className="mt-3 pt-3 border-t border-[#e8ecf2] space-y-2.5 bg-[#f8fafc] p-3 rounded-lg">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-[#1e3a5f]" />
+          Select Cron Slot to Simulate
+        </span>
+        <button
+          type="button"
+          onClick={() => setTestingRowId(null)}
+          className="text-xs text-gray-400 hover:text-gray-600 p-0.5"
+          title="Cancel"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="relative flex-1">
+          <select
+            value={selectedTestHour}
+            onChange={(e) => setSelectedTestHour(e.target.value)}
+            className="w-full appearance-none rounded-lg border border-[#cbd5e1] bg-white pl-3 pr-8 py-2 text-xs font-medium text-[#0f1d33] outline-none focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] cursor-pointer"
+          >
+            <option value="current">Current Real-Time (Live leads right now)</option>
+            <option value="6">6:00 AM IST (Master Report - All-Time Database Leads)</option>
+            <option value="9">9:00 AM IST (Window: 6:00 AM - 9:00 AM)</option>
+            <option value="12">12:00 PM IST (Window: 9:00 AM - 12:00 PM)</option>
+            <option value="15">3:00 PM IST (Window: 12:00 PM - 3:00 PM)</option>
+            <option value="18">6:00 PM IST (Master Report - All-Time Database Leads)</option>
+            <option value="21">9:00 PM IST (Window: 6:00 PM - 9:00 PM)</option>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          disabled={isExecutingTest}
+          onClick={() => handleExecuteInlineTest(type, target)}
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] rounded-lg transition-colors disabled:opacity-50 shrink-0"
+        >
+          {isExecutingTest ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          Send Test
+        </button>
+      </div>
+
+      <p className="text-[11px] text-[#5a6a82] leading-relaxed">
+        {selectedTestHour === '6' || selectedTestHour === '18'
+          ? 'Master Slot: Generates the comprehensive Excel report containing all leads in the CRM database.'
+          : selectedTestHour === 'current'
+          ? 'Current Slot: Evaluates leads based on current live clock time.'
+          : '3-Hour Delta Slot: Queries leads captured strictly within this 3-hour window.'}
+      </p>
+    </div>
+  )
 
   return (
     <div className="p-1 md:p-2 h-full flex flex-col relative overflow-y-auto">
@@ -574,64 +632,78 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
               {activeModal === 'email' && (
                 <>
                   {/* Always display the master admin email */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-[#c4a55a] bg-[#c4a55a]/5 gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[#c4a55a]/20 flex items-center justify-center text-[#c4a55a] font-bold text-xs">
-                        A
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-[#0f1d33] break-all">bhuwanta9@gmail.com</span>
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-[#c4a55a] bg-white border border-[#c4a55a] px-2 py-0.5 rounded-full">Default</span>
+                  <div className="p-3.5 rounded-xl border border-[#c4a55a] bg-[#c4a55a]/5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#c4a55a]/20 flex items-center justify-center text-[#c4a55a] font-bold text-xs">
+                          A
                         </div>
-                        <span className="text-xs text-[#5a6a82]">Master Admin</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => handleOpenTestModal('email', 'default-1', 'bhuwanta9@gmail.com', 'Master Admin')}
-                        className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold text-[#c4a55a] hover:text-[#a38848] px-3.5 py-1.5 rounded-lg bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20 transition-colors"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        Test
-                      </button>
-                      <button
-                        disabled
-                        title="Master admin cannot be removed."
-                        className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-medium text-gray-400 px-3 py-1.5 rounded-lg bg-gray-100 cursor-not-allowed"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Map through custom recipients if any */}
-                  {recipients.map((r) => (
-                    <div key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-[#e8ecf2] bg-white shadow-sm gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className="w-8 h-8 rounded-full bg-[#f3f5f8] flex items-center justify-center text-[#1e3a5f] font-bold text-xs shrink-0">
-                          {r.email.charAt(0).toUpperCase()}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-[#0f1d33] break-all">bhuwanta9@gmail.com</span>
+                            <span className="text-[10px] uppercase font-bold tracking-wider text-[#c4a55a] bg-white border border-[#c4a55a] px-2 py-0.5 rounded-full">Default</span>
+                          </div>
+                          <span className="text-xs text-[#5a6a82]">Master Admin</span>
                         </div>
-                        <span className="text-sm font-medium text-[#0f1d33] break-all">{r.email}</span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button
-                          onClick={() => handleOpenTestModal('email', r.id, r.email)}
-                          className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold text-[#c4a55a] hover:text-[#a38848] px-3.5 py-1.5 rounded-lg bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20 transition-colors"
+                          onClick={() => handleToggleInlineTest('default-1')}
+                          className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors ${
+                            testingRowId === 'default-1'
+                              ? 'bg-[#1e3a5f] text-white'
+                              : 'text-[#c4a55a] hover:text-[#a38848] bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20'
+                          }`}
                         >
                           <Send className="w-3.5 h-3.5" />
                           Test
                         </button>
                         <button
-                          onClick={() => handleDeleteEmail(r.id, r.email)}
-                          disabled={deletingEmailId === r.id}
-                          className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
+                          disabled
+                          title="Master admin cannot be removed."
+                          className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-medium text-gray-400 px-3 py-1.5 rounded-lg bg-gray-100 cursor-not-allowed"
                         >
-                          {deletingEmailId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          <Trash2 className="w-3.5 h-3.5" />
                           Remove
                         </button>
                       </div>
+                    </div>
+                    {testingRowId === 'default-1' && renderInlineTestBar('email', 'bhuwanta9@gmail.com')}
+                  </div>
+
+                  {/* Map through custom recipients if any */}
+                  {recipients.map((r) => (
+                    <div key={r.id} className="p-3.5 rounded-xl border border-[#e8ecf2] bg-white shadow-sm space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <div className="w-8 h-8 rounded-full bg-[#f3f5f8] flex items-center justify-center text-[#1e3a5f] font-bold text-xs shrink-0">
+                            {r.email.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium text-[#0f1d33] break-all">{r.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => handleToggleInlineTest(r.id)}
+                            className={`inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors ${
+                              testingRowId === r.id
+                                ? 'bg-[#1e3a5f] text-white'
+                                : 'text-[#c4a55a] hover:text-[#a38848] bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20'
+                            }`}
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            Test
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEmail(r.id, r.email)}
+                            disabled={deletingEmailId === r.id}
+                            className="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
+                          >
+                            {deletingEmailId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                      {testingRowId === r.id && renderInlineTestBar('email', r.email)}
                     </div>
                   ))}
                 </>
@@ -718,49 +790,56 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
                     }
 
                     return (
-                      <div key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-[#e8ecf2] bg-white shadow-sm gap-3 hover:border-gray-300 transition-colors">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-10 h-10 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0 text-green-700 font-bold text-sm">
-                            {r.name ? r.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-green-600" />}
+                      <div key={r.id} className="p-3.5 rounded-xl border border-[#e8ecf2] bg-white shadow-sm space-y-3 hover:border-gray-300 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0 text-green-700 font-bold text-sm">
+                              {r.name ? r.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-green-600" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-[#0f1d33] truncate">
+                                  {r.name || 'Unnamed Recipient'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs text-[#5a6a82] mt-0.5">
+                                <Smartphone className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                                <span className="font-mono font-medium">+91 {formattedPhone}</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-[#0f1d33] truncate">
-                                {r.name || 'Unnamed Recipient'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-xs text-[#5a6a82] mt-0.5">
-                              <Smartphone className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                              <span className="font-mono font-medium">+91 {formattedPhone}</span>
-                            </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              onClick={() => handleStartEditWa(r)}
+                              className="inline-flex items-center justify-center gap-1 text-xs font-medium text-gray-700 hover:text-[#1e3a5f] px-2.5 py-1.5 rounded-lg border border-[#e8ecf2] hover:bg-gray-50 transition-colors"
+                              title="Edit Name & Phone Number"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-gray-500" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleToggleInlineTest(r.id)}
+                              className={`inline-flex items-center justify-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                                testingRowId === r.id
+                                  ? 'bg-[#1e3a5f] text-white'
+                                  : 'text-[#c4a55a] hover:text-[#a38848] bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20'
+                              }`}
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                              Test
+                            </button>
+                            <button
+                              onClick={() => handleDeleteWa(r.id, r.phone_number)}
+                              disabled={deletingWaId === r.id}
+                              className="inline-flex items-center justify-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
+                              title="Remove Recipient"
+                            >
+                              {deletingWaId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                              Remove
+                            </button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            onClick={() => handleStartEditWa(r)}
-                            className="inline-flex items-center justify-center gap-1 text-xs font-medium text-gray-700 hover:text-[#1e3a5f] px-2.5 py-1.5 rounded-lg border border-[#e8ecf2] hover:bg-gray-50 transition-colors"
-                            title="Edit Name & Phone Number"
-                          >
-                            <Edit2 className="w-3.5 h-3.5 text-gray-500" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleOpenTestModal('wa', r.id, r.phone_number, r.name)}
-                            className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-[#c4a55a] hover:text-[#a38848] px-3 py-1.5 rounded-lg bg-[#c4a55a]/10 hover:bg-[#c4a55a]/20 transition-colors"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                            Test
-                          </button>
-                          <button
-                            onClick={() => handleDeleteWa(r.id, r.phone_number)}
-                            disabled={deletingWaId === r.id}
-                            className="inline-flex items-center justify-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
-                            title="Remove Recipient"
-                          >
-                            {deletingWaId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                            Remove
-                          </button>
-                        </div>
+                        {testingRowId === r.id && renderInlineTestBar('wa', r.phone_number)}
                       </div>
                     )
                   })}
@@ -768,128 +847,6 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
               )}
 
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Test Trigger Modal with Cron Slot Dropdown */}
-      {testModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-[#e8ecf2]">
-            
-            {/* Modal Header */}
-            <div className="p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-[#f8fafc]">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  testModal.type === 'wa' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-[#1e3a5f]'
-                }`}>
-                  {testModal.type === 'wa' ? <MessageCircle className="w-5 h-5" /> : <Mail className="w-5 h-5" />}
-                </div>
-                <div>
-                  <h3 className="font-bold text-[#0f1d33] text-base">
-                    Send Test {testModal.type === 'wa' ? 'WhatsApp' : 'Email'} Report
-                  </h3>
-                  <p className="text-xs text-[#5a6a82]">
-                    Simulate any automated cron trigger slot
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => !isExecutingTest && setTestModal(null)}
-                disabled={isExecutingTest}
-                className="p-1.5 hover:bg-gray-200/60 rounded-full transition-colors text-gray-500 disabled:opacity-40"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-5 space-y-4">
-              {/* Recipient Target Details */}
-              <div className="p-3 rounded-xl bg-[#f3f5f8] border border-[#e8ecf2]">
-                <span className="text-[11px] font-semibold text-[#5a6a82] uppercase tracking-wider block mb-1">
-                  Recipient
-                </span>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-[#0f1d33]">
-                    {testModal.name ? `${testModal.name} (${testModal.type === 'wa' ? `+${testModal.target}` : testModal.target})` : (testModal.type === 'wa' ? `+${testModal.target}` : testModal.target)}
-                  </span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white text-[#1e3a5f] border border-[#e8ecf2]">
-                    {testModal.type === 'wa' ? 'WhatsApp' : 'Email'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Trigger Slot Dropdown */}
-              <div>
-                <label className="block text-xs font-bold text-[#0f1d33] mb-1.5">
-                  Select Cron Report Slot to Simulate:
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedTestHour}
-                    onChange={(e) => setSelectedTestHour(e.target.value)}
-                    className="w-full rounded-xl border border-[#cbd5e1] bg-white px-3.5 py-2.5 text-sm text-[#0f1d33] font-medium outline-none focus:border-[#1e3a5f] focus:ring-2 focus:ring-[#1e3a5f]/10 shadow-sm transition-all cursor-pointer"
-                  >
-                    <option value="current">⚡ Current Real-Time (Live leads as of now)</option>
-                    <option value="6">🌅 6:00 AM IST (Master Report - All-Time Database Leads)</option>
-                    <option value="9">☕ 9:00 AM IST (Window: 6:00 AM – 9:00 AM)</option>
-                    <option value="12">☀️ 12:00 PM IST (Window: 9:00 AM – 12:00 PM)</option>
-                    <option value="15">🌤️ 3:00 PM IST (Window: 12:00 PM – 3:00 PM)</option>
-                    <option value="18">🌇 6:00 PM IST (Master Report - All-Time Database Leads)</option>
-                    <option value="21">🌙 9:00 PM IST (Window: 6:00 PM – 9:00 PM)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Slot Explanation Helper Box */}
-              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                {selectedTestHour === '6' || selectedTestHour === '18' ? (
-                  <p>
-                    ⭐ <strong>Master Slot Selected ({selectedTestHour === '6' ? '6:00 AM' : '6:00 PM'} IST):</strong> This will generate and send the comprehensive Excel report containing <strong>100% of all leads</strong> recorded in the CRM database.
-                  </p>
-                ) : selectedTestHour === 'current' ? (
-                  <p>
-                    ⚡ <strong>Current Clock Slot:</strong> Uses the current live time to determine which window or master logic to trigger right now.
-                  </p>
-                ) : (
-                  <p>
-                    ⏱️ <strong>3-Hour Delta Slot Selected:</strong> Will query leads received within this exact 3-hour window. If 0 new leads were added in that window, WhatsApp will send a concise summary saying 0 leads, and Email will send the window stats.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 bg-[#f8fafc] border-t border-[#e8ecf2] flex items-center justify-end gap-2.5">
-              <button
-                type="button"
-                disabled={isExecutingTest}
-                onClick={() => setTestModal(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200/70 rounded-xl transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={isExecutingTest}
-                onClick={handleExecuteTest}
-                className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] rounded-xl shadow-md transition-all disabled:opacity-50"
-              >
-                {isExecutingTest ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Sending Test...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    Send Test Report
-                  </>
-                )}
-              </button>
-            </div>
-
           </div>
         </div>
       )}

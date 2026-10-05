@@ -198,7 +198,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean, e
             
             <div style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 12px 16px; margin-bottom: 24px;">
               <p style="margin: 0; color: #e65100; font-size: 14px; font-weight: 500;">
-                ⏳ <strong>Time Sensitive:</strong> For security reasons, this code is only valid for exactly <strong>10 minutes</strong>.
+                <strong>Time Sensitive:</strong> For security reasons, this code is only valid for exactly <strong>10 minutes</strong>.
               </p>
             </div>
 
