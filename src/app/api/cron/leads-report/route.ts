@@ -13,15 +13,26 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 function formatLead(lead: any): LeadReportData {
+  let formattedDate = '-';
+  if (lead.created_at) {
+    try {
+      const d = new Date(lead.created_at);
+      const datePart = d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timePart = d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+      formattedDate = `${datePart}, ${timePart}`;
+    } catch {
+      formattedDate = String(lead.created_at);
+    }
+  }
   return {
-    name: lead.name || 'Unknown',
-    phone: lead.phone || '-',
-    email: lead.email || '-',
-    source: lead.source_page || 'Unknown',
-    message: lead.message || '-',
-    project: lead.project || '-',
-    downloads: lead.downloaded_item || '-',
-    date: lead.created_at ? new Date(lead.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '-'
+    name: lead.name ? String(lead.name).trim() : 'Unknown',
+    phone: lead.phone ? String(lead.phone).trim() : '-',
+    email: lead.email ? String(lead.email).trim() : '-',
+    source: lead.source_page ? String(lead.source_page).trim() : 'Unknown',
+    message: lead.message ? String(lead.message).trim() : '-',
+    project: lead.project ? String(lead.project).trim() : '-',
+    downloads: lead.downloaded_item ? String(lead.downloaded_item).trim() : '-',
+    date: formattedDate
   };
 }
 
@@ -148,9 +159,11 @@ export async function GET(request: Request) {
         todayLeadsCount = todayLeads.length;
         allTimeCount = allTime.length;
 
-        attachments.push({ filename: `1_slot_leads_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeads, slotTitle) });
-        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeads, 'Total Leads Today') });
-        attachments.push({ filename: `3_total_leads_all_time_${dateStr}.pdf`, content: await generatePDFBuffer(allTime, 'Total Leads All Time') });
+        const generationDateStr = `${formatIstDate(nowUtc)}, ${formatIstTime(nowUtc)}`;
+
+        attachments.push({ filename: `1_slot_leads_${dateStr}.pdf`, content: await generatePDFBuffer(slotLeads, slotTitle, { generationDate: generationDateStr }) });
+        attachments.push({ filename: `2_total_leads_today_${dateStr}.pdf`, content: await generatePDFBuffer(todayLeads, 'Total Leads Today', { generationDate: generationDateStr }) });
+        attachments.push({ filename: `3_total_leads_all_time_${dateStr}.pdf`, content: await generatePDFBuffer(allTime, 'Total Leads All Time', { generationDate: generationDateStr }) });
 
         // Master Excel containing all 3 sheets: Slot, Today Total, All Time
         attachments.push({ 
@@ -180,9 +193,10 @@ export async function GET(request: Request) {
       const reportData = leads ? leads.map(formatLead) : [];
       slotLeadsCount = reportData.length;
       const reportTitle = `Bhuwanta Leads - ${reportPeriod}`;
+      const generationDateStr = `${formatIstDate(nowUtc)}, ${formatIstTime(nowUtc)}`;
 
       attachments.push({ filename: `leads_report_${dateStr}.xlsx`, content: generateExcelBuffer(reportData, slotSheetName) });
-      attachments.push({ filename: `leads_report_${dateStr}.pdf`, content: await generatePDFBuffer(reportData, reportTitle) });
+      attachments.push({ filename: `leads_report_${dateStr}.pdf`, content: await generatePDFBuffer(reportData, reportTitle, { generationDate: generationDateStr }) });
 
       emailHtml = `
         <h2>Bhuwanta Leads Report</h2>
