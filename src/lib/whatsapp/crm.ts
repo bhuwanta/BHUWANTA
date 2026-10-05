@@ -97,12 +97,14 @@ export async function triggerSalesNotification(phone: string, project: string) {
 }
 
 /** Preserve evidence once per provider message; do not qualify the contact. */
-export async function recordIncomingWhatsApp(leadId: string, messageId: string, details: string) {
+export async function recordIncomingWhatsApp(leadId: string, messageId: string, details: string): Promise<boolean> {
   const hash = createHash('sha256').update(`whatsapp:${messageId}`).digest('hex')
   const id = `${hash.slice(0,8)}-${hash.slice(8,12)}-5${hash.slice(13,16)}-a${hash.slice(17,20)}-${hash.slice(20,32)}`
   const { error } = await supabase.from('lead_activities').insert({
     id, lead_id: leadId, activity_type: 'Incoming WhatsApp message', details
   })
   // Provider retries must not create another copy of the evidence.
-  if (error && error.code !== '23505') throw new Error('Could not preserve incoming WhatsApp evidence')
+  if (error && error.code === '23505') return false
+  if (error) throw new Error('Could not preserve incoming WhatsApp evidence')
+  return true
 }

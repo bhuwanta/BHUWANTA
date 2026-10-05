@@ -133,6 +133,15 @@ export async function POST(request: Request) {
           return new NextResponse('Invalid message identity', { status: 400 })
         }
         
+        // Discard stale delayed messages older than 5 minutes (prevents phantom replies from Meta retry queue)
+        if (message.timestamp) {
+          const messageAgeSec = Math.floor(Date.now() / 1000) - Number(message.timestamp)
+          if (messageAgeSec > 300) {
+            console.warn(`⏳ Stale WhatsApp message ${message.id} received (${messageAgeSec}s old). Acknowledging without triggering bot.`)
+            return new NextResponse('EVENT_RECEIVED', { status: 200 })
+          }
+        }
+
         // Extract WhatsApp Profile Name if available
         const profileName = value.contacts?.[0]?.profile?.name || 'WhatsApp User'
         
@@ -155,7 +164,12 @@ export async function POST(request: Request) {
 
         const incomingLead = await upsertWhatsAppLead(senderPhone, profileName, userInput)
         if (!incomingLead) throw new Error('Could not save WhatsApp contact')
-        await recordIncomingWhatsApp(incomingLead.id, message.id, incomingEvidence(message))
+        
+        const isNewMessage = await recordIncomingWhatsApp(incomingLead.id, message.id, incomingEvidence(message))
+        if (!isNewMessage) {
+          console.warn(`🔁 Duplicate WhatsApp message ${message.id} retry from Meta. Acknowledging without re-sending bot reply.`)
+          return new NextResponse('EVENT_RECEIVED', { status: 200 })
+        }
 
         // 1. Get or Create Session
         const session = await getSession(senderPhone, profileName)
