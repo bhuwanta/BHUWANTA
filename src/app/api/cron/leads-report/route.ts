@@ -287,39 +287,103 @@ export async function GET(request: Request) {
               }
             }
 
-            // 2. Deliver text summary + document to each recipient
+            // 2. Deliver template summary + document to each recipient
             for (const phone of waList) {
               const formattedCurrentDate = formatIstDate(nowUtc);
               const formattedCurrentTime = formatIstTime(nowUtc);
 
-              let summaryText = `📊 *Automated Bhuwanta CRM Report*\n\n` +
-                `*Report:* ${reportPeriod}\n` +
-                `*Generated:* ${formattedCurrentDate} at ${formattedCurrentTime}\n` +
-                `*Coverage Window:*\n${coverageWindowText}\n\n`;
-
+              // Build lead counts summary for template param {{4}}
+              let leadCountsSummary = '';
               if (isMaster) {
-                summaryText += `*Slot Leads:* ${slotLeadsCount}\n` +
-                  `*Total Leads Today:* ${todayLeadsCount}\n` +
-                  `*Total Leads All-Time:* ${allTimeCount}\n\n`;
+                leadCountsSummary = `Slot Leads: ${slotLeadsCount}\nTotal Leads Today: ${todayLeadsCount}\nTotal Leads All-Time: ${allTimeCount}`;
               } else {
-                summaryText += `*Total Leads in Slot:* ${slotLeadsCount}\n\n`;
+                leadCountsSummary = `Total Leads in Slot: ${slotLeadsCount}`;
               }
 
-              summaryText += `Please find the attached excel report below.`;
-              
-              await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${waToken}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  messaging_product: 'whatsapp',
-                  to: phone,
-                  type: 'text',
-                  text: { body: summaryText }
-                })
-              });
+              // Try sending via Template Message first (works outside 24-hour window)
+              let templateSent = false;
+              try {
+                const templateRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${waToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    to: phone,
+                    type: 'template',
+                    template: {
+                      name: 'crm_leads_report',
+                      language: { code: 'en' },
+                      components: [
+                        {
+                          type: 'body',
+                          parameters: [
+                            { type: 'text', text: reportPeriod },
+                            { type: 'text', text: `${formattedCurrentDate} at ${formattedCurrentTime}` },
+                            { type: 'text', text: coverageWindowText },
+                            { type: 'text', text: leadCountsSummary }
+                          ]
+                        }
+                      ]
+                    }
+                  })
+                });
+
+                if (templateRes.ok) {
+                  templateSent = true;
+                  console.log(`✅ WhatsApp template report sent to ${phone}`);
+                } else {
+                  const errBody = await templateRes.text();
+                  console.warn(`⚠️ Template send failed for ${phone} (${templateRes.status}): ${errBody}. Falling back to free-form text.`);
+                }
+              } catch (e) {
+                console.warn(`⚠️ Template send error for ${phone}:`, e, '. Falling back to free-form text.');
+              }
+
+              // Fallback: Send free-form text if template failed (only works within 24-hour window)
+              if (!templateSent) {
+                let summaryText = `📊 *Automated Bhuwanta CRM Report*\n\n` +
+                  `*Report:* ${reportPeriod}\n` +
+                  `*Generated:* ${formattedCurrentDate} at ${formattedCurrentTime}\n` +
+                  `*Coverage Window:*\n${coverageWindowText}\n\n`;
+
+                if (isMaster) {
+                  summaryText += `*Slot Leads:* ${slotLeadsCount}\n` +
+                    `*Total Leads Today:* ${todayLeadsCount}\n` +
+                    `*Total Leads All-Time:* ${allTimeCount}\n\n`;
+                } else {
+                  summaryText += `*Total Leads in Slot:* ${slotLeadsCount}\n\n`;
+                }
+
+                summaryText += `Please find the attached excel report below.`;
+
+                try {
+                  const textRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${waToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      messaging_product: 'whatsapp',
+                      to: phone,
+                      type: 'text',
+                      text: { body: summaryText }
+                    })
+                  });
+
+                  if (!textRes.ok) {
+                    console.error(`❌ WhatsApp text send also failed for ${phone} (${textRes.status}): ${await textRes.text()}`);
+                  } else {
+                    console.log(`✅ WhatsApp text report sent to ${phone} (fallback)`);
+                  }
+                } catch (e) {
+                  console.error(`❌ WhatsApp text send error for ${phone}:`, e);
+                }
+              }
+
 
               // Send pre-uploaded document attachments
               for (const attachment of excelAttachments) {
