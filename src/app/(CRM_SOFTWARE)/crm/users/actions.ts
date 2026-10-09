@@ -1,17 +1,19 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
-import { sendUserCredentials } from '@/lib/resend'
+import { sendUserCredentials, sendPasswordResetLink } from '@/lib/resend'
 
 export async function addAdminUser(formData: FormData) {
   const email = formData.get('email') as string
-  const password = formData.get('password') as string
   const role = formData.get('role') as string || 'Admin'
   const name = formData.get('name') as string || ''
 
-  if (!email || !password) {
-    return { error: 'Email and password are required.' }
+  if (!email) {
+    return { error: 'Email is required.' }
   }
+
+  // Generate a strong random password to fulfill Supabase requirements
+  const password = crypto.randomUUID() + crypto.randomUUID();
 
   // Use the service role key to bypass RLS and create users without signing in
   const supabaseAdmin = createClient(
@@ -62,9 +64,23 @@ export async function addAdminUser(formData: FormData) {
       return { error: `Could not grant CRM access: ${updateError.message}` }
     }
 
-    // Send credentials email
+    // Generate password recovery link so the user can set their own password
     const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://bhuwanta.com'}/crm/login`
-    await sendUserCredentials(email, name, role, password, loginUrl)
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: {
+        redirectTo: loginUrl
+      }
+    })
+
+    if (linkError || !linkData.properties?.action_link) {
+      console.error('Failed to generate invite link:', linkError?.message)
+      // We still return success but maybe we should notify the admin that email failed
+    } else {
+      // Send the setup email with the invite link
+      await sendUserCredentials(email, name, role, linkData.properties.action_link)
+    }
   }
 
   return { success: true, user: data.user }
@@ -167,6 +183,33 @@ export async function toggleAdminStatus(id: string, disable: boolean) {
   return { success: true }
 }
 
+export async function sendPasswordResetEmail(email: string) {
+  if (!email) return { error: 'Email is required' }
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://bhuwanta.com'}/crm/login`
+  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'recovery',
+    email: email,
+    options: {
+      redirectTo: loginUrl
+    }
+  })
+
+  if (linkError || !linkData?.properties?.action_link) {
+    return { error: linkError?.message || 'Failed to generate reset link' }
+  }
+
+  await sendPasswordResetLink(email, linkData.properties.action_link)
+  
+  return { success: true }
+}
+
 export async function editAdminUser(formData: FormData) {
   const id = formData.get('id') as string
   const role = formData.get('role') as string
@@ -238,5 +281,47 @@ export async function deleteRole(id: string) {
     .eq('id', id)
 
   if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function deleteAndReassignRole(roleId: string, oldRoleName: string, fallbackRoleName: string | null) {
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  // If there's a fallback role, reassign users first
+  if (fallbackRoleName) {
+    // 1. Update profiles table
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({ role: fallbackRoleName })
+      .eq('role', oldRoleName)
+
+    if (profileError) return { error: `Failed to reassign in profiles: ${profileError.message}` }
+
+    // 2. Update auth users metadata
+    // We need to fetch all users to update their metadata individually
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+    if (listError) return { error: `Failed to list auth users: ${listError.message}` }
+
+    const affectedUsers = users.filter(u => u.user_metadata?.role === oldRoleName)
+    
+    for (const u of affectedUsers) {
+      await supabaseAdmin.auth.admin.updateUserById(u.id, {
+        user_metadata: { ...u.user_metadata, role: fallbackRoleName }
+      })
+    }
+  }
+
+  // Delete the role
+  const { error: deleteError } = await supabaseAdmin
+    .from('roles')
+    .delete()
+    .eq('id', roleId)
+
+  if (deleteError) return { error: `Failed to delete role: ${deleteError.message}` }
+  
   return { success: true }
 }

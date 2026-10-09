@@ -24,7 +24,7 @@ interface ProjectsClientProps {
   areas: Area[]
 }
 
-export default function ProjectsClient({ projects, areas }: ProjectsClientProps) {
+export default function ProjectsClient({ projects, areas, canEdit = true }: ProjectsClientProps & { canEdit?: boolean }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -113,13 +113,15 @@ export default function ProjectsClient({ projects, areas }: ProjectsClientProps)
             Manage your projects and map them to specific areas.
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#c4a55a] to-[#b3954c] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#c4a55a]/20 hover:opacity-90 transition-opacity"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Project
-        </button>
+        {canEdit && (
+          <button
+            onClick={openAddModal}
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#c4a55a] to-[#b3954c] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#c4a55a]/20 hover:opacity-90 transition-opacity"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Project
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -146,7 +148,7 @@ export default function ProjectsClient({ projects, areas }: ProjectsClientProps)
                 <th className="px-6 py-4 font-medium text-[#0f1d33]">Name</th>
                 <th className="px-6 py-4 font-medium text-[#0f1d33]">Mapped Areas</th>
                 <th className="px-6 py-4 font-medium text-[#0f1d33]">Date Added</th>
-                <th className="px-6 py-4 font-medium text-[#0f1d33] text-right">Actions</th>
+                {canEdit && <th className="px-6 py-4 font-medium text-[#0f1d33] text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2]">
@@ -190,20 +192,22 @@ export default function ProjectsClient({ projects, areas }: ProjectsClientProps)
                         return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`
                       })()}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-3">
-                      <button
-                        onClick={() => openEditModal(project)}
-                        className="text-[#1e3a5f] hover:underline font-medium"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(project.id)}
-                        className="text-red-600 hover:underline font-medium"
-                      >
-                        Delete
-                      </button>
-                    </td>
+                    {canEdit && (
+                      <td className="px-6 py-4 text-right space-x-3">
+                        <button
+                          onClick={() => openEditModal(project)}
+                          className="text-[#1e3a5f] hover:underline font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(project.id)}
+                          className="text-red-600 hover:underline font-medium"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -254,20 +258,22 @@ export default function ProjectsClient({ projects, areas }: ProjectsClientProps)
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-4 mt-2 pt-3 border-t border-[#e8ecf2]">
-                  <button
-                    onClick={() => openEditModal(project)}
-                    className="text-[#1e3a5f] hover:underline font-medium text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project.id)}
-                    className="text-red-600 hover:underline font-medium text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {canEdit && (
+                  <div className="flex justify-end gap-4 mt-2 pt-3 border-t border-[#e8ecf2]">
+                    <button
+                      onClick={() => openEditModal(project)}
+                      className="text-[#1e3a5f] hover:underline font-medium text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="text-red-600 hover:underline font-medium text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}

@@ -1,10 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import ProjectsClient from './ProjectsClient'
 import { client } from '@/lib/sanity'
+import { requireAccess } from '@/lib/auth/permissions'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ProjectsPage() {
+  const accessLevel = await requireAccess('projects')
   const supabase = await createClient()
   
   const { data: areas } = await supabase
@@ -35,5 +37,5 @@ export default async function ProjectsPage() {
     })
   }
 
-  return <ProjectsClient projects={projects || []} areas={areas || []} />
+  return <ProjectsClient projects={projects || []} areas={areas || []} canEdit={accessLevel === 'edit'} />
 }

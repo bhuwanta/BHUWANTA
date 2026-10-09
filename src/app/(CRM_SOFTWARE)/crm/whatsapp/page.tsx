@@ -2,10 +2,12 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import WhatsappDashboardClient from './WhatsappDashboardClient'
 import { getWhatsappLeadsWithActivity } from './actions'
+import { requireAccess } from '@/lib/auth/permissions'
 
 export const dynamic = 'force-dynamic'
 
 export default async function WhatsappDashboardPage() {
+  await requireAccess('whatsapp')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   

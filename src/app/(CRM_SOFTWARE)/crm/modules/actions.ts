@@ -555,4 +555,121 @@ export async function testReportWa(phone: string, testHour?: number): Promise<{ 
   }
 }
 
+// ----------------------------------------------------------------------
+// ACCESS CONTROL ACTIONS
+// ----------------------------------------------------------------------
 
+import { getEffectivePermissions as getEffectivePerms } from '@/lib/auth/permissions'
+
+export type AccessLevel = 'none' | 'view' | 'edit'
+
+export interface RolePermission {
+  id?: string
+  role_id: string
+  module_name: string
+  access_level: AccessLevel
+}
+
+export interface UserPermission {
+  id?: string
+  user_id: string
+  module_name: string
+  access_level: AccessLevel
+}
+
+export async function getRolePermissions(roleId: string): Promise<{ data: RolePermission[], error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('role_permissions')
+      .select('*')
+      .eq('role_id', roleId)
+
+    if (error) return { data: [], error: error.message }
+    return { data: data as RolePermission[], error: null }
+  } catch (err: any) {
+    return { data: [], error: err.message }
+  }
+}
+
+export async function updateRolePermissions(roleId: string, permissions: { module_name: string, access_level: AccessLevel }[]): Promise<{ success: boolean, error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    // Upsert permissions
+    if (permissions.length === 0) {
+      // If none, maybe they cleared all? Let's delete all.
+      await supabase.from('role_permissions').delete().eq('role_id', roleId)
+    } else {
+      const payload = permissions.map(p => ({
+        role_id: roleId,
+        module_name: p.module_name,
+        access_level: p.access_level
+      }))
+      
+      const { error } = await supabase
+        .from('role_permissions')
+        .upsert(payload, { onConflict: 'role_id,module_name' })
+
+      if (error) throw error
+      
+      // Also delete any removed permissions
+      const keptModules = permissions.map(p => p.module_name)
+      await supabase.from('role_permissions').delete().eq('role_id', roleId).not('module_name', 'in', `(${keptModules.map(m => `"${m}"`).join(',')})`)
+    }
+
+    revalidatePath('/crm', 'layout')
+    return { success: true }
+  } catch (err: any) {
+    console.error(err)
+    return { success: false, error: err.message }
+  }
+}
+
+export async function getUserPermissions(userId: string): Promise<{ data: UserPermission[], error: string | null }> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('user_permissions')
+      .select('*')
+      .eq('user_id', userId)
+
+    if (error) return { data: [], error: error.message }
+    return { data: data as UserPermission[], error: null }
+  } catch (err: any) {
+    return { data: [], error: err.message }
+  }
+}
+
+export async function updateUserPermissions(userId: string, permissions: { module_name: string, access_level: AccessLevel }[]): Promise<{ success: boolean, error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    
+    // Clear all existing overrides first
+    const { error: deleteError } = await supabase
+      .from('user_permissions')
+      .delete()
+      .eq('user_id', userId)
+      
+    if (deleteError) throw deleteError
+
+    // Insert new ones if any
+    if (permissions.length > 0) {
+      const payload = permissions.map(p => ({
+        user_id: userId,
+        module_name: p.module_name,
+        access_level: p.access_level
+      }))
+      const { error } = await supabase.from('user_permissions').insert(payload)
+      if (error) throw error
+    }
+
+    revalidatePath('/crm', 'layout')
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
+}
+
+export async function getEffectivePermissionsClient(): Promise<Record<string, AccessLevel>> {
+  return await getEffectivePerms()
+}

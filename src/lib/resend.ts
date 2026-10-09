@@ -101,29 +101,53 @@ export async function sendFollowUpEmail(
   })
 }
 
-// Send credentials to newly created user
-export async function sendUserCredentials(to: string, name: string, role: string, password: string, loginUrl: string) {
+// Send invite to newly created user
+export async function sendUserCredentials(to: string, name: string, role: string, inviteLink: string) {
   if (!resend) return null
 
   return resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: `Your Bhuwanta CRM ${role} Account Details`,
+    subject: `Your Bhuwanta CRM ${role} Account Setup`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Welcome to Bhuwanta CRM, ${name || 'User'}!</h2>
         <p>An administrator has created a <strong>${role}</strong> account for you.</p>
         
-        <div style="background-color: #f3f5f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Email:</strong> ${to}</p>
-          <p style="margin: 5px 0;"><strong>Password:</strong> ${password}</p>
-        </div>
+        <p style="margin: 20px 0;">Please click the button below to set your password and access your account:</p>
+        <p><a href="${inviteLink}" style="display: inline-block; padding: 12px 24px; background-color: #c4a55a; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">Set Password & Log In</a></p>
 
-        <p>You can log in to the CRM at the following link:</p>
-        <p><a href="${loginUrl}" style="display: inline-block; padding: 10px 20px; background-color: #c4a55a; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to CRM</a></p>
+        <p style="color: #5a6a82; font-size: 14px; margin-top: 30px;">
+          If the button doesn't work, you can copy and paste this link into your browser:<br/>
+          <a href="${inviteLink}" style="color: #c4a55a; word-break: break-all;">${inviteLink}</a>
+        </p>
+      </div>
+    `,
+  })
+}
 
-        <p style="color: #5a6a82; font-size: 12px; margin-top: 30px;">
-          * Please change your password after logging in for the first time if possible.
+// Send password reset link
+export async function sendPasswordResetLink(to: string, resetLink: string) {
+  if (!resend) return null
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Reset Your Bhuwanta CRM Password`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Password Reset Request</h2>
+        <p>An administrator has requested a password reset for your CRM account.</p>
+        
+        <p style="margin: 20px 0;">Please click the button below to set a new password:</p>
+        <p><a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #c4a55a; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">Set New Password</a></p>
+
+        <p style="color: #5a6a82; font-size: 14px; margin-top: 30px;">
+          If the button doesn't work, you can copy and paste this link into your browser:<br/>
+          <a href="${resetLink}" style="color: #c4a55a; word-break: break-all;">${resetLink}</a>
+        </p>
+        <p style="color: #5a6a82; font-size: 12px; margin-top: 10px;">
+          If you did not request this, you can safely ignore this email.
         </p>
       </div>
     `,

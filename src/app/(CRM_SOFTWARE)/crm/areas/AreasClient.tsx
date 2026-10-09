@@ -10,7 +10,7 @@ type Area = {
   created_at: string
 }
 
-export default function AreasClient({ initialAreas }: { initialAreas: Area[] }) {
+export default function AreasClient({ initialAreas, canEdit = true }: { initialAreas: Area[], canEdit?: boolean }) {
   const [areas, setAreas] = useState<Area[]>(initialAreas)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingArea, setEditingArea] = useState<Area | null>(null)
@@ -76,12 +76,14 @@ export default function AreasClient({ initialAreas }: { initialAreas: Area[] }) 
             Manage your operational areas for projects.
           </p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="w-full sm:w-auto bg-gradient-to-r from-[#c4a55a] to-[#d6b76c] text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 px-4 py-2 hover:opacity-90 transition-opacity"
-        >
-          + Add Area
-        </button>
+        {canEdit && (
+          <button
+            onClick={openCreateModal}
+            className="w-full sm:w-auto bg-gradient-to-r from-[#c4a55a] to-[#d6b76c] text-white font-semibold rounded-lg shadow-lg shadow-[#c4a55a]/20 px-4 py-2 hover:opacity-90 transition-opacity"
+          >
+            + Add Area
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -108,7 +110,7 @@ export default function AreasClient({ initialAreas }: { initialAreas: Area[] }) 
                 <th className="px-6 py-4 font-medium text-[#0f1d33] w-16">Sr.No.</th>
                 <th className="px-6 py-4 font-medium text-[#0f1d33]">Name</th>
                 <th className="px-6 py-4 font-medium text-[#0f1d33]">Date Added</th>
-                <th className="px-6 py-4 font-medium text-[#0f1d33] text-right">Actions</th>
+                {canEdit && <th className="px-6 py-4 font-medium text-[#0f1d33] text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2]">
@@ -130,20 +132,22 @@ export default function AreasClient({ initialAreas }: { initialAreas: Area[] }) 
                         year: 'numeric'
                       })}
                     </td>
-                    <td className="px-6 py-4 text-right space-x-3">
-                      <button
-                        onClick={() => openEditModal(area)}
-                        className="text-[#1e3a5f] hover:underline font-medium"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(area.id)}
-                        className="text-red-600 hover:underline font-medium"
-                      >
-                        Delete
-                      </button>
-                    </td>
+                    {canEdit && (
+                      <td className="px-6 py-4 text-right space-x-3">
+                        <button
+                          onClick={() => openEditModal(area)}
+                          className="text-[#1e3a5f] hover:underline font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(area.id)}
+                          className="text-red-600 hover:underline font-medium"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -171,20 +175,22 @@ export default function AreasClient({ initialAreas }: { initialAreas: Area[] }) 
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-4 mt-1 pt-3 border-t border-[#e8ecf2]">
-                  <button
-                    onClick={() => openEditModal(area)}
-                    className="text-[#1e3a5f] hover:underline font-medium text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(area.id)}
-                    className="text-red-600 hover:underline font-medium text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
+                {canEdit && (
+                  <div className="flex justify-end gap-4 mt-1 pt-3 border-t border-[#e8ecf2]">
+                    <button
+                      onClick={() => openEditModal(area)}
+                      className="text-[#1e3a5f] hover:underline font-medium text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(area.id)}
+                      className="text-red-600 hover:underline font-medium text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}

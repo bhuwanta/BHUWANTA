@@ -1,8 +1,10 @@
 import { getLeads } from './actions'
 import LeadsClient from './LeadsClient'
 import { createClient } from '@/lib/supabase/server'
+import { requireAccess } from '@/lib/auth/permissions'
 
 export default async function LeadsPage() {
+  await requireAccess('leads')
   const { data: initialLeads, count: totalCount } = await getLeads(1, 50)
   
   const supabase = await createClient()

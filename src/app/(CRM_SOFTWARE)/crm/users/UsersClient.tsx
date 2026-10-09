@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { listAdminUsers, addAdminUser, deleteAdminUser, changeAdminPassword, toggleAdminStatus, editAdminUser, getRoles, addRole } from './actions'
+import { listAdminUsers, addAdminUser, deleteAdminUser, changeAdminPassword, toggleAdminStatus, editAdminUser, getRoles, addRole, deleteRole, deleteAndReassignRole, sendPasswordResetEmail } from './actions'
 import { Users, Loader2, Plus, Search, X, Eye, EyeOff, Shield, Trash2, Key, UserX, UserCheck, ChevronLeft, ChevronRight, Pencil } from 'lucide-react'
 
 type AdminUser = {
@@ -27,6 +27,14 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
   const [newRoleName, setNewRoleName] = useState('')
   const [isAddingRole, setIsAddingRole] = useState(false)
+  const [roleError, setRoleError] = useState('')
+
+  // Delete Role Modal
+  const [isDeleteRoleModalOpen, setIsDeleteRoleModalOpen] = useState(false)
+  const [roleToDelete, setRoleToDelete] = useState('')
+  const [fallbackRole, setFallbackRole] = useState('')
+  const [isDeletingRole, setIsDeletingRole] = useState(false)
+  const [deleteRoleError, setDeleteRoleError] = useState('')
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1)
@@ -48,6 +56,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [isSendingReset, setIsSendingReset] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   
   // Action State
@@ -67,13 +76,68 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     e.preventDefault()
     if (!newRoleName.trim()) return
     setIsAddingRole(true)
-    const { success } = await addRole(newRoleName.trim())
-    if (success) {
-      await fetchRoles()
-      setIsRoleModalOpen(false)
-      setNewRoleName('')
+    setRoleError('')
+    try {
+      const result = await addRole(newRoleName.trim())
+      if (result.error) {
+        setRoleError(result.error)
+      } else {
+        await fetchRoles()
+        setIsRoleModalOpen(false)
+        setNewRoleName('')
+        setRoleError('')
+      }
+    } catch (err) {
+      setRoleError('An unexpected error occurred.')
+    } finally {
+      setIsAddingRole(false)
     }
-    setIsAddingRole(false)
+  }
+
+  async function handleDeleteRoleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!roleToDelete) return
+
+    setIsDeletingRole(true)
+    setDeleteRoleError('')
+
+    const roleObj = roles.find(r => r.id === roleToDelete)
+    if (!roleObj) {
+      setDeleteRoleError('Role not found.')
+      setIsDeletingRole(false)
+      return
+    }
+
+    const roleName = roleObj.name
+    const usersWithRole = users.filter(u => u.role === roleName)
+
+    if (usersWithRole.length > 0 && !fallbackRole) {
+      setDeleteRoleError(`There are ${usersWithRole.length} users with this role. Please select a fallback role to reassign them to.`)
+      setIsDeletingRole(false)
+      return
+    }
+
+    try {
+      const fallbackRoleName = fallbackRole ? roles.find(r => r.id === fallbackRole)?.name || null : null
+      const result = await deleteAndReassignRole(roleToDelete, roleName, fallbackRoleName)
+      
+      if (result.error) {
+        setDeleteRoleError(result.error)
+      } else {
+        if (activeRoleFilter === roleName) {
+          setActiveRoleFilter(null)
+        }
+        await fetchRoles()
+        await fetchUsers()
+        setIsDeleteRoleModalOpen(false)
+        setRoleToDelete('')
+        setFallbackRole('')
+      }
+    } catch (err) {
+      setDeleteRoleError('An unexpected error occurred while deleting the role.')
+    } finally {
+      setIsDeletingRole(false)
+    }
   }
 
   useEffect(() => {
@@ -204,6 +268,35 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     }
   }
 
+  const handleSendResetEmail = async () => {
+    if (!selectedUserId) return
+    
+    setIsSendingReset(true)
+    setPasswordError('')
+    
+    const userToReset = users.find(u => u.id === selectedUserId)
+    if (!userToReset || !userToReset.email) {
+      setPasswordError('User email not found')
+      setIsSendingReset(false)
+      return
+    }
+
+    try {
+      const res = await sendPasswordResetEmail(userToReset.email)
+      if (res.error) {
+        setPasswordError(res.error)
+      } else {
+        closePasswordModal()
+        // Optional: show a success toast here if you have a toast library
+        alert('Password reset email sent successfully!')
+      }
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to send reset email')
+    } finally {
+      setIsSendingReset(false)
+    }
+  }
+
   const handleDelete = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this admin user?')) return
 
@@ -242,7 +335,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#0f1d33]">Admin Users</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#0f1d33]">Users</h1>
           <p className="mt-2 text-sm text-[#5a6a82]">
             Manage users with access to this dashboard.
           </p>
@@ -253,7 +346,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
             className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#c4a55a] to-[#b3954c] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#c4a55a]/20 hover:opacity-90 transition-opacity whitespace-nowrap"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Admin
+            Add User
           </button>
         )}
       </div>
@@ -266,23 +359,40 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
         >
           All
         </button>
-        {roles.map(role => (
-          <button
-            key={role.id}
-            onClick={() => setActiveRoleFilter(role.name)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeRoleFilter === role.name ? 'bg-[#1e3a5f] text-white shadow-md' : 'bg-white border border-[#e8ecf2] text-[#5a6a82] hover:bg-[#f8fafc]'}`}
-          >
-            {role.name}
-          </button>
-        ))}
+        {roles.map(role => {
+          return (
+            <div key={role.id} className="relative group flex items-center">
+              <button
+                onClick={() => setActiveRoleFilter(role.name)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeRoleFilter === role.name ? 'bg-[#1e3a5f] text-white shadow-md' : 'bg-white border border-[#e8ecf2] text-[#5a6a82] hover:bg-[#f8fafc]'}`}
+              >
+                {role.name}
+              </button>
+            </div>
+          )
+        })}
         {userRole === 'Super Admin' && (
-          <button
-            onClick={() => setIsRoleModalOpen(true)}
-            className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-dashed border-[#c4a55a] text-[#c4a55a] hover:bg-[#c4a55a]/5 transition-colors flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4" />
-            Add Role
-          </button>
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              onClick={() => {
+                setDeleteRoleError('')
+                setRoleToDelete('')
+                setFallbackRole('')
+                setIsDeleteRoleModalOpen(true)
+              }}
+              className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-dashed border-red-400 text-red-500 hover:bg-red-50 transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Role
+            </button>
+            <button
+              onClick={() => setIsRoleModalOpen(true)}
+              className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-dashed border-[#c4a55a] text-[#c4a55a] hover:bg-[#c4a55a]/5 transition-colors flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              Add Role
+            </button>
+          </div>
         )}
       </div>
 
@@ -633,7 +743,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
             <div className="flex items-center justify-between border-b border-[#e8ecf2] px-6 py-4">
               <h3 className="text-lg font-semibold text-[#0f1d33] flex items-center gap-2">
                 <Shield className="w-5 h-5 text-[#c4a55a]" />
-                Add Admin User
+                Add User
               </h3>
               <button
                 onClick={closeModal}
@@ -688,12 +798,12 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                       name="role"
                       id="role"
                       required
-                      defaultValue="Telecaller"
+                      defaultValue={activeRoleFilter || 'Telecaller'}
                       className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] pl-3 pr-10 py-2.5 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f] appearance-none cursor-pointer"
                     >
-                      <option value="Super Admin">Super Admin</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Telecaller">Telecaller</option>
+                      {roles.map(r => (
+                        <option key={r.id} value={r.name}>{r.name}</option>
+                      ))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5a6a82]">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -703,29 +813,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-[#0f1d33] mb-1">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      id="password"
-                      required
-                      minLength={6}
-                      className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-3 py-2.5 pr-10 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
-                      placeholder="••••••••"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#5a6a82] hover:text-[#0f1d33]"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
+
 
                 <div className="mt-8 flex justify-end space-x-3 pt-4">
                   <button
@@ -750,6 +838,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                     )}
                   </button>
                 </div>
+                <div className="pb-16"></div> {/* Extra space to ensure dropdown opens downwards */}
               </form>
             </div>
           </div>
@@ -808,6 +897,24 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                   </div>
                 </div>
 
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSendResetEmail}
+                    disabled={isSendingReset}
+                    className="w-full inline-flex items-center justify-center rounded-lg border border-[#c4a55a] px-4 py-2 text-sm font-medium text-[#c4a55a] hover:bg-[#c4a55a]/10 transition-colors disabled:opacity-50"
+                  >
+                    {isSendingReset ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Password Reset Email Instead'
+                    )}
+                  </button>
+                </div>
+
                 <div className="mt-8 flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -831,6 +938,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                     )}
                   </button>
                 </div>
+                <div className="pb-24"></div> {/* Extra space to ensure dropdown opens downwards */}
               </form>
             </div>
           </div>
@@ -891,9 +999,9 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                       defaultValue={selectedUserToEdit.role || 'Admin'}
                       className="w-full rounded-lg border border-[#e8ecf2] bg-white pl-3 pr-10 py-2 text-sm text-[#0f1d33] outline-none focus:ring-2 focus:ring-[#c4a55a] focus:border-transparent appearance-none cursor-pointer"
                     >
-                      <option value="Admin">Admin</option>
-                      <option value="Super Admin">Super Admin</option>
-                      <option value="Telecaller">Telecaller</option>
+                      {roles.map(r => (
+                        <option key={r.id} value={r.name}>{r.name}</option>
+                      ))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5a6a82]">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -963,6 +1071,12 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                 </div>
               </div>
 
+              {roleError && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{roleError}</p>
+                </div>
+              )}
+
               <div className="mt-8 flex gap-3">
                 <button
                   type="button"
@@ -976,7 +1090,138 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                   disabled={isAddingRole || !newRoleName.trim()}
                   className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                 >
-                  {isAddingRole ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Role'}
+                  {isAddingRole ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Role'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Role Modal */}
+      {isDeleteRoleModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d33]/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-visible flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-5 border-b border-[#e8ecf2] shrink-0">
+              <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
+                <Trash2 className="w-5 h-5" />
+                Delete Role
+              </h2>
+              <button 
+                onClick={() => setIsDeleteRoleModalOpen(false)}
+                className="p-2 text-[#5a6a82] hover:bg-[#f3f5f8] rounded-full transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleDeleteRoleSubmit} className="p-5 overflow-y-auto">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-[#0f1d33] mb-1.5">
+                    Select Role to Delete
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={roleToDelete}
+                      onChange={(e) => {
+                        setRoleToDelete(e.target.value)
+                        setFallbackRole('')
+                        setDeleteRoleError('')
+                      }}
+                      required
+                      disabled={roles.filter(r => r.name !== 'Super Admin').length === 0}
+                      className="w-full px-3 py-2 border border-[#e8ecf2] rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm bg-white text-[#0f1d33] disabled:bg-gray-100 disabled:text-gray-500 appearance-none pr-10 cursor-pointer"
+                    >
+                      <option value="" disabled>
+                        {roles.filter(r => r.name !== 'Super Admin').length === 0 
+                          ? 'No custom roles available to delete' 
+                          : 'Choose a role...'}
+                      </option>
+                      {roles
+                        .filter(r => r.name !== 'Super Admin')
+                        .map(r => (
+                          <option key={r.id} value={r.id}>{r.name}</option>
+                        ))
+                      }
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#5a6a82]">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {roleToDelete && users.filter(u => u.role === roles.find(r => r.id === roleToDelete)?.name).length > 0 && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-800 font-medium mb-3">
+                      This role has {users.filter(u => u.role === roles.find(r => r.id === roleToDelete)?.name).length} users assigned to it. You must reassign them to another role.
+                    </p>
+                    <label className="block text-sm font-semibold text-[#0f1d33] mb-1.5">
+                      Reassign Users To:
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={fallbackRole}
+                        onChange={(e) => {
+                          setFallbackRole(e.target.value)
+                          setDeleteRoleError('')
+                        }}
+                        required
+                        className="w-full px-3 py-2 border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent text-sm bg-white text-[#0f1d33] appearance-none pr-10 cursor-pointer"
+                      >
+                        <option value="" disabled>Choose fallback role...</option>
+                        {roles
+                          .filter(r => r.id !== roleToDelete)
+                          .map(r => (
+                            <option key={r.id} value={r.id}>{r.name}</option>
+                          ))
+                        }
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#5a6a82]">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {deleteRoleError && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{deleteRoleError}</p>
+                </div>
+              )}
+
+              <div className="mt-8 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteRoleModalOpen(false)}
+                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-[#5a6a82] bg-white border border-[#e8ecf2] hover:bg-[#f8fafc] hover:text-[#0f1d33] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isDeletingRole || !roleToDelete || (users.filter(u => u.role === roles.find(r => r.id === roleToDelete)?.name).length > 0 && !fallbackRole)}
+                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {isDeletingRole ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete Role'
+                  )}
                 </button>
               </div>
             </form>

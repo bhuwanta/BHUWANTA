@@ -21,14 +21,17 @@ import {
 import WebsiteDownloadsOtp from './components/WebsiteDownloadsOtp'
 import AutomatedReportsEmail from './components/AutomatedReportsEmail'
 import WhatsAppReports from './components/WhatsAppReports'
+import AccessControl from './components/AccessControl'
 
 interface ModulesClientProps {
   initialOtpEnabled: boolean
   initialRecipients: ReportRecipient[]
   initialWaRecipients: WaRecipient[]
+  roles: any[]
+  users: any[]
 }
 
-export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients }: ModulesClientProps) {
+export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients, roles, users }: ModulesClientProps) {
   const [otpEnabled, setOtpEnabled] = useState(initialOtpEnabled)
   const [isPending, startTransition] = useTransition()
   
@@ -335,6 +338,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start pb-20">
         {/* Left Column: Downloads OTP */}
         <div className="space-y-6">
+          <AccessControl roles={roles} users={users} />
+          
           <WebsiteDownloadsOtp
             otpEnabled={otpEnabled}
             isPending={isPending}
