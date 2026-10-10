@@ -88,10 +88,18 @@ export async function GET(request: Request) {
     const fallbackAdminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'bhuwanta9@gmail.com'
     
     let emailList: string[] = [fallbackAdminEmail];
-    const { data: recipients } = await supabase.from('report_recipients').select('email');
+    const { data: recipients } = await supabase.from('report_recipients').select('*');
     if (recipients && recipients.length > 0) {
-      // Always include the master admin email
-      emailList = [...new Set([fallbackAdminEmail, ...recipients.map(r => r.email)])];
+      const filteredEmails = recipients
+        .filter((r: any) => !r.report_times || r.report_times.length === 0 || r.report_times.includes('6'))
+        .map((r: any) => r.email);
+      
+      const dbMaster = recipients.find((r: any) => r.email === fallbackAdminEmail);
+      if (dbMaster) {
+        emailList = [...new Set([...filteredEmails])];
+      } else {
+        emailList = [...new Set([fallbackAdminEmail, ...filteredEmails])];
+      }
     }
 
     if (resend) {

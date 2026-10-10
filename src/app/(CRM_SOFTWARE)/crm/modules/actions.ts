@@ -73,6 +73,7 @@ export interface ReportRecipient {
   email: string
   name: string | null
   created_at: string
+  report_times?: string[] | null
 }
 
 export async function getReportRecipients(): Promise<{ data: ReportRecipient[], error: string | null }> {
@@ -129,11 +130,11 @@ export async function addReportRecipient(email: string, name?: string | null): P
 
 export async function updateReportRecipient(
   id: string,
-  updates: { name?: string | null; email?: string }
+  updates: { name?: string | null; email?: string; report_times?: string[] | null }
 ): Promise<{ success: boolean, error?: string }> {
   try {
     const supabase = createServiceClient()
-    const payload: { name?: string | null; email?: string } = {}
+    const payload: Record<string, any> = {}
 
     if (updates.name !== undefined) {
       payload.name = updates.name && updates.name.trim() ? updates.name.trim() : null
@@ -143,20 +144,49 @@ export async function updateReportRecipient(
       payload.email = updates.email.trim().toLowerCase()
     }
 
+    if (updates.report_times !== undefined) {
+      payload.report_times = updates.report_times
+    }
+
+    // Helper: attempt an upsert/update, and if it fails because
+    // report_times column doesn't exist yet, retry without it.
+    const stripTimingsAndRetry = (err: any, payloadObj: Record<string, any>): Record<string, any> | null => {
+      const msg = String(err?.message || err?.code || '')
+      if (msg.includes('report_times') && 'report_times' in payloadObj) {
+        const { report_times: _dropped, ...rest } = payloadObj
+        return rest
+      }
+      return null
+    }
+
     // Check if ID is a valid UUID format
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
     const isMasterAdmin = id === 'master-admin-default' || updates.email?.toLowerCase() === 'bhuwanta9@gmail.com'
 
     if (isMasterAdmin) {
-      // Upsert master admin by email to guarantee record exists and has updated name
+      const masterUpdate: Record<string, any> = { 
+        email: 'bhuwanta9@gmail.com', 
+        name: payload.name !== undefined ? payload.name : 'Master Admin' 
+      }
+      if (payload.report_times !== undefined) {
+        masterUpdate.report_times = payload.report_times
+      }
+
       const { error: upsertError } = await supabase
         .from('report_recipients')
-        .upsert([{ 
-          email: 'bhuwanta9@gmail.com', 
-          name: payload.name !== undefined ? payload.name : 'Master Admin' 
-        }], { onConflict: 'email' })
+        .upsert([masterUpdate], { onConflict: 'email' })
 
-      if (upsertError) throw upsertError
+      if (upsertError) {
+        const fallback = stripTimingsAndRetry(upsertError, masterUpdate)
+        if (fallback && Object.keys(fallback).length > 0) {
+          const { error: retryErr } = await supabase
+            .from('report_recipients')
+            .upsert([fallback], { onConflict: 'email' })
+          if (retryErr) throw retryErr
+        } else {
+          throw upsertError
+        }
+      }
       revalidatePath('/crm/modules')
       return { success: true }
     }
@@ -171,8 +201,20 @@ export async function updateReportRecipient(
       .eq('id', id)
       .select()
 
-    if (error) throw error
-    if (!data || data.length === 0) {
+    if (error) {
+      const fallback = stripTimingsAndRetry(error, payload)
+      if (fallback && Object.keys(fallback).length > 0) {
+        const { data: d2, error: e2 } = await supabase
+          .from('report_recipients')
+          .update(fallback)
+          .eq('id', id)
+          .select()
+        if (e2) throw e2
+        if (!d2 || d2.length === 0) throw new Error('Recipient not found in database')
+      } else {
+        throw error
+      }
+    } else if (!data || data.length === 0) {
       throw new Error('Recipient not found in database')
     }
 
@@ -344,6 +386,7 @@ export interface WaRecipient {
   phone_number: string
   name: string | null
   created_at: string
+  report_times?: string[] | null
 }
 
 export async function getWaRecipients(): Promise<{ data: WaRecipient[], error: string | null }> {
@@ -387,11 +430,11 @@ export async function addWaRecipient(phone_number: string, name?: string | null)
 
 export async function updateWaRecipient(
   id: string, 
-  updates: { name?: string | null; phone_number?: string }
+  updates: { name?: string | null; phone_number?: string; report_times?: string[] | null }
 ): Promise<{ success: boolean, error?: string }> {
   try {
     const supabase = createServiceClient()
-    const payload: { name?: string | null; phone_number?: string } = {}
+    const payload: Record<string, any> = {}
 
     if (updates.name !== undefined) {
       payload.name = updates.name && updates.name.trim() ? updates.name.trim() : null
@@ -407,6 +450,9 @@ export async function updateWaRecipient(
       }
       payload.phone_number = cleanPhone
     }
+    if (updates.report_times !== undefined) {
+      payload.report_times = updates.report_times
+    }
 
     const { data, error } = await supabase
       .from('whatsapp_report_recipients')
@@ -414,8 +460,29 @@ export async function updateWaRecipient(
       .eq('id', id)
       .select()
 
-    if (error) throw error
-    if (!data || data.length === 0) {
+    if (error) {
+      // If the error is because report_times column doesn't exist, retry without it
+      const msg = String(error?.message || '')
+      if (msg.includes('report_times') && 'report_times' in payload) {
+        const { report_times: _dropped, ...fallback } = payload
+        if (Object.keys(fallback).length > 0) {
+          const { data: d2, error: e2 } = await supabase
+            .from('whatsapp_report_recipients')
+            .update(fallback)
+            .eq('id', id)
+            .select()
+          if (e2) throw e2
+          if (!d2 || d2.length === 0) throw new Error('Recipient not found in database')
+        } else {
+          // Only report_times was being updated and column doesn't exist
+          console.warn('report_times column does not exist yet in whatsapp_report_recipients. Skipping.')
+          revalidatePath('/crm/modules')
+          return { success: true }
+        }
+      } else {
+        throw error
+      }
+    } else if (!data || data.length === 0) {
       throw new Error('Recipient not found in database')
     }
 
@@ -672,4 +739,264 @@ export async function updateUserPermissions(userId: string, permissions: { modul
 
 export async function getEffectivePermissionsClient(): Promise<Record<string, AccessLevel>> {
   return await getEffectivePerms()
+}
+
+// ============================================================
+// LEAD STATUSES MODULE
+// ============================================================
+
+export interface LeadStatus {
+  id: string
+  name: string
+  key: string
+  color_bg: string
+  color_text: string
+  color_border?: string
+  description?: string | null
+  sort_order: number
+  is_system: boolean
+  is_default: boolean
+  leads_count?: number
+  created_at?: string
+  updated_at?: string
+}
+
+export async function getLeadStatuses(): Promise<{ success: boolean; data: LeadStatus[]; error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    
+    // Fetch all statuses
+    const { data: statuses, error } = await supabase
+      .from('lead_statuses')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
+
+    if (error) throw error
+
+    // Fetch counts from leads table
+    const { data: leadRows, error: leadsError } = await supabase
+      .from('leads')
+      .select('status')
+
+    const countMap: Record<string, number> = {}
+    if (!leadsError && leadRows) {
+      for (const row of leadRows) {
+        const sKey = (row.status || 'new').toLowerCase().trim()
+        countMap[sKey] = (countMap[sKey] || 0) + 1
+      }
+    }
+
+    const enrichedStatuses = (statuses || []).map((s: any) => ({
+      ...s,
+      leads_count: countMap[s.key.toLowerCase()] || 0
+    }))
+
+    return { success: true, data: enrichedStatuses }
+  } catch (err: any) {
+    console.error('Error fetching lead statuses:', err)
+    return { success: false, data: [], error: err.message || 'Failed to fetch lead statuses' }
+  }
+}
+
+export async function createLeadStatus(payload: {
+  name: string
+  key?: string
+  color_bg?: string
+  color_text?: string
+  color_border?: string
+  description?: string
+  sort_order?: number
+}): Promise<{ success: boolean; data?: LeadStatus; error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    const trimmedName = (payload.name || '').trim()
+    if (!trimmedName) {
+      return { success: false, error: 'Status name is required.' }
+    }
+
+    // Auto-generate key from name if not provided
+    const key = (payload.key || trimmedName)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+    if (!key) {
+      return { success: false, error: 'Invalid status identifier slug.' }
+    }
+
+    // Check duplicate key or name
+    const { data: existing } = await supabase
+      .from('lead_statuses')
+      .select('id, name, key')
+      .or(`key.eq.${key},name.ilike.${trimmedName}`)
+      .maybeSingle()
+
+    if (existing) {
+      return { success: false, error: `A status with name "${trimmedName}" or key "${key}" already exists.` }
+    }
+
+    const { data, error } = await supabase
+      .from('lead_statuses')
+      .insert({
+        name: trimmedName,
+        key,
+        color_bg: payload.color_bg || 'bg-blue-50',
+        color_text: payload.color_text || 'text-blue-700',
+        color_border: payload.color_border || 'border-blue-200',
+        description: payload.description || null,
+        sort_order: typeof payload.sort_order === 'number' ? payload.sort_order : 50,
+        is_system: false,
+        is_default: false
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    revalidatePath('/crm/modules')
+    revalidatePath('/crm/leads')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('Error creating lead status:', err)
+    return { success: false, error: err.message || 'Failed to create lead status.' }
+  }
+}
+
+export async function updateLeadStatus(
+  id: string,
+  updates: {
+    name?: string
+    color_bg?: string
+    color_text?: string
+    color_border?: string
+    description?: string
+    sort_order?: number
+  }
+): Promise<{ success: boolean; data?: LeadStatus; error?: string }> {
+  try {
+    const supabase = createServiceClient()
+
+    const updatePayload: Record<string, any> = {
+      updated_at: new Date().toISOString()
+    }
+
+    if (updates.name !== undefined) {
+      const trimmed = updates.name.trim()
+      if (!trimmed) return { success: false, error: 'Status name cannot be empty.' }
+      updatePayload.name = trimmed
+    }
+    if (updates.color_bg !== undefined) updatePayload.color_bg = updates.color_bg
+    if (updates.color_text !== undefined) updatePayload.color_text = updates.color_text
+    if (updates.color_border !== undefined) updatePayload.color_border = updates.color_border
+    if (updates.description !== undefined) updatePayload.description = updates.description
+    if (updates.sort_order !== undefined) updatePayload.sort_order = updates.sort_order
+
+    const { data, error } = await supabase
+      .from('lead_statuses')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    revalidatePath('/crm/modules')
+    revalidatePath('/crm/leads')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('Error updating lead status:', err)
+    return { success: false, error: err.message || 'Failed to update lead status.' }
+  }
+}
+
+export async function getLeadStatusUsage(statusKey: string): Promise<{ count: number }> {
+  try {
+    const supabase = createServiceClient()
+    const { count, error } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', statusKey)
+
+    if (error) throw error
+    return { count: count || 0 }
+  } catch (err) {
+    console.error('Error checking status usage:', err)
+    return { count: 0 }
+  }
+}
+
+export async function deleteLeadStatus(
+  id: string,
+  reassignToKey?: string
+): Promise<{ success: boolean; remappedCount?: number; error?: string }> {
+  try {
+    const supabase = createServiceClient()
+
+    // 1. Fetch the target status to verify protection and get key
+    const { data: targetStatus, error: fetchErr } = await supabase
+      .from('lead_statuses')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchErr || !targetStatus) {
+      return { success: false, error: 'Status not found.' }
+    }
+
+    // 2. Safeguard: Prevent deleting protected system statuses (e.g., 'new')
+    if (targetStatus.is_system) {
+      return {
+        success: false,
+        error: `"${targetStatus.name}" is a protected system default status and cannot be deleted.`
+      }
+    }
+
+    // 3. Check if any leads currently use this status
+    const { count: leadsUsingStatus } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', targetStatus.key)
+
+    const usageCount = leadsUsingStatus || 0
+
+    // 4. If leads are currently assigned and NO reassign target is provided, block with instruction
+    if (usageCount > 0 && !reassignToKey) {
+      return {
+        success: false,
+        remappedCount: usageCount,
+        error: `IN_USE: This status is currently assigned to ${usageCount} active lead(s). Please choose a fallback status to reassign them.`
+      }
+    }
+
+    // 5. Reassign existing leads if reassignToKey is provided
+    if (usageCount > 0 && reassignToKey) {
+      if (reassignToKey === targetStatus.key) {
+        return { success: false, error: 'Cannot reassign leads to the status being deleted.' }
+      }
+
+      const { error: reassignErr } = await supabase
+        .from('leads')
+        .update({ status: reassignToKey, updated_at: new Date().toISOString() })
+        .eq('status', targetStatus.key)
+
+      if (reassignErr) throw reassignErr
+    }
+
+    // 6. Delete the status row
+    const { error: deleteErr } = await supabase
+      .from('lead_statuses')
+      .delete()
+      .eq('id', id)
+
+    if (deleteErr) throw deleteErr
+
+    revalidatePath('/crm/modules')
+    revalidatePath('/crm/leads')
+    return { success: true, remappedCount: usageCount }
+  } catch (err: any) {
+    console.error('Error deleting lead status:', err)
+    return { success: false, error: err.message || 'Failed to delete lead status.' }
+  }
 }

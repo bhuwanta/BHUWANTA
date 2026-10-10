@@ -15,13 +15,15 @@ import {
   addWaRecipient,
   updateWaRecipient,
   testReportWa,
-  removeWaRecipient
+  removeWaRecipient,
+  LeadStatus
 } from './actions'
 
 import WebsiteDownloadsOtp from './components/WebsiteDownloadsOtp'
 import AutomatedReportsEmail from './components/AutomatedReportsEmail'
 import WhatsAppReports from './components/WhatsAppReports'
 import AccessControl from './components/AccessControl'
+import LeadStatusManager from './components/LeadStatusManager'
 
 interface ModulesClientProps {
   initialOtpEnabled: boolean
@@ -29,9 +31,10 @@ interface ModulesClientProps {
   initialWaRecipients: WaRecipient[]
   roles: any[]
   users: any[]
+  initialLeadStatuses?: LeadStatus[]
 }
 
-export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients, roles, users }: ModulesClientProps) {
+export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients, roles, users, initialLeadStatuses = [] }: ModulesClientProps) {
   const [otpEnabled, setOtpEnabled] = useState(initialOtpEnabled)
   const [isPending, startTransition] = useTransition()
   
@@ -52,6 +55,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null)
   const [editEmailName, setEditEmailName] = useState('')
   const [editEmailAddress, setEditEmailAddress] = useState('')
+  const [editEmailTimings, setEditEmailTimings] = useState<string[]>([])
   const [isSavingEmailEdit, setIsSavingEmailEdit] = useState(false)
 
   // Inline Test Trigger States
@@ -67,6 +71,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [editingWaId, setEditingWaId] = useState<string | null>(null)
   const [editWaName, setEditWaName] = useState('')
   const [editWaPhone, setEditWaPhone] = useState('')
+  const [editWaTimings, setEditWaTimings] = useState<string[]>([])
   const [isSavingWaEdit, setIsSavingWaEdit] = useState(false)
 
   // --- OTP Toggle Handler ---
@@ -156,6 +161,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     setEditingEmailId(r.id)
     setEditEmailName(r.name || '')
     setEditEmailAddress(r.email)
+    setEditEmailTimings(r.report_times || [])
   }
 
   const handleSaveEmailEdit = async (id: string) => {
@@ -166,7 +172,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
 
     const res = await updateReportRecipient(id, {
       name: trimmedName,
-      email: trimmedEmail || undefined
+      email: trimmedEmail || undefined,
+      report_times: editEmailTimings
     })
 
     if (res.success) {
@@ -175,14 +182,15 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         const hasMaster = prev.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com')
         if (isMaster && !hasMaster) {
           return [
-            { id: '8afdf3c6-c3c9-4dba-bfac-cc8fc2446e3f', email: 'bhuwanta9@gmail.com', name: trimmedName, created_at: new Date().toISOString() },
+            { id: '8afdf3c6-c3c9-4dba-bfac-cc8fc2446e3f', email: 'bhuwanta9@gmail.com', name: trimmedName, created_at: new Date().toISOString(), report_times: editEmailTimings },
             ...prev
           ]
         }
         return prev.map(r => (r.id === id || (isMaster && r.email.toLowerCase() === 'bhuwanta9@gmail.com')) ? {
           ...r,
           name: trimmedName,
-          email: trimmedEmail || r.email
+          email: trimmedEmail || r.email,
+          report_times: editEmailTimings
         } : r)
       })
       setEditingEmailId(null)
@@ -238,6 +246,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     setEditWaName(r.name || '')
     const cleanPhone = r.phone_number.startsWith('91') ? r.phone_number.slice(2) : r.phone_number
     setEditWaPhone(cleanPhone)
+    setEditWaTimings(r.report_times || [])
   }
 
   const handleSaveWaEdit = async (id: string) => {
@@ -251,7 +260,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
 
     const res = await updateWaRecipient(id, {
       name: trimmedName,
-      phone_number: fullNumber
+      phone_number: fullNumber,
+      report_times: editWaTimings
     })
 
     if (res.success) {
@@ -259,7 +269,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
       setWaRecipients(waRecipients.map(r => r.id === id ? {
         ...r,
         name: trimmedName,
-        phone_number: fullNumber
+        phone_number: fullNumber,
+        report_times: editWaTimings
       } : r))
       setEditingWaId(null)
     } else {
@@ -330,8 +341,13 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
           Modules
         </h1>
         <p className="text-[#5a6a82] text-sm mt-1">
-          Configure and manage CRM system modules.
+          Configure and manage CRM system modules, pipeline stages, and access controls.
         </p>
+      </div>
+
+      {/* Lead Pipeline & Statuses Module */}
+      <div className="mb-6">
+        <LeadStatusManager initialStatuses={initialLeadStatuses} />
       </div>
 
       {/* Modules Grid */}
@@ -375,6 +391,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
             setEditEmailName={setEditEmailName}
             editEmailAddress={editEmailAddress}
             setEditEmailAddress={setEditEmailAddress}
+            editEmailTimings={editEmailTimings}
+            setEditEmailTimings={setEditEmailTimings}
             isSavingEmailEdit={isSavingEmailEdit}
             onStartEditEmail={handleStartEditEmail}
             onSaveEmailEdit={handleSaveEmailEdit}
@@ -411,6 +429,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
             setEditWaName={setEditWaName}
             editWaPhone={editWaPhone}
             setEditWaPhone={setEditWaPhone}
+            editWaTimings={editWaTimings}
+            setEditWaTimings={setEditWaTimings}
             isSavingWaEdit={isSavingWaEdit}
             onStartEditWa={handleStartEditWa}
             onSaveWaEdit={handleSaveWaEdit}

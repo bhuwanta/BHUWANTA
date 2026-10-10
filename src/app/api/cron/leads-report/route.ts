@@ -76,10 +76,12 @@ export async function GET(request: Request) {
     let coverageWindowText = '';
     let isMaster = false;
     let emailHtml = '';
+    let slotCode = '6';
 
     if (istHour >= 20) {
       // 9 PM Report: 6 PM → 9 PM
       reportPeriod = '9 PM Report (6 PM – 9 PM)';
+      slotCode = '21';
       slotTitle = 'Leads (6 PM – 9 PM)';
       slotSheetName = 'Slot (6 PM - 9 PM)';
       startSlotDate = new Date(`${todayIstStr}T18:00:00+05:30`);
@@ -88,6 +90,7 @@ export async function GET(request: Request) {
     } else if (istHour >= 17) {
       // 6 PM Master Report: 3 PM → 6 PM + today total + all-time
       reportPeriod = '6 PM Master Report';
+      slotCode = '18';
       slotTitle = 'Leads (3 PM – 6 PM)';
       slotSheetName = 'Slot (3 PM - 6 PM)';
       startSlotDate = new Date(`${todayIstStr}T15:00:00+05:30`);
@@ -97,6 +100,7 @@ export async function GET(request: Request) {
     } else if (istHour >= 14) {
       // 3 PM Report: 12 PM → 3 PM
       reportPeriod = '3 PM Report (12 PM – 3 PM)';
+      slotCode = '15';
       slotTitle = 'Leads (12 PM – 3 PM)';
       slotSheetName = 'Slot (12 PM - 3 PM)';
       startSlotDate = new Date(`${todayIstStr}T12:00:00+05:30`);
@@ -105,6 +109,7 @@ export async function GET(request: Request) {
     } else if (istHour >= 11) {
       // 12 PM Report: 9 AM → 12 PM
       reportPeriod = '12 PM Report (9 AM – 12 PM)';
+      slotCode = '12';
       slotTitle = 'Leads (9 AM – 12 PM)';
       slotSheetName = 'Slot (9 AM - 12 PM)';
       startSlotDate = new Date(`${todayIstStr}T09:00:00+05:30`);
@@ -113,6 +118,7 @@ export async function GET(request: Request) {
     } else if (istHour >= 8) {
       // 9 AM Report: 6 AM → 9 AM
       reportPeriod = '9 AM Report (6 AM – 9 AM)';
+      slotCode = '9';
       slotTitle = 'Leads (6 AM – 9 AM)';
       slotSheetName = 'Slot (6 AM - 9 AM)';
       startSlotDate = new Date(`${todayIstStr}T06:00:00+05:30`);
@@ -219,9 +225,18 @@ export async function GET(request: Request) {
         if (testEmail) {
           emailList = [testEmail];
         } else {
-          const { data: recipients } = await supabase.from('report_recipients').select('email');
+          const { data: recipients } = await supabase.from('report_recipients').select('*');
           if (recipients && recipients.length > 0) {
-            emailList = [...new Set(['bhuwanta9@gmail.com', ...recipients.map(r => r.email)])];
+            const filteredEmails = recipients
+              .filter((r: any) => !r.report_times || r.report_times.length === 0 || r.report_times.includes(slotCode))
+              .map((r: any) => r.email);
+            
+            const dbMaster = recipients.find((r: any) => r.email === 'bhuwanta9@gmail.com');
+            if (dbMaster) {
+              emailList = [...new Set([...filteredEmails])];
+            } else {
+              emailList = [...new Set(['bhuwanta9@gmail.com', ...filteredEmails])];
+            }
           }
         }
 
@@ -245,9 +260,13 @@ export async function GET(request: Request) {
         if (testWaPhone) {
           waList = [testWaPhone];
         } else {
-          const { data: waRecipients } = await supabase.from('whatsapp_report_recipients').select('phone_number');
+          const { data: waRecipients } = await supabase.from('whatsapp_report_recipients').select('*');
           if (waRecipients && waRecipients.length > 0) {
-            waList = [...new Set(waRecipients.map(r => r.phone_number))];
+            waList = [...new Set(
+              waRecipients
+                .filter((r: any) => !r.report_times || r.report_times.length === 0 || r.report_times.includes(slotCode))
+                .map((r: any) => r.phone_number)
+            )];
           }
         }
 

@@ -199,20 +199,68 @@ export async function deleteMultipleLeads(ids: string[]) {
   return { success: true }
 }
 
-export async function updateLeadStatus(id: string, status: string) {
+export async function updateLeadStatus(id: string, status: string): Promise<{
+  success: boolean
+  error?: string
+  syncedCount?: number
+  phone?: string | null
+  name?: string | null
+}> {
   const supabase = await createClient()
 
-  const { error } = await supabase
+  // 1. Fetch lead details to check phone number
+  const { data: currentLead, error: fetchErr } = await supabase
     .from('leads')
-    .update({ status, updated_at: new Date().toISOString() })
+    .select('id, name, phone, status')
     .eq('id', id)
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (fetchErr || !currentLead) {
+    return { success: false, error: fetchErr?.message || 'Lead not found.' }
+  }
+
+  const rawPhone = (currentLead.phone || '').trim()
+  const cleanPhone = rawPhone.replace(/\D/g, '') // extract digits for matching
+  let syncedCount = 1
+
+  // 2. If phone has at least 7 digits, sync all leads matching this phone
+  if (cleanPhone.length >= 7) {
+    // Try exact or clean phone match
+    const { data: updatedRows, error: batchError } = await supabase
+      .from('leads')
+      .update({ status, updated_at: new Date().toISOString() })
+      .or(`phone.eq.${rawPhone},phone.ilike.%${cleanPhone.slice(-10)}%`)
+      .select('id')
+
+    if (!batchError && updatedRows && updatedRows.length > 0) {
+      syncedCount = updatedRows.length
+    } else {
+      // Fallback single update
+      const { error: singleErr } = await supabase
+        .from('leads')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id)
+      if (singleErr) return { success: false, error: singleErr.message }
+    }
+  } else {
+    // Single lead update when no phone is present
+    const { error: singleErr } = await supabase
+      .from('leads')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id)
+
+    if (singleErr) {
+      return { success: false, error: singleErr.message }
+    }
   }
 
   revalidatePath('/crm/leads')
-  return { success: true }
+  return {
+    success: true,
+    syncedCount,
+    phone: currentLead.phone,
+    name: currentLead.name
+  }
 }
 
 export async function getLeadActivities(leadId: string) {

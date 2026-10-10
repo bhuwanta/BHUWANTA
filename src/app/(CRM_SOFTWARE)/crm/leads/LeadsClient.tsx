@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStatus, getLeadActivities, getMetaForms, addMetaForm, deleteMetaForm, updateMetaFormName, getLeads } from './actions'
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
+import { toast } from 'sonner'
 
 const extractIncomingMessage = (details: string) => {
   if (!details) return '(no text content)';
@@ -110,9 +111,20 @@ const SourceBadge = ({ source }: { source: string }) => {
   );
 };
 
-export default function LeadsClient({ initialLeads, totalCount = 0, userRole = 'Admin' }: { initialLeads: any[], totalCount?: number, userRole?: string }) {
+export default function LeadsClient({ 
+  initialLeads, 
+  totalCount = 0, 
+  userRole = 'Admin',
+  initialStatuses = []
+}: { 
+  initialLeads: any[]
+  totalCount?: number
+  userRole?: string
+  initialStatuses?: any[]
+}) {
   const router = useRouter()
   const [leads, setLeads] = useState(initialLeads)
+  const [statuses, setStatuses] = useState<any[]>(initialStatuses)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalLeadsCount, setTotalLeadsCount] = useState(totalCount || initialLeads.length)
   const [isPageLoading, setIsPageLoading] = useState(false)
@@ -122,6 +134,31 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    if (initialStatuses && initialStatuses.length > 0) {
+      setStatuses(initialStatuses)
+    }
+  }, [initialStatuses])
+
+  const getStatusBadgeStyle = (statusKey: string) => {
+    const normalized = (statusKey || 'new').toLowerCase().trim()
+    const found = statuses.find(s => s.key.toLowerCase() === normalized)
+    if (found) {
+      return `${found.color_bg} ${found.color_text} ${found.color_border || 'border-transparent'}`
+    }
+    if (normalized === 'new') return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    if (normalized === 'contacted') return 'bg-blue-50 text-blue-700 border-blue-200'
+    if (normalized === 'uncontacted') return 'bg-orange-50 text-orange-700 border-orange-200'
+    if (normalized === 'qualified') return 'bg-purple-50 text-purple-700 border-purple-200'
+    if (normalized === 'site_visit_scheduled') return 'bg-indigo-50 text-indigo-700 border-indigo-200'
+    if (normalized === 'site_visit_done') return 'bg-cyan-50 text-cyan-700 border-cyan-200'
+    if (normalized === 'negotiation') return 'bg-amber-50 text-amber-700 border-amber-200'
+    if (normalized === 'booked') return 'bg-teal-50 text-teal-700 border-teal-200'
+    if (normalized === 'rejected') return 'bg-red-50 text-red-700 border-red-200'
+    if (normalized === 'closed') return 'bg-slate-100 text-slate-700 border-slate-200'
+    return 'bg-[#f3f5f8] text-[#1e3a5f]'
+  }
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
@@ -464,15 +501,41 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
+      const targetLead = leads.find(l => l.id === id)
+      const rawPhone = targetLead?.phone?.trim()
+      const cleanPhone = rawPhone ? rawPhone.replace(/\D/g, '') : ''
+
+      // Optimistically update all leads matching this phone in local state
+      setLeads(prevLeads => prevLeads.map(l => {
+        if (l.id === id) return { ...l, status: newStatus }
+        if (cleanPhone && cleanPhone.length >= 7 && l.phone) {
+          const lClean = l.phone.replace(/\D/g, '')
+          if (lClean.slice(-10) === cleanPhone.slice(-10)) {
+            return { ...l, status: newStatus }
+          }
+        }
+        return l
+      }))
+
       const result = await updateLeadStatus(id, newStatus)
       if (result.error) {
-        alert(result.error)
+        toast.error('Failed to update status', { description: result.error })
+        router.refresh()
       } else {
-        setLeads(leads.map(l => l.id === id ? { ...l, status: newStatus } : l))
+        const statusObj = statuses.find(s => s.key === newStatus)
+        const statusDisplayName = statusObj?.name || newStatus
+
+        if (result.syncedCount && result.syncedCount > 1) {
+          toast.success(`Updated to "${statusDisplayName}"`, {
+            description: `Synced across ${result.syncedCount} inquiries for ${result.name || 'lead'} (${result.phone || ''}).`
+          })
+        } else {
+          toast.success(`Lead status updated to "${statusDisplayName}"`)
+        }
         router.refresh()
       }
-    } catch (err) {
-      alert('Failed to update status.')
+    } catch (err: any) {
+      toast.error('Failed to update status', { description: err?.message || 'Please try again.' })
     }
   }
 
@@ -796,20 +859,24 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
                       <select
                         value={lead.status || 'new'}
                         onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize appearance-none cursor-pointer border border-transparent focus:border-[#e8ecf2] focus:ring-0 hover:opacity-80 transition-opacity
-                          ${lead.status === 'new' ? 'bg-emerald-50 text-emerald-600' 
-                          : lead.status === 'closed' || lead.status === 'rejected' ? 'bg-red-50 text-red-600'
-                          : lead.status === 'contacted' ? 'bg-blue-50 text-blue-600'
-                          : lead.status === 'uncontacted' ? 'bg-orange-50 text-orange-600'
-                          : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
-                          : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize appearance-none cursor-pointer border focus:ring-0 hover:opacity-80 transition-opacity ${getStatusBadgeStyle(lead.status)}`}
                       >
-                        <option value="new">New</option>
-                        <option value="contacted">Contacted</option>
-                        <option value="uncontacted">Uncontacted</option>
-                        <option value="qualified">Qualified</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="closed">Closed</option>
+                        {statuses.length > 0 ? (
+                          statuses.map(s => (
+                            <option key={s.id || s.key} value={s.key} className="bg-white text-[#0f1d33]">
+                              {s.name}
+                            </option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="new" className="bg-white text-[#0f1d33]">New</option>
+                            <option value="contacted" className="bg-white text-[#0f1d33]">Contacted</option>
+                            <option value="uncontacted" className="bg-white text-[#0f1d33]">Uncontacted</option>
+                            <option value="qualified" className="bg-white text-[#0f1d33]">Qualified</option>
+                            <option value="rejected" className="bg-white text-[#0f1d33]">Rejected</option>
+                            <option value="closed" className="bg-white text-[#0f1d33]">Closed</option>
+                          </>
+                        )}
                       </select>
                     </td>
                     {userRole === 'Super Admin' && (
@@ -907,20 +974,24 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
                   <select
                     value={lead.status || 'new'}
                     onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize appearance-none cursor-pointer border border-transparent focus:border-[#e8ecf2] focus:ring-0 hover:opacity-80 transition-opacity
-                      ${lead.status === 'new' ? 'bg-emerald-50 text-emerald-600' 
-                      : lead.status === 'closed' || lead.status === 'rejected' ? 'bg-red-50 text-red-600'
-                      : lead.status === 'contacted' ? 'bg-blue-50 text-blue-600'
-                      : lead.status === 'uncontacted' ? 'bg-orange-50 text-orange-600'
-                      : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600'
-                      : 'bg-[#f3f5f8] text-[#1e3a5f]'}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize appearance-none cursor-pointer border focus:ring-0 hover:opacity-80 transition-opacity ${getStatusBadgeStyle(lead.status)}`}
                   >
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="uncontacted">Uncontacted</option>
-                    <option value="qualified">Qualified</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="closed">Closed</option>
+                    {statuses.length > 0 ? (
+                      statuses.map(s => (
+                        <option key={s.id || s.key} value={s.key} className="bg-white text-[#0f1d33]">
+                          {s.name}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="new" className="bg-white text-[#0f1d33]">New</option>
+                        <option value="contacted" className="bg-white text-[#0f1d33]">Contacted</option>
+                        <option value="uncontacted" className="bg-white text-[#0f1d33]">Uncontacted</option>
+                        <option value="qualified" className="bg-white text-[#0f1d33]">Qualified</option>
+                        <option value="rejected" className="bg-white text-[#0f1d33]">Rejected</option>
+                        <option value="closed" className="bg-white text-[#0f1d33]">Closed</option>
+                      </>
+                    )}
                   </select>
 
                   {userRole === 'Super Admin' && (
@@ -1066,12 +1137,22 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
                     defaultValue={editingLead?.status || 'new'}
                     className="w-full rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-3 py-2.5 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
                   >
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="uncontacted">Uncontacted</option>
-                    <option value="qualified">Qualified</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="closed">Closed</option>
+                    {statuses.length > 0 ? (
+                      statuses.map(s => (
+                        <option key={s.id || s.key} value={s.key}>
+                          {s.name}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="uncontacted">Uncontacted</option>
+                        <option value="qualified">Qualified</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="closed">Closed</option>
+                      </>
+                    )}
                   </select>
                 </div>
                 <div>

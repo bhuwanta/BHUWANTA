@@ -107,6 +107,8 @@ interface WhatsAppRecipientsModalProps {
   setEditWaName: (name: string) => void
   editWaPhone: string
   setEditWaPhone: (phone: string) => void
+  editWaTimings: string[]
+  setEditWaTimings: (timings: string[]) => void
   isSavingWaEdit: boolean
   onStartEditWa: (recipient: WaRecipient) => void
   onSaveWaEdit: (id: string) => void
@@ -131,6 +133,8 @@ function WhatsAppRecipientsModal({
   setEditWaName,
   editWaPhone,
   setEditWaPhone,
+  editWaTimings,
+  setEditWaTimings,
   isSavingWaEdit,
   onStartEditWa,
   onSaveWaEdit,
@@ -233,6 +237,43 @@ function WhatsAppRecipientsModal({
                           className="w-full text-xs rounded-lg border border-[#e8ecf2] bg-[#f8fafc] pl-9 pr-2.5 py-1.5 text-[#0f1d33] outline-none focus:border-[#1e3a5f] focus:bg-white font-mono"
                         />
                       </div>
+                    </div>
+                  </div>
+                  <div className="mt-2.5">
+                    <label className="block text-[11px] font-semibold text-[#5a6a82] mb-1">
+                      Report Timings <span className="text-[10px] text-gray-400 font-normal">(Select time slots to receive reports)</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {['6', '9', '12', '15', '18', '21'].map(time => {
+                        const label = parseInt(time) <= 12 ? `${time} AM` : `${parseInt(time) - 12} PM`
+                        const isSelected = editWaTimings.includes(time) || editWaTimings.length === 0
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => {
+                              let newTimings = [...editWaTimings]
+                              if (editWaTimings.length === 0) {
+                                newTimings = ['6', '9', '12', '15', '18', '21'].filter(t => t !== time)
+                              } else {
+                                if (isSelected) {
+                                  newTimings = newTimings.filter(t => t !== time)
+                                } else {
+                                  newTimings.push(time)
+                                }
+                              }
+                              setEditWaTimings(newTimings)
+                            }}
+                            className={`px-3 py-1 text-xs rounded-lg border transition-colors ${
+                              isSelected 
+                                ? 'bg-green-600 text-white border-green-600' 
+                                : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                   <div className="flex items-center justify-end gap-2 pt-1">
@@ -347,6 +388,8 @@ export interface WhatsAppReportsProps {
   setEditWaName: (name: string) => void
   editWaPhone: string
   setEditWaPhone: (phone: string) => void
+  editWaTimings: string[]
+  setEditWaTimings: (timings: string[]) => void
   isSavingWaEdit: boolean
   onStartEditWa: (recipient: WaRecipient) => void
   onSaveWaEdit: (id: string) => void
@@ -379,6 +422,8 @@ export default function WhatsAppReports({
   setEditWaName,
   editWaPhone,
   setEditWaPhone,
+  editWaTimings,
+  setEditWaTimings,
   isSavingWaEdit,
   onStartEditWa,
   onSaveWaEdit,
@@ -474,6 +519,8 @@ export default function WhatsAppReports({
         setEditWaName={setEditWaName}
         editWaPhone={editWaPhone}
         setEditWaPhone={setEditWaPhone}
+        editWaTimings={editWaTimings}
+        setEditWaTimings={setEditWaTimings}
         isSavingWaEdit={isSavingWaEdit}
         onStartEditWa={onStartEditWa}
         onSaveWaEdit={onSaveWaEdit}
