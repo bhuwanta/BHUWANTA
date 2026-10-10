@@ -132,7 +132,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3 md:gap-4">
         <DashboardCard 
           title="Total Leads" 
           value={totalLeads !== null ? totalLeads.toString() : '...'} 
@@ -201,17 +201,19 @@ export default function DashboardPage() {
 
       {selectedFilter && (
         <div className="rounded-xl border border-[#e8ecf2] bg-white shadow-sm flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="px-6 py-4 border-b border-[#e8ecf2] bg-[#f8fafc] flex justify-between items-center">
-            <h2 className="text-lg font-bold text-[#0f1d33]">{selectedFilter.title}</h2>
+          <div className="px-4 sm:px-6 py-4 border-b border-[#e8ecf2] bg-[#f8fafc] flex justify-between items-center">
+            <h2 className="text-base sm:text-lg font-bold text-[#0f1d33]">{selectedFilter.title}</h2>
             <button 
               onClick={() => setSelectedFilter(null)} 
               className="p-1 rounded-md text-[#5a6a82] hover:bg-[#e8ecf2] transition-colors"
+              aria-label="Close details"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
           
-          <div className="overflow-auto max-h-[60vh]">
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-auto max-h-[60vh]">
             <table className="w-full text-xs text-left relative">
               <thead className="bg-[#f7f8fa] text-[#5a6a82] sticky top-0 z-10">
                 <tr>
@@ -279,9 +281,74 @@ export default function DashboardPage() {
             </table>
           </div>
 
+          {/* Mobile Card View */}
+          <div className="sm:hidden divide-y divide-[#e8ecf2] max-h-[60vh] overflow-y-auto">
+            {isTableLoading ? (
+              <div className="p-8 text-center text-[#5a6a82] text-sm">Loading leads...</div>
+            ) : tableLeads.length > 0 ? (
+              tableLeads.map((lead, index) => (
+                <div key={lead.id} className="p-4 space-y-2 hover:bg-[#f8fafc] transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-sm text-[#0f1d33]">{lead.name}</div>
+                      <a href={`tel:${lead.phone}`} className="text-xs text-[#1e3a5f] font-medium flex items-center gap-1 mt-0.5 hover:underline">
+                        <Phone className="h-3 w-3 text-emerald-600" /> {lead.phone}
+                      </a>
+                    </div>
+                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider
+                      ${lead.status === 'new' ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                      : lead.status === 'contacted' ? 'bg-amber-50 text-amber-600 border border-amber-100'
+                      : lead.status === 'uncontacted' ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                      : lead.status === 'qualified' ? 'bg-purple-50 text-purple-600 border border-purple-100'
+                      : lead.status === 'closed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                      : lead.status === 'rejected' ? 'bg-red-50 text-red-600 border border-red-100'
+                      : 'bg-gray-50 text-gray-600 border border-gray-100'}`}
+                    >
+                      {lead.status}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-[#5a6a82]">
+                    <span className="inline-flex items-center gap-1 bg-[#f3f5f8] px-2 py-0.5 rounded text-[10px] font-medium border border-[#e8ecf2] text-[#1e3a5f]">
+                      {lead.source_page || 'Unknown'}
+                    </span>
+                    <span className="flex items-center gap-1 text-[11px]">
+                      <Clock className="h-3 w-3" />
+                      {new Date(lead.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-[#5a6a82] text-sm">No leads found.</div>
+            )}
+          </div>
+
           {/* Pagination */}
           {tableCount > pageSize && (
             <div className="flex items-center justify-between border-t border-[#e8ecf2] bg-white px-4 py-3 sm:px-6">
+              {/* Mobile pagination */}
+              <div className="flex flex-1 justify-between items-center sm:hidden">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1 || isTableLoading}
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <div className="text-xs text-[#5a6a82] font-medium">
+                  Page {currentPage} of {Math.max(1, Math.ceil(tableCount / pageSize))}
+                </div>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage * pageSize >= tableCount || isTableLoading}
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-black hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+
+              {/* Desktop pagination */}
               <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
@@ -336,15 +403,15 @@ function DashboardCard({
   return (
     <div 
       onClick={onClick}
-      className={`rounded-xl border ${isSelected ? 'border-[#1e3a5f] ring-1 ring-[#1e3a5f] shadow-md' : 'border-[#e8ecf2] hover:border-[#c4a55a]'} bg-white p-6 shadow-sm cursor-pointer transition-all hover:shadow-md`}
+      className={`rounded-xl border ${isSelected ? 'border-[#1e3a5f] ring-1 ring-[#1e3a5f] shadow-md' : 'border-[#e8ecf2] hover:border-[#c4a55a]'} bg-white p-3.5 sm:p-5 md:p-6 shadow-sm cursor-pointer transition-all hover:shadow-md`}
     >
-      <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <h3 className={`text-sm font-medium tracking-tight ${isSelected ? 'text-[#1e3a5f]' : 'text-[#5a6a82]'}`}>{title}</h3>
+      <div className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2">
+        <h3 className={`text-xs sm:text-sm font-medium tracking-tight truncate ${isSelected ? 'text-[#1e3a5f]' : 'text-[#5a6a82]'}`}>{title}</h3>
         {icon}
       </div>
       <div>
-        <div className="text-2xl font-bold text-[#0f1d33]">{value}</div>
-        <p className="text-xs text-[#5a6a82] mt-1">{description}</p>
+        <div className="text-xl sm:text-2xl font-bold text-[#0f1d33]">{value}</div>
+        <p className="text-[11px] sm:text-xs text-[#5a6a82] mt-0.5 sm:mt-1 truncate">{description}</p>
       </div>
     </div>
   );
