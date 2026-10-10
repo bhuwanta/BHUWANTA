@@ -266,20 +266,20 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
         </div>
 
         {/* Matrix */}
-        <div className="border border-[#e8ecf2] rounded-xl overflow-hidden relative">
+        <div className="border border-[#e8ecf2] rounded-xl overflow-x-auto relative">
           {isLoading && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
               <Loader2 className="w-6 h-6 animate-spin text-[#c4a55a]" />
             </div>
           )}
           
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-xs sm:text-sm min-w-[500px]">
             <thead className="bg-[#f8fafc] border-b border-[#e8ecf2]">
               <tr>
-                <th className="px-6 py-4 font-semibold text-[#0f1d33]">Module / Page</th>
-                <th className="px-6 py-4 font-semibold text-center text-red-600">No Access</th>
-                <th className="px-6 py-4 font-semibold text-center text-amber-600">View Only</th>
-                <th className="px-6 py-4 font-semibold text-center text-emerald-600">Edit Access</th>
+                <th className="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-[#0f1d33]">Module / Page</th>
+                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-red-600">No Access</th>
+                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-amber-600">View Only</th>
+                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-emerald-600">Edit Access</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2]">
@@ -297,13 +297,13 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                 
                 return (
                   <tr key={mod.id} className="hover:bg-[#f8fafc]/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-[#0f1d33]">
+                    <td className="px-4 sm:px-6 py-3.5 sm:py-4 font-medium text-[#0f1d33]">
                       <div className="flex items-center justify-between">
                         <span>{mod.label}</span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center bg-red-50/30">
+                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-red-50/30">
                       <input 
                         type="radio" 
                         name={`${mod.id}-access`} 
@@ -314,7 +314,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                       />
                     </td>
                     
-                    <td className="px-6 py-4 text-center bg-amber-50/30">
+                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-amber-50/30">
                       <input 
                         type="radio" 
                         name={`${mod.id}-access`} 
@@ -325,7 +325,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                       />
                     </td>
                     
-                    <td className="px-6 py-4 text-center bg-emerald-50/30">
+                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-emerald-50/30">
                       <input 
                         type="radio" 
                         name={`${mod.id}-access`} 

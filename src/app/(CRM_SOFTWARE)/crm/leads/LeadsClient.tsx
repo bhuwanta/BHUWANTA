@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, Edit2, Trash2, X, Search, Globe, FilterX, Download, MessageCircle, Megaphone, Settings, ArrowUp, ArrowDown, ArrowUpDown, Check, RefreshCw } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, Search, Globe, FilterX, Download, MessageCircle, Megaphone, Settings, ArrowUp, ArrowDown, ArrowUpDown, Check, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react'
 
 
 import { createClient } from '@/lib/supabase/client'
@@ -176,6 +176,12 @@ export default function LeadsClient({
   const [whatsappActivities, setWhatsappActivities] = useState<any[]>([])
   const [isLoadingActivities, setIsLoadingActivities] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Delete Confirmation Modals State
+  const [leadToDelete, setLeadToDelete] = useState<any | null>(null)
+  const [isDeletingLead, setIsDeletingLead] = useState(false)
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
 
   useEffect(() => {
     if (isWhatsappHistoryOpen && whatsappLead) {
@@ -391,21 +397,30 @@ export default function LeadsClient({
     }
   }
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedLeadIds.length === 0) return
-    if (!confirm(`Are you sure you want to delete ${selectedLeadIds.length} leads?`)) return
-    
+    setIsBulkDeleteModalOpen(true)
+  }
+
+  const confirmBulkDelete = async () => {
+    if (selectedLeadIds.length === 0) return
+    setIsBulkDeleting(true)
     try {
       const result = await deleteMultipleLeads(selectedLeadIds)
       if (result.error) {
-        alert(result.error)
+        toast.error(result.error)
       } else {
+        const count = selectedLeadIds.length
         setLeads(leads.filter(l => !selectedLeadIds.includes(l.id)))
         setSelectedLeadIds([])
+        setIsBulkDeleteModalOpen(false)
+        toast.success(`Successfully deleted ${count} leads`)
         router.refresh()
       }
-    } catch (err) {
-      alert('Failed to delete leads.')
+    } catch {
+      toast.error('Failed to delete leads.')
+    } finally {
+      setIsBulkDeleting(false)
     }
   }
 
@@ -482,21 +497,28 @@ export default function LeadsClient({
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this lead?')) return
-    
+  const handleDelete = (lead: any) => {
+    setLeadToDelete(lead)
+  }
+
+  const confirmDeleteLead = async () => {
+    if (!leadToDelete) return
+    setIsDeletingLead(true)
     try {
-      const result = await deleteLead(id)
+      const result = await deleteLead(leadToDelete.id)
       if (result.error) {
-        alert(result.error)
+        toast.error(result.error)
       } else {
-        setLeads(leads.filter(l => l.id !== id))
-        // also remove from selected if present
-        setSelectedLeadIds(selectedLeadIds.filter(leadId => leadId !== id))
+        setLeads(leads.filter(l => l.id !== leadToDelete.id))
+        setSelectedLeadIds(selectedLeadIds.filter(leadId => leadId !== leadToDelete.id))
+        toast.success(`Deleted lead "${leadToDelete.name || 'Lead'}"`)
+        setLeadToDelete(null)
         router.refresh()
       }
-    } catch (err) {
-      alert('Failed to delete lead.')
+    } catch {
+      toast.error('Failed to delete lead.')
+    } finally {
+      setIsDeletingLead(false)
     }
   }
 
@@ -1055,7 +1077,7 @@ export default function LeadsClient({
                             <Edit2 className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(lead.id)}
+                            onClick={() => handleDelete(lead)}
                             className="text-red-500 hover:text-red-700"
                             title="Delete"
                           >
@@ -1151,20 +1173,31 @@ export default function LeadsClient({
                   </select>
 
                   {userRole === 'Super Admin' && (
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       {lead.phone && (
                         <button
                           onClick={() => openWhatsappHistory(lead)}
-                          className="text-green-600 hover:text-green-700 bg-green-50 p-1.5 rounded-full"
+                          className="text-green-600 hover:text-green-700 bg-green-50 p-2 rounded-lg min-h-[36px] min-w-[36px] flex items-center justify-center transition-colors"
                           title="WhatsApp History"
+                          aria-label="WhatsApp History"
                         >
                           <MessageCircle className="h-4 w-4" />
                         </button>
                       )}
-                      <button onClick={() => openEditModal(lead)} className="text-[#1e3a5f] hover:text-[#0f1d33] p-1.5 hover:bg-[#f3f5f8] rounded-full">
+                      <button 
+                        onClick={() => openEditModal(lead)} 
+                        className="text-[#1e3a5f] hover:text-[#0f1d33] p-2 hover:bg-[#f3f5f8] rounded-lg min-h-[36px] min-w-[36px] flex items-center justify-center transition-colors"
+                        title="Edit Lead"
+                        aria-label="Edit Lead"
+                      >
                         <Edit2 className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(lead.id)} className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-full">
+                      <button 
+                        onClick={() => handleDelete(lead)} 
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg min-h-[36px] min-w-[36px] flex items-center justify-center transition-colors"
+                        title="Delete Lead"
+                        aria-label="Delete Lead"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -1233,11 +1266,156 @@ export default function LeadsClient({
         )}
       </div>
 
+      {/* Single Lead Delete Confirmation Modal */}
+      {leadToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-red-50/50">
+              <div className="flex items-center gap-2.5 text-red-600">
+                <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#0f1d33] text-sm sm:text-base">Delete Lead</h3>
+                  <p className="text-xs text-[#5a6a82]">This action cannot be undone</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setLeadToDelete(null)}
+                className="text-[#5a6a82] hover:text-[#0f1d33] p-1.5 rounded-md hover:bg-white/80 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 space-y-4">
+              <div className="bg-[#f8fafc] border border-[#e8ecf2] rounded-xl p-3.5 space-y-1 text-sm">
+                <div className="font-semibold text-[#0f1d33] text-base">{leadToDelete.name || 'Unnamed Lead'}</div>
+                {leadToDelete.phone && (
+                  <div className="text-xs text-[#5a6a82] flex items-center gap-1.5">
+                    <span className="font-medium text-[#1e3a5f]">Phone:</span> {leadToDelete.phone}
+                  </div>
+                )}
+                {leadToDelete.email && (
+                  <div className="text-xs text-[#5a6a82] flex items-center gap-1.5">
+                    <span className="font-medium text-[#1e3a5f]">Email:</span> {leadToDelete.email}
+                  </div>
+                )}
+                {leadToDelete.project && (
+                  <div className="text-xs text-[#5a6a82] flex items-center gap-1.5">
+                    <span className="font-medium text-[#1e3a5f]">Project:</span> {leadToDelete.project}
+                  </div>
+                )}
+              </div>
+
+              <p className="text-xs text-[#5a6a82] leading-relaxed">
+                Are you sure you want to permanently delete this lead? All associated activity logs and notes will also be removed.
+              </p>
+
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#e8ecf2]">
+                <button
+                  type="button"
+                  onClick={() => setLeadToDelete(null)}
+                  disabled={isDeletingLead}
+                  className="px-4 py-2 text-xs font-semibold text-[#5a6a82] hover:text-[#0f1d33] rounded-lg hover:bg-[#f3f5f8] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteLead}
+                  disabled={isDeletingLead}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                >
+                  {isDeletingLead ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Yes, Delete Lead
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-red-50/50">
+              <div className="flex items-center gap-2.5 text-red-600">
+                <div className="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#0f1d33] text-sm sm:text-base">Bulk Delete Leads</h3>
+                  <p className="text-xs text-[#5a6a82]">Permanent batch deletion</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsBulkDeleteModalOpen(false)}
+                className="text-[#5a6a82] hover:text-[#0f1d33] p-1.5 rounded-md hover:bg-white/80 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 space-y-4">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
+                You have selected <strong className="font-bold">{selectedLeadIds.length} leads</strong> for deletion.
+              </div>
+
+              <p className="text-xs text-[#5a6a82] leading-relaxed">
+                Are you sure you want to delete these {selectedLeadIds.length} leads? This action cannot be reversed.
+              </p>
+
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#e8ecf2]">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkDeleteModalOpen(false)}
+                  disabled={isBulkDeleting}
+                  className="px-4 py-2 text-xs font-semibold text-[#5a6a82] hover:text-[#0f1d33] rounded-lg hover:bg-[#f3f5f8] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmBulkDelete}
+                  disabled={isBulkDeleting}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                >
+                  {isBulkDeleting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete {selectedLeadIds.length} Leads
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-4">
-          <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-[#0f1d33]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-3 sm:p-4">
+          <div className="w-full max-w-2xl rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl max-h-[92dvh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-[#0f1d33]">
                 {editingLead ? 'Edit Lead' : 'Add Lead'}
               </h2>
               <button onClick={closeModal} className="text-[#5a6a82] hover:text-[#0f1d33]">
