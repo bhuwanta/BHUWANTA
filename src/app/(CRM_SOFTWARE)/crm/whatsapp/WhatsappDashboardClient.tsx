@@ -39,13 +39,17 @@ export default function WhatsappDashboardClient({
   const [isPageLoading, setIsPageLoading] = useState(false)
   const pageSize = 50
   
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (selectedLead) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
+    if (selectedLead && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight
+      const rafId = requestAnimationFrame(() => {
+        if (chatScrollRef.current) {
+          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight
+        }
+      })
+      return () => cancelAnimationFrame(rafId)
     }
   }, [selectedLead])
 
@@ -256,17 +260,26 @@ export default function WhatsappDashboardClient({
                         )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3 w-3 text-gray-400" />
-                          {new Date(lead.lastActive).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                        <div className="flex items-center gap-1.5 text-xs text-[#5a6a82]">
+                          <Clock className="h-3.5 w-3.5 text-[#1e3a5f]/60" />
+                          <span className="font-medium">
+                            {new Date(lead.lastActive).toLocaleString('en-IN', {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </span>
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
                         <button
                           onClick={() => setSelectedLead(lead)}
-                          className="inline-flex items-center gap-2 bg-[#1e3a5f] text-white px-3 py-2 rounded-lg hover:bg-[#0f1d33] transition-colors text-sm font-medium"
+                          className="inline-flex items-center gap-2 bg-[#1e3a5f] text-white px-3.5 py-2 rounded-lg hover:bg-[#0f1d33] active:scale-[0.98] transition-all text-xs font-semibold shadow-xs"
                         >
-                          View Chat History <ArrowRight className="h-4 w-4" />
+                          View Chat History <ArrowRight className="h-3.5 w-3.5 text-[#c4a55a]" />
                         </button>
                       </td>
                     </tr>
@@ -346,16 +359,27 @@ export default function WhatsappDashboardClient({
                     )}
                   </div>
 
-                  <div className="flex justify-between items-center mt-2 pt-3 border-t border-[#e8ecf2]">
-                    <div className="flex items-center gap-1.5 text-xs text-[#5a6a82]">
-                      <Clock className="h-3 w-3" />
-                      {new Date(lead.lastActive).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3 pt-3 border-t border-[#e8ecf2]">
+                    <div className="flex items-center gap-2 text-xs text-[#5a6a82] bg-[#f8fafc] px-3 py-1.5 rounded-lg border border-[#e8ecf2]/80 w-fit">
+                      <Clock className="h-3.5 w-3.5 text-[#1e3a5f] shrink-0" />
+                      <span className="text-[#8795a8] text-[11px] font-medium">Last Active:</span>
+                      <span className="font-semibold text-[#0f1d33]">
+                        {new Date(lead.lastActive).toLocaleString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </span>
                     </div>
                     <button
                       onClick={() => setSelectedLead(lead)}
-                      className="inline-flex items-center gap-1 bg-[#1e3a5f] text-white px-3 py-1.5 rounded-lg hover:bg-[#0f1d33] transition-colors text-xs font-medium shadow-sm"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1e3a5f] text-white px-4 py-2.5 rounded-xl hover:bg-[#0f1d33] active:scale-[0.98] transition-all text-xs font-semibold shadow-xs"
                     >
-                      View Chat History <ArrowRight className="h-3 w-3" />
+                      <span>View Chat History</span>
+                      <ArrowRight className="h-3.5 w-3.5 text-[#c4a55a]" />
                     </button>
                   </div>
                 </div>
@@ -427,8 +451,8 @@ export default function WhatsappDashboardClient({
       {/* Slide-out Panel for Detailed History */}
       {selectedLead && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-[#0f1d33]/20 backdrop-blur-sm" onClick={() => setSelectedLead(null)} />
-          <div className="relative w-full max-w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#e8ecf2] animate-in slide-in-from-right duration-300">
+          <div className="absolute inset-0 bg-[#0f1d33]/40" onClick={() => setSelectedLead(null)} />
+          <div className="relative w-full max-w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#e8ecf2] transform-gpu will-change-transform animate-in slide-in-from-right duration-300">
             
             <div className="flex items-center justify-between p-6 border-b border-[#e8ecf2] bg-[#f3f5f8]">
               <div className="flex items-center gap-3">
@@ -445,7 +469,7 @@ export default function WhatsappDashboardClient({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 bg-[#efeae2] flex flex-col relative">
+            <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 bg-[#efeae2] flex flex-col relative overscroll-contain">
               <div className="relative z-10 flex flex-col gap-3 pb-4">
               {selectedLead.lead_activities?.length > 0 ? (
                 selectedLead.lead_activities.map((activity: any, idx: number) => {
@@ -498,7 +522,7 @@ export default function WhatsappDashboardClient({
                   <p>No messages recorded yet.</p>
                 </div>
               )}
-              <div ref={messagesEndRef} />
+
               </div>
             </div>
           </div>
