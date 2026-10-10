@@ -123,22 +123,9 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const handlePageChange = async (newPage: number) => {
+  const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
-    setIsPageLoading(true);
-    try {
-      const res = await getLeads(newPage, pageSize);
-      setLeads(res.data);
-      setTotalLeadsCount(res.count);
-      setCurrentPage(newPage);
-      
-      // Update selected sources or reset selection if needed
-      setSelectedLeadIds([]);
-    } catch (err) {
-      console.error('Error fetching leads:', err);
-    } finally {
-      setIsPageLoading(false);
-    }
+    setCurrentPage(newPage);
   };
   const [selectedSources, setSelectedSources] = useState<string[]>([])
   const [dateFilterType, setDateFilterType] = useState<'single' | 'range'>('single')
@@ -489,76 +476,55 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
     }
   }
 
-  const filteredLeads = useMemo(() => {
-    let result = leads;
-    
-    if (selectedSources.length > 0) {
-      result = result.filter(lead => {
-        const source = lead.source_page?.toLowerCase() || '';
-        return selectedSources.some(s => {
-          if (s === 'meta') {
-            return source.includes('meta') || source.includes('facebook') || source.includes('instagram');
-          }
-          return source.includes(s);
-        });
-      });
-    }
-    
-    if (!searchQuery.trim() && !startDate && !endDate) return result;
-    
-    if (dateFilterType === 'single' && startDate) {
-      const start = new Date(startDate)
-      start.setHours(0, 0, 0, 0)
-      const end = new Date(startDate)
-      end.setHours(23, 59, 59, 999)
-      result = result.filter(lead => {
-        const d = new Date(lead.created_at)
-        return d >= start && d <= end
-      })
-    } else if (dateFilterType === 'range') {
-      if (startDate) {
-        const start = new Date(startDate)
-        start.setHours(0, 0, 0, 0)
-        result = result.filter(lead => new Date(lead.created_at) >= start)
+  // Debounce search query
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch leads on filter/page change
+  useEffect(() => {
+    const fetchFilteredLeads = async () => {
+      setIsPageLoading(true);
+      try {
+        let sd = startDate;
+        let ed = endDate;
+        if (dateFilterType === 'single' && startDate) {
+          ed = startDate; // getLeads will set this to 23:59:59
+        }
+        
+        const filters = {
+          searchQuery: debouncedSearchQuery,
+          sources: selectedSources,
+          startDate: sd,
+          endDate: ed,
+          sortField,
+          sortOrder
+        };
+        const res = await getLeads(currentPage, pageSize, filters);
+        setLeads(res.data);
+        setTotalLeadsCount(res.count);
+        setSelectedLeadIds([]);
+      } catch (err) {
+        console.error('Error fetching filtered leads:', err);
+      } finally {
+        setIsPageLoading(false);
       }
-      if (endDate) {
-        const end = new Date(endDate)
-        end.setHours(23, 59, 59, 999)
-        result = result.filter(lead => new Date(lead.created_at) <= end)
-      }
-    }
+    };
 
-    const lowerQuery = searchQuery.toLowerCase();
-    if (lowerQuery) {
-      result = result.filter(lead => 
-        (lead.name && lead.name.toLowerCase().includes(lowerQuery)) ||
-        (lead.email && lead.email.toLowerCase().includes(lowerQuery)) ||
-        (lead.phone && lead.phone.toLowerCase().includes(lowerQuery)) ||
-        (lead.project && lead.project.toLowerCase().includes(lowerQuery))
-      );
-    }
-    
-    result.sort((a, b) => {
-      let aVal = a[sortField] || ''
-      let bVal = b[sortField] || ''
-      
-      if (sortField === 'created_at') {
-         aVal = new Date(a.created_at).getTime()
-         bVal = new Date(b.created_at).getTime()
-      } else {
-         aVal = String(aVal).toLowerCase()
-         bVal = String(bVal).toLowerCase()
-      }
+    fetchFilteredLeads();
+  }, [currentPage, debouncedSearchQuery, selectedSources, startDate, endDate, dateFilterType, sortField, sortOrder]);
 
-      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
+  // Reset to page 1 when filters change (but not when page changes)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery, selectedSources, startDate, endDate, dateFilterType, sortField, sortOrder]);
 
-    return result;
-  }, [leads, searchQuery, selectedSources, startDate, endDate, sortField, sortOrder]);
+  const filteredLeads = leads; // We now use the server-filtered leads directly
 
-  const isFiltering = searchQuery.trim() !== '' || selectedSources.length > 0 || !!startDate || !!endDate;
 
   return (
     <div className="space-y-6">
@@ -985,7 +951,7 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
         </div>
 
         {/* Pagination UI */}
-        {!isFiltering && totalLeadsCount > pageSize && (
+        {totalLeadsCount > pageSize && (
           <div className="flex items-center justify-between border-t border-[#e8ecf2] bg-white px-4 py-3 sm:px-6 mt-auto">
             <div className="flex flex-1 justify-between sm:hidden">
               <button

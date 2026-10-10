@@ -3,16 +3,69 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function getLeads(page: number = 1, limit: number = 50) {
+export async function getLeads(
+  page: number = 1, 
+  limit: number = 50,
+  filters?: {
+    searchQuery?: string,
+    sources?: string[],
+    startDate?: string,
+    endDate?: string,
+    sortField?: string,
+    sortOrder?: 'asc' | 'desc'
+  }
+) {
   const supabase = await createClient()
   const from = (page - 1) * limit
   const to = from + limit - 1
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from('leads')
     .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(from, to)
+
+  // Apply Search
+  if (filters?.searchQuery) {
+    const q = `%${filters.searchQuery}%`;
+    query = query.or(`name.ilike.${q},email.ilike.${q},phone.ilike.${q},project.ilike.${q}`);
+  }
+
+  // Apply Sources
+  if (filters?.sources && filters.sources.length > 0) {
+    // If 'meta' is selected, it should match meta, facebook, instagram
+    let sourceFilters: string[] = [];
+    filters.sources.forEach(src => {
+      if (src === 'meta') {
+        sourceFilters.push('meta', 'facebook', 'instagram');
+      } else {
+        sourceFilters.push(src);
+      }
+    });
+    // Build an OR condition for source_page using ilike
+    const sourceOrQuery = sourceFilters.map(src => `source_page.ilike.%${src}%`).join(',');
+    query = query.or(sourceOrQuery);
+  }
+
+  // Apply Dates
+  if (filters?.startDate) {
+    const start = new Date(filters.startDate);
+    start.setHours(0, 0, 0, 0);
+    query = query.gte('created_at', start.toISOString());
+  }
+  if (filters?.endDate) {
+    const end = new Date(filters.endDate);
+    end.setHours(23, 59, 59, 999);
+    query = query.lte('created_at', end.toISOString());
+  }
+
+  // Apply Sorting
+  const sortField = filters?.sortField || 'created_at';
+  const ascending = filters?.sortOrder === 'asc';
+  query = query.order(sortField, { ascending });
+
+  // Apply Pagination
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
 
   if (error) {
     console.error('Error fetching leads:', error)
