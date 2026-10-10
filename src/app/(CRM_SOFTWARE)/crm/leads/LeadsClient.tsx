@@ -684,25 +684,130 @@ export default function LeadsClient({
           </div>
         </div>
 
-        {/* Row 2: Horizontally Scrollable Filters Strip with Visible Scrollbar */}
-        <div 
-          className="overflow-x-auto pb-2 pt-1 -mx-1 px-1"
-          style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#94a3b8 #f1f5f9'
-          }}
-        >
-          <div className="flex items-center gap-3 min-w-max py-0.5">
-            {/* Status Filter Group */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1">
-                Status:
+        {/* Row 2: Source & Date Filters (Separate Line Like Before) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-[#f0f3f7]">
+          {/* Source Filter Group */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1">
+              Filter by Source:
+            </span>
+
+            <button
+              onClick={() => toggleSourceFilter('meta')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                selectedSources.includes('meta')
+                  ? 'bg-blue-50 border-blue-200 text-blue-700 font-semibold ring-1 ring-blue-300'
+                  : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+              }`}
+            >
+              <FacebookIcon className="w-3.5 h-3.5" /> Meta
+            </button>
+
+            <button
+              onClick={() => toggleSourceFilter('website')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                selectedSources.includes('website')
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold ring-1 ring-emerald-300'
+                  : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5" /> Website
+            </button>
+
+            <button
+              onClick={() => toggleSourceFilter('youtube')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                selectedSources.includes('youtube')
+                  ? 'bg-red-50 border-red-200 text-red-700 font-semibold ring-1 ring-red-300'
+                  : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+              }`}
+            >
+              <YoutubeIcon className="w-3.5 h-3.5" /> YouTube
+            </button>
+
+            <button
+              onClick={() => toggleSourceFilter('whatsapp')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                selectedSources.includes('whatsapp')
+                  ? 'bg-green-50 border-green-200 text-green-700 font-semibold ring-1 ring-green-300'
+                  : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+              }`}
+            >
+              <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+            </button>
+          </div>
+
+          {/* Date Filter Group */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-0.5">
+              Date:
+            </span>
+
+            <div className="flex bg-[#f3f5f8] rounded-lg p-0.5 border border-[#e8ecf2]">
+              <button
+                onClick={() => {
+                  setDateFilterType('single')
+                  setEndDate('')
+                }}
+                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                  dateFilterType === 'single'
+                    ? 'bg-[#0f1d33] text-white shadow-xs'
+                    : 'text-[#5a6a82] hover:text-[#0f1d33]'
+                }`}
+              >
+                Single Date
+              </button>
+              <button
+                onClick={() => setDateFilterType('range')}
+                className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                  dateFilterType === 'range'
+                    ? 'bg-[#0f1d33] text-white shadow-xs'
+                    : 'text-[#5a6a82] hover:text-[#0f1d33]'
+                }`}
+              >
+                Date Range
+              </button>
+            </div>
+
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+            />
+
+            {dateFilterType === 'range' && (
+              <>
+                <span className="text-[#5a6a82] text-xs">to</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Row 3: Filters Section (Horizontally Scrollable Status Filters) */}
+        <div className="pt-2 border-t border-[#f0f3f7]">
+          <div 
+            className="overflow-x-auto pb-2 pt-0.5 -mx-1 px-1"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#94a3b8 #f1f5f9'
+            }}
+          >
+            <div className="flex items-center gap-2 min-w-max py-0.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1 shrink-0">
+                Filter by Status:
               </span>
 
               {/* All Statuses Button */}
               <button
                 onClick={() => setSelectedStatus('all')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border shrink-0 ${
                   selectedStatus === 'all'
                     ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-semibold'
                     : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
@@ -718,7 +823,7 @@ export default function LeadsClient({
                   <button
                     key={st.id || st.key}
                     onClick={() => setSelectedStatus(isSelected ? 'all' : st.key)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border shrink-0 ${
                       isSelected
                         ? `${st.color_bg || 'bg-blue-50'} ${st.color_text || 'text-blue-700'} ${st.color_border || 'border-blue-300'} ring-2 ring-current/25 font-semibold shadow-xs`
                         : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
@@ -729,115 +834,6 @@ export default function LeadsClient({
                   </button>
                 )
               })}
-            </div>
-
-            {/* Divider */}
-            <div className="w-px h-6 bg-[#e8ecf2] shrink-0" />
-
-            {/* Source Filter Group */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1">
-                Source:
-              </span>
-
-              <button
-                onClick={() => toggleSourceFilter('meta')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-                  selectedSources.includes('meta')
-                    ? 'bg-blue-50 border-blue-200 text-blue-700 font-semibold ring-1 ring-blue-300'
-                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                }`}
-              >
-                <FacebookIcon className="w-3.5 h-3.5" /> Meta
-              </button>
-
-              <button
-                onClick={() => toggleSourceFilter('website')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-                  selectedSources.includes('website')
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold ring-1 ring-emerald-300'
-                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                }`}
-              >
-                <Globe className="w-3.5 h-3.5" /> Website
-              </button>
-
-              <button
-                onClick={() => toggleSourceFilter('youtube')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-                  selectedSources.includes('youtube')
-                    ? 'bg-red-50 border-red-200 text-red-700 font-semibold ring-1 ring-red-300'
-                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                }`}
-              >
-                <YoutubeIcon className="w-3.5 h-3.5" /> YouTube
-              </button>
-
-              <button
-                onClick={() => toggleSourceFilter('whatsapp')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-                  selectedSources.includes('whatsapp')
-                    ? 'bg-green-50 border-green-200 text-green-700 font-semibold ring-1 ring-green-300'
-                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                }`}
-              >
-                <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="w-px h-6 bg-[#e8ecf2] shrink-0" />
-
-            {/* Date Filter Group */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-0.5">
-                Date:
-              </span>
-
-              <div className="flex bg-[#f3f5f8] rounded-lg p-0.5 border border-[#e8ecf2]">
-                <button
-                  onClick={() => {
-                    setDateFilterType('single')
-                    setEndDate('')
-                  }}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                    dateFilterType === 'single'
-                      ? 'bg-[#0f1d33] text-white shadow-xs'
-                      : 'text-[#5a6a82] hover:text-[#0f1d33]'
-                  }`}
-                >
-                  Single
-                </button>
-                <button
-                  onClick={() => setDateFilterType('range')}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                    dateFilterType === 'range'
-                      ? 'bg-[#0f1d33] text-white shadow-xs'
-                      : 'text-[#5a6a82] hover:text-[#0f1d33]'
-                  }`}
-                >
-                  Range
-                </button>
-              </div>
-
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
-              />
-
-              {dateFilterType === 'range' && (
-                <>
-                  <span className="text-[#5a6a82] text-xs">to</span>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
-                  />
-                </>
-              )}
             </div>
           </div>
         </div>
