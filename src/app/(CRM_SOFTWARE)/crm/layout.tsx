@@ -27,14 +27,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [])
 
   return (
-    <div className="flex h-screen w-full bg-[#f7f8fa] overflow-hidden">
+    <div className="flex h-[100dvh] min-h-[100dvh] w-full bg-[#f7f8fa] overflow-hidden">
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between bg-white border-b border-[#e8ecf2] h-16 px-4 shrink-0 absolute top-0 w-full z-20">
         <Link href="/crm" className="flex items-center gap-2 font-bold text-lg tracking-tight text-[#0f1d33]" onClick={() => setIsMobileMenuOpen(false)}>
           <Building2 className="h-6 w-6 text-[#c4a55a]" />
           <span>Bhuwanta<span className="text-[#c4a55a]">CRM</span></span>
         </Link>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -mr-2 text-[#5a6a82] hover:text-[#0f1d33] transition-colors">
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -mr-2 text-[#5a6a82] hover:text-[#0f1d33] transition-colors" aria-label="Toggle navigation menu">
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -54,6 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar 
           isCollapsed={isCollapsed} 
           toggleCollapse={() => setIsCollapsed(!isCollapsed)} 
+          onNavigate={() => setIsMobileMenuOpen(false)}
           userRole={userRole}
           userName={userName}
           userEmail={userEmail}

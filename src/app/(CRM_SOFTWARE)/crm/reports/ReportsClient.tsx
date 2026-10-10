@@ -121,7 +121,7 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
         <MetricCard 
           title="Total Leads" 
           value={metrics.total} 
@@ -146,12 +146,14 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
           icon={<UserCheck className="w-5 h-5 text-purple-500" />} 
           bg="bg-purple-50"
         />
-        <MetricCard 
-          title="Closed" 
-          value={metrics.closed} 
-          icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} 
-          bg="bg-emerald-50"
-        />
+        <div className="col-span-2 sm:col-span-1">
+          <MetricCard 
+            title="Closed" 
+            value={metrics.closed} 
+            icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} 
+            bg="bg-emerald-50"
+          />
+        </div>
       </div>
 
       {/* Charts Grid */}

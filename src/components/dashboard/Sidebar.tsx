@@ -36,12 +36,13 @@ const navigation = [
 interface SidebarProps {
   isCollapsed: boolean;
   toggleCollapse: () => void;
+  onNavigate?: () => void;
   userRole?: string;
   userName?: string;
   userEmail?: string;
 }
 
-export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin', userName, userEmail }: SidebarProps) {
+export function Sidebar({ isCollapsed, toggleCollapse, onNavigate, userRole = 'Admin', userName, userEmail }: SidebarProps) {
   const pathname = usePathname();
 
   const [permissions, setPermissions] = useState<Record<string, string>>({})
@@ -79,14 +80,14 @@ export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin', userN
     <div className="flex h-full flex-col overflow-y-auto border-r border-[#e8ecf2] bg-white">
       <div className={cn("flex h-16 shrink-0 items-center border-b border-[#e8ecf2]", isCollapsed ? "px-0 justify-center" : "px-6 justify-between")}>
         {!isCollapsed && (
-          <Link href="/crm" className="flex items-center gap-2 font-bold text-xl tracking-tight text-[#0f1d33]">
+          <Link href="/crm" onClick={() => onNavigate?.()} className="flex items-center gap-2 font-bold text-xl tracking-tight text-[#0f1d33]">
             <Building2 className="h-6 w-6 text-[#c4a55a]" />
             <span>Bhuwanta<span className="text-[#c4a55a]">CRM</span></span>
           </Link>
         )}
         <button 
           onClick={toggleCollapse} 
-          className={cn("text-[#5a6a82] hover:text-[#0f1d33] hover:bg-[#f3f5f8] rounded-md p-1.5 transition-colors", isCollapsed && "mx-auto")}
+          className={cn("hidden md:inline-flex text-[#5a6a82] hover:text-[#0f1d33] hover:bg-[#f3f5f8] rounded-md p-1.5 transition-colors", isCollapsed && "mx-auto")}
           title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -110,6 +111,7 @@ export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin', userN
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={() => onNavigate?.()}
                 className={cn(
                   isActive
                     ? "bg-[#1e3a5f]/10 text-[#1e3a5f]"
