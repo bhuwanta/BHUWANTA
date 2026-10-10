@@ -286,14 +286,13 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
               <th className="py-3 px-4">Order</th>
               <th className="py-3 px-4">Status & Badge</th>
               <th className="py-3 px-4">Active Leads</th>
-              <th className="py-3 px-4">Type</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e8ecf2] text-sm">
             {statuses.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-8 text-[#5a6a82]">
+                <td colSpan={4} className="text-center py-8 text-[#5a6a82]">
                   No statuses configured yet. Click "Add Status" above.
                 </td>
               </tr>
@@ -307,6 +306,11 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${st.color_bg} ${st.color_text} ${st.color_border || 'border-transparent'}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70"></span>
                       {st.name}
+                      {st.is_system && (
+                        <span title="System default status">
+                          <Lock className="w-3 h-3 opacity-60 ml-0.5" />
+                        </span>
+                      )}
                     </span>
                   </td>
                   <td className="py-3 px-4">
@@ -316,18 +320,6 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
                       <Users className="w-3.5 h-3.5 text-[#5a6a82]" />
                       {st.leads_count || 0} leads
                     </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    {st.is_system ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                        <Lock className="w-2.5 h-2.5" />
-                        System Default
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#f3f5f8] text-[#5a6a82]">
-                        Custom
-                      </span>
-                    )}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-1">
