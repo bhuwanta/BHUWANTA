@@ -19,7 +19,7 @@
   --color-brand-accent: var(--site-accent, #B69A4E);
 
   /* ============================================
-     BHUWANTA — WHITE + NAVY BLUE + GOLD THEME
+     BHUWANTA — WHITE + DEEP GREEN + GOLD THEME
      ============================================ */
   --color-background: #ffffff;
   --color-foreground: #002935;
@@ -68,7 +68,7 @@
 
 /* ============================================
    PREMIUM REAL ESTATE DESIGN SYSTEM
-   White + Navy Blue + Gold
+   White + Deep Green + Gold
    ============================================ */
 
 @layer base {
