@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Check } from 'lucide-react'
 import { sanityFetch, projectBySlugQuery, projectSlugsQuery } from '@/lib/sanity'
@@ -30,6 +31,12 @@ interface ProjectDetail {
   videoCount?: number | null
   highlightCount?: number | null
 }
+
+// Owner-confirmed Arudra quote, 10 October 2026. Additional charges are quoted separately.
+const ARUDRA_RATE_PER_SQUARE_YARD = 21999
+const ARUDRA_MINIMUM_SQUARE_YARDS = 150
+const arudraRate = `₹${ARUDRA_RATE_PER_SQUARE_YARD.toLocaleString('en-IN')}`
+const arudraBaseValue = `₹${(ARUDRA_RATE_PER_SQUARE_YARD * ARUDRA_MINIMUM_SQUARE_YARDS).toLocaleString('en-IN')}`
 
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
   'vian-vally': [
@@ -119,8 +126,14 @@ export async function generateMetadata({
   const name = displayProjectName(project.name)
   const place = displayProjectPlace(project.location)
   const badge = project.approvalBadge?.replace(/\s+/g, ' ').trim()
-  const title = { absolute: projectPageTitle(name, project.categoryTitle?.trim() || place) }
-  const description = `${name}: open plots${place ? ` near ${place}` : ''}${badge ? `, ${badge}` : ''}. See plot sizes, approvals and pricing, and book a free site visit.`.slice(0, 160)
+  const title = {
+    absolute: slug === 'arudra'
+      ? 'Arudra Plots Near Kothur | Prices & Sizes | Bhuwanta'
+      : projectPageTitle(name, project.categoryTitle?.trim() || place),
+  }
+  const description = slug === 'arudra'
+    ? `Arudra plots near Kothur at ${arudraRate} per sq. yd., with plot sizes from ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Request a personalised quote, layout details or a site visit.`
+    : `${name}: open plots${place ? ` near ${place}` : ''}${badge ? `, ${badge}` : ''}. See plot sizes, approvals and pricing, and book a free site visit.`.slice(0, 160)
 
   return {
     title,
@@ -175,9 +188,13 @@ export default async function ProjectDetailPage({
 
   const faqItems = [
     {
-      question: `Is ${project.name} RERA registered?`,
-      answer: `Yes. ${project.name} is ${project.approvalBadge || 'HMDA/DTCP'} approved and RERA registered, with clear legal documentation available for verification.`,
+      question: `Which documents should I review for ${project.name}?`,
+      answer: 'Request the applicable layout approval, RERA registration details and title documents for the specific phase and plot. Our team can share available documents for your review.',
     },
+    ...(hasInlineEnquiry ? [{
+      question: 'What is the price and minimum plot size at Arudra?',
+      answer: `The quoted rate is ${arudraRate} per sq. yd., with a minimum plot size of ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. The base plot value for ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. is ${arudraBaseValue}. Request your personalised written quote for the selected plot and all applicable charges.`,
+    }] : []),
     ...(PROJECT_FAQ_DATA[slug] || []),
     {
       question: `How do I book a site visit to ${project.name}?`,
@@ -192,13 +209,37 @@ export default async function ProjectDetailPage({
       <JsonLd data={[breadcrumb, listingSchema, faqSchema]} />
 
       <PageBanner
-        title={<>{project.name}</>}
-        subtitle={`${project.location}${project.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
+        title={<>{hasInlineEnquiry ? 'Arudra Exotica Villa Plots' : project.name}</>}
+        subtitle={`${hasInlineEnquiry ? 'Near Kothur, Hyderabad' : project.location}${project.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
       />
 
       <section className="py-16 bg-brand-paper">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
+            {hasInlineEnquiry && (
+              <section aria-labelledby="arudra-pricing-title" className="mb-8 rounded-xl border border-brand-gold/40 bg-brand-paper p-5 sm:p-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-brand-muted">Plot pricing</p>
+                <h2 id="arudra-pricing-title" className="mt-2 text-xl font-bold text-brand-primary sm:text-2xl">Arudra Exotica Villa Plots</h2>
+                <dl className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-5">
+                  <div className="flex items-center justify-between gap-3 sm:block">
+                    <dt className="text-xs text-brand-muted">Rate per sq. yd.</dt>
+                    <dd className="text-xl font-bold text-brand-primary sm:mt-1">{arudraRate}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 sm:block">
+                    <dt className="text-xs text-brand-muted">Minimum plot size</dt>
+                    <dd className="text-xl font-bold text-brand-primary sm:mt-1">{ARUDRA_MINIMUM_SQUARE_YARDS} <span className="text-sm font-medium">sq. yd.</span></dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 sm:block">
+                    <dt className="text-xs text-brand-muted">Base plot value</dt>
+                    <dd className="text-xl font-bold text-brand-primary sm:mt-1">{arudraBaseValue}</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-xs leading-relaxed text-brand-muted">Base value is for {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. at the quoted rate. Request a written quote for your selected plot, including registration and any other applicable charges.</p>
+                <Link href="#book-visit" className="btn-solid mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg px-5 py-3 text-center text-sm font-semibold sm:w-auto">
+                  Request Your Personalised Quote
+                </Link>
+              </section>
+            )}
             <ProjectDetailActions
               name={project.name}
               enquiryLink={hasInlineEnquiry ? '#book-visit' : undefined}
@@ -219,10 +260,12 @@ export default async function ProjectDetailPage({
             {hasInlineEnquiry && (
               <section id="book-visit" aria-label="Arudra plot enquiry" className="mt-8 scroll-mt-28 rounded-xl border border-brand-border bg-brand-paper p-5 sm:p-8">
                 <p className="mb-4 text-sm text-brand-muted">
-                  Enquire about {displayProjectName(project.name)}. Get current plot prices, layout details and site visit options from Bhuwanta.
+                  Arudra villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. at {arudraRate} per sq. yd. Request your personalised quote, layout details or a site visit.
                 </p>
                 <ContactForm
                   compact
+                  submitLabel="Request Your Quote →"
+                  submittingLabel="Sending your enquiry..."
                   initialProject={project.name}
                   projectsList={[{ name: project.name, location: project.location }]}
                 />
@@ -262,7 +305,10 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
-      <CtaSection primaryButtonLink={hasInlineEnquiry ? '#book-visit' : undefined} />
+      <CtaSection
+        primaryButtonLink={hasInlineEnquiry ? '#book-visit' : undefined}
+        primaryButtonText={hasInlineEnquiry ? 'Request Your Personalised Quote' : undefined}
+      />
     </>
   )
 }

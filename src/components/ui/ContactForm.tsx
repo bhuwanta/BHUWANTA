@@ -26,12 +26,16 @@ export function ContactForm({
   initialProject,
   compact = false,
   hideTitle = false,
+  submitLabel = 'Book your visit →',
+  submittingLabel = 'Booking your visit...',
 }: {
   projectsList?: { name: string; location: string }[]
   locationNames?: string[]
   initialProject?: string
   compact?: boolean
   hideTitle?: boolean
+  submitLabel?: string
+  submittingLabel?: string
 }) {
   const router = useRouter()
   const { isOtpEnabled } = useOtpConfig()
@@ -437,10 +441,10 @@ export function ContactForm({
                 ? sendingOtp
                   ? 'Sending code...'
                   : 'Verifying...'
-                : 'Booking your visit...'
+                : submittingLabel
               : isOtpEnabled && resendSeconds > 0
                 ? `Request new code in ${resendSeconds}s`
-                : 'Book your visit →'}
+                : submitLabel}
           </button>
         </form>
       ) : (
