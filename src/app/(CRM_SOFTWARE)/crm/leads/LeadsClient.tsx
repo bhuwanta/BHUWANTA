@@ -7,6 +7,23 @@ import { Plus, Edit2, Trash2, X, Search, Globe, FilterX, Download, MessageCircle
 import { createClient } from '@/lib/supabase/client'
 import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStatus, getLeadActivities, getMetaForms, addMetaForm, deleteMetaForm, updateMetaFormName, getLeads } from './actions'
 import { useRouter } from 'next/navigation'
+import { useRef } from 'react'
+
+const extractIncomingMessage = (details: string) => {
+  if (!details) return '(no text content)';
+  
+  const lines = details.split('\n');
+  const msgLine = lines.find(l => l.startsWith('Message: '));
+  
+  if (msgLine) {
+    let msg = msgLine.replace('Message: ', '').trim();
+    if (msg.startsWith('"') && msg.endsWith('"')) {
+      msg = msg.slice(1, -1);
+    }
+    return msg || '(no text content)';
+  }
+  return '(no text content)';
+};
 
 const LinkedinIcon = (props: any) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -139,6 +156,15 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
   const [whatsappLead, setWhatsappLead] = useState<any | null>(null)
   const [whatsappActivities, setWhatsappActivities] = useState<any[]>([])
   const [isLoadingActivities, setIsLoadingActivities] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isWhatsappHistoryOpen && whatsappLead) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [isWhatsappHistoryOpen, whatsappLead])
   
   // Bulk Selection State
   // Bulk Selection State
@@ -1219,36 +1245,64 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
               </button>
             </div>
 
-            <p className="text-sm text-[#5a6a82] mb-4">A bot start or document request does not establish buying intent. Older entries may not contain the original message or acquisition source.</p>
-            <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            <p className="text-sm text-[#5a6a82] mb-4">Chat history and bot interactions for this lead.</p>
+            <div className="flex-1 overflow-y-auto p-4 bg-[#efeae2] flex flex-col relative rounded-lg border border-[#e8ecf2]">
+              <div className="relative z-10 flex flex-col gap-3 pb-4">
               {isLoadingActivities ? (
                 <div className="text-center py-8 text-[#5a6a82]">Loading history...</div>
               ) : whatsappActivities.length === 0 ? (
-                <div className="text-center py-8 text-[#5a6a82]">No recorded bot interactions yet.</div>
+                <div className="flex flex-col items-center justify-center py-10 text-[#5a6a82]">
+                  <MessageCircle className="h-10 w-10 text-[#5a6a82]/30 mb-3" />
+                  <p>No messages recorded yet.</p>
+                </div>
               ) : (
-                <div className="relative border-l-2 border-[#e8ecf2] ml-3 pl-4 space-y-6">
-                  {whatsappActivities.map((activity, idx) => (
-                    <div key={idx} className="relative">
-                      {/* Timeline dot */}
-                      <div className="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-[#c4a55a] border-2 border-white"></div>
-                      
-                      <div className="bg-[#f3f5f8] rounded-lg p-3 inline-block min-w-[200px]">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-[#1e3a5f] text-sm">
-                            {activity.activity_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
-                          </span>
+                whatsappActivities.map((activity, idx) => {
+                  const type = activity.activity_type.toLowerCase();
+                  const time = new Date(activity.created_at).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
+                  
+                  if (type.includes('incoming whatsapp')) {
+                    const msg = extractIncomingMessage(activity.details);
+                    return (
+                      <div key={idx} className="flex flex-col items-end self-end max-w-[85%] mt-1">
+                        <div className="bg-[#d9fdd3] text-[#111b21] px-3 pt-2 pb-1.5 rounded-lg rounded-tr-none shadow-sm relative text-sm border border-[#c3e8bd]">
+                           <span className="font-bold text-[#025c4c] text-[11px] leading-tight block mb-0.5">{whatsappLead.name || 'User'}</span>
+                           <div className="whitespace-pre-wrap leading-snug">{msg}</div>
+                           <div className="text-[10px] text-[#667781] text-right mt-1 -mb-0.5 ml-4 float-right">{time}</div>
                         </div>
-                        {activity.details && (
-                          <p className="text-sm text-[#5a6a82] whitespace-pre-wrap break-words">{activity.details}</p>
-                        )}
-                        <span className="text-[10px] text-[#5a6a82] mt-2 block">
-                          {new Date(activity.created_at).toLocaleString()}
-                        </span>
+                      </div>
+                    );
+                  }
+                  
+                  if (type.includes('outgoing whatsapp')) {
+                    return (
+                      <div key={idx} className="flex flex-col items-start self-start max-w-[85%] mt-1">
+                        <div className="bg-white text-[#111b21] px-3 pt-2 pb-1.5 rounded-lg rounded-tl-none shadow-sm relative text-sm border border-[#e8ecf2]">
+                           <span className="font-bold text-[#c4a55a] text-[11px] leading-tight block mb-0.5">Bhuwanta Bot</span>
+                           <div className="whitespace-pre-wrap leading-snug">{activity.details}</div>
+                           <div className="text-[10px] text-[#667781] text-right mt-1 -mb-0.5 ml-4 float-right">{time}</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // System Chip
+                  let chipText = activity.activity_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+                  if (type === 'bot started') chipText = 'Bot Started Conversation';
+                  else if (activity.details && !activity.details.includes('Provider timestamp')) {
+                    chipText = `${chipText}: ${activity.details}`;
+                  }
+                  
+                  return (
+                    <div key={idx} className="flex justify-center my-2">
+                      <div className="bg-[#f3f5f8] text-[#5a6a82] px-3 py-1.5 rounded-full text-[11px] font-medium shadow-sm border border-[#e8ecf2]">
+                        {chipText} • {time}
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })
               )}
+              <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
         </div>
