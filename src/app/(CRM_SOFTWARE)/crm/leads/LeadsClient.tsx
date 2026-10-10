@@ -638,17 +638,6 @@ export default function LeadsClient({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto justify-end">
-            {/* Number of leads indicator for user clarity */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#f0f4f9] text-[#1e3a5f] border border-[#d8e2ed]">
-              <span className="text-[#5a6a82]">Results:</span>
-              <span className="font-bold text-[#0f1d33]">
-                {isPageLoading ? '...' : totalLeadsCount}
-              </span>
-              <span className="text-[#5a6a82]">
-                {totalLeadsCount === 1 ? 'lead' : 'leads'}
-              </span>
-            </div>
-
             {(selectedStatus !== 'all' || selectedSources.length > 0 || startDate || endDate || searchQuery) && (
               <button
                 onClick={() => {
@@ -826,12 +815,7 @@ export default function LeadsClient({
                 : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
             }`}
           >
-            <span>All Statuses</span>
-            {selectedStatus === 'all' && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-white/25 text-white">
-                {isPageLoading ? '...' : totalLeadsCount}
-              </span>
-            )}
+            All Statuses
           </button>
 
           <div className="w-px h-5 bg-[#e8ecf2] shrink-0" />
@@ -860,18 +844,77 @@ export default function LeadsClient({
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-current' : 'bg-gray-400'}`} />
-                    <span>{st.name}</span>
-                    {isSelected && (
-                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-current/15 text-current">
-                        {isPageLoading ? '...' : totalLeadsCount}
-                      </span>
-                    )}
+                    {st.name}
                   </button>
                 )
               })}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Component Just Above the Table: Number of leads for active filter */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-white rounded-xl border border-[#e8ecf2] shadow-2xs text-xs">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[#5a6a82]">Showing</span>
+          <span className="inline-flex items-center justify-center font-bold text-[#0f1d33] bg-[#f0f4f9] px-2.5 py-0.5 rounded-md border border-[#d8e2ed] text-xs">
+            {isPageLoading ? (
+              <span className="inline-block w-4 h-3 bg-gray-200 animate-pulse rounded" />
+            ) : (
+              totalLeadsCount
+            )}
+          </span>
+          <span className="text-[#5a6a82]">
+            {totalLeadsCount === 1 ? 'lead' : 'leads'}
+          </span>
+
+          {selectedStatus !== 'all' && (() => {
+            const currentStatusObj = statuses.find((s: any) => s.key.toLowerCase() === selectedStatus.toLowerCase())
+            return (
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold border ${
+                currentStatusObj
+                  ? `${currentStatusObj.color_bg || 'bg-blue-50'} ${currentStatusObj.color_text || 'text-blue-700'} ${currentStatusObj.color_border || 'border-blue-200'}`
+                  : 'bg-blue-50 text-blue-700 border-blue-200'
+              }`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                Status: {currentStatusObj?.name || selectedStatus}
+              </span>
+            )
+          })()}
+
+          {selectedSources.length > 0 && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-[#f3f5f8] text-[#5a6a82] border border-[#e8ecf2]">
+              Source: {selectedSources.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')}
+            </span>
+          )}
+
+          {(startDate || endDate) && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-[#f3f5f8] text-[#5a6a82] border border-[#e8ecf2]">
+              Date: {startDate}{endDate && startDate !== endDate ? ` to ${endDate}` : ''}
+            </span>
+          )}
+
+          {debouncedSearchQuery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-[#f3f5f8] text-[#5a6a82] border border-[#e8ecf2]">
+              Search: &quot;{debouncedSearchQuery}&quot;
+            </span>
+          )}
+        </div>
+
+        {(selectedStatus !== 'all' || selectedSources.length > 0 || startDate || endDate || debouncedSearchQuery) && (
+          <button
+            onClick={() => {
+              setSelectedStatus('all')
+              setSelectedSources([])
+              setStartDate('')
+              setEndDate('')
+              setSearchQuery('')
+            }}
+            className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline shrink-0 ml-2"
+          >
+            Clear Filters
+          </button>
+        )}
       </div>
 
       <div className="rounded-xl border border-[#e8ecf2] bg-white shadow-sm flex flex-col overflow-hidden h-[65vh] md:h-[75vh]">
