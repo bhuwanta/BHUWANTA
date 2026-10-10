@@ -412,9 +412,9 @@ export default function CommissionRatesPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="p-1.5 border border-[#e8ecf2] rounded hover:bg-[#f3f5f8] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 border border-[#e8ecf2] rounded hover:bg-[#f3f5f8] disabled:opacity-50 disabled:cursor-not-allowed text-black"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 text-black" />
               </button>
               <span className="text-[#0f1d33] font-medium px-2">
                 Page {currentPage} of {totalPages}
@@ -422,9 +422,9 @@ export default function CommissionRatesPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="p-1.5 border border-[#e8ecf2] rounded hover:bg-[#f3f5f8] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 border border-[#e8ecf2] rounded hover:bg-[#f3f5f8] disabled:opacity-50 disabled:cursor-not-allowed text-black"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4 text-black" />
               </button>
             </div>
           </div>

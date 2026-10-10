@@ -379,9 +379,9 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
               type="button"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-[#e8ecf2] text-xs font-medium text-[#0f1d33] bg-white hover:bg-[#f8fafc] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-[#e8ecf2] text-xs font-medium text-black bg-white hover:bg-[#f8fafc] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-3.5 h-3.5 text-black" />
               Previous
             </button>
             
@@ -406,10 +406,10 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
               type="button"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-[#e8ecf2] text-xs font-medium text-[#0f1d33] bg-white hover:bg-[#f8fafc] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-[#e8ecf2] text-xs font-medium text-black bg-white hover:bg-[#f8fafc] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5 text-black" />
             </button>
           </div>
         )}

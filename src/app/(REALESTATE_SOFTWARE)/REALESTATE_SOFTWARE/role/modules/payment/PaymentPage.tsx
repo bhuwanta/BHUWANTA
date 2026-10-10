@@ -220,9 +220,9 @@ export default function PaymentPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-2 rounded-lg border border-[#e8ecf2] bg-white text-[#5a6a82] hover:bg-[#f3f5f8] disabled:opacity-40 disabled:hover:bg-white transition-colors"
+              className="p-2 rounded-lg border border-[#e8ecf2] bg-white text-black hover:bg-[#f3f5f8] disabled:opacity-40 disabled:hover:bg-white transition-colors"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 text-black" />
             </button>
             <span className="font-semibold text-[#0f1d33] px-1">
               Page {page} of {totalPages}
@@ -230,9 +230,9 @@ export default function PaymentPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-2 rounded-lg border border-[#e8ecf2] bg-white text-[#5a6a82] hover:bg-[#f3f5f8] disabled:opacity-40 disabled:hover:bg-white transition-colors"
+              className="p-2 rounded-lg border border-[#e8ecf2] bg-white text-black hover:bg-[#f3f5f8] disabled:opacity-40 disabled:hover:bg-white transition-colors"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>
