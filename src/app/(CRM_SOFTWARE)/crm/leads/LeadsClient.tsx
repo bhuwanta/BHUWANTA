@@ -25,12 +25,6 @@ const extractIncomingMessage = (details: string) => {
   return '(no text content)';
 };
 
-const LinkedinIcon = (props: any) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
-  </svg>
-)
-
 const FacebookIcon = (props: any) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
@@ -639,15 +633,6 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
         >
           <YoutubeIcon className="w-4 h-4" /> YouTube
         </button>
-
-        <button
-          onClick={() => toggleSourceFilter('linkedin')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('linkedin') ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <LinkedinIcon className="w-4 h-4" /> LinkedIn
-        </button>
         <button
           onClick={() => toggleSourceFilter('whatsapp')}
           className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
@@ -656,16 +641,6 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
         >
           <MessageCircle className="w-4 h-4" /> WhatsApp
         </button>
-
-        <button
-          onClick={() => toggleSourceFilter('google ads')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('google ads') ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <Megaphone className="w-4 h-4" /> Google Ads
-        </button>
-
 
         <div className="w-full h-px bg-[#e8ecf2] my-1 sm:hidden lg:block lg:w-full" />
         
