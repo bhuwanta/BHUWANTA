@@ -223,7 +223,7 @@
 .estate-hero-visual figcaption {
   text-align: center;
   color: #b2bcae;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   padding: 12px 0;
 }
@@ -233,7 +233,7 @@
   gap: 24px;
   border-top: 1px solid #e6ac3a35;
   padding-block: 22px;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #d3c39b;
@@ -764,7 +764,7 @@
     padding-bottom: 40px;
   }
   .editorial-banner .eyebrow {
-    font-size: 9px;
+    font-size: 12px;
     letter-spacing: 0.15em;
   }
   .editorial-banner h1 {
@@ -777,7 +777,7 @@
     line-height: 1.7;
   }
   .trust-strip span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .brand-artwork-footer {
     width: 270px;
@@ -1491,11 +1491,13 @@
 }
 .footer-socials {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 .footer-socials a {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1700,8 +1702,10 @@
     align-items: center;
   }
   .footer-socials a {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
   }
 }
 
@@ -1736,12 +1740,14 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  font-size: 10px;
+  font-size: 12px;
   color: #d6c38f;
 }
 .hero-highlight-controls button {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   border: 1px solid #e6ac3a50;
   display: grid;
   place-items: center;
@@ -1921,8 +1927,10 @@
     gap: 8px;
   }
   .hero-highlight-controls button {
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     aspect-ratio: 1 / 1;
   }
   .hero-highlight-rail {
@@ -2443,5 +2451,31 @@
 @media (min-width: 801px) and (max-width: 1100px) {
   .location-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ============================================
+   PRINT STYLESHEET (Usability & Accessibility)
+   ============================================ */
+@media print {
+  .public-nav,
+  .lazy-lead-popup,
+  .whatsapp-float,
+  .home-marquee,
+  .hero-highlight-controls,
+  .hero-scroll-mouse,
+  .footer-socials,
+  button,
+  iframe,
+  video {
+    display: none !important;
+  }
+  body, main {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  a {
+    text-decoration: underline !important;
+    color: #000000 !important;
   }
 }

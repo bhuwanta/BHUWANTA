@@ -265,16 +265,16 @@ export function ImmersiveHero({
                 active.title
               ) : (
                 <>
-                  Find your plot.
+                  HMDA &amp; DTCP Approved
                   <br />
-                  <em>Plan your future.</em>
+                  <em>Open Plots near Hyderabad</em>
                 </>
               )}
             </h1>
             <p className="hero-entrance hero-entrance-3">
               {active
-                ? 'Explore the details with Bhuwanta. Ask our team about current availability and book a free site visit.'
-                : 'Explore open plots around Hyderabad. Discover the location, understand the details, and take the next step with Bhuwanta.'}
+                ? 'Explore the details with Bhuwanta. Ask our team about current plot availability and book a free site visit.'
+                : 'Discover premium clear-title open plots across Hyderabad\'s fastest-growing highway corridors. Explore verified layouts, plan your future, and book a free site visit with Bhuwanta.'}
             </p>
             <div className="hero-actions hero-entrance hero-entrance-4">
               <Link

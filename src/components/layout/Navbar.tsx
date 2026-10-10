@@ -67,7 +67,7 @@ export function Navbar() {
             </Link>
             <Link href="/REALESTATE_SOFTWARE/login" id="nav-login" className="hidden sm:inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm whitespace-nowrap btn-outline">Login</Link>
             <button id="nav-mobile-toggle" type="button" aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} aria-controls="public-mobile-menu"
-              className="xl:hidden inline-flex items-center justify-center w-11 h-11 text-brand-gold rounded-lg border border-white/20 hover:bg-white/10 shrink-0"
+              className="xl:hidden inline-flex items-center justify-center w-12 h-12 text-brand-gold rounded-lg border border-white/20 hover:bg-white/10 shrink-0"
               onClick={() => setMenuPath(isOpen ? null : pathname)}>
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

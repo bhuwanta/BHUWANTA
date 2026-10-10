@@ -88,6 +88,11 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
   })
 
   const closePopup = () => {
+    try {
+      sessionStorage.setItem('bhuwanta_popup_dismissed', 'true')
+    } catch {
+      // ignore in private browsing / iframe mode
+    }
     clearRecaptcha()
     verificationRef.current.reset()
     setConfirmationResult(null)
@@ -99,7 +104,22 @@ export function LeadPopup({ projectsList = [], locationNames = [] }: { projectsL
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsOpen(true), 2000)
+    try {
+      if (sessionStorage.getItem('bhuwanta_popup_dismissed')) return
+    } catch {
+      // ignore
+    }
+
+    // Delay auto-popup to 15s to allow users to explore content first and comply with mobile usability guidelines
+    const timer = setTimeout(() => {
+      try {
+        if (!sessionStorage.getItem('bhuwanta_popup_dismissed')) {
+          setIsOpen(true)
+        }
+      } catch {
+        setIsOpen(true)
+      }
+    }, 15000)
     return () => clearTimeout(timer)
   }, [])
 
