@@ -164,6 +164,7 @@ export default function LeadsClient({
     if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
     setCurrentPage(newPage);
   };
+  const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [selectedSources, setSelectedSources] = useState<string[]>([])
   const [dateFilterType, setDateFilterType] = useState<'single' | 'range'>('single')
   const [startDate, setStartDate] = useState<string>('')
@@ -562,6 +563,7 @@ export default function LeadsClient({
         const filters = {
           searchQuery: debouncedSearchQuery,
           sources: selectedSources,
+          status: selectedStatus,
           startDate: sd,
           endDate: ed,
           sortField,
@@ -579,12 +581,12 @@ export default function LeadsClient({
     };
 
     fetchFilteredLeads();
-  }, [currentPage, debouncedSearchQuery, selectedSources, startDate, endDate, dateFilterType, sortField, sortOrder]);
+  }, [currentPage, debouncedSearchQuery, selectedSources, selectedStatus, startDate, endDate, dateFilterType, sortField, sortOrder]);
 
   // Reset to page 1 when filters change (but not when page changes)
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchQuery, selectedSources, startDate, endDate, dateFilterType, sortField, sortOrder]);
+  }, [debouncedSearchQuery, selectedSources, selectedStatus, startDate, endDate, dateFilterType, sortField, sortOrder]);
 
   const filteredLeads = leads; // We now use the server-filtered leads directly
 
@@ -619,145 +621,225 @@ export default function LeadsClient({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 bg-white p-4 rounded-xl border border-[#e8ecf2] shadow-sm">
-        <div className="relative w-full">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-            <Search className="h-5 w-5 text-[#5a6a82]" />
+      <div className="flex flex-col gap-3.5 bg-white p-4 rounded-xl border border-[#e8ecf2] shadow-sm">
+        {/* Row 1: Search Bar & Actions */}
+        <div className="flex flex-col md:flex-row items-center gap-3 w-full">
+          <div className="relative flex-1 w-full">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+              <Search className="h-4 w-4 text-[#5a6a82]" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search leads by name, email, phone, or project..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full rounded-lg border border-[#e8ecf2] bg-[#f9fafb] py-2 pl-10 pr-4 text-sm text-[#0f1d33] placeholder-[#5a6a82] outline-none focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] transition-shadow"
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Search leads by name, email, phone, or project..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full rounded-lg border border-[#e8ecf2] bg-[#f9fafb] py-2.5 pl-11 pr-4 text-sm text-[#0f1d33] placeholder-[#5a6a82] outline-none focus:border-[#1e3a5f] focus:ring-1 focus:ring-[#1e3a5f] transition-shadow"
-          />
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium text-[#5a6a82] mr-2">Filter by Source:</span>
-        
-        <button
-          onClick={() => toggleSourceFilter('meta')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('meta') ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <FacebookIcon className="w-4 h-4" /> Meta
-        </button>
-        
-        <button
-          onClick={() => toggleSourceFilter('website')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('website') ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <Globe className="w-4 h-4" /> Website
-        </button>
-        
-        <button
-          onClick={() => toggleSourceFilter('youtube')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('youtube') ? 'bg-red-50 border-red-200 text-red-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <YoutubeIcon className="w-4 h-4" /> YouTube
-        </button>
-        <button
-          onClick={() => toggleSourceFilter('whatsapp')}
-          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-            selectedSources.includes('whatsapp') ? 'bg-green-50 border-green-200 text-green-600' : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2]'
-          }`}
-        >
-          <MessageCircle className="w-4 h-4" /> WhatsApp
-        </button>
 
-        <div className="w-full h-px bg-[#e8ecf2] my-1 sm:hidden lg:block lg:w-full" />
-        
-        <div className="flex items-center gap-2 mt-2 sm:mt-0">
-          <div className="flex bg-[#f3f5f8] rounded-lg p-0.5 border border-[#e8ecf2]">
+          <div className="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+            {(selectedStatus !== 'all' || selectedSources.length > 0 || startDate || endDate || searchQuery) && (
+              <button
+                onClick={() => {
+                  setSelectedStatus('all')
+                  setSelectedSources([])
+                  setStartDate('')
+                  setEndDate('')
+                  setSearchQuery('')
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                title="Reset all active filters"
+              >
+                <FilterX className="w-3.5 h-3.5" /> Clear All Filters
+              </button>
+            )}
+
+            {userRole === 'Super Admin' && (
+              <>
+                <button
+                  onClick={handleManualSync}
+                  disabled={isSyncing}
+                  className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  {isSyncing ? 'Syncing...' : `Sync Meta (${formatCountdown(syncCountdown)})`}
+                </button>
+                <button
+                  onClick={openMetaSettings}
+                  className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-[#f3f5f8] border border-[#e8ecf2] px-3.5 py-1.5 text-xs font-semibold text-[#1e3a5f] hover:bg-[#e8ecf2] transition-colors"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  Meta Setup
+                </button>
+              </>
+            )}
+
             <button
-              onClick={() => {
-                setDateFilterType('single')
-                setEndDate('')
-              }}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                dateFilterType === 'single'
-                  ? 'bg-[#0f1d33] text-white shadow-sm'
-                  : 'text-[#5a6a82] hover:text-[#0f1d33]'
-              }`}
+              onClick={exportToCSV}
+              className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-[#0f1d33] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#1e3a5f] transition-colors"
             >
-              Single Date
-            </button>
-            <button
-              onClick={() => setDateFilterType('range')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                dateFilterType === 'range'
-                  ? 'bg-[#0f1d33] text-white shadow-sm'
-                  : 'text-[#5a6a82] hover:text-[#0f1d33]'
-              }`}
-            >
-              Date Range
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
             </button>
           </div>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-3 py-1.5 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
-          />
-          {dateFilterType === 'range' && (
-            <>
-              <span className="text-[#5a6a82] text-sm">to</span>
+        </div>
+
+        {/* Row 2: Horizontally Scrollable Filters Strip with Visible Scrollbar */}
+        <div 
+          className="overflow-x-auto pb-2 pt-1 -mx-1 px-1"
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#94a3b8 #f1f5f9'
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-max py-0.5">
+            {/* Status Filter Group */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1">
+                Status:
+              </span>
+
+              {/* All Statuses Button */}
+              <button
+                onClick={() => setSelectedStatus('all')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                  selectedStatus === 'all'
+                    ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-semibold'
+                    : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                }`}
+              >
+                All Statuses
+              </button>
+
+              {/* Dynamic Status Pills from Database */}
+              {statuses.map((st: any) => {
+                const isSelected = selectedStatus.toLowerCase() === st.key.toLowerCase()
+                return (
+                  <button
+                    key={st.id || st.key}
+                    onClick={() => setSelectedStatus(isSelected ? 'all' : st.key)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                      isSelected
+                        ? `${st.color_bg || 'bg-blue-50'} ${st.color_text || 'text-blue-700'} ${st.color_border || 'border-blue-300'} ring-2 ring-current/25 font-semibold shadow-xs`
+                        : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-current' : 'bg-gray-400'}`} />
+                    {st.name}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-[#e8ecf2] shrink-0" />
+
+            {/* Source Filter Group */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-1">
+                Source:
+              </span>
+
+              <button
+                onClick={() => toggleSourceFilter('meta')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  selectedSources.includes('meta')
+                    ? 'bg-blue-50 border-blue-200 text-blue-700 font-semibold ring-1 ring-blue-300'
+                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                }`}
+              >
+                <FacebookIcon className="w-3.5 h-3.5" /> Meta
+              </button>
+
+              <button
+                onClick={() => toggleSourceFilter('website')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  selectedSources.includes('website')
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold ring-1 ring-emerald-300'
+                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" /> Website
+              </button>
+
+              <button
+                onClick={() => toggleSourceFilter('youtube')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  selectedSources.includes('youtube')
+                    ? 'bg-red-50 border-red-200 text-red-700 font-semibold ring-1 ring-red-300'
+                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                }`}
+              >
+                <YoutubeIcon className="w-3.5 h-3.5" /> YouTube
+              </button>
+
+              <button
+                onClick={() => toggleSourceFilter('whatsapp')}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  selectedSources.includes('whatsapp')
+                    ? 'bg-green-50 border-green-200 text-green-700 font-semibold ring-1 ring-green-300'
+                    : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+                }`}
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-[#e8ecf2] shrink-0" />
+
+            {/* Date Filter Group */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] mr-0.5">
+                Date:
+              </span>
+
+              <div className="flex bg-[#f3f5f8] rounded-lg p-0.5 border border-[#e8ecf2]">
+                <button
+                  onClick={() => {
+                    setDateFilterType('single')
+                    setEndDate('')
+                  }}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                    dateFilterType === 'single'
+                      ? 'bg-[#0f1d33] text-white shadow-xs'
+                      : 'text-[#5a6a82] hover:text-[#0f1d33]'
+                  }`}
+                >
+                  Single
+                </button>
+                <button
+                  onClick={() => setDateFilterType('range')}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                    dateFilterType === 'range'
+                      ? 'bg-[#0f1d33] text-white shadow-xs'
+                      : 'text-[#5a6a82] hover:text-[#0f1d33]'
+                  }`}
+                >
+                  Range
+                </button>
+              </div>
+
               <input
                 type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-3 py-1.5 text-sm text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
               />
-            </>
-          )}
-        </div>
 
-        <div className="flex items-center gap-2 ml-auto mt-2 sm:mt-0">
-          {(selectedSources.length > 0 || startDate || endDate) && (
-            <button
-              onClick={() => {
-                setSelectedSources([])
-                setStartDate('')
-                setEndDate('')
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-[#5a6a82] hover:text-[#0f1d33] transition-colors"
-            >
-              <FilterX className="w-4 h-4" /> Clear Filters
-            </button>
-          )}
-          {userRole === 'Super Admin' && (
-            <>
-              <button
-                onClick={handleManualSync}
-                disabled={isSyncing}
-                className="inline-flex items-center gap-1.5 justify-center rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-sm font-semibold text-emerald-600 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
-              >
-                <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'Syncing...' : `Sync Meta Leads (${formatCountdown(syncCountdown)})`}
-              </button>
-              <button
-                onClick={openMetaSettings}
-                className="inline-flex items-center gap-1.5 justify-center rounded-full bg-[#f3f5f8] border border-[#e8ecf2] px-4 py-1.5 text-sm font-semibold text-[#1e3a5f] hover:bg-[#e8ecf2] transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                Meta Setup
-              </button>
-            </>
-          )}
-          <button
-            onClick={exportToCSV}
-            className="inline-flex items-center gap-1.5 justify-center rounded-full bg-[#0f1d33] px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1e3a5f] transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            Export CSV
-          </button>
-        </div>
+              {dateFilterType === 'range' && (
+                <>
+                  <span className="text-[#5a6a82] text-xs">to</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="rounded-lg border border-[#e8ecf2] bg-[#f3f5f8] px-2.5 py-1 text-xs text-[#0f1d33] outline-none focus:border-[#1e3a5f]"
+                  />
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -9,6 +9,8 @@ export async function getLeads(
   filters?: {
     searchQuery?: string,
     sources?: string[],
+    status?: string,
+    statuses?: string[],
     startDate?: string,
     endDate?: string,
     sortField?: string,
@@ -27,6 +29,13 @@ export async function getLeads(
   if (filters?.searchQuery) {
     const q = `%${filters.searchQuery}%`;
     query = query.or(`name.ilike.${q},email.ilike.${q},phone.ilike.${q},project.ilike.${q}`);
+  }
+
+  // Apply Status
+  if (filters?.status && filters.status !== 'all') {
+    query = query.eq('status', filters.status.toLowerCase());
+  } else if (filters?.statuses && filters.statuses.length > 0) {
+    query = query.in('status', filters.statuses);
   }
 
   // Apply Sources
