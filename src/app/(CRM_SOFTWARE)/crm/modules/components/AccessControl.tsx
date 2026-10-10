@@ -143,17 +143,17 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
 
   return (
     <div className="bg-white rounded-2xl border border-[#e8ecf2] shadow-sm overflow-hidden">
-      <div className="border-b border-[#e8ecf2] bg-[#f8fafc] p-6">
-        <h2 className="text-xl font-bold text-[#0f1d33]">Access Control</h2>
-        <p className="text-sm text-[#5a6a82] mt-1">Manage granular view and edit permissions for roles and specific users.</p>
+      <div className="border-b border-[#e8ecf2] bg-[#f8fafc] p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-bold text-[#0f1d33]">Access Control</h2>
+        <p className="text-xs sm:text-sm text-[#5a6a82] mt-1">Manage granular view and edit permissions for roles and specific users.</p>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Tabs */}
-        <div className="flex space-x-1 p-1 bg-[#f3f5f8] rounded-xl w-fit mb-8">
+        <div className="flex w-full sm:w-fit space-x-1 p-1 bg-[#f3f5f8] rounded-xl mb-6 sm:mb-8">
           <button
             onClick={() => setActiveTab('roles')}
-            className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
               activeTab === 'roles' ? 'bg-white text-[#0f1d33] shadow-sm' : 'text-[#5a6a82] hover:text-[#0f1d33]'
             }`}
           >
@@ -162,7 +162,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
               activeTab === 'users' ? 'bg-white text-[#0f1d33] shadow-sm' : 'text-[#5a6a82] hover:text-[#0f1d33]'
             }`}
           >
@@ -194,8 +194,8 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
           ) : (
             <div>
               <label className="block text-sm font-semibold text-[#0f1d33] mb-1.5">Select User (Overrides Role)</label>
-              <div className="flex items-center gap-3">
-                <div className="relative flex-1 user-dropdown-container">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <div className="relative flex-1 user-dropdown-container w-full">
                   <div 
                     className="w-full flex items-center justify-between rounded-lg border border-[#e8ecf2] bg-white px-3 py-2 text-sm text-[#0f1d33] cursor-pointer outline-none focus-within:ring-2 focus-within:ring-[#c4a55a] focus-within:border-transparent"
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
@@ -204,7 +204,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                       {selectedUser ? (
                         <>
                           <span className="font-medium">{selectedUser.name || 'Unknown'}</span>
-                          <span className="text-[#5a6a82] ml-2">({selectedUser.email || 'No email'})</span>
+                          <span className="text-[#5a6a82] ml-2 text-xs sm:text-sm">({selectedUser.email || 'No email'})</span>
                         </>
                       ) : (
                         'Select a user...'
@@ -256,7 +256,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                   )}
                 </div>
                 {users.find(u => u.id === selectedUserId)?.role && (
-                  <span className="text-[#c4a55a] font-medium text-[10px] uppercase tracking-wider bg-[#c4a55a]/10 px-3 py-2 rounded-lg border border-[#c4a55a]/20 shrink-0">
+                  <span className="text-[#c4a55a] font-medium text-xs bg-[#c4a55a]/10 px-3 py-1.5 rounded-lg border border-[#c4a55a]/20 shrink-0 w-fit">
                     Role: {users.find(u => u.id === selectedUserId)?.role}
                   </span>
                 )}
@@ -266,20 +266,23 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
         </div>
 
         {/* Matrix */}
-        <div className="border border-[#e8ecf2] rounded-xl overflow-x-auto relative">
+        <div 
+          className="border border-[#e8ecf2] rounded-xl overflow-x-auto relative shadow-2xs"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+        >
           {isLoading && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
               <Loader2 className="w-6 h-6 animate-spin text-[#c4a55a]" />
             </div>
           )}
           
-          <table className="w-full text-left text-xs sm:text-sm min-w-[500px]">
+          <table className="w-full text-left text-xs sm:text-sm min-w-[460px]">
             <thead className="bg-[#f8fafc] border-b border-[#e8ecf2]">
               <tr>
-                <th className="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-[#0f1d33]">Module / Page</th>
-                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-red-600">No Access</th>
-                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-amber-600">View Only</th>
-                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-emerald-600">Edit Access</th>
+                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-semibold text-[#0f1d33]">Module / Page</th>
+                <th className="px-2 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-red-600">No Access</th>
+                <th className="px-2 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-amber-600">View Only</th>
+                <th className="px-2 sm:px-6 py-3.5 sm:py-4 font-semibold text-center text-emerald-600">Edit Access</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2]">
@@ -297,43 +300,49 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
                 
                 return (
                   <tr key={mod.id} className="hover:bg-[#f8fafc]/50 transition-colors">
-                    <td className="px-4 sm:px-6 py-3.5 sm:py-4 font-medium text-[#0f1d33]">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 font-medium text-[#0f1d33]">
                       <div className="flex items-center justify-between">
                         <span>{mod.label}</span>
                       </div>
                     </td>
 
-                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-red-50/30">
-                      <input 
-                        type="radio" 
-                        name={`${mod.id}-access`} 
-                        checked={effectiveLevel === 'none' && !isSuperAdmin}
-                        onChange={() => handleAccessChange(mod.id, 'none')}
-                        disabled={isSuperAdmin}
-                        className="w-4 h-4 text-red-600 focus:ring-red-600 border-red-300 disabled:opacity-50"
-                      />
+                    <td className="px-2 sm:px-6 py-2 sm:py-4 text-center bg-red-50/30">
+                      <label className="flex items-center justify-center p-2 cursor-pointer min-h-[40px]">
+                        <input 
+                          type="radio" 
+                          name={`${mod.id}-access`} 
+                          checked={effectiveLevel === 'none' && !isSuperAdmin}
+                          onChange={() => handleAccessChange(mod.id, 'none')}
+                          disabled={isSuperAdmin}
+                          className="w-4 h-4 text-red-600 focus:ring-red-600 border-red-300 disabled:opacity-50 cursor-pointer"
+                        />
+                      </label>
                     </td>
                     
-                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-amber-50/30">
-                      <input 
-                        type="radio" 
-                        name={`${mod.id}-access`} 
-                        checked={effectiveLevel === 'view' && !isSuperAdmin}
-                        onChange={() => handleAccessChange(mod.id, 'view')}
-                        disabled={isSuperAdmin}
-                        className="w-4 h-4 text-amber-600 focus:ring-amber-600 border-amber-300 disabled:opacity-50"
-                      />
+                    <td className="px-2 sm:px-6 py-2 sm:py-4 text-center bg-amber-50/30">
+                      <label className="flex items-center justify-center p-2 cursor-pointer min-h-[40px]">
+                        <input 
+                          type="radio" 
+                          name={`${mod.id}-access`} 
+                          checked={effectiveLevel === 'view' && !isSuperAdmin}
+                          onChange={() => handleAccessChange(mod.id, 'view')}
+                          disabled={isSuperAdmin}
+                          className="w-4 h-4 text-amber-600 focus:ring-amber-600 border-amber-300 disabled:opacity-50 cursor-pointer"
+                        />
+                      </label>
                     </td>
                     
-                    <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center bg-emerald-50/30">
-                      <input 
-                        type="radio" 
-                        name={`${mod.id}-access`} 
-                        checked={effectiveLevel === 'edit' || isSuperAdmin}
-                        onChange={() => handleAccessChange(mod.id, 'edit')}
-                        disabled={isSuperAdmin}
-                        className="w-4 h-4 text-emerald-600 focus:ring-emerald-600 border-emerald-300 disabled:opacity-50"
-                      />
+                    <td className="px-2 sm:px-6 py-2 sm:py-4 text-center bg-emerald-50/30">
+                      <label className="flex items-center justify-center p-2 cursor-pointer min-h-[40px]">
+                        <input 
+                          type="radio" 
+                          name={`${mod.id}-access`} 
+                          checked={effectiveLevel === 'edit' || isSuperAdmin}
+                          onChange={() => handleAccessChange(mod.id, 'edit')}
+                          disabled={isSuperAdmin}
+                          className="w-4 h-4 text-emerald-600 focus:ring-emerald-600 border-emerald-300 disabled:opacity-50 cursor-pointer"
+                        />
+                      </label>
                     </td>
                   </tr>
                 )
@@ -353,7 +362,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-8 flex items-center justify-between">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div>
             {message && (
               <div className={`flex items-center text-sm font-medium ${message.type === 'error' ? 'text-red-600' : 'text-emerald-600'}`}>
@@ -365,7 +374,7 @@ export default function AccessControl({ roles, users }: { roles: any[], users: a
           <button
             onClick={handleSave}
             disabled={isSaving || !isDirty || isSuperAdmin}
-            className="inline-flex items-center justify-center rounded-lg bg-[#c4a55a] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#b09451] transition-colors disabled:opacity-50 shadow-sm shadow-[#c4a55a]/20"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-[#c4a55a] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#b09451] transition-colors disabled:opacity-50 shadow-sm shadow-[#c4a55a]/20"
           >
             {isSaving ? (
               <>

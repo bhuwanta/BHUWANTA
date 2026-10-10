@@ -121,71 +121,84 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-        <MetricCard 
-          title="Total Leads" 
-          value={metrics.total} 
-          icon={<Users className="w-5 h-5 text-[#1e3a5f]" />} 
-          bg="bg-[#f3f5f8]"
-        />
-        <MetricCard 
-          title="New Leads" 
-          value={metrics.newLeads} 
-          icon={<TrendingUp className="w-5 h-5 text-blue-500" />} 
-          bg="bg-blue-50"
-        />
-        <MetricCard 
-          title="Contacted" 
-          value={metrics.contacted} 
-          icon={<PhoneCall className="w-5 h-5 text-amber-500" />} 
-          bg="bg-amber-50"
-        />
-        <MetricCard 
-          title="Qualified" 
-          value={metrics.qualified} 
-          icon={<UserCheck className="w-5 h-5 text-purple-500" />} 
-          bg="bg-purple-50"
-        />
-        <div className="col-span-2 sm:col-span-1">
+      <div 
+        className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0" 
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+      >
+        <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 min-w-max md:min-w-0">
+          <MetricCard 
+            title="Total Leads" 
+            value={metrics.total} 
+            icon={<Users className="w-5 h-5 text-[#1e3a5f]" />} 
+            bg="bg-[#f3f5f8]"
+            className="w-[160px] md:w-auto shrink-0 md:shrink"
+          />
+          <MetricCard 
+            title="New Leads" 
+            value={metrics.newLeads} 
+            icon={<TrendingUp className="w-5 h-5 text-blue-500" />} 
+            bg="bg-blue-50"
+            className="w-[160px] md:w-auto shrink-0 md:shrink"
+          />
+          <MetricCard 
+            title="Contacted" 
+            value={metrics.contacted} 
+            icon={<PhoneCall className="w-5 h-5 text-amber-500" />} 
+            bg="bg-amber-50"
+            className="w-[160px] md:w-auto shrink-0 md:shrink"
+          />
+          <MetricCard 
+            title="Qualified" 
+            value={metrics.qualified} 
+            icon={<UserCheck className="w-5 h-5 text-purple-500" />} 
+            bg="bg-purple-50"
+            className="w-[160px] md:w-auto shrink-0 md:shrink"
+          />
           <MetricCard 
             title="Closed" 
             value={metrics.closed} 
             icon={<CheckCircle className="w-5 h-5 text-emerald-500" />} 
             bg="bg-emerald-50"
+            className="w-[160px] md:w-auto shrink-0 md:shrink"
           />
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         
         {/* Status Distribution (Pie) */}
-        <div className="bg-white p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
-          <h3 className="text-lg font-semibold text-[#0f1d33] mb-6">Leads by Status</h3>
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-[#0f1d33] mb-4 sm:mb-6">Leads by Status</h3>
           {statusData.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+            <div 
+              className="overflow-x-auto pb-2" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+            >
+              <div className="min-w-[420px] sm:min-w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <div className="h-72 flex items-center justify-center text-[#5a6a82]">No data available</div>
@@ -193,32 +206,37 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
         </div>
 
         {/* Source Distribution (Bar) */}
-        <div className="bg-white p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
-          <h3 className="text-lg font-semibold text-[#0f1d33] mb-6">Leads by Source Page</h3>
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-[#0f1d33] mb-4 sm:mb-6">Leads by Source Page</h3>
           {sourceData.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={sourceData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
-                  <XAxis type="number" />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={130} 
-                    tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
-                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
-                  />
-                  <Tooltip 
-                    cursor={{ fill: '#f3f5f8' }}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="value" fill="#c4a55a" radius={[0, 4, 4, 0]}>
-                    {sourceData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div 
+              className="overflow-x-auto pb-2" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+            >
+              <div className="min-w-[480px] sm:min-w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={sourceData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
+                    <XAxis type="number" />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={130} 
+                      tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
+                      tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                    />
+                    <Tooltip 
+                      cursor={{ fill: '#f3f5f8' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="value" fill="#c4a55a" radius={[0, 4, 4, 0]}>
+                      {sourceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <div className="h-72 flex items-center justify-center text-[#5a6a82]">No data available</div>
@@ -226,89 +244,108 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
         </div>
 
         {/* Project Interest (Bar) */}
-        <div className="bg-white p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
-          <h3 className="text-lg font-semibold text-[#0f1d33] mb-6">Project Interest</h3>
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-[#0f1d33] mb-4 sm:mb-6">Project Interest</h3>
           {projectData.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={projectData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
-                  <XAxis 
-                    dataKey="name" 
-                    tickFormatter={(val) => val.length > 15 ? val.substring(0, 13) + '...' : val}
-                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
-                    angle={-45}
-                    textAnchor="end"
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    cursor={{ fill: '#f3f5f8' }}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="value" fill="#1e3a5f" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div 
+              className="overflow-x-auto pb-2" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+            >
+              <div className="min-w-[560px] sm:min-w-full h-84">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={projectData} margin={{ top: 10, right: 30, left: 10, bottom: 65 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
+                    <XAxis 
+                      dataKey="name" 
+                      tickFormatter={(val) => val.length > 18 ? val.substring(0, 16) + '...' : val}
+                      tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                      angle={-45}
+                      textAnchor="end"
+                      height={65}
+                      interval={0}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      cursor={{ fill: '#f3f5f8' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="value" fill="#1e3a5f" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
-            <div className="h-72 flex items-center justify-center text-[#5a6a82]">No data available</div>
+            <div className="h-84 flex items-center justify-center text-[#5a6a82]">No data available</div>
           )}
         </div>
 
         {/* Leads Over Time (Line or Bar) */}
-        <div className="bg-white p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
-          <h3 className="text-lg font-semibold text-[#0f1d33] mb-6">Leads Over Time (Months)</h3>
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-[#0f1d33] mb-4 sm:mb-6">Leads Over Time (Months)</h3>
           {recentLeadsData.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={recentLeadsData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
-                    angle={-45}
-                    textAnchor="end"
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    cursor={{ fill: '#f3f5f8' }}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="Leads" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div 
+              className="overflow-x-auto pb-2" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+            >
+              <div className="min-w-[500px] sm:min-w-full h-84">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={recentLeadsData} margin={{ top: 10, right: 30, left: 10, bottom: 65 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e8ecf2" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                      angle={-45}
+                      textAnchor="end"
+                      height={65}
+                      interval={0}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      cursor={{ fill: '#f3f5f8' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="Leads" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
-            <div className="h-72 flex items-center justify-center text-[#5a6a82]">No data available</div>
+            <div className="h-84 flex items-center justify-center text-[#5a6a82]">No data available</div>
           )}
         </div>
 
         {/* Downloaded Documents (Bar) */}
-        <div className="bg-white p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
-          <h3 className="text-lg font-semibold text-[#0f1d33] mb-6">Downloaded Documents</h3>
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-[#e8ecf2] shadow-sm">
+          <h3 className="text-base sm:text-lg font-semibold text-[#0f1d33] mb-4 sm:mb-6">Downloaded Documents</h3>
           {downloadData.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={downloadData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
-                  <XAxis type="number" />
-                  <YAxis 
-                    dataKey="name" 
-                    type="category" 
-                    width={130} 
-                    tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
-                    tick={{ fill: '#5a6a82', fontSize: 11 }} 
-                  />
-                  <Tooltip 
-                    cursor={{ fill: '#f3f5f8' }}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]}>
-                    {downloadData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <div 
+              className="overflow-x-auto pb-2" 
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
+            >
+              <div className="min-w-[480px] sm:min-w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={downloadData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e8ecf2" />
+                    <XAxis type="number" />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={130} 
+                      tickFormatter={(val) => val.length > 18 ? val.substring(0, 18) + '...' : val}
+                      tick={{ fill: '#5a6a82', fontSize: 11 }} 
+                    />
+                    <Tooltip 
+                      cursor={{ fill: '#f3f5f8' }}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e8ecf2', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]}>
+                      {downloadData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           ) : (
             <div className="h-72 flex items-center justify-center text-[#5a6a82]">No data available</div>
@@ -320,16 +357,16 @@ export default function ReportsClient({ initialLeads }: ReportsClientProps) {
   )
 }
 
-function MetricCard({ title, value, icon, bg }: { title: string, value: number, icon: React.ReactNode, bg: string }) {
+function MetricCard({ title, value, icon, bg, className }: { title: string, value: number, icon: React.ReactNode, bg: string, className?: string }) {
   return (
-    <div className="bg-white p-5 rounded-xl border border-[#e8ecf2] shadow-sm flex flex-col justify-between">
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-[#5a6a82] text-sm font-medium">{title}</h3>
-        <div className={`p-2 rounded-lg ${bg}`}>
+    <div className={`bg-white p-4 sm:p-5 rounded-xl border border-[#e8ecf2] shadow-sm flex flex-col justify-between ${className || ''}`}>
+      <div className="flex justify-between items-start mb-3 sm:mb-4 gap-2">
+        <h3 className="text-[#5a6a82] text-xs sm:text-sm font-medium">{title}</h3>
+        <div className={`p-2 rounded-lg ${bg} shrink-0`}>
           {icon}
         </div>
       </div>
-      <div className="text-3xl font-bold text-[#0f1d33]">
+      <div className="text-2xl sm:text-3xl font-bold text-[#0f1d33]">
         {value}
       </div>
     </div>
