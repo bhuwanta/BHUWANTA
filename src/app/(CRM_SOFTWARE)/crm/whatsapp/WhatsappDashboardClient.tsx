@@ -126,7 +126,7 @@ export default function WhatsappDashboardClient({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f7f8fa] overflow-hidden">
+    <div className="flex flex-col min-h-full bg-[#f7f8fa] overflow-y-auto md:overflow-hidden md:h-full">
       <div className="p-4 md:p-8 pb-4 md:pb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
@@ -178,7 +178,7 @@ export default function WhatsappDashboardClient({
       </div>
 
       <div className="flex-1 px-4 md:px-8 pb-4 md:pb-8 flex flex-col min-h-0">
-        <div className="bg-white rounded-xl border border-[#e8ecf2] shadow-sm flex flex-col overflow-hidden h-[65vh] md:h-full">
+        <div className="bg-white rounded-xl border border-[#e8ecf2] shadow-sm flex flex-col md:overflow-hidden h-auto md:h-full">
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-auto">
             <table className="w-full text-left text-xs text-[#5a6a82] relative">
@@ -283,7 +283,7 @@ export default function WhatsappDashboardClient({
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden flex-1 flex flex-col divide-y divide-[#e8ecf2] overflow-y-auto">
+          <div className="md:hidden flex flex-col divide-y divide-[#e8ecf2]">
             {processedLeads.length > 0 ? (
               processedLeads.map((lead) => (
                 <div key={`mobile-lead-${lead.id}`} className="p-4 flex flex-col gap-3 hover:bg-[#f8fafc] transition-colors">
@@ -428,7 +428,7 @@ export default function WhatsappDashboardClient({
       {selectedLead && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-[#0f1d33]/20 backdrop-blur-sm" onClick={() => setSelectedLead(null)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#e8ecf2] animate-in slide-in-from-right duration-300">
+          <div className="relative w-full max-w-full sm:max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-[#e8ecf2] animate-in slide-in-from-right duration-300">
             
             <div className="flex items-center justify-between p-6 border-b border-[#e8ecf2] bg-[#f3f5f8]">
               <div className="flex items-center gap-3">
