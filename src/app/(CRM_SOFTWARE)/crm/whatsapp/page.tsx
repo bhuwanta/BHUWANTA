@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import WhatsappDashboardClient from './WhatsappDashboardClient'
-import { getWhatsappLeadsWithActivity } from './actions'
+import { getWhatsappLeadsWithActivity, getWhatsappAnalytics } from './actions'
 import { requireAccess } from '@/lib/auth/permissions'
 
 export const dynamic = 'force-dynamic'
@@ -19,8 +19,14 @@ export default async function WhatsappDashboardPage() {
   const userRole = user.app_metadata?.role || 'Admin'
 
   const { data: initialLeads, count: totalCount } = await getWhatsappLeadsWithActivity(1, 50)
+  const analytics = await getWhatsappAnalytics()
 
   return (
-    <WhatsappDashboardClient initialLeads={initialLeads || []} totalCount={totalCount || 0} userRole={userRole} />
+    <WhatsappDashboardClient 
+      initialLeads={initialLeads || []} 
+      totalCount={totalCount || 0} 
+      initialAnalytics={analytics}
+      userRole={userRole} 
+    />
   )
 }

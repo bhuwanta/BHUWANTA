@@ -25,24 +25,23 @@ import { useEffect, useState } from "react";
 const navigation = [
   { id: 'dashboard', name: 'Dashboard', href: '/crm', icon: LayoutDashboard },
   { id: 'leads', name: 'Leads', href: '/crm/leads', icon: Users },
-  { id: 'whatsapp', name: 'WhatsApp', href: '/crm/whatsapp', icon: MessageCircle },
-  { id: 'areas', name: 'Areas', href: '/crm/areas', icon: MapPin },
+  { id: 'whatsapp', name: 'WhatsApp Leads', href: '/crm/whatsapp', icon: MessageCircle },
   { id: 'projects', name: 'Projects', href: '/crm/projects', icon: Building2 },
-  { id: 'brochures', name: 'Brochures', href: '/crm/brochures', icon: FileText },
-  { id: 'layouts', name: 'Layouts', href: '/crm/layouts', icon: Map },
   { id: 'reports', name: 'Reports', href: '/crm/reports', icon: LineChart },
-  { id: 'settings', name: 'Settings', href: '/crm/settings', icon: Settings },
   { id: 'modules', name: 'Modules', href: '/crm/modules', icon: SlidersHorizontal },
   { id: 'users', name: 'Users', href: '/crm/users', icon: Shield },
+  { id: 'settings', name: 'Settings', href: '/crm/settings', icon: Settings },
 ];
 
 interface SidebarProps {
   isCollapsed: boolean;
   toggleCollapse: () => void;
   userRole?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
-export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin' }: SidebarProps) {
+export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin', userName, userEmail }: SidebarProps) {
   const pathname = usePathname();
 
   const [permissions, setPermissions] = useState<Record<string, string>>({})
@@ -134,7 +133,27 @@ export function Sidebar({ isCollapsed, toggleCollapse, userRole = 'Admin' }: Sid
           })
         )}
       </nav>
-      <div className={cn("border-t border-[#e8ecf2] p-4 flex", isCollapsed ? "justify-center" : "")}>
+      <div className={cn("border-t border-[#e8ecf2] p-4 flex flex-col gap-3", isCollapsed ? "items-center" : "")}>
+        {!isCollapsed && userEmail && (
+          <div className="flex flex-col px-1">
+            <span className="text-sm font-semibold text-[#0f1d33] truncate">
+              {userName || 'User'}
+            </span>
+            <span className="text-xs text-[#5a6a82] truncate">
+              {userEmail}
+            </span>
+          </div>
+        )}
+        
+        {isCollapsed && userEmail && (
+          <div 
+            className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs font-bold shrink-0 mx-auto"
+            title={userEmail}
+          >
+            {(userName || userEmail).charAt(0).toUpperCase()}
+          </div>
+        )}
+
         <button
           onClick={() => logout()}
           className={cn(

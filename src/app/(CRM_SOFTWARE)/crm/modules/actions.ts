@@ -617,7 +617,7 @@ export async function updateRolePermissions(roleId: string, permissions: { modul
       await supabase.from('role_permissions').delete().eq('role_id', roleId).not('module_name', 'in', `(${keptModules.map(m => `"${m}"`).join(',')})`)
     }
 
-    revalidatePath('/crm', 'layout')
+    revalidatePath('/crm/modules')
     return { success: true }
   } catch (err: any) {
     console.error(err)
@@ -663,7 +663,7 @@ export async function updateUserPermissions(userId: string, permissions: { modul
       if (error) throw error
     }
 
-    revalidatePath('/crm', 'layout')
+    revalidatePath('/crm/modules')
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err.message }

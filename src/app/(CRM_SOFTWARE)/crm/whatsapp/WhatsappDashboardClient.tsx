@@ -1,61 +1,36 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { MessageCircle, Download, PhoneCall, MapPin, X, ArrowRight, Activity, Clock, ShieldAlert } from 'lucide-react'
 import { getWhatsappLeadsWithActivity } from './actions'
 
-const renderActivityDetails = (details: string) => {
-  if (!details) return null;
+const extractIncomingMessage = (details: string) => {
+  if (!details) return '(no text content)';
   
-  if (details.includes('Message ID:') || details.includes('Provider timestamp:') || details.includes('Acquisition source and buying interest require verification.')) {
-    const lines = details.split('\n');
-    return (
-      <div className="space-y-1.5 mt-2">
-        {lines.map((line, i) => {
-          if (line.includes('Acquisition source and buying interest require verification.')) {
-            return (
-              <div key={i} className="mt-2 text-[11px] text-amber-700 bg-amber-50 p-2 rounded border border-amber-200 flex items-start gap-1.5 leading-snug">
-                <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                <span>{line}</span>
-              </div>
-            );
-          }
-          if (line.includes(': ')) {
-            const [label, ...valueParts] = line.split(': ');
-            const value = valueParts.join(': ');
-            
-            if (label === 'Message') {
-              return (
-                <div key={i} className="bg-white/80 p-2.5 rounded border border-white/40 shadow-sm my-2">
-                  <span className="block text-xs font-bold text-[#1e3a5f] mb-1">{label}</span>
-                  <span className="text-sm text-[#0f1d33] italic">"{value}"</span>
-                </div>
-              );
-            }
-            if (label === 'Message ID' || label.includes('referral') || label === 'Click-to-WhatsApp ID' || label === 'Provider timestamp') {
-              return (
-                <div key={i} className="text-[10px] flex gap-x-2">
-                  <span className="font-semibold text-[#5a6a82]">{label}:</span>
-                  <span className="text-[#5a6a82] break-all">{value}</span>
-                </div>
-              );
-            }
-            return (
-              <div key={i} className="text-xs flex gap-x-2 bg-white/40 px-2 py-1 rounded">
-                <span className="font-semibold text-[#1e3a5f]">{label}:</span>
-                <span className="text-[#0f1d33] break-all font-medium">{value}</span>
-              </div>
-            );
-          }
-          return <div key={i} className="text-sm text-[#0f1d33] font-medium">{line}</div>;
-        })}
-      </div>
-    );
+  const lines = details.split('\n');
+  const msgLine = lines.find(l => l.startsWith('Message: '));
+  
+  if (msgLine) {
+    let msg = msgLine.replace('Message: ', '').trim();
+    if (msg.startsWith('"') && msg.endsWith('"')) {
+      msg = msg.slice(1, -1);
+    }
+    return msg || '(no text content)';
   }
-  return <p className="text-sm text-[#0f1d33] bg-white/60 p-2.5 rounded-lg border border-white/40 font-medium whitespace-pre-wrap break-words">{details}</p>;
+  return '(no text content)';
 };
 
-export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, userRole }: { initialLeads: any[], totalCount?: number, userRole: string }) {
+export default function WhatsappDashboardClient({ 
+  initialLeads, 
+  totalCount = 0, 
+  initialAnalytics,
+  userRole 
+}: { 
+  initialLeads: any[], 
+  totalCount?: number, 
+  initialAnalytics?: { totalLeads: number, totalInteractions: number, totalCallbacks: number },
+  userRole: string 
+}) {
   const [leads, setLeads] = useState(initialLeads)
   const [selectedLead, setSelectedLead] = useState<any | null>(null)
   
@@ -63,6 +38,16 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
   const [totalLeadsCount, setTotalLeadsCount] = useState(totalCount || initialLeads.length)
   const [isPageLoading, setIsPageLoading] = useState(false)
   const pageSize = 50
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (selectedLead) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    }
+  }, [selectedLead])
 
   const handlePageChange = async (newPage: number) => {
     if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
@@ -80,11 +65,9 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
   };
 
   // Analytics
-  const totalLeads = leads.length
-  const totalInteractions = leads.reduce((sum, lead) => sum + (lead.lead_activities?.length || 0), 0)
-  const totalCallbacks = leads.filter(lead => 
-    lead.lead_activities?.some((a: any) => a.activity_type === 'Requested Callback')
-  ).length
+  const totalLeads = initialAnalytics?.totalLeads || totalLeadsCount
+  const totalInteractions = initialAnalytics?.totalInteractions || 0
+  const totalCallbacks = initialAnalytics?.totalCallbacks || 0
 
   // Process leads for the table
   const processedLeads = useMemo(() => {
@@ -128,7 +111,7 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
         lead.requestedCallback ? 'YES' : 'NO',
         `"${lead.latestArea || ''}"`,
         `"${lead.latestProject || ''}"`,
-        `"${new Date(lead.lastActive).toLocaleString()}"`
+        `"${new Date(lead.lastActive).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}"`
       ].join(','))
     ].join('\n');
 
@@ -203,8 +186,7 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                 <tr>
                   <th className="px-3 py-2 w-12 text-[#1e3a5f]">Sr. No</th>
                   <th className="px-3 py-2">Lead Info</th>
-                  <th className="px-3 py-2">Latest Area</th>
-                  <th className="px-3 py-2">Latest Project</th>
+                  <th className="px-3 py-2 text-[#1e3a5f]">Latest Interest</th>
                   <th className="px-3 py-2">Downloads</th>
                   <th className="px-3 py-2 text-center">Callback Requested?</th>
                   <th className="px-3 py-2">Last Active</th>
@@ -228,13 +210,18 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                         )}
                       </td>
                       <td className="px-3 py-2">
-                        <span className="inline-flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md text-gray-700 font-medium">
-                          <MapPin className="h-3 w-3 text-gray-400" />
-                          {lead.latestArea}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 font-medium text-[#1e3a5f]">
-                        {lead.latestProject}
+                        {lead.latestProject !== '-' && (
+                          <div className="font-medium text-[#1e3a5f]">{lead.latestProject}</div>
+                        )}
+                        {lead.latestArea !== '-' && (
+                          <div className="inline-flex items-center gap-1 text-xs text-[#5a6a82] mt-0.5">
+                            <MapPin className="h-3 w-3 text-gray-400" />
+                            {lead.latestArea}
+                          </div>
+                        )}
+                        {lead.latestProject === '-' && lead.latestArea === '-' && (
+                          <span className="text-gray-400 italic">None</span>
+                        )}
                       </td>
                       <td className="px-3 py-2">
                         {lead.downloads.length > 0 ? (
@@ -271,7 +258,7 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                       <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3 w-3 text-gray-400" />
-                          {new Date(lead.lastActive).toLocaleString()}
+                          {new Date(lead.lastActive).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -279,7 +266,7 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                           onClick={() => setSelectedLead(lead)}
                           className="inline-flex items-center gap-2 bg-[#1e3a5f] text-white px-3 py-2 rounded-lg hover:bg-[#0f1d33] transition-colors text-sm font-medium"
                         >
-                          View History <ArrowRight className="h-4 w-4" />
+                          View Chat History <ArrowRight className="h-4 w-4" />
                         </button>
                       </td>
                     </tr>
@@ -378,19 +365,23 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-[#5a6a82]">Latest Area</span>
-                      <span className="inline-flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-[#1e3a5f] text-xs font-medium border border-[#e8ecf2]">
-                        <MapPin className="h-3 w-3 text-gray-400" />
-                        <span className="truncate">{lead.latestArea}</span>
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs text-[#5a6a82]">Latest Project</span>
-                      <span className="inline-flex items-center gap-1 bg-[#f3f5f8] px-2 py-1 rounded text-[#1e3a5f] text-xs font-medium border border-[#e8ecf2]">
-                        <span className="truncate">{lead.latestProject}</span>
-                      </span>
+                  <div className="flex flex-col gap-1 mt-1">
+                    <span className="text-xs text-[#5a6a82]">Latest Interest</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {lead.latestProject !== '-' && (
+                        <span className="inline-flex items-center gap-1 bg-[#f3f5f8] px-2 py-1 rounded text-[#1e3a5f] text-xs font-medium border border-[#e8ecf2]">
+                          <span className="truncate">{lead.latestProject}</span>
+                        </span>
+                      )}
+                      {lead.latestArea !== '-' && (
+                        <span className="inline-flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-[#1e3a5f] text-xs font-medium border border-[#e8ecf2]">
+                          <MapPin className="h-3 w-3 text-gray-400" />
+                          <span className="truncate">{lead.latestArea}</span>
+                        </span>
+                      )}
+                      {lead.latestProject === '-' && lead.latestArea === '-' && (
+                        <span className="text-gray-400 italic text-xs">None</span>
+                      )}
                     </div>
                   </div>
 
@@ -413,13 +404,13 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
                   <div className="flex justify-between items-center mt-2 pt-3 border-t border-[#e8ecf2]">
                     <div className="flex items-center gap-1.5 text-xs text-[#5a6a82]">
                       <Clock className="h-3 w-3" />
-                      {new Date(lead.lastActive).toLocaleString()}
+                      {new Date(lead.lastActive).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                     </div>
                     <button
                       onClick={() => setSelectedLead(lead)}
                       className="inline-flex items-center gap-1 bg-[#1e3a5f] text-white px-3 py-1.5 rounded-lg hover:bg-[#0f1d33] transition-colors text-xs font-medium shadow-sm"
                     >
-                      View History <ArrowRight className="h-3 w-3" />
+                      View Chat History <ArrowRight className="h-3 w-3" />
                     </button>
                   </div>
                 </div>
@@ -454,46 +445,61 @@ export default function WhatsappDashboardClient({ initialLeads, totalCount = 0, 
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-white">
+            <div className="flex-1 overflow-y-auto p-4 bg-[#efeae2] flex flex-col relative">
+              <div className="relative z-10 flex flex-col gap-3 pb-4">
               {selectedLead.lead_activities?.length > 0 ? (
-                <div className="relative border-l-2 border-[#e8ecf2] ml-4 pl-6 space-y-8 pb-10">
-                  {selectedLead.lead_activities.map((activity: any, idx: number) => {
-                    const isCallback = activity.activity_type === 'Requested Callback'
-                    const isDownload = activity.activity_type.includes('Downloaded')
-                    
+                selectedLead.lead_activities.map((activity: any, idx: number) => {
+                  const type = activity.activity_type.toLowerCase();
+                  const time = new Date(activity.created_at).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
+                  
+                  if (type.includes('incoming whatsapp')) {
+                    const msg = extractIncomingMessage(activity.details);
                     return (
-                      <div key={idx} className="relative">
-                        {/* Timeline dot */}
-                        <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 border-white ${
-                          isCallback ? 'bg-orange-500' : isDownload ? 'bg-blue-500' : 'bg-[#c4a55a]'
-                        }`}></div>
-                        
-                        <div className={`rounded-xl p-4 border ${
-                          isCallback ? 'bg-orange-50 border-orange-100' : isDownload ? 'bg-blue-50 border-blue-100' : 'bg-[#f3f5f8] border-[#e8ecf2]'
-                        }`}>
-                          <div className="flex items-center justify-between gap-4 mb-2">
-                            <span className={`font-bold text-sm ${
-                              isCallback ? 'text-orange-700' : isDownload ? 'text-blue-700' : 'text-[#1e3a5f]'
-                            }`}>
-                              {activity.activity_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
-                            </span>
-                            <span className="text-[11px] text-[#5a6a82] whitespace-nowrap bg-white/60 px-2 py-0.5 rounded-full border border-white/40">
-                              {new Date(activity.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                            </span>
-                          </div>
-                          
-                          {activity.details && renderActivityDetails(activity.details)}
+                      <div key={idx} className="flex flex-col items-end self-end max-w-[85%] mt-1">
+                        <div className="bg-[#d9fdd3] text-[#111b21] px-3 pt-2 pb-1.5 rounded-lg rounded-tr-none shadow-sm relative text-sm border border-[#c3e8bd]">
+                           <span className="font-bold text-[#025c4c] text-[11px] leading-tight block mb-0.5">{selectedLead.name || 'User'}</span>
+                           <div className="whitespace-pre-wrap leading-snug">{msg}</div>
+                           <div className="text-[10px] text-[#667781] text-right mt-1 -mb-0.5 ml-4 float-right">{time}</div>
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
+                    );
+                  }
+                  
+                  if (type.includes('outgoing whatsapp')) {
+                    return (
+                      <div key={idx} className="flex flex-col items-start self-start max-w-[85%] mt-1">
+                        <div className="bg-white text-[#111b21] px-3 pt-2 pb-1.5 rounded-lg rounded-tl-none shadow-sm relative text-sm border border-[#e8ecf2]">
+                           <span className="font-bold text-[#c4a55a] text-[11px] leading-tight block mb-0.5">Bhuwanta Bot</span>
+                           <div className="whitespace-pre-wrap leading-snug">{activity.details}</div>
+                           <div className="text-[10px] text-[#667781] text-right mt-1 -mb-0.5 ml-4 float-right">{time}</div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  // System Chip
+                  let chipText = activity.activity_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+                  if (type === 'bot started') chipText = 'Bot Started Conversation';
+                  else if (activity.details && !activity.details.includes('Provider timestamp')) {
+                    chipText = `${chipText}: ${activity.details}`;
+                  }
+                  
+                  return (
+                    <div key={idx} className="flex justify-center my-2">
+                      <div className="bg-[#f3f5f8] text-[#5a6a82] px-3 py-1.5 rounded-full text-[11px] font-medium shadow-sm border border-[#e8ecf2]">
+                        {chipText} • {time}
+                      </div>
+                    </div>
+                  );
+                })
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-[#5a6a82]">
-                  <MessageCircle className="h-12 w-12 text-[#e8ecf2] mb-4" />
-                  <p>No activity recorded yet.</p>
+                <div className="flex flex-col items-center justify-center h-full text-[#5a6a82] mt-20">
+                  <MessageCircle className="h-12 w-12 text-[#5a6a82]/30 mb-4" />
+                  <p>No messages recorded yet.</p>
                 </div>
               )}
+              <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
         </div>

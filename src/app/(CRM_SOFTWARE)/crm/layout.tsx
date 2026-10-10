@@ -10,6 +10,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [userRole, setUserRole] = useState<string>('Admin')
+  const [userName, setUserName] = useState<string>('')
+  const [userEmail, setUserEmail] = useState<string>('')
 
   useEffect(() => {
     async function fetchRole() {
@@ -17,6 +19,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setUserRole(user.user_metadata?.role || 'Admin')
+        setUserName(user.user_metadata?.name || '')
+        setUserEmail(user.email || '')
       }
     }
     fetchRole()
@@ -47,7 +51,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ${isCollapsed ? 'md:w-20' : 'md:w-64'}
         flex flex-col h-full bg-white md:bg-transparent
       `}>
-        <Sidebar isCollapsed={isCollapsed} toggleCollapse={() => setIsCollapsed(!isCollapsed)} userRole={userRole} />
+        <Sidebar 
+          isCollapsed={isCollapsed} 
+          toggleCollapse={() => setIsCollapsed(!isCollapsed)} 
+          userRole={userRole}
+          userName={userName}
+          userEmail={userEmail}
+        />
       </div>
       
       {/* Main Content Area */}

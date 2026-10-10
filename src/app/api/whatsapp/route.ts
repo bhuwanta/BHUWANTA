@@ -24,7 +24,11 @@ async function sendTextMessage(to: string, body: string) {
       text: { body }
     })
   })
-  if (!res.ok) console.error('Failed to send text message:', await res.text())
+  if (!res.ok) {
+    console.error('Failed to send text message:', await res.text())
+  } else {
+    await logLeadActivity(to, 'Outgoing WhatsApp Message', body)
+  }
 }
 
 // Send an Interactive List Menu
@@ -64,7 +68,13 @@ async function sendListMenu(to: string, header: string, body: string, buttonText
   })
   const responseText = await res.text()
   console.log('📨 Meta API response:', res.status, responseText)
-  if (!res.ok) console.error('❌ Failed to send list menu:', responseText)
+  if (!res.ok) {
+    console.error('❌ Failed to send list menu:', responseText)
+  } else {
+    const optionsText = options.map(o => `🔘 ${o.title}`).join('\n')
+    const fullMessage = `${header ? `${header}\n\n` : ''}${body}\n\n${optionsText}`
+    await logLeadActivity(to, 'Outgoing WhatsApp Message', fullMessage)
+  }
 }
 
 
@@ -87,7 +97,11 @@ async function sendDocumentMessage(to: string, documentUrl: string, filename: st
       }
     })
   })
-  if (!res.ok) console.error('Failed to send document:', await res.text())
+  if (!res.ok) {
+    console.error('Failed to send document:', await res.text())
+  } else {
+    await logLeadActivity(to, 'Outgoing WhatsApp Message', `[Document Sent: ${filename}]`)
+  }
 }
 
 
@@ -191,7 +205,7 @@ export async function POST(request: Request) {
           console.log('🔄 Starting greeting flow for', senderPhone)
           
           const leadResult = incomingLead
-          await logLeadActivity(senderPhone, 'Bot Started', 'User initiated chat or sent greeting')
+          // 'Bot Started' log removed to avoid redundancy with the actual outgoing bot message
           console.log('💾 Lead upsert result:', leadResult ? 'OK' : 'FAILED (but continuing)')
           
           const areas = await getActiveAreas()

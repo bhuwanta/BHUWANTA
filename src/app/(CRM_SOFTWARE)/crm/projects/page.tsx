@@ -1,41 +1,32 @@
-import { createClient } from '@/lib/supabase/server'
 import ProjectsClient from './ProjectsClient'
 import { client } from '@/lib/sanity'
 import { requireAccess } from '@/lib/auth/permissions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ProjectsPage() {
-  const accessLevel = await requireAccess('projects')
-  const supabase = await createClient()
-  
-  const { data: areas } = await supabase
-    .from('areas')
-    .select('*')
-    .order('created_at', { ascending: false })
-
-  // Fetch projects and their mapped areas using the junction table
-  const { data: projects } = await supabase
-    .from('projects')
-    .select(`
-      *,
-      project_areas(
-        area:areas(*)
-      )
-    `)
-    .order('created_at', { ascending: false })
-
-  // Fetch Sanity projects to sync googleMapsUrl
-  const sanityData = await client.fetch(`*[_type == "projects"][0]{ projectEntries[]{ name, googleMapsUrl } }`)
-  
-  if (projects && sanityData?.projectEntries) {
-    projects.forEach(p => {
-      const sp = sanityData.projectEntries.find((s: any) => s.name.trim().toLowerCase() === p.name.trim().toLowerCase())
-      if (sp && sp.googleMapsUrl) {
-        p.google_maps_url = sp.googleMapsUrl
-      }
-    })
+const PROJECTS_QUERY = `
+  *[_type == "projects"][0] {
+    projectEntries[] {
+      name,
+      "categoryName": category->title,
+      location,
+      description,
+      googleMapsUrl,
+      "brochureUrl": brochure[0].asset->url,
+      "layoutPdfUrl": layoutPdf[0].asset->url,
+      "reraCertificateUrl": reraCertificate[0].asset->url,
+      "hmdaDtcpCertificateUrl": hmdaDtcpCertificate[0].asset->url,
+      approvalCertificateLabel
+    }
   }
+`
 
-  return <ProjectsClient projects={projects || []} areas={areas || []} canEdit={accessLevel === 'edit'} />
+export default async function ProjectsPage() {
+  await requireAccess('projects') // Validate access but we ignore the 'edit' return value since this page is strictly read-only
+  
+  // Fetch Sanity projects natively
+  const sanityData = await client.fetch(PROJECTS_QUERY)
+  const projects = sanityData?.projectEntries || []
+
+  return <ProjectsClient projects={projects} />
 }

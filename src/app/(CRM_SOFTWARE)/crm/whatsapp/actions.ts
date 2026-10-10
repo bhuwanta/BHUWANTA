@@ -35,3 +35,23 @@ export async function getWhatsappLeadsWithActivity(page: number = 1, limit: numb
 
   return { data: formattedData, count: count || 0, error: null }
 }
+
+export async function getWhatsappAnalytics() {
+  const supabase = await createClient()
+  
+  // Get all whatsapp leads to compute accurate analytics without pagination limits
+  const { data, count } = await supabase
+    .from('leads')
+    .select(`
+      id,
+      lead_activities ( activity_type )
+    `, { count: 'exact' })
+    .ilike('source_page', '%whatsapp%')
+
+  if (!data) return { totalLeads: 0, totalInteractions: 0, totalCallbacks: 0 }
+
+  const totalInteractions = data.reduce((sum, lead) => sum + (lead.lead_activities?.length || 0), 0)
+  const totalCallbacks = data.filter(lead => lead.lead_activities?.some((a: any) => a.activity_type === 'Requested Callback')).length
+
+  return { totalLeads: count || 0, totalInteractions, totalCallbacks }
+}
