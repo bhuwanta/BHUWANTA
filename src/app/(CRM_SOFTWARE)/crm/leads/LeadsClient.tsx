@@ -874,7 +874,7 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
                     {userRole === 'Super Admin' && (
                       <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end space-x-3">
-                          {lead.source_page?.toLowerCase().includes('whatsapp') && (
+                          {lead.phone && (
                             <button
                               onClick={() => openWhatsappHistory(lead)}
                               className="text-green-600 hover:text-green-700 bg-green-50 p-1.5 rounded-full"
@@ -1037,7 +1037,7 @@ export default function LeadsClient({ initialLeads, totalCount = 0, userRole = '
 
                   {userRole === 'Super Admin' && (
                     <div className="flex items-center space-x-3">
-                      {lead.source_page?.toLowerCase().includes('whatsapp') && (
+                      {lead.phone && (
                         <button
                           onClick={() => openWhatsappHistory(lead)}
                           className="text-green-600 hover:text-green-700 bg-green-50 p-1.5 rounded-full"
