@@ -638,6 +638,17 @@ export default function LeadsClient({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+            {/* Number of leads indicator for user clarity */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#f0f4f9] text-[#1e3a5f] border border-[#d8e2ed]">
+              <span className="text-[#5a6a82]">Results:</span>
+              <span className="font-bold text-[#0f1d33]">
+                {isPageLoading ? '...' : totalLeadsCount}
+              </span>
+              <span className="text-[#5a6a82]">
+                {totalLeadsCount === 1 ? 'lead' : 'leads'}
+              </span>
+            </div>
+
             {(selectedStatus !== 'all' || selectedSources.length > 0 || startDate || endDate || searchQuery) && (
               <button
                 onClick={() => {
@@ -815,7 +826,12 @@ export default function LeadsClient({
                 : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
             }`}
           >
-            All Statuses
+            <span>All Statuses</span>
+            {selectedStatus === 'all' && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-white/25 text-white">
+                {isPageLoading ? '...' : totalLeadsCount}
+              </span>
+            )}
           </button>
 
           <div className="w-px h-5 bg-[#e8ecf2] shrink-0" />
@@ -844,7 +860,12 @@ export default function LeadsClient({
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-current' : 'bg-gray-400'}`} />
-                    {st.name}
+                    <span>{st.name}</span>
+                    {isSelected && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-current/15 text-current">
+                        {isPageLoading ? '...' : totalLeadsCount}
+                      </span>
+                    )}
                   </button>
                 )
               })}
