@@ -801,11 +801,26 @@ export default function LeadsClient({
         </div>
 
         {/* Row 3: Filters Section (Horizontally Scrollable Status Filters) */}
-        <div className="flex items-center gap-3 pt-2 border-t border-[#f0f3f7] min-w-0">
+        <div className="flex items-center gap-2.5 pt-2 border-t border-[#f0f3f7] min-w-0">
           <span className="text-xs font-semibold uppercase tracking-wider text-[#5a6a82] shrink-0 whitespace-nowrap select-none">
             Filter by Status:
           </span>
 
+          {/* All Statuses Button - Fixed outside scroll so it never moves */}
+          <button
+            onClick={() => setSelectedStatus('all')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border shrink-0 select-none ${
+              selectedStatus === 'all'
+                ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-semibold'
+                : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
+            }`}
+          >
+            All Statuses
+          </button>
+
+          <div className="w-px h-5 bg-[#e8ecf2] shrink-0" />
+
+          {/* Dynamic Status Pills from Database (Horizontally Scrollable) */}
           <div 
             className="overflow-x-auto pb-1.5 pt-0.5 flex-1 min-w-0"
             style={{
@@ -814,17 +829,6 @@ export default function LeadsClient({
             }}
           >
             <div className="flex items-center gap-2 min-w-max py-0.5">
-              {/* All Statuses Button */}
-              <button
-                onClick={() => setSelectedStatus('all')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border shrink-0 ${
-                  selectedStatus === 'all'
-                    ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-xs font-semibold'
-                    : 'bg-[#f3f5f8] text-[#5a6a82] border-transparent hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                }`}
-              >
-                All Statuses
-              </button>
 
               {/* Dynamic Status Pills from Database */}
               {statuses.map((st: any) => {
