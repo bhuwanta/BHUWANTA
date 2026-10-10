@@ -32,11 +32,10 @@ interface ProjectDetail {
   highlightCount?: number | null
 }
 
-// Owner-confirmed Arudra quote, 10 October 2026. Additional charges are quoted separately.
-const ARUDRA_RATE_PER_SQUARE_YARD = 21999
+// Public Arudra prices are masked; exact pricing is supplied in a personalised quote.
 const ARUDRA_MINIMUM_SQUARE_YARDS = 150
-const arudraRate = `₹${ARUDRA_RATE_PER_SQUARE_YARD.toLocaleString('en-IN')}`
-const arudraBaseValue = `₹${(ARUDRA_RATE_PER_SQUARE_YARD * ARUDRA_MINIMUM_SQUARE_YARDS).toLocaleString('en-IN')}`
+const arudraRate = '₹21,XXX'
+const arudraBaseValue = '₹32,XX,XXX'
 
 const PROJECT_FAQ_DATA: Record<string, { question: string; answer: string }[]> = {
   'vian-vally': [
@@ -132,7 +131,7 @@ export async function generateMetadata({
       : projectPageTitle(name, project.categoryTitle?.trim() || place),
   }
   const description = slug === 'arudra'
-    ? `Arudra plots near Kothur at ${arudraRate} per sq. yd., with plot sizes from ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Request a personalised quote, layout details or a site visit.`
+    ? `Arudra villa plots near Kothur, from ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Indicative rate: ${arudraRate} per sq. yd. Request your personalised quote and site visit.`
     : `${name}: open plots${place ? ` near ${place}` : ''}${badge ? `, ${badge}` : ''}. See plot sizes, approvals and pricing, and book a free site visit.`.slice(0, 160)
 
   return {
@@ -193,7 +192,7 @@ export default async function ProjectDetailPage({
     },
     ...(hasInlineEnquiry ? [{
       question: 'What is the price and minimum plot size at Arudra?',
-      answer: `The quoted rate is ${arudraRate} per sq. yd., with a minimum plot size of ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. The base plot value for ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. is ${arudraBaseValue}. Request your personalised written quote for the selected plot and all applicable charges.`,
+      answer: `The indicative rate is ${arudraRate} per sq. yd., with a minimum plot size of ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. The indicative base plot value is ${arudraBaseValue}. Prices shown are masked. Contact Bhuwanta for an exact personalised written quote, including registration and any other applicable charges.`,
     }] : []),
     ...(PROJECT_FAQ_DATA[slug] || []),
     {
@@ -222,7 +221,7 @@ export default async function ProjectDetailPage({
                 <h2 id="arudra-pricing-title" className="mt-2 text-xl font-bold text-brand-primary sm:text-2xl">Arudra Exotica Villa Plots</h2>
                 <dl className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-5">
                   <div className="flex items-center justify-between gap-3 sm:block">
-                    <dt className="text-xs text-brand-muted">Rate per sq. yd.</dt>
+                    <dt className="text-xs text-brand-muted">Indicative rate per sq. yd.</dt>
                     <dd className="text-xl font-bold text-brand-primary sm:mt-1">{arudraRate}</dd>
                   </div>
                   <div className="flex items-center justify-between gap-3 sm:block">
@@ -230,11 +229,11 @@ export default async function ProjectDetailPage({
                     <dd className="text-xl font-bold text-brand-primary sm:mt-1">{ARUDRA_MINIMUM_SQUARE_YARDS} <span className="text-sm font-medium">sq. yd.</span></dd>
                   </div>
                   <div className="flex items-center justify-between gap-3 sm:block">
-                    <dt className="text-xs text-brand-muted">Base plot value</dt>
+                    <dt className="text-xs text-brand-muted">Indicative base plot value</dt>
                     <dd className="text-xl font-bold text-brand-primary sm:mt-1">{arudraBaseValue}</dd>
                   </div>
                 </dl>
-                <p className="mt-4 text-xs leading-relaxed text-brand-muted">Base value is for {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. at the quoted rate. Request a written quote for your selected plot, including registration and any other applicable charges.</p>
+                <p className="mt-4 text-xs leading-relaxed text-brand-muted">Prices shown are indicative and masked. Contact Bhuwanta for the exact price and a personalised written quote, including registration and any other applicable charges.</p>
                 <Link href="#book-visit" className="btn-solid mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg px-5 py-3 text-center text-sm font-semibold sm:w-auto">
                   Request Your Personalised Quote
                 </Link>
@@ -260,7 +259,7 @@ export default async function ProjectDetailPage({
             {hasInlineEnquiry && (
               <section id="book-visit" aria-label="Arudra plot enquiry" className="mt-8 scroll-mt-28 rounded-xl border border-brand-border bg-brand-paper p-5 sm:p-8">
                 <p className="mb-4 text-sm text-brand-muted">
-                  Arudra villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. at {arudraRate} per sq. yd. Request your personalised quote, layout details or a site visit.
+                  Arudra villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Indicative rate: {arudraRate} per sq. yd. Request your personalised quote with exact pricing, layout details or a site visit.
                 </p>
                 <ContactForm
                   compact
