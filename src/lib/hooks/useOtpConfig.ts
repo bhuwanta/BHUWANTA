@@ -1,31 +1,44 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 let cachedOtpEnabled: boolean | null = null
 
 export function useOtpConfig() {
   const [isOtpEnabled, setIsOtpEnabled] = useState<boolean>(cachedOtpEnabled ?? true)
-  const [isLoading, setIsLoading] = useState<boolean>(cachedOtpEnabled === null)
+  // A cached value is a fallback, not confirmation of the current server setting.
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+  const [attempt, setAttempt] = useState(0)
+
+  const retry = useCallback(() => {
+    setIsLoading(true)
+    setHasError(false)
+    setAttempt(value => value + 1)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10_000)
 
     async function fetchConfig() {
       try {
-        const res = await fetch('/api/otp-config', { cache: 'no-store' })
-        if (res.ok) {
-          const data = await res.json()
-          if (typeof data?.downloadOtpEnabled === 'boolean') {
-            cachedOtpEnabled = data.downloadOtpEnabled
-            if (isMounted) {
-              setIsOtpEnabled(data.downloadOtpEnabled)
-            }
-          }
+        const res = await fetch('/api/otp-config', { cache: 'no-store', signal: controller.signal })
+        if (!res.ok) throw new Error('OTP configuration unavailable')
+        const data = await res.json()
+        if (typeof data?.downloadOtpEnabled !== 'boolean') {
+          throw new Error('Invalid OTP configuration')
         }
-      } catch (err) {
-        console.error('Failed to load OTP config:', err)
+        if (isMounted) {
+          cachedOtpEnabled = data.downloadOtpEnabled
+          setIsOtpEnabled(data.downloadOtpEnabled)
+          setHasError(false)
+        }
+      } catch {
+        if (isMounted) setHasError(true)
       } finally {
+        clearTimeout(timeout)
         if (isMounted) {
           setIsLoading(false)
         }
@@ -36,8 +49,10 @@ export function useOtpConfig() {
 
     return () => {
       isMounted = false
+      clearTimeout(timeout)
+      controller.abort()
     }
-  }, [])
+  }, [attempt])
 
-  return { isOtpEnabled, isLoading }
+  return { isOtpEnabled, isLoading, hasError, retry }
 }

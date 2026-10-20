@@ -213,9 +213,21 @@ export default async function ProjectDetailPage({
         action={hasInlineEnquiry ? (
           <>
             <span className="text-sm text-white/85">Villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd.</span>
-            <Link href="#book-visit" className="btn-solid inline-flex min-h-12 items-center justify-center px-6 py-3 text-center text-sm font-semibold">
-              Request Your Personalised Quote
-            </Link>
+            <div className="flex flex-col items-center gap-3 sm:flex-row">
+              <Link href="#book-visit" className="btn-solid inline-flex min-h-12 items-center justify-center px-6 py-3 text-center text-sm font-semibold">
+                Request Your Personalised Quote
+              </Link>
+              {project.googleMapsUrl && (
+                <a
+                  href={project.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-12 items-center justify-center px-4 py-3 text-center text-sm font-semibold text-white underline underline-offset-4"
+                >
+                  View Project Location
+                </a>
+              )}
+            </div>
           </>
         ) : undefined}
       />

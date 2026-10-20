@@ -38,7 +38,12 @@ export function ContactForm({
   submittingLabel?: string
 }) {
   const router = useRouter()
-  const { isOtpEnabled } = useOtpConfig()
+  const {
+    isOtpEnabled,
+    isLoading: isOtpConfigLoading,
+    hasError: hasOtpConfigError,
+    retry: retryOtpConfig,
+  } = useOtpConfig()
   const [loading, setLoading] = useState(false)
   const [sendingOtp, setSendingOtp] = useState(false)
   const [resendSeconds, setResendSeconds] = useState(0)
@@ -197,7 +202,7 @@ export function ContactForm({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (loading) return
+    if (loading || isOtpConfigLoading || hasOtpConfigError) return
 
     if (!formData.agree) {
       setError('You must agree to the Terms & Conditions.')
@@ -293,6 +298,15 @@ export function ContactForm({
         <h3 className="text-2xl font-bold text-brand-ink mb-2">Request Prices or a Site Visit</h3>
       )}
       <div ref={recaptchaContainerRef} />
+
+      {hasOtpConfigError && (
+        <div role="alert" className="rounded-lg border border-brand-border bg-brand-paper p-4 text-sm text-brand-ink">
+          <p>We could not prepare the enquiry form. Your details are still here.</p>
+          <button type="button" onClick={retryOtpConfig} className="mt-2 min-h-11 font-semibold underline">
+            Try again
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm font-medium mb-6">
@@ -433,10 +447,12 @@ export function ContactForm({
 
           <button
             type="submit"
-            disabled={loading || (isOtpEnabled && resendSeconds > 0)}
+            disabled={loading || isOtpConfigLoading || hasOtpConfigError || (isOtpEnabled && resendSeconds > 0)}
             className="w-full rounded-lg py-3 px-4 flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed btn-solid"
           >
-            {loading
+            {isOtpConfigLoading
+              ? 'Preparing form...'
+              : loading
               ? isOtpEnabled
                 ? sendingOtp
                   ? 'Sending code...'
