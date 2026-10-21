@@ -72,8 +72,8 @@ function sourceLoader(mocks = {}) {
   return loadSource
 }
 
-async function mountProjectPage(project) {
-  const calls = { formProps: [], detailProps: [], leads: [], navigation: [] }
+async function mountProjectPage(project, { otpEnabled = false, otpReject = false } = {}) {
+  const calls = { formProps: [], detailProps: [], leads: [], navigation: [], sms: [], verifications: [] }
   const cmsProject = {
     ...project,
     slug: { current: project.cmsSlug },
@@ -98,7 +98,7 @@ async function mountProjectPage(project) {
     },
     '@/lib/hooks/useOtpConfig': {
       useOtpConfig: () => ({
-        isOtpEnabled: false,
+        isOtpEnabled: otpEnabled,
         isLoading: false,
         hasError: false,
         retryOtpConfig() {},
@@ -113,7 +113,18 @@ async function mountProjectPage(project) {
     '@/lib/lead-attribution': { getLeadAttribution: () => ({ utm_source: 'offline-regression' }) },
     '@/lib/gtag': { fireLeadConversion() {}, trackEnquiryStep() {} },
     '@/lib/firebase/phone-otp': {
-      loadPhoneAuth: async () => { throw new Error('No live SMS is permitted in this test') },
+      loadPhoneAuth: async () => ({
+        auth: {},
+        RecaptchaVerifier: class { clear() {} },
+        signInWithPhoneNumber: async (_auth, phone) => {
+          calls.sms.push(phone)
+          return { confirm: async code => {
+            calls.verifications.push(code)
+            if (otpReject) throw new Error('Offline verification rejection')
+            return {}
+          } }
+        },
+      }),
     },
     // Media and download behaviour is separate from this regression. Preserve
     // the enquiry destination passed by the real page for the routing assertion.
@@ -151,10 +162,25 @@ async function mountProjectPage(project) {
   return { calls, cmsProject }
 }
 
-async function fillAndSubmit() {
-  const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set
+async function submitCurrentForm() {
   await act(async () => {
-    for (const [name, value] of [['name', 'Offline regression test'], ['phone', '9000000000']]) {
+    container.querySelector('form').dispatchEvent(
+      new dom.window.Event('submit', { bubbles: true, cancelable: true }),
+    )
+  })
+}
+
+async function fillAndSubmit({ phone = '9000000000', country } = {}) {
+  const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set
+  if (country) {
+    await act(async () => {
+      const select = container.querySelector('[name="phoneCountry"]')
+      select.value = country
+      select.dispatchEvent(new dom.window.Event('change', { bubbles: true }))
+    })
+  }
+  await act(async () => {
+    for (const [name, value] of [['name', 'Offline regression test'], ['phone', phone]]) {
       const input = container.querySelector(`[name="${name}"]`)
       setter.call(input, value)
       input.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
@@ -162,11 +188,7 @@ async function fillAndSubmit() {
     container.querySelector('[name="agree"]').click()
   })
   assert.equal(container.querySelector('form').checkValidity(), true)
-  await act(async () => {
-    container.querySelector('form').dispatchEvent(
-      new dom.window.Event('submit', { bubbles: true, cancelable: true }),
-    )
-  })
+  await submitCurrentForm()
 }
 
 afterEach(async () => {
@@ -198,8 +220,8 @@ for (const project of projects) {
     assert.equal(props.compact, true)
     assert.deepEqual(
       Array.from(section.querySelectorAll('input, select, textarea'), field => field.name).sort(),
-      ['agree', 'name', 'phone'],
-      'Project enquiries should only request name, phone and consent',
+      project.pageSlug === 'arudra' ? ['agree', 'name', 'phone', 'phoneCountry'] : ['agree', 'name', 'phone'],
+      'Only Arudra adds an optional country-code selector',
     )
     assert.deepEqual(
       Array.from(section.querySelectorAll('[required]'), field => field.name).sort(),
@@ -235,6 +257,60 @@ for (const project of projects) {
     }
   })
 }
+
+test('Arudra accepts a UAE national mobile and stores its complete country code with OTP disabled', async () => {
+  const { calls } = await mountProjectPage(projects[0])
+  assert.deepEqual(
+    Array.from(container.querySelectorAll('[name="phoneCountry"] option'), option => option.value),
+    ['IN', 'AE', 'SA', 'QA', 'OM', 'KW'],
+  )
+  await fillAndSubmit({ phone: '050 123 4567', country: 'AE' })
+  assert.equal(calls.leads.length, 1)
+  assert.equal(calls.leads[0].phone, '+971501234567')
+  assert.equal(calls.leads[0].project, projects[0].name)
+  assert.deepEqual(calls.sms, [])
+})
+
+test('Arudra requires successful OTP verification at the full international number when enabled', async () => {
+  const { calls } = await mountProjectPage(projects[0], { otpEnabled: true })
+  await fillAndSubmit({ phone: '+971 50 123 4567' })
+  assert.deepEqual(calls.sms, ['+971501234567'])
+  assert.equal(calls.leads.length, 0)
+  assert.match(container.querySelector('form').textContent, /\+971501234567/)
+  const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set
+  await act(async () => {
+    const input = container.querySelector('#otp')
+    setter.call(input, '123456')
+    input.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
+  })
+  await submitCurrentForm()
+  assert.deepEqual(calls.verifications, ['123456'])
+  assert.equal(calls.leads.length, 1)
+  assert.equal(calls.leads[0].phone, '+971501234567')
+})
+
+test('Arudra cannot save an international enquiry after OTP verification fails', async () => {
+  const { calls } = await mountProjectPage(projects[0], { otpEnabled: true, otpReject: true })
+  await fillAndSubmit({ phone: '+971 50 123 4567' })
+  const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set
+  await act(async () => {
+    const input = container.querySelector('#otp')
+    setter.call(input, '123456')
+    input.dispatchEvent(new dom.window.Event('input', { bubbles: true }))
+  })
+  await submitCurrentForm()
+  assert.equal(calls.leads.length, 0)
+  assert.deepEqual(calls.navigation, [])
+})
+
+test('Arudra rejects truncated international input without silently changing or submitting it', async () => {
+  const { calls } = await mountProjectPage(projects[0])
+  await fillAndSubmit({ phone: '+97150123456' })
+  assert.equal(container.querySelector('[name="phone"]').value, '+97150123456')
+  assert.ok(container.querySelector('#phone-error'))
+  assert.equal(calls.leads.length, 0)
+  assert.deepEqual(calls.sms, [])
+})
 
 test('project enquiry links use canonical local pages and preserve the unknown-project fallback', () => {
   const { projectEnquiryHref, matchEnquiryProject } = sourceLoader()('src/lib/project-links.ts')

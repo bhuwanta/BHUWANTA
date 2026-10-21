@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { canonicalPhoneNumber } from '@/lib/phone-input'
 import { revalidatePath } from 'next/cache'
 
 export async function getLeads(
@@ -228,17 +229,35 @@ export async function updateLeadStatus(id: string, status: string): Promise<{
     return { success: false, error: fetchErr?.message || 'Lead not found.' }
   }
 
-  const rawPhone = (currentLead.phone || '').trim()
-  const cleanPhone = rawPhone.replace(/\D/g, '') // extract digits for matching
+  const canonicalPhone = canonicalPhoneNumber(currentLead.phone || '')
   let syncedCount = 1
 
-  // 2. If phone has at least 7 digits, sync all leads matching this phone
-  if (cleanPhone.length >= 7) {
-    // Try exact or clean phone match
+  // 2. Read a bounded candidate set, allowing historical spaces and punctuation.
+  // Only full canonical equality authorizes writes; a suffix is never an identity.
+  if (canonicalPhone) {
+    const candidateLimit = 500
+    const candidatePattern = `%${canonicalPhone.replace(/\D/g, '').slice(-10).split('').join('%')}%`
+    const { data: candidates, error: candidateError } = await supabase
+      .from('leads')
+      .select('id, phone')
+      .ilike('phone', candidatePattern)
+      .limit(candidateLimit + 1)
+
+    if (candidateError) return { success: false, error: candidateError.message }
+    if ((candidates?.length || 0) > candidateLimit) {
+      return { success: false, error: 'Too many phone matches to synchronize safely. Please contact an administrator.' }
+    }
+
+    const matchingIds = [...new Set([
+      id,
+      ...(candidates || [])
+        .filter(lead => canonicalPhoneNumber(lead.phone || '') === canonicalPhone)
+        .map(lead => lead.id),
+    ])]
     const { data: updatedRows, error: batchError } = await supabase
       .from('leads')
       .update({ status, updated_at: new Date().toISOString() })
-      .or(`phone.eq.${rawPhone},phone.ilike.%${cleanPhone.slice(-10)}%`)
+      .in('id', matchingIds)
       .select('id')
 
     if (!batchError && updatedRows && updatedRows.length > 0) {
@@ -252,7 +271,7 @@ export async function updateLeadStatus(id: string, status: string): Promise<{
       if (singleErr) return { success: false, error: singleErr.message }
     }
   } else {
-    // Single lead update when no phone is present
+    // Keep unrecognized or absent phone numbers scoped to the selected lead.
     const { error: singleErr } = await supabase
       .from('leads')
       .update({ status, updated_at: new Date().toISOString() })
