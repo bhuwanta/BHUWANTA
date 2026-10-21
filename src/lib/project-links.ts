@@ -12,6 +12,24 @@ export function enquiryHref(project: string): string {
   return `/?project=${encodeURIComponent(project)}#book-visit`
 }
 
+/** Keep an enquiry on its project page when that project has a public route. */
+export function projectEnquiryHref(project: string, slug?: string): string {
+  return slug
+    ? `/projects/${canonicalProjectSlug(slug)}#book-visit`
+    : enquiryHref(project)
+}
+
+/** Navigation must lead to the current project's form, including from its videos. */
+export function projectVisitHref(pathname: string): string {
+  const project = pathname.match(/^\/projects\/([^/]+)(\/videos)?\/?$/)
+  if (project) {
+    return project[2]
+      ? `/projects/${canonicalProjectSlug(project[1])}#book-visit`
+      : '#book-visit'
+  }
+  return pathname === '/shabad-open-plots' ? '#book-visit' : '/#book-visit'
+}
+
 /** Only the overview URL is canonicalised; CMS video routes retain their own slug. */
 export function canonicalProjectSlug(slug: string): string {
   const aliases: Record<string, string> = {
@@ -42,7 +60,9 @@ export function displayProjectName(name?: string | null): string {
 }
 
 export function displayProjectPlace(location?: string | null): string {
-  const place = titleCaseIfShouting(tidySpaces(location)).replace(/\bbanglore\b/gi, 'Bangalore')
+  const place = titleCaseIfShouting(tidySpaces(location))
+    .replace(/\bbanglore\b/gi, 'Bangalore')
+    .replace(/\bkothur\b/gi, 'Kothur')
   return place.charAt(0).toUpperCase() + place.slice(1)
 }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { enquiryHref } from '@/lib/project-links'
+import { projectEnquiryHref, displayProjectName, displayProjectPlace } from '@/lib/project-links'
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -235,9 +235,9 @@ export function ProjectsDirectory({
                            )}
                          </div>
 
-                         <h3 className="text-xl font-extrabold text-brand-primary mb-1 flex items-center gap-2"><Crown className="w-5 h-5 text-brand-accent shrink-0" /> {project.name}</h3>
+                         <h3 className="text-xl font-extrabold text-brand-primary mb-1 flex items-center gap-2"><Crown className="w-5 h-5 text-brand-accent shrink-0" /> {displayProjectName(project.name)}</h3>
                          <p className="text-sm font-semibold text-brand-accent mb-6">
-                           {project.location || 'Location Details Available Soon'}
+                           {displayProjectPlace(project.location) || 'Request the project location'}
                          </p>
 
                          {project.projectHighlights && project.projectHighlights.length > 0 && (
@@ -255,8 +255,8 @@ export function ProjectsDirectory({
 
                          <div className="mt-auto">
                             <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mb-4">
-                              <Link href={enquiryHref(project.name)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline">
-                                Enquire Now
+                              <Link href={projectEnquiryHref(project.name, projectSlug)} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-solid">
+                                Request Plot Details
                               </Link>
                               {projectSlug && (
                                 <Link href={`/projects/${canonicalProjectSlug(projectSlug!)}`} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline">

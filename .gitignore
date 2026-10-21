@@ -12,7 +12,8 @@
 
 # testing
 /coverage
-/tests/
+/tests/*
+!/tests/project-enquiry.test.mjs
 
 # next.js
 /.next/

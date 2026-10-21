@@ -6,8 +6,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   return buildProjectPageMetadata(
     config,
-    'S.V. Kanaka Maple Homes, Warangal Highway | Bhuwanta',
-    'S.V. Kanaka Maple Homes, DTCP & RERA approved open plots on the Warangal Highway, near the Yadagirigutta temple corridor.'
+    'S.V. Kanaka Maple Homes near Yadagirigutta | Bhuwanta',
+    'Explore S.V. Kanaka Maple Homes in Mallapur village near Yadagirigutta. Request plot prices, the layout, project documents and a site visit.'
   )
 }
 
@@ -15,34 +15,39 @@ const config: ProjectLandingConfig = {
   sanityName: 'S.V.KANAKA MAPLE HOMES',
   slug: 'sv-kanaka-maple-homes',
   displayName: 'S.V. Kanaka Maple Homes',
-  corridorLabel: 'Warangal Highway, near Yadagirigutta',
+  corridorLabel: 'Mallapur village · Near Yadagirigutta',
   h1: <>S.V. Kanaka Maple Homes</>,
   opportunityParagraphs: [
-    'S.V. Kanaka Maple Homes sits on the Warangal Highway corridor, close to Yadagirigutta, home to the Sri Lakshmi Narasimha Swamy Temple, one of the most significant temple redevelopment and tourism-infrastructure efforts in the region. Growth corridors anchored by major temple towns tend to see sustained visitor traffic and connectivity investment over the long term, independent of any single project.',
-    'This is a DTCP and RERA approved layout, built for buyers who want a clear-titled, Vastu-compliant plot with room to grow as the surrounding corridor develops.',
+    'S.V. Kanaka Maple Homes is an open-plot project in Mallapur village, near the Yadagirigutta temple corridor. Explore the layout and request the project entrance pin to understand the location and access route.',
+    'Share your preferred plot size, facing and budget with Bhuwanta to request current options and a written quote. Review the documents for your shortlisted plot and arrange a site visit to see the access roads and development on the ground.',
   ],
   locationAdvantages: [
-    'Located directly on the Warangal Highway (NH 163), connecting Hyderabad to Warangal',
-    'Proximity to the Yadagirigutta temple corridor and its ongoing development activity',
-    'DTCP approved layout with clear legal documentation',
+    'Located in Mallapur village near the Yadagirigutta temple corridor',
+    'Request the entrance pin and route details for travel from Hyderabad',
+    'Visit the project to assess road access, surroundings and on-site development',
   ],
   faqs: [
     {
-      question: 'Is S.V. Kanaka Maple Homes DTCP approved?',
-      answer: 'Yes. S.V. Kanaka Maple Homes is DTCP approved and RERA registered. Approval and RERA documents are available for review: request them through the enquiry form or WhatsApp.',
+      question: 'Where is S.V. Kanaka Maple Homes located?',
+      answer: 'S.V. Kanaka Maple Homes is in Mallapur village near the Yadagirigutta temple corridor. Request the exact project entrance pin and route before planning your visit.',
     },
     {
-      question: 'Why invest near Yadagirigutta?',
-      answer: 'Yadagirigutta is home to the Sri Lakshmi Narasimha Swamy Temple and has seen significant temple redevelopment and tourism-infrastructure investment, which tends to support sustained connectivity and footfall growth along the surrounding corridor.',
+      question: 'How can I review the project approvals and layout?',
+      answer: 'Request the project-specific layout approval, applicable RERA registration details and title documents for the plot you are considering. Ask the team to identify the plot number and dimensions on the layout.',
     },
     {
       question: 'What is the pricing for plots at S.V. Kanaka Maple Homes?',
-      answer: 'Contact Bhuwanta for current plot availability, pricing and a full cost breakdown. You can enquire through the form or WhatsApp.',
+      answer: 'Request current plot options and a written quote from Bhuwanta. Ask for the plot number, dimensions, facing and a breakdown of applicable charges so you can compare the total cost.',
+    },
+    {
+      question: 'How do I arrange a site visit?',
+      answer: 'Enquire through the form or WhatsApp with your preferred day and starting location. The team can confirm the visit schedule, meeting point and project entrance pin.',
     },
   ],
   relatedLinks: [
-    { href: '/projects', label: 'All Projects' },
-    { href: '/hmda-vs-dtcp-plots-hyderabad', label: 'HMDA vs DTCP Approved Plots' },
+    { href: '/yadagirigutta-open-plots', label: 'Plots near Yadagirigutta' },
+    { href: '/projects', label: 'All projects' },
+    { href: '/hmda-vs-dtcp-plots-hyderabad', label: 'Understanding HMDA and DTCP approvals' },
   ],
 }
 

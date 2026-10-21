@@ -3,7 +3,7 @@
 import { enquiryHref } from '@/lib/project-links'
 import { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Download, CreditCard, Play } from 'lucide-react'
+import { MapPin, Download, ClipboardList, Play } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import dynamic from 'next/dynamic'
 import { trackWhatsAppClick } from '@/lib/gtag'
@@ -63,7 +63,7 @@ export function ProjectDetailActions({
         <ProjectImageCarousel images={images} projectName={name} videoUrl={videoUrl} youtubeUrl={youtubeUrl} />
       </div>
 
-      <div className="grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
+      <div id="project-documents" className="scroll-mt-28 grid grid-cols-2 md:flex md:flex-wrap items-center gap-2 md:gap-3 mt-6">
         <Link
           href={enquiryLink || enquiryHref(name)}
           className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-6 md:w-auto rounded-lg text-xs sm:text-sm text-center flex items-center justify-center md:justify-start btn-outline"
@@ -133,8 +133,8 @@ export function ProjectDetailActions({
       </div>
 
       <div className="mt-6 pt-4 border-t border-brand-border flex items-center gap-2 text-xs font-semibold text-brand-muted">
-        <CreditCard className="w-4 h-4 text-brand-muted" />
-        Ready for Construction
+        <ClipboardList className="w-4 h-4 text-brand-muted" />
+        Ask for current plot availability and a written quote
       </div>
 
       <DownloadPopup
