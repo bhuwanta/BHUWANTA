@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { contactRateLimiter } from '@/lib/redis'
 import { sendContactNotification, resend } from '@/lib/resend'
 import { client, autoresponderQuery, writeClient } from '@/lib/sanity'
+import { parseContactPhone } from '@/lib/phone-input'
 
 async function sendDynamicAutoresponder(toName: string, toEmail: string) {
   if (!resend) return
@@ -96,6 +97,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const parsedPhone = typeof phone === 'string' ? parseContactPhone(phone) : null
+    if (!parsedPhone) {
+      return NextResponse.json(
+        { error: 'Please provide a valid mobile number, including the country code for numbers outside India.' },
+        { status: 400 }
+      )
+    }
+    const savedPhone = parsedPhone.storageValue
+
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Please provide a valid email address.' },
@@ -109,7 +119,7 @@ export async function POST(request: NextRequest) {
         _type: 'lead',
         name,
         email: email || '',
-        phone: phone || '',
+        phone: savedPhone,
         budget: budget || '',
         sourcePage: attributedSource,
         attribution,
@@ -136,7 +146,7 @@ export async function POST(request: NextRequest) {
       const { error: backupError } = await supabase.from('leads').insert({
         name,
         email: email || '',
-        phone: phone || null,
+        phone: savedPhone,
         message: `${message || ''}${attributionNote}`,
         location: location && location !== 'All' ? location : null,
         project: project && project !== 'Not Sure' ? project : null,
@@ -156,7 +166,7 @@ export async function POST(request: NextRequest) {
     // won't have, so skip the lead-facing emails and just notify the team.
     try {
       await Promise.all([
-        sendContactNotification({ name, email, phone, location, project, enquiryType, message, sourcePage, referredBy }),
+        sendContactNotification({ name, email, phone: savedPhone, location, project, enquiryType, message, sourcePage, referredBy }),
         ...(email ? [sendDynamicAutoresponder(name, email)] : []),
       ])
     } catch (emailError) {

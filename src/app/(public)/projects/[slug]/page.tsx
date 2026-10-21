@@ -267,6 +267,7 @@ export default async function ProjectDetailPage({
               name={project.name}
               displayName={projectDisplayName}
               location={project.location}
+              allowInternationalPhone={isArudra}
               description={isArudra
                 ? `Arudra villa plots from ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Indicative rate: ${arudraRate} per sq. yd. Request your personalised quote with exact pricing, layout details or a site visit.`
                 : undefined}

@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, X, Search, Globe, FilterX, Download, MessageCircle
 
 
 import { createClient } from '@/lib/supabase/client'
+import { canonicalPhoneNumber } from '@/lib/phone-input'
 import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStatus, getLeadActivities, getMetaForms, addMetaForm, deleteMetaForm, updateMetaFormName, getLeads } from './actions'
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
@@ -525,17 +526,13 @@ export default function LeadsClient({
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       const targetLead = leads.find(l => l.id === id)
-      const rawPhone = targetLead?.phone?.trim()
-      const cleanPhone = rawPhone ? rawPhone.replace(/\D/g, '') : ''
+      const canonicalPhone = canonicalPhoneNumber(targetLead?.phone || '')
 
-      // Optimistically update all leads matching this phone in local state
+      // Compare complete identities, including historically formatted phone values.
       setLeads(prevLeads => prevLeads.map(l => {
         if (l.id === id) return { ...l, status: newStatus }
-        if (cleanPhone && cleanPhone.length >= 7 && l.phone) {
-          const lClean = l.phone.replace(/\D/g, '')
-          if (lClean.slice(-10) === cleanPhone.slice(-10)) {
-            return { ...l, status: newStatus }
-          }
+        if (canonicalPhone && canonicalPhoneNumber(l.phone || '') === canonicalPhone) {
+          return { ...l, status: newStatus }
         }
         return l
       }))

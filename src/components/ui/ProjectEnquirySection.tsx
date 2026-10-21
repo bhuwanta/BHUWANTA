@@ -9,6 +9,7 @@ interface ProjectEnquirySectionProps {
   displayName?: string
   location: string
   description?: ReactNode
+  allowInternationalPhone?: boolean
 }
 
 export function ProjectEnquirySection({
@@ -16,6 +17,7 @@ export function ProjectEnquirySection({
   displayName = name,
   location,
   description,
+  allowInternationalPhone = false,
 }: ProjectEnquirySectionProps) {
   return (
     <section
@@ -48,6 +50,7 @@ export function ProjectEnquirySection({
             submittingLabel="Sending your enquiry..."
             initialProject={name}
             projectsList={[{ name, location }]}
+            allowInternationalPhone={allowInternationalPhone}
           />
           <p className="mt-3 text-xs text-brand-muted">Our team will contact you about your enquiry.</p>
         </div>

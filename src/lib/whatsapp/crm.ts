@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { whatsappSourceHint } from '@/lib/lead-attribution'
+import { canonicalPhoneNumber } from '@/lib/phone-input'
 import { createClient } from '@supabase/supabase-js'
 
 // We use the service role key to bypass RLS for webhook operations
@@ -8,14 +9,33 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+async function findLatestLeadByPhone(canonicalPhone: string) {
+  const candidateLimit = 500
+  const candidatePattern = `%${canonicalPhone.replace(/\D/g, '').slice(-10).split('').join('%')}%`
+  const { data: candidates, error } = await supabase
+    .from('leads')
+    .select('id, phone, bot_interactions_count')
+    .ilike('phone', candidatePattern)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(candidateLimit + 1)
+
+  if (error) throw error
+  if ((candidates?.length || 0) > candidateLimit) {
+    throw new Error('Too many phone matches to identify the WhatsApp lead safely')
+  }
+
+  // The search only finds candidates. Full country-aware equality selects a lead.
+  return candidates?.find(lead => canonicalPhoneNumber(lead.phone || '') === canonicalPhone) || null
+}
+
 export async function upsertWhatsAppLead(phone: string, name: string, incomingMessage = '') {
   try {
-    // Try to find existing lead with this phone
-    const { data: existingLead } = await supabase
-      .from('leads')
-      .select('id, bot_interactions_count')
-      .eq('phone', phone)
-      .single()
+    const canonicalPhone = canonicalPhoneNumber(phone)
+    if (!canonicalPhone) return null
+
+    // Reuse formatted historical enquiries and choose the latest exact identity.
+    const existingLead = await findLatestLeadByPhone(canonicalPhone)
 
     if (existingLead) {
       // Increment interaction count and bump to top of CRM leads
@@ -50,7 +70,7 @@ export async function upsertWhatsAppLead(phone: string, name: string, incomingMe
       .from('leads')
       .insert({
         name,
-        phone,
+        phone: canonicalPhone,
         email: `${phone}@whatsapp.lead`,
         message: 'Unverified WhatsApp contact — buying interest has not been confirmed.',
         source_page: whatsappSourceHint(incomingMessage) ? 'WhatsApp Bot | Google Ads (website message hint)' : 'WhatsApp Bot',
@@ -70,11 +90,9 @@ export async function upsertWhatsAppLead(phone: string, name: string, incomingMe
 
 export async function logLeadActivity(phone: string, action: string, details: string) {
   try {
-    const { data: lead } = await supabase
-      .from('leads')
-      .select('id')
-      .eq('phone', phone)
-      .single()
+    const canonicalPhone = canonicalPhoneNumber(phone)
+    if (!canonicalPhone) return
+    const lead = await findLatestLeadByPhone(canonicalPhone)
 
     if (lead) {
       await supabase

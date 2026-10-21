@@ -6,7 +6,7 @@ import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { createOtpVerificationSession } from '@/lib/firebase/otp-verification'
 import { createOtpRequestGate } from '@/lib/firebase/otp-request-gate'
-import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { enquiryPhoneCountries, normalizeIndianPhoneInput, parseContactPhone, type EnquiryPhoneCountry } from '@/lib/phone-input'
 import { submitContactLead } from '@/lib/lead-submission'
 import { matchEnquiryProject } from '@/lib/project-links'
 import { getLeadAttribution } from '@/lib/lead-attribution'
@@ -28,6 +28,7 @@ export function ContactForm({
   hideTitle = false,
   submitLabel = 'Book your visit →',
   submittingLabel = 'Booking your visit...',
+  allowInternationalPhone = false,
 }: {
   projectsList?: { name: string; location: string }[]
   locationNames?: string[]
@@ -36,6 +37,7 @@ export function ContactForm({
   hideTitle?: boolean
   submitLabel?: string
   submittingLabel?: string
+  allowInternationalPhone?: boolean
 }) {
   const router = useRouter()
   const {
@@ -91,6 +93,7 @@ export function ContactForm({
 
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [phoneCountry, setPhoneCountry] = useState<EnquiryPhoneCountry>('IN')
   const [step, setStep] = useState<1 | 2>(1)
   const [otp, setOtp] = useState('')
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
@@ -108,19 +111,32 @@ export function ContactForm({
     agree: false,
   })
 
+  const parsedPhone = allowInternationalPhone ? parseContactPhone(formData.phone, phoneCountry) : null
+  const contactPhone = allowInternationalPhone
+    ? parsedPhone?.country === phoneCountry ? parsedPhone : null
+    : formData.phone.length === 10 ? { e164: `+91${formData.phone}`, storageValue: formData.phone } : null
+  const invalidPhoneMessage = allowInternationalPhone
+    ? 'Enter a valid mobile number for the selected country, including its country code when pasting an international number.'
+    : 'Please enter a valid 10-digit number'
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     const checked = (e.target as HTMLInputElement).checked
 
     let finalValue = value
     if (name === 'phone') {
-      const digitsOnly = normalizeIndianPhoneInput(value)
-      if (digitsOnly.length > 10) {
-        setPhoneError('Please enter 10 digits only')
-      } else {
+      if (allowInternationalPhone) {
         setPhoneError('')
+        // A complete international paste identifies its own country. Keep the
+        // original input intact so malformed or overlong values are rejected.
+        const pastedPhone = parseContactPhone(value, phoneCountry)
+        const selectedCountry = enquiryPhoneCountries.find(option => option.country === pastedPhone?.country)
+        if (selectedCountry && /^\s*(\+|00)/.test(value)) setPhoneCountry(selectedCountry.country)
+      } else {
+        const digitsOnly = normalizeIndianPhoneInput(value)
+        setPhoneError(digitsOnly.length > 10 ? 'Please enter 10 digits only' : '')
+        finalValue = digitsOnly
       }
-      finalValue = digitsOnly
     }
 
     setFormData(prev => {
@@ -141,8 +157,8 @@ export function ContactForm({
       setError('You must agree to the Terms & Conditions.')
       return
     }
-    if (formData.phone.length !== 10) {
-      setPhoneError('Please enter a valid 10-digit number')
+    if (!contactPhone) {
+      setPhoneError(invalidPhoneMessage)
       return
     }
 
@@ -171,8 +187,7 @@ export function ContactForm({
         size: 'invisible',
       })
 
-      const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
+      const confirmation = await signInWithPhoneNumber(auth, contactPhone.e164, recaptchaRef.current)
       sent = true
       setConfirmationResult(confirmation)
       setOtp('')
@@ -208,8 +223,8 @@ export function ContactForm({
       setError('You must agree to the Terms & Conditions.')
       return
     }
-    if (formData.phone.length !== 10) {
-      setPhoneError('Please enter a valid 10-digit number')
+    if (!contactPhone) {
+      setPhoneError(invalidPhoneMessage)
       return
     }
 
@@ -222,7 +237,7 @@ export function ContactForm({
         const data = await submitContactLead({
           attribution: getLeadAttribution(),
           name: formData.name,
-          phone: formData.phone,
+          phone: contactPhone.storageValue,
           location: formData.location,
           project: formData.project,
           enquiryType: compact ? 'Pricing Details' : 'Site Visit',
@@ -248,7 +263,7 @@ export function ContactForm({
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (loading || !confirmationResult || otp.length !== 6) return
+    if (loading || !confirmationResult || otp.length !== 6 || !contactPhone) return
     if (!otpRequestGateRef.current.tryStartVerification()) return
 
     setLoading(true)
@@ -266,7 +281,7 @@ export function ContactForm({
       const data = await submitContactLead({
         attribution: getLeadAttribution(),
         name: formData.name,
-        phone: formData.phone,
+        phone: contactPhone.storageValue,
         location: formData.location,
         project: formData.project,
         enquiryType: compact ? 'Pricing Details' : 'Site Visit',
@@ -335,26 +350,47 @@ export function ContactForm({
             </div>
 
             <div>
+              {allowInternationalPhone && (
+                <div className="mb-3">
+                  <label htmlFor="phone-country" className="mb-1 block text-sm font-medium text-brand-ink">Country code</label>
+                  <select
+                    id="phone-country"
+                    name="phoneCountry"
+                    value={phoneCountry}
+                    onChange={event => {
+                      setPhoneCountry(event.target.value as EnquiryPhoneCountry)
+                      setPhoneError('')
+                    }}
+                    className="w-full rounded-lg border border-brand-border bg-brand-soft px-3 py-2.5 text-sm text-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-gold"
+                  >
+                    {enquiryPhoneCountries.map(option => (
+                      <option key={option.country} value={option.country}>{option.label} (+{option.callingCode})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <label htmlFor="phone" className="block text-sm font-medium text-brand-ink mb-1">
                 Mobile Number <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 id="phone"
-                autoComplete="tel-national"
-                inputMode="numeric"
+                autoComplete={allowInternationalPhone ? 'tel' : 'tel-national'}
+                inputMode={allowInternationalPhone ? 'tel' : 'numeric'}
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 required
-                minLength={10}
-                pattern="[0-9]{10}"
-                placeholder="10-digit mobile number"
+                minLength={allowInternationalPhone ? undefined : 10}
+                pattern={allowInternationalPhone ? undefined : '[0-9]{10}'}
+                placeholder={allowInternationalPhone ? 'Mobile number' : '10-digit mobile number'}
+                aria-invalid={Boolean(phoneError)}
+                aria-describedby={phoneError ? 'phone-error' : undefined}
                 className={`w-full bg-brand-soft border ${
                   phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-gold'
                 } rounded-lg px-3 py-2.5 text-brand-ink text-sm focus:outline-none focus:ring-2 focus:border-transparent`}
               />
-              {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+              {phoneError && <p id="phone-error" role="alert" className="text-red-500 text-xs mt-1">{phoneError}</p>}
             </div>
 
             {!compact && (
@@ -473,7 +509,7 @@ export function ContactForm({
                 : confirmationResult
                   ? 'We sent a 6-digit code to'
                   : 'Request a new code for'}{' '}
-              +91 {formData.phone}
+              {contactPhone?.e164}
             </p>
           </div>
 
