@@ -6,8 +6,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   return buildProjectPageMetadata(
     config,
-    'Vaibhav County, Sadashivpet, Mumbai Highway | Bhuwanta',
-    'Vaibhav County, DTCP & RERA approved open plots in Sadashivpet on the Mumbai Highway (NH 65), a curated land asset by Bhuwanta.'
+    'Vaibhav County Plots in Sadashivpet | Bhuwanta',
+    'Explore Vaibhav County open plots in Sadashivpet. Request current plot prices, the project layout, approval documents and a site visit with Bhuwanta.'
   )
 }
 
@@ -15,35 +15,40 @@ const config: ProjectLandingConfig = {
   sanityName: 'VAIBHAV COUNTY',
   slug: 'vaibhav-county',
   displayName: 'Vaibhav County',
-  corridorLabel: 'Sadashivpet, Mumbai Highway',
+  corridorLabel: 'Sadashivpet · Mumbai Highway corridor',
   h1: <>Vaibhav County</>,
   opportunityParagraphs: [
-    'Vaibhav County sits in Sadashivpet, on the Mumbai Highway (NH 65) between Hyderabad and Sangareddy, a corridor that has seen growing industrial and residential development pushed outward from the city along this highway. DTCP-approved layouts in this belt typically offer a more affordable entry point than HMDA-jurisdiction land closer to the city, with room to appreciate as infrastructure catches up.',
-    'This is a DTCP approved and RERA registered layout, built for buyers prioritizing affordability and long-term growth along an established highway corridor.',
+    'Vaibhav County is an open-plot project in Sadashivpet, in the Mumbai Highway corridor. Request the layout and project entrance pin to understand the location and compare plot options.',
+    'Share your budget, preferred size and facing with Bhuwanta for current options and a written quote. Review the documents for your shortlisted plot and arrange a site visit to assess the access roads, surroundings and development.',
   ],
   locationAdvantages: [
-    'Located in Sadashivpet on the Mumbai Highway (NH 65)',
-    'Positioned between Hyderabad and Sangareddy on an established growth corridor',
-    'DTCP approved layout, typically a more affordable entry point than HMDA-jurisdiction land',
+    'Located in Sadashivpet in the Mumbai Highway corridor',
+    'Request the entrance pin and directions from Hyderabad or Sangareddy',
+    'Compare the access route and surrounding area during your site visit',
   ],
   faqs: [
     {
-      question: 'Is Vaibhav County DTCP approved?',
-      answer: 'Yes. Vaibhav County is DTCP approved and RERA registered. Approval and RERA documents are available for review: request them through the enquiry form or WhatsApp.',
+      question: 'Where is Vaibhav County located?',
+      answer: 'Vaibhav County is in Sadashivpet in the Mumbai Highway corridor. Ask for the exact project entrance pin and directions before travelling to the site.',
     },
     {
-      question: 'Why invest in Sadashivpet?',
-      answer: 'Sadashivpet sits on the Mumbai Highway (NH 65) between Hyderabad and Sangareddy, a corridor that has seen growing development pushed outward from the city. DTCP-approved land here typically offers a more affordable entry point than HMDA-jurisdiction plots closer in.',
+      question: 'How can I review the project approvals?',
+      answer: 'Request the project-specific layout approval, applicable RERA registration details and title documents for the plot you are considering. Ask the team to identify its plot number and dimensions on the layout.',
     },
     {
       question: 'What is the pricing for plots at Vaibhav County?',
-      answer: 'Contact Bhuwanta for current plot availability, pricing and a full cost breakdown. You can enquire through the form or WhatsApp.',
+      answer: 'Contact Bhuwanta for current plot options and a written quote. Request the plot number, dimensions, facing, quoted rate and a breakdown of applicable charges.',
+    },
+    {
+      question: 'How do I book a Vaibhav County site visit?',
+      answer: 'Use the enquiry form or WhatsApp to share your preferred day, starting location and plot requirements. The team can confirm the visit schedule and entrance pin.',
     },
   ],
   relatedLinks: [
-    { href: '/projects', label: 'All Projects' },
-    { href: '/hmda-vs-dtcp-plots-hyderabad', label: 'HMDA vs DTCP Approved Plots' },
-    { href: '/projects/tjr-township', label: 'TJR Township (Sangareddy Junction, same Mumbai Highway corridor)' },
+    { href: '/sadashivpet-open-plots', label: 'Plots in Sadashivpet' },
+    { href: '/projects', label: 'All projects' },
+    { href: '/hmda-vs-dtcp-plots-hyderabad', label: 'Understanding HMDA and DTCP approvals' },
+    { href: '/projects/tjr-township', label: 'TJR Township at Sangareddy Junction' },
   ],
 }
 

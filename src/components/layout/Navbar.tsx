@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { BrandLockup } from './BrandLockup'
+import { projectVisitHref } from '@/lib/project-links'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -22,7 +23,7 @@ export function Navbar() {
   const [menuPath, setMenuPath] = useState<string | null>(null)
   const isOpen = menuPath === pathname
   const ctaText = 'Free Site Visit'
-  const ctaLink = ['/shabad-open-plots', '/projects/arudra'].includes(pathname) ? '#book-visit' : '/#book-visit'
+  const ctaLink = projectVisitHref(pathname)
 
   useEffect(() => {
     const timeout = setTimeout(() => {

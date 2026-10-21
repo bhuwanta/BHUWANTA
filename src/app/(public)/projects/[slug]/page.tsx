@@ -1,13 +1,13 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Check } from 'lucide-react'
+import { Check, MapPin } from 'lucide-react'
 import { sanityFetch, projectBySlugQuery, projectSlugsQuery } from '@/lib/sanity'
 import { JsonLd, buildBreadcrumbSchema, buildRealEstateListingSchema, buildFaqSchema } from '@/components/seo/JsonLd'
 import { PageBanner } from '@/components/ui/PageBanner'
 import { CtaSection } from '@/components/ui/CtaSection'
 import { ProjectDetailActions } from '@/components/ui/ProjectDetailActions'
-import { ContactForm } from '@/components/ui/ContactForm'
+import { ProjectEnquirySection } from '@/components/ui/ProjectEnquirySection'
 import { getSiteUrl } from '@/lib/site-url'
 import { displayProjectName, displayProjectPlace, projectPageTitle } from '@/lib/project-links'
 
@@ -169,7 +169,8 @@ export default async function ProjectDetailPage({
 
   const siteUrl = getSiteUrl()
   const pageUrl = `${siteUrl}/projects/${slug}`
-  const hasInlineEnquiry = slug === 'arudra'
+  const isArudra = slug === 'arudra'
+  const projectDisplayName = isArudra ? 'Arudra Exotica Villa Plots' : displayProjectName(project.name)
 
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
@@ -190,7 +191,7 @@ export default async function ProjectDetailPage({
       question: `Which documents should I review for ${project.name}?`,
       answer: 'Request the applicable layout approval, RERA registration details and title documents for the specific phase and plot. Our team can share available documents for your review.',
     },
-    ...(hasInlineEnquiry ? [{
+    ...(isArudra ? [{
       question: 'What is the price and minimum plot size at Arudra?',
       answer: `The indicative rate is ${arudraRate} per sq. yd., with a minimum plot size of ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. The indicative base plot value is ${arudraBaseValue}. Prices shown are masked. Contact Bhuwanta for an exact personalised written quote, including registration and any other applicable charges.`,
     }] : []),
@@ -208,34 +209,36 @@ export default async function ProjectDetailPage({
       <JsonLd data={[breadcrumb, listingSchema, faqSchema]} />
 
       <PageBanner
-        title={<>{hasInlineEnquiry ? 'Arudra Exotica Villa Plots' : project.name}</>}
-        subtitle={`${hasInlineEnquiry ? 'Near Kothur, Hyderabad' : project.location}${project.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
-        action={hasInlineEnquiry ? (
+        title={<>{projectDisplayName}</>}
+        subtitle={`${isArudra ? 'Near Kothur, Hyderabad' : displayProjectPlace(project.location)}${project.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
+        action={(
           <>
-            <span className="text-sm text-white/85">Villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd.</span>
-            <div className="flex flex-col items-center gap-3 sm:flex-row">
-              <Link href="#book-visit" className="btn-solid inline-flex min-h-12 items-center justify-center px-6 py-3 text-center text-sm font-semibold">
-                Request Your Personalised Quote
+            {isArudra && <span className="text-sm text-white/85">Villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd.</span>}
+            <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link href="#book-visit" className="btn-solid inline-flex min-h-12 w-full items-center justify-center px-6 py-3 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 sm:w-auto">
+                Request a Quote / Site Visit
               </Link>
               {project.googleMapsUrl && (
                 <a
+                  id="project-location"
                   href={project.googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center px-4 py-3 text-center text-sm font-semibold text-white underline underline-offset-4"
+                  className="scroll-mt-28 inline-flex min-h-12 items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
                 >
+                  <MapPin aria-hidden="true" className="h-4 w-4 shrink-0" />
                   View Project Location
                 </a>
               )}
             </div>
           </>
-        ) : undefined}
+        )}
       />
 
       <section className="py-16 bg-brand-paper">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
-            {hasInlineEnquiry && (
+            {isArudra && (
               <section aria-labelledby="arudra-pricing-title" className="mb-8 rounded-xl border border-brand-gold/40 bg-brand-paper p-5 sm:p-6">
                 <p className="text-xs font-semibold uppercase tracking-widest text-brand-muted">Plot pricing</p>
                 <h2 id="arudra-pricing-title" className="mt-2 text-xl font-bold text-brand-primary sm:text-2xl">Arudra Exotica Villa Plots</h2>
@@ -260,25 +263,18 @@ export default async function ProjectDetailPage({
               </section>
             )}
 
-            {hasInlineEnquiry && (
-              <section id="book-visit" aria-label="Arudra plot enquiry" className="mb-8 scroll-mt-4 rounded-xl border border-brand-border bg-brand-paper p-5 sm:p-8">
-                <p className="mb-4 text-sm text-brand-muted">
-                  Arudra villa plots from {ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Indicative rate: {arudraRate} per sq. yd. Request your personalised quote with exact pricing, layout details or a site visit.
-                </p>
-                <ContactForm
-                  compact
-                  submitLabel="Request Your Quote →"
-                  submittingLabel="Sending your enquiry..."
-                  initialProject={project.name}
-                  projectsList={[{ name: project.name, location: project.location }]}
-                />
-                <p className="mt-3 text-xs text-brand-muted">Our team will contact you about your enquiry.</p>
-              </section>
-            )}
+            <ProjectEnquirySection
+              name={project.name}
+              displayName={projectDisplayName}
+              location={project.location}
+              description={isArudra
+                ? `Arudra villa plots from ${ARUDRA_MINIMUM_SQUARE_YARDS} sq. yd. Indicative rate: ${arudraRate} per sq. yd. Request your personalised quote with exact pricing, layout details or a site visit.`
+                : undefined}
+            />
 
             <ProjectDetailActions
               name={project.name}
-              enquiryLink={hasInlineEnquiry ? '#book-visit' : undefined}
+              enquiryLink="#book-visit"
               images={project.images}
               videoUrl={project.videoUrl}
               youtubeUrl={project.youtubeUrl}
@@ -326,8 +322,8 @@ export default async function ProjectDetailPage({
       </section>
 
       <CtaSection
-        primaryButtonLink={hasInlineEnquiry ? '#book-visit' : undefined}
-        primaryButtonText={hasInlineEnquiry ? 'Request Your Personalised Quote' : undefined}
+        primaryButtonLink="#book-visit"
+        primaryButtonText="Request a Quote / Site Visit"
       />
     </>
   )

@@ -1,11 +1,12 @@
-import { enquiryHref } from '@/lib/project-links'
 import { Metadata } from 'next'
+import { displayProjectPlace } from '@/lib/project-links'
 import Link from 'next/link'
-import { Check, Download } from 'lucide-react'
+import { Check, Download, MapPin } from 'lucide-react'
 import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildRealEstateListingSchema } from '@/components/seo/JsonLd'
 import { PageBanner } from '@/components/ui/PageBanner'
 import { ProjectDetailActions } from '@/components/ui/ProjectDetailActions'
+import { ProjectEnquirySection } from '@/components/ui/ProjectEnquirySection'
 import { CtaSection } from '@/components/ui/CtaSection'
 
 interface ProjectData {
@@ -96,6 +97,8 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
 
   const siteUrl = 'https://bhuwanta.com'
   const pageUrl = `${siteUrl}/projects/${config.slug}`
+  const projectName = project?.name || config.sanityName
+  const projectLocation = project?.location || config.corridorLabel
 
   const breadcrumb = buildBreadcrumbSchema([
     { name: 'Home', url: siteUrl },
@@ -117,14 +120,40 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
 
       <PageBanner
         title={config.h1}
-        subtitle={`${project?.location || config.corridorLabel}${project?.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
+        subtitle={`${displayProjectPlace(projectLocation)}${project?.approvalBadge ? ` · ${project.approvalBadge}` : ''}`}
+        action={(
+          <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link href="#book-visit" className="btn-solid inline-flex min-h-12 w-full items-center justify-center px-6 py-3 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 sm:w-auto">
+              Request a Quote / Site Visit
+            </Link>
+            {project?.googleMapsUrl && (
+              <a
+                id="project-location"
+                href={project.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="scroll-mt-28 inline-flex min-h-12 items-center justify-center gap-2 px-4 py-3 text-center text-sm font-semibold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+              >
+                <MapPin aria-hidden="true" className="h-4 w-4 shrink-0" />
+                View Project Location
+              </a>
+            )}
+          </div>
+        )}
       />
 
       <section className="py-16 bg-brand-paper">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-brand-border shadow-sm rounded-xl p-6 md:p-10">
+            <ProjectEnquirySection
+              name={projectName}
+              displayName={config.displayName}
+              location={projectLocation}
+            />
+
             <ProjectDetailActions
-              name={config.displayName}
+              name={projectName}
+              enquiryLink="#book-visit"
               images={project?.images}
               videoUrl={project?.videoUrl || project?.videoUrls?.[0]}
               youtubeUrl={project?.youtubeUrl || project?.youtubeUrls?.[0]}
@@ -234,8 +263,8 @@ export async function ProjectLandingTemplate({ config }: { config: ProjectLandin
       </section>
 
       <CtaSection
-        primaryButtonText="Request Price & Plot Details"
-        primaryButtonLink={enquiryHref(config.displayName)}
+        primaryButtonText="Request a Quote / Site Visit"
+        primaryButtonLink="#book-visit"
       />
     </>
   )

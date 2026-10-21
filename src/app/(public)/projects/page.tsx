@@ -93,6 +93,7 @@ export default async function ProjectsPage() {
 
       <PageBanner 
         title={<>Our <span className="text-brand-accent">Projects</span></>}
+        subtitle="Compare project locations and layouts. Request current plot options, a personalised quote or a site visit."
       />
 
       <Suspense
