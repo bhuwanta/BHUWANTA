@@ -81,13 +81,14 @@ function contactApiFixture() {
       } }) }),
     },
   })
-  const submit = phone => POST({ json: async () => ({
+  const submit = (phone, attribution) => POST({ json: async () => ({
     name: 'Offline regression test',
     phone,
     project: 'ARUDRA EXOTICA EARTHSTAY VILLAS',
     location: 'Kothur',
     enquiryType: 'Pricing Details',
     sourcePage: 'Website - /projects/arudra - Book Your Visit',
+    attribution,
   }) })
   return { calls, submit }
 }
@@ -108,6 +109,17 @@ test('the contact API retains legacy Indian phone storage', async () => {
   assert.equal((await submit('+91 98765 43210')).status, 200)
   assert.equal(calls.sanity[0].phone, '9876543210')
   assert.equal(calls.supabase[0].phone, '9876543210')
+})
+
+test('Google campaign ID reaches both CRM stores after server sanitization', async () => {
+  const { calls, submit } = contactApiFixture()
+  const attribution = { utm_id: '123456789', utm_source: 'google', utm_medium: 'cpc' }
+  const response = await submit('+971501234567', { ...attribution, email: 'discard@example.test', utm_content: '<script>' })
+  assert.equal(response.status, 200)
+  assert.deepEqual(calls.sanity[0].attribution, attribution)
+  assert.match(calls.sanity[0].sourcePage, /^Google Ads \| /)
+  assert.match(calls.supabase[0].message, /"utm_id":"123456789"/)
+  assert.doesNotMatch(calls.supabase[0].message, /discard|<script>/)
 })
 
 test('invalid API phone values fail before any CRM write or notification', async () => {

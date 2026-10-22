@@ -143,6 +143,7 @@ export function ProjectDetailActions({
         urls={downloadQueue?.urls || []}
         projectName={name}
         documentType={downloadQueue?.documentType || ''}
+        allowInternationalPhone={slug === 'arudra'}
       />
     </>
   )

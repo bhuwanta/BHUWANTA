@@ -8,7 +8,7 @@ import logoImg from '@/images/bhuwanta-logo-horizontal.png'
 import type { RecaptchaVerifier, ConfirmationResult } from 'firebase/auth'
 import { loadPhoneAuth } from '@/lib/firebase/phone-otp'
 import { createOtpVerificationSession } from '@/lib/firebase/otp-verification'
-import { normalizeIndianPhoneInput } from '@/lib/phone-input'
+import { enquiryPhoneCountries, normalizeIndianPhoneInput, parseContactPhone, type EnquiryPhoneCountry } from '@/lib/phone-input'
 import { submitContactLead } from '@/lib/lead-submission'
 import { getLeadAttribution } from '@/lib/lead-attribution'
 import { trackDocumentDownload } from '@/lib/gtag'
@@ -21,12 +21,14 @@ interface DownloadPopupProps {
   urls: string[]
   projectName: string
   documentType: string
+  allowInternationalPhone?: boolean
 }
 
-export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType }: DownloadPopupProps) {
-  const { isOtpEnabled } = useOtpConfig()
+export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType, allowInternationalPhone = false }: DownloadPopupProps) {
+  const { isOtpEnabled, isLoading: isOtpConfigLoading, hasError: hasOtpConfigError, retry: retryOtpConfig } = useOtpConfig()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneError, setPhoneError] = useState('')
+  const [phoneCountry, setPhoneCountry] = useState<EnquiryPhoneCountry>('IN')
   const [step, setStep] = useState<1 | 2>(1)
   const [otp, setOtp] = useState('')
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
@@ -69,12 +71,21 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     phone: '',
   })
 
+  const parsedPhone = allowInternationalPhone ? parseContactPhone(formData.phone, phoneCountry) : null
+  const contactPhone = allowInternationalPhone
+    ? parsedPhone?.country === phoneCountry ? parsedPhone : null
+    : formData.phone.length === 10 ? { e164: `+91${formData.phone}`, storageValue: formData.phone } : null
+  const invalidPhoneMessage = allowInternationalPhone
+    ? 'Enter a valid mobile number for the selected country, including its country code when pasting an international number.'
+    : 'Please enter a valid 10-digit number'
+
   // Reset state and handle background scrolling
   useEffect(() => {
     // Reset on both close and open so a consumed code is never shown on reopen.
     queueMicrotask(() => {
       setIsSubmitting(false)
       setPhoneError('')
+      setPhoneCountry('IN')
       setError('')
       setDownloadReady(false)
       setStep(1)
@@ -100,8 +111,9 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (formData.phone.length !== 10) {
-      setPhoneError('Please enter a valid 10-digit number')
+    if (isSubmitting || isOtpConfigLoading || hasOtpConfigError) return
+    if (!contactPhone) {
+      setPhoneError(invalidPhoneMessage)
       return
     }
 
@@ -116,8 +128,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
       if (!container) throw new Error('Please try requesting your code again.')
       recaptchaRef.current = new RecaptchaVerifier(auth, container, { size: 'invisible' })
 
-      const formattedPhone = `+91${formData.phone}`
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, recaptchaRef.current)
+      const confirmation = await signInWithPhoneNumber(auth, contactPhone.e164, recaptchaRef.current)
       setConfirmationResult(confirmation)
       setOtp('')
       setStep(2)
@@ -164,7 +175,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!confirmationResult || !otp) return
+    if (isSubmitting || isOtpConfigLoading || hasOtpConfigError || !confirmationResult || !otp || !contactPhone) return
 
     setIsSubmitting(true)
     setError('')
@@ -177,6 +188,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
       const data = await submitContactLead({
         attribution: getLeadAttribution(),
         ...formData,
+        phone: contactPhone.storageValue,
         project: projectName,
         enquiryType: `Document Download: ${documentType}`,
         message: `Requested to download ${documentType} for ${projectName}`,
@@ -241,7 +253,14 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
             </div>
           )}
 
-          {downloadReady || !isOtpEnabled ? (
+          {isOtpConfigLoading ? (
+            <p className="text-center text-sm text-brand-muted" role="status">Preparing your download...</p>
+          ) : hasOtpConfigError ? (
+            <div className="space-y-4 text-center" role="alert">
+              <p className="text-sm text-brand-muted">We could not open your download. Please try again.</p>
+              <button type="button" onClick={retryOtpConfig} className="w-full py-3 px-4 rounded-xl btn-solid">Try again</button>
+            </div>
+          ) : downloadReady || !isOtpEnabled ? (
             <div className="space-y-4 text-center" role="status">
               <h3 className="text-lg font-semibold text-brand-deep">
                 {downloadReady ? 'Your download is ready' : `Download ${documentType}`}
@@ -290,26 +309,52 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
                 />
 
                 <div>
+                  {allowInternationalPhone && (
+                    <label className="mb-3 block text-sm font-medium text-brand-deep">
+                      Country code
+                      <select
+                        name="phoneCountry"
+                        value={phoneCountry}
+                        onChange={event => {
+                          setPhoneCountry(event.target.value as EnquiryPhoneCountry)
+                          setPhoneError('')
+                        }}
+                        className="mt-1 w-full px-4 py-3 bg-brand-paper border border-brand-border rounded-xl text-sm text-brand-deep focus:outline-none focus:ring-2 focus:ring-brand-deep/20"
+                      >
+                        {enquiryPhoneCountries.map(option => (
+                          <option key={option.country} value={option.country}>{option.label} (+{option.callingCode})</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <input
                     required
                     type="tel"
+                    aria-label="Mobile number"
+                    aria-invalid={Boolean(phoneError)}
+                    autoComplete={allowInternationalPhone ? 'tel' : 'tel-national'}
+                    inputMode={allowInternationalPhone ? 'tel' : 'numeric'}
                     placeholder="Phone Number *"
-                    minLength={10}
-                    pattern="[0-9]{10}"
+                    minLength={allowInternationalPhone ? undefined : 10}
+                    pattern={allowInternationalPhone ? undefined : '[0-9]{10}'}
                     className={`w-full px-4 py-3 bg-brand-paper border ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-brand-border focus:ring-brand-deep/20'} rounded-xl text-sm text-brand-deep placeholder:text-brand-deep/40 focus:outline-none focus:ring-2 focus:border-brand-deep/50 transition-all`}
                     value={formData.phone}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      const digitsOnly = normalizeIndianPhoneInput(val);
-                      if (digitsOnly.length > 10) {
-                        setPhoneError('Please enter 10 digits only');
+                      const value = e.target.value
+                      if (allowInternationalPhone) {
+                        setPhoneError('')
+                        const pastedPhone = parseContactPhone(value, phoneCountry)
+                        const selectedCountry = enquiryPhoneCountries.find(option => option.country === pastedPhone?.country)
+                        if (selectedCountry && /^\s*(\+|00)/.test(value)) setPhoneCountry(selectedCountry.country)
+                        setFormData({ ...formData, phone: value })
                       } else {
-                        setPhoneError('');
+                        const digitsOnly = normalizeIndianPhoneInput(value)
+                        setPhoneError(digitsOnly.length > 10 ? 'Please enter 10 digits only' : '')
+                        setFormData({ ...formData, phone: digitsOnly })
                       }
-                      setFormData({ ...formData, phone: digitsOnly });
                     }}
                   />
-                  {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                  {phoneError && <p role="alert" className="text-red-500 text-xs mt-1">{phoneError}</p>}
                 </div>
               </div>
 
@@ -340,7 +385,7 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
           ) : (
             <form onSubmit={handleVerifyOTP} className="space-y-4">
               <div className="text-center mb-4">
-                <p className="text-sm text-brand-deep/70">Enter the 6-digit code sent to +91 {formData.phone}</p>
+                <p className="text-sm text-brand-deep/70">Enter the 6-digit code sent to {contactPhone?.e164}</p>
               </div>
               
               <input

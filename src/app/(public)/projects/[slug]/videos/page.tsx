@@ -142,6 +142,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
   if (!project) return notFound()
 
   const name = project.name.trim()
+  const projectEnquiryHref = slug === 'arudra' ? '/projects/arudra#book-visit' : enquiryHref(name)
   const videos = withLegacyFallback(project)
   const images = usableImages(project)
   const siteUrl = getSiteUrl()
@@ -241,7 +242,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href={enquiryHref(name)}
+                  href={projectEnquiryHref}
                   className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm btn-outline"
                 >
                   Enquire Now
@@ -264,7 +265,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Link
-                  href={enquiryHref(name)}
+                  href={projectEnquiryHref}
                   className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm text-center btn-outline"
                 >
                   Enquire Now
@@ -283,7 +284,7 @@ export default async function ProjectVideosPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <CtaSection />
+      <CtaSection primaryButtonLink={slug === 'arudra' ? projectEnquiryHref : undefined} />
     </>
   )
 }

@@ -105,7 +105,7 @@ export function ProjectsDirectory({
         ? (requestedCategory as string)
         : 'all'
   const filterRef = useRef<HTMLDivElement>(null)
-  const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; projectName: string; documentType: string } | null>(null)
+  const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; projectName: string; projectSlug?: string; documentType: string } | null>(null)
 
   // Follow the param when it changes (clicking a second homepage card, or
   // using the back button), and bring the filter row into view.
@@ -272,16 +272,16 @@ export function ProjectsDirectory({
                                   <span className="truncate"><span className="hidden sm:inline">Project </span>Highlights</span>
                                 </Link>
                               )}
-                              <button type="button" onClick={() => setDownloadQueue({ urls: project.brochureUrls!, projectName: project.name, documentType: 'Brochure' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.brochureUrls || project.brochureUrls.length === 0}>
+                              <button type="button" onClick={() => setDownloadQueue({ urls: project.brochureUrls!, projectName: project.name, projectSlug: getProjectSlug(project), documentType: 'Brochure' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.brochureUrls || project.brochureUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Brochure</span>
                               </button>
-                              <button type="button" onClick={() => setDownloadQueue({ urls: project.layoutUrls!, projectName: project.name, documentType: 'Layout' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.layoutUrls || project.layoutUrls.length === 0}>
+                              <button type="button" onClick={() => setDownloadQueue({ urls: project.layoutUrls!, projectName: project.name, projectSlug: getProjectSlug(project), documentType: 'Layout' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.layoutUrls || project.layoutUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">Layout</span>
                               </button>
-                              <button type="button" onClick={() => setDownloadQueue({ urls: project.reraUrls!, projectName: project.name, documentType: 'RERA Documents' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.reraUrls || project.reraUrls.length === 0}>
+                              <button type="button" onClick={() => setDownloadQueue({ urls: project.reraUrls!, projectName: project.name, projectSlug: getProjectSlug(project), documentType: 'RERA Documents' })} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer" disabled={!project.reraUrls || project.reraUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">RERA <span className="hidden md:inline">Documents</span><span className="md:hidden">Docs</span></span>
                               </button>
-                              <button type="button" onClick={() => setDownloadQueue({ urls: project.hmdaDtcpUrls!, projectName: project.name, documentType: project.approvalCertificateLabel || 'HMDA/DTCP Approved' })} className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer`} disabled={!project.hmdaDtcpUrls || project.hmdaDtcpUrls.length === 0}>
+                              <button type="button" onClick={() => setDownloadQueue({ urls: project.hmdaDtcpUrls!, projectName: project.name, projectSlug: getProjectSlug(project), documentType: project.approvalCertificateLabel || 'HMDA/DTCP Approved' })} className={`w-full ${lastButtonSpan} md:col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer`} disabled={!project.hmdaDtcpUrls || project.hmdaDtcpUrls.length === 0}>
                                 <Download className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">{project.approvalCertificateLabel || 'HMDA/DTCP Approved'}</span>
                               </button>
                             </div>
@@ -311,6 +311,7 @@ export function ProjectsDirectory({
         urls={downloadQueue?.urls || []}
         projectName={downloadQueue?.projectName || ''}
         documentType={downloadQueue?.documentType || ''}
+        allowInternationalPhone={downloadQueue?.projectSlug === 'arudra'}
       />
     </div>
   )

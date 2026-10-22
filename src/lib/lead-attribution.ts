@@ -1,5 +1,5 @@
 // Keep campaign metadata only: never copy arbitrary URL queries or contact data.
-const keys = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const
+const keys = ['gclid', 'gbraid', 'wbraid', 'utm_id', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const
 export type LeadAttribution = Partial<Record<typeof keys[number], string>>
 const storageKey = 'bhuwanta_campaign_session_v1'
 export function cleanAttribution(input: unknown): LeadAttribution {

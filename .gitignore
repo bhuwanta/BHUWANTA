@@ -16,6 +16,8 @@
 !/tests/project-enquiry.test.mjs
 !/tests/contact-phone-api.test.mjs
 !/tests/crm-phone-matching.test.mjs
+!/tests/document-download.test.mjs
+!/tests/lead-attribution.test.mjs
 
 # next.js
 /.next/
