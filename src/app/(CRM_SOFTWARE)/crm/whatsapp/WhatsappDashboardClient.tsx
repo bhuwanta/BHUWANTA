@@ -15,9 +15,34 @@ const extractIncomingMessage = (details: string) => {
     if (msg.startsWith('"') && msg.endsWith('"')) {
       msg = msg.slice(1, -1);
     }
-    return msg || '(no text content)';
+    if (msg && msg !== '(no text content)') {
+      return msg;
+    }
   }
-  return '(no text content)';
+
+  // Fallback for historical/interactive/ad records where Message was logged as '(no text content)'
+  const selectionLine = lines.find(l => l.startsWith('Selection: '));
+  if (selectionLine) {
+    const rawSelection = selectionLine.replace('Selection: ', '').trim();
+    const cleaned = rawSelection.replace(/^(area_|proj_|action_)/, '').replace(/_/g, ' ');
+    if (cleaned) return `Selected: ${cleaned}`;
+  }
+
+  const referralTypeLine = lines.find(l => l.startsWith('WhatsApp referral source type: '));
+  const ctwaLine = lines.find(l => l.startsWith('Click-to-WhatsApp ID: '));
+  if (referralTypeLine || ctwaLine) {
+    return 'Ad Interaction (Click-to-WhatsApp)';
+  }
+
+  const typeLine = lines.find(l => l.startsWith('Type: '));
+  if (typeLine) {
+    const typeVal = typeLine.replace('Type: ', '').trim();
+    if (typeVal && typeVal !== 'text') {
+      return `[${typeVal.charAt(0).toUpperCase() + typeVal.slice(1)} message]`;
+    }
+  }
+
+  return msgLine ? '(no text content)' : details.trim() || '(no text content)';
 };
 
 export default function WhatsappDashboardClient({ 

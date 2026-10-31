@@ -297,7 +297,8 @@ export async function getLeadActivities(leadId: string) {
     .from('lead_activities')
     .select('*')
     .eq('lead_id', leadId)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
 
   if (error) {
     console.error('Error fetching lead activities:', error)

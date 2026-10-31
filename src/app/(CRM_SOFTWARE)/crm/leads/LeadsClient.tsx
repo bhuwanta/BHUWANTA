@@ -22,9 +22,34 @@ const extractIncomingMessage = (details: string) => {
     if (msg.startsWith('"') && msg.endsWith('"')) {
       msg = msg.slice(1, -1);
     }
-    return msg || '(no text content)';
+    if (msg && msg !== '(no text content)') {
+      return msg;
+    }
   }
-  return '(no text content)';
+
+  // Fallback for historical/interactive/ad records where Message was logged as '(no text content)'
+  const selectionLine = lines.find(l => l.startsWith('Selection: '));
+  if (selectionLine) {
+    const rawSelection = selectionLine.replace('Selection: ', '').trim();
+    const cleaned = rawSelection.replace(/^(area_|proj_|action_)/, '').replace(/_/g, ' ');
+    if (cleaned) return `Selected: ${cleaned}`;
+  }
+
+  const referralTypeLine = lines.find(l => l.startsWith('WhatsApp referral source type: '));
+  const ctwaLine = lines.find(l => l.startsWith('Click-to-WhatsApp ID: '));
+  if (referralTypeLine || ctwaLine) {
+    return 'Ad Interaction (Click-to-WhatsApp)';
+  }
+
+  const typeLine = lines.find(l => l.startsWith('Type: '));
+  if (typeLine) {
+    const typeVal = typeLine.replace('Type: ', '').trim();
+    if (typeVal && typeVal !== 'text') {
+      return `[${typeVal.charAt(0).toUpperCase() + typeVal.slice(1)} message]`;
+    }
+  }
+
+  return msgLine ? '(no text content)' : details.trim() || '(no text content)';
 };
 
 const FacebookIcon = (props: any) => (
@@ -36,12 +61,6 @@ const FacebookIcon = (props: any) => (
 const InstagramIcon = (props: any) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-  </svg>
-)
-
-const YoutubeIcon = (props: any) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a1.9 1.9 0 0 0 1.32 1.35c1.7.47 8.22.47 8.22.47s6.52 0 8.22-.47a1.9 1.9 0 0 0 1.32-1.35c.46-1.69.46-5.58.46-5.58s0-3.89-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
   </svg>
 )
 
@@ -185,12 +204,12 @@ export default function LeadsClient({
   const [isBulkDeleting, setIsBulkDeleting] = useState(false)
 
   useEffect(() => {
-    if (isWhatsappHistoryOpen && whatsappLead) {
+    if (isWhatsappHistoryOpen && whatsappLead && !isLoadingActivities && whatsappActivities.length > 0) {
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
+      }, 80)
     }
-  }, [isWhatsappHistoryOpen, whatsappLead])
+  }, [isWhatsappHistoryOpen, whatsappLead, isLoadingActivities, whatsappActivities])
   
   // Bulk Selection State
   // Bulk Selection State
@@ -739,17 +758,6 @@ export default function LeadsClient({
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" /> Website
-                </button>
-
-                <button
-                  onClick={() => toggleSourceFilter('youtube')}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border shrink-0 ${
-                    selectedSources.includes('youtube')
-                      ? 'bg-red-50 border-red-200 text-red-700 font-semibold ring-1 ring-red-300'
-                      : 'bg-[#f3f5f8] border-transparent text-[#5a6a82] hover:bg-[#e8ecf2] hover:text-[#0f1d33]'
-                  }`}
-                >
-                  <YoutubeIcon className="w-3.5 h-3.5" /> YouTube
                 </button>
 
                 <button

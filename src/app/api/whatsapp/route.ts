@@ -168,6 +168,11 @@ export async function POST(request: Request) {
           if (userInput.toLowerCase().startsWith('hi') || userInput.toLowerCase().startsWith('hello')) {
             isGreeting = true
           }
+        } else if (message.type === 'button') {
+          userInput = (message.button?.text || message.button?.payload || '').trim()
+          if (userInput.toLowerCase().startsWith('hi') || userInput.toLowerCase().startsWith('hello')) {
+            isGreeting = true
+          }
         } else if (message.type === 'interactive') {
           if (message.interactive.type === 'list_reply') {
             userInput = message.interactive.list_reply.id
