@@ -121,3 +121,11 @@ change\ log/
 change-log/
 changelog/
 
+# Local Sanity media assets for offline backup / pendrive storage
+/sanity\ images/
+/sanity\ videos/
+/sanity_images/
+/sanity_videos/
+sanity\ images/
+sanity\ videos/
+
