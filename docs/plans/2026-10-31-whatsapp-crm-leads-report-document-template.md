@@ -146,3 +146,4 @@ Remove lines 407–435 (the standalone document loop) because the document is al
 
 - Record changes in `change log/CHANGELOG.md`.
 - Ensure environment variable `WHATSAPP_REPORT_TEMPLATE_NAME` defaults to `crm_leads_report_v2` with fallback to `crm_leads_report`.
+

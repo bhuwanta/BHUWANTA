@@ -18,6 +18,14 @@
 !/tests/crm-phone-matching.test.mjs
 !/tests/document-download.test.mjs
 !/tests/lead-attribution.test.mjs
+!/tests/report-token.test.mjs
+!/tests/leads-report.test.mjs
+!/tests/auth.test.mjs
+!/tests/otp.test.mjs
+!/tests/password-reset.test.mjs
+!/tests/permissions.test.mjs
+!/tests/settings.test.mjs
+!/tests/lead_status.test.mjs
 
 # next.js
 /.next/

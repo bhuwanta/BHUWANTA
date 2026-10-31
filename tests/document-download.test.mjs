@@ -13,6 +13,7 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: 'https
 globalThis.window = dom.window
 globalThis.document = dom.window.document
 globalThis.HTMLElement = dom.window.HTMLElement
+globalThis.navigator = dom.window.navigator
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const React = require('react')
 const { act } = React

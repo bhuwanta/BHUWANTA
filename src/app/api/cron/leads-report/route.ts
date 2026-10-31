@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { generateExcelBuffer, generateMasterExcelBuffer, generatePDFBuffer, LeadReportData } from '@/lib/reports/generator';
+import { generateExcelBuffer, generateMasterExcelBuffer, generatePDFBuffer, formatLead } from '@/lib/reports/generator';
+import { buildReportDownloadUrl } from '@/lib/reports/token';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,30 +12,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-function formatLead(lead: any): LeadReportData {
-  let formattedDate = '-';
-  if (lead.created_at) {
-    try {
-      const d = new Date(lead.created_at);
-      const datePart = d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
-      const timePart = d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
-      formattedDate = `${datePart}, ${timePart}`;
-    } catch {
-      formattedDate = String(lead.created_at);
-    }
-  }
-  return {
-    name: lead.name ? String(lead.name).trim() : 'Unknown',
-    phone: lead.phone ? String(lead.phone).trim() : '-',
-    email: lead.email ? String(lead.email).trim() : '-',
-    source: lead.source_page ? String(lead.source_page).trim() : 'Unknown',
-    message: lead.message ? String(lead.message).trim() : '-',
-    project: lead.project ? String(lead.project).trim() : '-',
-    downloads: lead.downloaded_item ? String(lead.downloaded_item).trim() : '-',
-    date: formattedDate
-  };
-}
 
 export async function GET(request: Request) {
   try {
@@ -275,48 +252,28 @@ export async function GET(request: Request) {
           const waPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
           if (waToken && waPhoneId) {
-            // 1. Upload Excel attachments once to Meta Graph API
-            const excelAttachments = attachments.filter(a => a.filename.endsWith('.xlsx'));
-            const uploadedMediaMap = new Map<string, string>();
+            // Generate secure, signed download URL for the Excel report (valid 24h)
+            const downloadUrl = buildReportDownloadUrl({
+              slotCode,
+              period: reportPeriod,
+              sheetName: slotSheetName,
+              startUtc,
+              endUtc: endSlotDate.toISOString(),
+              isMaster,
+              todayStr: todayIstStr,
+            });
 
-            for (const attachment of excelAttachments) {
-              try {
-                const form = new FormData();
-                form.append('messaging_product', 'whatsapp');
-                const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                form.append('type', mimeType);
-                const file = new File([attachment.content], attachment.filename, { type: mimeType });
-                form.append('file', file);
-
-                const uploadRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/media`, {
-                  method: 'POST',
-                  headers: { 'Authorization': `Bearer ${waToken}` },
-                  body: form
-                });
-
-                if (uploadRes.ok) {
-                  const uploadData = await uploadRes.json();
-                  uploadedMediaMap.set(attachment.filename, uploadData.id);
-                  console.log(`✅ Pre-uploaded ${attachment.filename} to Meta Media API (ID: ${uploadData.id})`);
-                } else {
-                  console.error('❌ WhatsApp Media Upload failed:', uploadRes.status, await uploadRes.text());
-                }
-              } catch (e) {
-                console.error('❌ Error uploading WA attachment to Meta:', e);
-              }
-            }
-
-            // 2. Deliver template summary + document to each recipient
+            // Deliver template summary with secure download link to each recipient
             for (const phone of waList) {
               const formattedCurrentDate = formatIstDate(nowUtc);
               const formattedCurrentTime = formatIstTime(nowUtc);
 
-              // Build lead counts summary for template param {{4}}
+              // Build lead counts summary and download link for template param {{4}}
               let leadCountsSummary = '';
               if (isMaster) {
-                leadCountsSummary = `Slot Leads: ${slotLeadsCount}\nTotal Leads Today: ${todayLeadsCount}\nTotal Leads All-Time: ${allTimeCount}`;
+                leadCountsSummary = `Slot Leads: ${slotLeadsCount}\nTotal Leads Today: ${todayLeadsCount}\nTotal Leads All-Time: ${allTimeCount}\n\n📥 Download Excel:\n${downloadUrl}`;
               } else {
-                leadCountsSummary = `Total Leads in Slot: ${slotLeadsCount}`;
+                leadCountsSummary = `Total Leads in Slot: ${slotLeadsCount}\n\n📥 Download Excel:\n${downloadUrl}`;
               }
 
               // Try sending via Template Message first (works outside 24-hour window)
@@ -376,7 +333,7 @@ export async function GET(request: Request) {
                   summaryText += `*Total Leads in Slot:* ${slotLeadsCount}\n\n`;
                 }
 
-                summaryText += `Please find the attached excel report below.`;
+                summaryText += `📥 *Download Excel Report:*\n${downloadUrl}`;
 
                 try {
                   const textRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
@@ -400,43 +357,6 @@ export async function GET(request: Request) {
                   }
                 } catch (e) {
                   console.error(`❌ WhatsApp text send error for ${phone}:`, e);
-                }
-              }
-
-
-              // Send pre-uploaded document attachments
-              for (const attachment of excelAttachments) {
-                const mediaId = uploadedMediaMap.get(attachment.filename);
-                if (!mediaId) {
-                  console.warn(`⚠️ Skipping document send to ${phone} because mediaId was not generated for ${attachment.filename}`);
-                  continue;
-                }
-
-                try {
-                  const sendRes = await fetch(`https://graph.facebook.com/v19.0/${waPhoneId}/messages`, {
-                    method: 'POST',
-                    headers: {
-                      'Authorization': `Bearer ${waToken}`,
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                      messaging_product: 'whatsapp',
-                      to: phone,
-                      type: 'document',
-                      document: {
-                        id: mediaId,
-                        filename: attachment.filename
-                      }
-                    })
-                  });
-
-                  if (!sendRes.ok) {
-                    console.error(`❌ WhatsApp Document send failed to ${phone}:`, sendRes.status, await sendRes.text());
-                  } else {
-                    console.log(`✅ WhatsApp Excel report successfully sent to ${phone}`);
-                  }
-                } catch (e) {
-                  console.error('❌ Error sending WA document message:', e);
                 }
               }
             }

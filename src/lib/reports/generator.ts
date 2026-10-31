@@ -18,6 +18,30 @@ export interface PDFReportOptions {
   generationDate?: string;
 }
 
+export function formatLead(lead: any): LeadReportData {
+  let formattedDate = '-';
+  if (lead.created_at) {
+    try {
+      const d = new Date(lead.created_at);
+      const datePart = d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timePart = d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+      formattedDate = `${datePart}, ${timePart}`;
+    } catch {
+      formattedDate = String(lead.created_at);
+    }
+  }
+  return {
+    name: lead.name ? String(lead.name).trim() : 'Unknown',
+    phone: lead.phone ? String(lead.phone).trim() : '-',
+    email: lead.email ? String(lead.email).trim() : '-',
+    source: lead.source_page ? String(lead.source_page).trim() : 'Unknown',
+    message: lead.message ? String(lead.message).trim() : '-',
+    project: lead.project ? String(lead.project).trim() : '-',
+    downloads: lead.downloaded_item ? String(lead.downloaded_item).trim() : '-',
+    date: formattedDate
+  };
+}
+
 const EXCEL_COLS = [
   { wch: 8 },  // S.No
   { wch: 22 }, // Date & Time (IST)

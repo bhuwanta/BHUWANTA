@@ -15,6 +15,7 @@ const dom = new JSDOM('<!doctype html><html><body></body></html>', {
 globalThis.window = dom.window
 globalThis.document = dom.window.document
 globalThis.HTMLElement = dom.window.HTMLElement
+globalThis.navigator = dom.window.navigator
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 // Initialise React DOM after the document, so controlled input events work.
