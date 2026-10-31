@@ -64,3 +64,4 @@ export function buildReportDownloadUrl(data: Omit<ReportTokenPayload, 'exp'>): s
   const token = generateReportToken(data)
   return `${getSiteUrl()}/api/crm/reports/download?token=${encodeURIComponent(token)}`
 }
+
