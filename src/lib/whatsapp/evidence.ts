@@ -36,6 +36,9 @@ export function incomingEvidence(message: {
   if (!content && message.image) {
     content = message.image.caption ? `📷 [Photo: ${bounded(message.image.caption)}]` : '📷 [Photo attachment]'
   }
+  if (!content && message.video) {
+    content = message.video.caption ? `🎥 [Video: ${bounded(message.video.caption)}]` : '🎥 [Video attachment]'
+  }
   if (!content && message.document) {
     content = message.document.filename ? `📄 [Document: ${bounded(message.document.filename)}]` : '📄 [Document attachment]'
   }
