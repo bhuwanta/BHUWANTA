@@ -49,6 +49,19 @@ const extractIncomingMessage = (details: string) => {
   return msgLine ? '(no text content)' : details.trim() || '(no text content)';
 };
 
+const extractMediaInfo = (details: string) => {
+  if (!details) return null;
+  const lines = details.split('\n');
+  const mediaLine = lines.find(l => l.startsWith('Media ID: '));
+  const typeLine = lines.find(l => l.startsWith('Type: '));
+  const mimeLine = lines.find(l => l.startsWith('MIME: '));
+  if (!mediaLine) return null;
+  const mediaId = mediaLine.replace('Media ID: ', '').trim();
+  const type = typeLine ? typeLine.replace('Type: ', '').trim().toLowerCase() : '';
+  const mime = mimeLine ? mimeLine.replace('MIME: ', '').trim().toLowerCase() : '';
+  return { mediaId, type, mime };
+};
+
 export default function WhatsappDashboardClient({ 
   initialLeads, 
   totalCount = 0, 
@@ -519,11 +532,47 @@ export default function WhatsappDashboardClient({
                   
                   if (type.includes('incoming whatsapp')) {
                     const msg = extractIncomingMessage(activity.details);
+                    const media = extractMediaInfo(activity.details);
                     return (
                       <div key={idx} className="flex flex-col items-end self-end max-w-[85%] mt-1">
                         <div className="bg-[#d9fdd3] text-[#111b21] px-3 pt-2 pb-1.5 rounded-lg rounded-tr-none shadow-sm relative text-sm border border-[#c3e8bd]">
                            <span className="font-bold text-[#025c4c] text-[11px] leading-tight block mb-0.5">{selectedLead.name || 'User'}</span>
                            <div className="whitespace-pre-wrap leading-snug">{msg}</div>
+                           {media && (
+                             <div className="mt-2 rounded-lg overflow-hidden border border-[#c3e8bd]/60 bg-black/5">
+                               {media.type === 'video' || media.mime.startsWith('video/') ? (
+                                 <video
+                                   controls
+                                   playsInline
+                                   className="rounded-lg max-w-full max-h-60 bg-black"
+                                   src={`/api/whatsapp/media/${media.mediaId}`}
+                                 />
+                               ) : media.type === 'image' || media.mime.startsWith('image/') ? (
+                                 <img
+                                   src={`/api/whatsapp/media/${media.mediaId}`}
+                                   alt="Attachment"
+                                   className="rounded-lg max-w-full max-h-60 object-cover cursor-pointer hover:opacity-95"
+                                   onClick={() => window.open(`/api/whatsapp/media/${media.mediaId}`, '_blank')}
+                                 />
+                               ) : media.type === 'audio' || media.mime.startsWith('audio/') ? (
+                                 <audio
+                                   controls
+                                   className="w-full max-w-xs mt-1"
+                                   src={`/api/whatsapp/media/${media.mediaId}`}
+                                 />
+                               ) : (
+                                 <a
+                                   href={`/api/whatsapp/media/${media.mediaId}`}
+                                   download
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-xs font-semibold rounded-md border border-[#c3e8bd] text-[#025c4c] hover:bg-[#d9fdd3] transition-colors"
+                                 >
+                                   📎 Download Attachment
+                                 </a>
+                               )}
+                             </div>
+                           )}
                            <div className="text-[10px] text-[#667781] text-right mt-1 -mb-0.5 ml-4 float-right">{time}</div>
                         </div>
                       </div>

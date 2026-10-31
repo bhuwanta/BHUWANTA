@@ -16,11 +16,11 @@ export function incomingEvidence(message: {
     list_reply?: { id?: unknown; title?: unknown; description?: unknown };
     button_reply?: { id?: unknown; title?: unknown };
   };
-  image?: { caption?: unknown };
-  video?: { caption?: unknown };
-  document?: { filename?: unknown; caption?: unknown };
+  image?: { id?: unknown; mime_type?: unknown; caption?: unknown };
+  video?: { id?: unknown; mime_type?: unknown; caption?: unknown };
+  document?: { id?: unknown; mime_type?: unknown; filename?: unknown; caption?: unknown };
   location?: { name?: unknown; address?: unknown; latitude?: unknown; longitude?: unknown };
-  audio?: unknown;
+  audio?: { id?: unknown; mime_type?: unknown } | unknown;
   referral?: { headline?: unknown; body?: unknown; source_id?: unknown; source_type?: unknown; ctwa_clid?: unknown };
 }): string {
   const reply = message.interactive?.list_reply || message.interactive?.button_reply
@@ -65,6 +65,11 @@ export function incomingEvidence(message: {
     `Type: ${bounded(message.type, 40)}`,
     `Message: ${content || '(no text content)'}`,
   ]
+  const audioObj = typeof message.audio === 'object' && message.audio !== null ? (message.audio as { id?: unknown; mime_type?: unknown }) : undefined
+  const mediaId = message.image?.id || message.video?.id || message.document?.id || audioObj?.id
+  const mimeType = message.image?.mime_type || message.video?.mime_type || message.document?.mime_type || audioObj?.mime_type
+  if (mediaId) lines.push(`Media ID: ${bounded(mediaId, 128)}`)
+  if (mimeType) lines.push(`MIME: ${bounded(mimeType, 100)}`)
   if (reply?.id) lines.push(`Selection: ${bounded(reply.id, 512)}`)
   if (message.button?.payload) lines.push(`Button payload: ${bounded(message.button.payload, 512)}`)
   if (message.referral) {
