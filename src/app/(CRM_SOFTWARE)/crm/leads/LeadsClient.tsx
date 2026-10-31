@@ -43,7 +43,11 @@ const extractIncomingMessage = (details: string) => {
 
   const typeLine = lines.find(l => l.startsWith('Type: '));
   if (typeLine) {
-    const typeVal = typeLine.replace('Type: ', '').trim();
+    const typeVal = typeLine.replace('Type: ', '').trim().toLowerCase();
+    if (typeVal === 'unsupported') {
+      const isReferral = lines.some(l => l.includes('referral') || l.includes('Click-to-WhatsApp'));
+      return isReferral ? 'Ad Interaction (Click-to-WhatsApp)' : 'Chat Initiated (Ad CTA / Interactive Button)';
+    }
     if (typeVal && typeVal !== 'text') {
       return `[${typeVal.charAt(0).toUpperCase() + typeVal.slice(1)} message]`;
     }

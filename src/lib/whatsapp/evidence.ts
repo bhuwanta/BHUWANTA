@@ -52,6 +52,9 @@ export function incomingEvidence(message: {
   if (!content && message.referral?.body) {
     content = `[Ad: ${bounded(message.referral.body)}]`
   }
+  if (!content && message.type === 'unsupported') {
+    content = 'Chat Initiated (Ad CTA / Interactive Button)'
+  }
 
   const lines = [
     `Message ID: ${bounded(message.id, 512)}`,
