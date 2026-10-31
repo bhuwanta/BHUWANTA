@@ -89,8 +89,9 @@
 }
 .brand-artwork {
   position: relative;
-  width: 220px;
-  aspect-ratio: 1600 / 612;
+  height: 60px;
+  width: auto;
+  aspect-ratio: 1550 / 844;
   display: inline-flex;
   align-items: center;
   max-width: 100%;
@@ -98,14 +99,15 @@
 /* Display the complete artwork naturally without clipping or arbitrary offsets. */
 .brand-artwork .brand-artwork-image {
   position: relative;
-  width: 100%;
-  height: auto;
+  width: auto;
+  height: 100%;
   max-width: 100%;
   object-fit: contain;
   display: block;
 }
 .brand-artwork-footer {
-  width: 240px;
+  height: 80px;
+  width: auto;
 }
 .public-nav {
   background: #00291e;
@@ -609,7 +611,8 @@
 }
 @media (min-width: 1280px) {
   .public-nav .brand-artwork {
-    width: 230px;
+    height: 64px;
+    width: auto;
   }
 }
 @media (max-width: 1100px) {
@@ -722,7 +725,8 @@
     width: calc(100% - 40px);
   }
   .brand-artwork {
-    width: 190px;
+    height: 48px;
+    width: auto;
   }
   .public-nav .h-20 {
     height: 80px;
@@ -780,7 +784,8 @@
     font-size: 12px;
   }
   .brand-artwork-footer {
-    width: 270px;
+    height: 80px;
+    width: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1452,7 +1457,8 @@
   margin: -8px 0 20px;
 }
 .footer-brand-logo .brand-artwork-footer {
-  width: 100%;
+  height: 84px;
+  width: auto;
 }
 .footer-brand-column > p {
   max-width: 265px;
@@ -1664,7 +1670,8 @@
   pointer-events: none;
 }
 .public-nav .brand-artwork {
-  width: 195px;
+  height: 60px;
+  width: auto;
 }
 .public-nav .h-20 {
   height: 84px;
@@ -1684,7 +1691,8 @@
 }
 @media (max-width: 640px) {
   .public-nav .brand-artwork {
-    width: 160px;
+    height: 48px;
+    width: auto;
   }
   .public-nav .h-20 {
     height: 76px;
