@@ -506,21 +506,9 @@ export default function WhatsappDashboardClient({
                   <p className="text-sm text-[#5a6a82]">{selectedLead.name} ({selectedLead.phone})</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {selectedLead.phone && (
-                  <a
-                    href={`https://wa.me/${selectedLead.phone.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
-                  >
-                    Open in WhatsApp ↗
-                  </a>
-                )}
-                <button onClick={() => setSelectedLead(null)} className="p-2 text-[#5a6a82] hover:text-[#0f1d33] hover:bg-white rounded-lg transition-colors">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+              <button onClick={() => setSelectedLead(null)} className="p-2 text-[#5a6a82] hover:text-[#0f1d33] hover:bg-white rounded-lg transition-colors">
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-4 bg-[#efeae2] flex flex-col relative overscroll-contain">

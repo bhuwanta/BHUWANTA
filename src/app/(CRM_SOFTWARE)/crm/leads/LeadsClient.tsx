@@ -1623,21 +1623,9 @@ export default function LeadsClient({
                   <p className="text-sm text-[#5a6a82]">{whatsappLead.name} ({whatsappLead.phone})</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {whatsappLead.phone && (
-                  <a
-                    href={`https://wa.me/${whatsappLead.phone.replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
-                  >
-                    Open in WhatsApp ↗
-                  </a>
-                )}
-                <button aria-label="Close WhatsApp activity" onClick={closeWhatsappHistory} className="text-[#5a6a82] hover:text-[#0f1d33] p-1.5 rounded-lg hover:bg-[#f3f5f8] transition-colors">
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+              <button aria-label="Close WhatsApp activity" onClick={closeWhatsappHistory} className="text-[#5a6a82] hover:text-[#0f1d33] p-1.5 rounded-lg hover:bg-[#f3f5f8] transition-colors">
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             <p className="text-sm text-[#5a6a82] mb-4">Chat history and bot interactions for this lead.</p>
