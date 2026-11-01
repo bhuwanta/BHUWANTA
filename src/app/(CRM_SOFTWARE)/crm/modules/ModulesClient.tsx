@@ -12,12 +12,14 @@ import {
   verifyAndAddEmail,
   ReportRecipient,
   WaRecipient,
+  getWaRecipients,
   addWaRecipient,
   updateWaRecipient,
   testReportWa,
   removeWaRecipient,
   LeadStatus
 } from './actions'
+import { extractTenDigitWaPhone, normalizeWaRecipientPhone, normalizeWaReportTimings } from '@/lib/phone-input'
 
 import WebsiteDownloadsOtp from './components/WebsiteDownloadsOtp'
 import AutomatedReportsEmail from './components/AutomatedReportsEmail'
@@ -73,6 +75,21 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [editWaPhone, setEditWaPhone] = useState('')
   const [editWaTimings, setEditWaTimings] = useState<string[]>([])
   const [isSavingWaEdit, setIsSavingWaEdit] = useState(false)
+  const [isRefreshingWa, setIsRefreshingWa] = useState(false)
+
+  const refreshWaRecipients = async () => {
+    setIsRefreshingWa(true)
+    try {
+      const res = await getWaRecipients()
+      if (res.data) {
+        setWaRecipients(res.data)
+      }
+    } catch (e) {
+      console.error('Failed to sync WA recipients:', e)
+    } finally {
+      setIsRefreshingWa(false)
+    }
+  }
 
   // --- OTP Toggle Handler ---
   const handleToggleOtp = (nextState: boolean) => {
@@ -137,15 +154,13 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     const res = await verifyAndAddEmail(trimmedEmail, otpCode.trim(), trimmedName)
     if (res.success) {
       toast.success('Email verified and added!')
-      setRecipients([
-        ...recipients, 
-        { 
-          id: Date.now().toString(), 
-          email: trimmedEmail, 
-          name: trimmedName, 
-          created_at: new Date().toISOString() 
-        }
-      ])
+      const addedRecipient = res.data || { 
+        id: Date.now().toString(), 
+        email: trimmedEmail, 
+        name: trimmedName, 
+        created_at: new Date().toISOString() 
+      }
+      setRecipients([...recipients, addedRecipient])
       setNewEmail('')
       setNewEmailName('')
       setOtpCode('')
@@ -217,25 +232,25 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   // --- WhatsApp Handlers ---
   const handleAddWa = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newWaNumber || newWaNumber.length !== 10) {
-      toast.error('Please enter a valid 10-digit phone number')
+    const clean = normalizeWaRecipientPhone(newWaNumber)
+    if (!clean.valid) {
+      toast.error(clean.error || 'Please enter a valid 10-digit Indian phone number')
       return
     }
     
     setIsAddingWa(true)
-    const fullNumber = `91${newWaNumber.trim()}`
     const trimmedName = newWaName.trim() || null
-    const res = await addWaRecipient(fullNumber, trimmedName)
-    if (res.success) {
+    const res = await addWaRecipient(clean.phone, trimmedName)
+    if (res.success && res.data) {
       toast.success('WhatsApp recipient added!')
-      setWaRecipients([
-        ...waRecipients, 
-        { id: Date.now().toString(), phone_number: fullNumber, name: trimmedName, created_at: new Date().toISOString() }
-      ])
+      setWaRecipients(prev => [...prev, res.data!])
       setNewWaNumber('')
       setNewWaName('')
     } else {
       toast.error('Failed to add number', { description: res.error })
+      if (res.error?.includes('already')) {
+        refreshWaRecipients()
+      }
     }
     setIsAddingWa(false)
   }
@@ -244,37 +259,36 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     if (testingRowId === r.id) setTestingRowId(null)
     setEditingWaId(r.id)
     setEditWaName(r.name || '')
-    const cleanPhone = r.phone_number.startsWith('91') ? r.phone_number.slice(2) : r.phone_number
+    const cleanPhone = extractTenDigitWaPhone(r.phone_number)
     setEditWaPhone(cleanPhone)
-    setEditWaTimings(r.report_times || [])
+    setEditWaTimings(normalizeWaReportTimings(r.report_times))
   }
 
   const handleSaveWaEdit = async (id: string) => {
-    if (!editWaPhone || editWaPhone.length !== 10) {
-      toast.error('Please enter a valid 10-digit phone number')
+    const clean = normalizeWaRecipientPhone(editWaPhone)
+    if (!clean.valid) {
+      toast.error(clean.error || 'Please enter a valid 10-digit Indian phone number')
       return
     }
     setIsSavingWaEdit(true)
-    const fullNumber = `91${editWaPhone.trim()}`
     const trimmedName = editWaName.trim() || null
+    const normalizedTimings = normalizeWaReportTimings(editWaTimings)
 
     const res = await updateWaRecipient(id, {
       name: trimmedName,
-      phone_number: fullNumber,
-      report_times: editWaTimings
+      phone_number: clean.phone,
+      report_times: normalizedTimings
     })
 
-    if (res.success) {
+    if (res.success && res.data) {
       toast.success('Recipient updated successfully!')
-      setWaRecipients(waRecipients.map(r => r.id === id ? {
-        ...r,
-        name: trimmedName,
-        phone_number: fullNumber,
-        report_times: editWaTimings
-      } : r))
+      setWaRecipients(waRecipients.map(r => r.id === id ? res.data! : r))
       setEditingWaId(null)
     } else {
       toast.error('Failed to update recipient', { description: res.error })
+      if (res.error?.includes('not found') || res.error?.includes('another device')) {
+        refreshWaRecipients()
+      }
     }
     setIsSavingWaEdit(false)
   }
@@ -417,12 +431,17 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
             isAddingWa={isAddingWa}
             onAddWa={handleAddWa}
             isModalOpen={activeModal === 'wa'}
-            onOpenModal={() => setActiveModal('wa')}
+            onOpenModal={() => {
+              setActiveModal('wa')
+              refreshWaRecipients()
+            }}
             onCloseModal={() => {
               setActiveModal(null)
               setTestingRowId(null)
               setEditingWaId(null)
             }}
+            isRefreshing={isRefreshingWa}
+            onRefresh={refreshWaRecipients}
             waRecipients={waRecipients}
             editingWaId={editingWaId}
             editWaName={editWaName}

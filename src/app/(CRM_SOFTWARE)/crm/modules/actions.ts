@@ -5,6 +5,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getOtpDownloadEnabled, setOtpDownloadEnabled } from '@/lib/otp-config'
 import { redis } from '@/lib/redis'
 import { Resend } from 'resend'
+import { normalizeWaRecipientPhone, normalizeWaReportTimings } from '@/lib/phone-input'
 
 export interface OtpModuleResponse {
   success: boolean
@@ -109,19 +110,21 @@ export async function getReportRecipients(): Promise<{ data: ReportRecipient[], 
   }
 }
 
-export async function addReportRecipient(email: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
+export async function addReportRecipient(email: string, name?: string | null): Promise<{ success: boolean, data?: ReportRecipient, error?: string }> {
   try {
     const supabase = createServiceClient()
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('report_recipients')
       .insert([{ 
         email,
         name: name && name.trim() ? name.trim() : null
       }])
+      .select()
+      .single()
 
     if (error) throw error
     revalidatePath('/crm/modules')
-    return { success: true }
+    return { success: true, data: data as ReportRecipient }
   } catch (err: any) {
     console.error('Error adding report recipient:', err)
     return { success: false, error: err.message || 'Failed to add recipient' }
@@ -352,7 +355,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean, e
   }
 }
 
-export async function verifyAndAddEmail(email: string, otp: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
+export async function verifyAndAddEmail(email: string, otp: string, name?: string | null): Promise<{ success: boolean, data?: ReportRecipient, error?: string }> {
   try {
     if (!redis) throw new Error('Redis is not configured for OTP services.')
     
@@ -370,7 +373,7 @@ export async function verifyAndAddEmail(email: string, otp: string, name?: strin
     // Cleanup OTP
     await redis.del(key)
     
-    return { success: true }
+    return { success: true, data: res.data }
   } catch (err: any) {
     console.error('Error verifying email OTP:', err)
     return { success: false, error: err.message || 'Verification failed' }
@@ -409,19 +412,56 @@ export async function getWaRecipients(): Promise<{ data: WaRecipient[], error: s
   }
 }
 
-export async function addWaRecipient(phone_number: string, name?: string | null): Promise<{ success: boolean, error?: string }> {
+export async function addWaRecipient(
+  phone_number: string, 
+  name?: string | null,
+  report_times?: string[] | null
+): Promise<{ success: boolean, data?: WaRecipient, error?: string }> {
   try {
     const supabase = createServiceClient()
-    const { error } = await supabase
+    
+    // 1. Normalize and validate phone
+    const clean = normalizeWaRecipientPhone(phone_number)
+    if (!clean.valid) {
+      return { success: false, error: clean.error || 'Invalid phone number format' }
+    }
+
+    // 2. Check for duplicate phone number
+    const { data: existing } = await supabase
+      .from('whatsapp_report_recipients')
+      .select('id, name, phone_number')
+      .eq('phone_number', clean.phone)
+      .maybeSingle()
+
+    if (existing) {
+      return { 
+        success: false, 
+        error: `Phone number +${clean.phone} is already registered${existing.name ? ` for ${existing.name}` : ''}.` 
+      }
+    }
+
+    // 3. Ensure report_times defaults to all active slots
+    const timesToSave = normalizeWaReportTimings(report_times)
+
+    const { data, error } = await supabase
       .from('whatsapp_report_recipients')
       .insert([{ 
-        phone_number,
-        name: name && name.trim() ? name.trim() : null
+        phone_number: clean.phone,
+        name: name && name.trim() ? name.trim() : null,
+        report_times: timesToSave
       }])
+      .select()
+      .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505' || String(error.message).includes('unique constraint')) {
+        return { success: false, error: 'This phone number is already registered as a WhatsApp recipient.' }
+      }
+      throw error
+    }
+
     revalidatePath('/crm/modules')
-    return { success: true }
+    return { success: true, data: data as WaRecipient }
   } catch (err: any) {
     console.error('Error adding WA recipient:', err)
     return { success: false, error: err.message || 'Failed to add WhatsApp number' }
@@ -431,9 +471,24 @@ export async function addWaRecipient(phone_number: string, name?: string | null)
 export async function updateWaRecipient(
   id: string, 
   updates: { name?: string | null; phone_number?: string; report_times?: string[] | null }
-): Promise<{ success: boolean, error?: string }> {
+): Promise<{ success: boolean, data?: WaRecipient, error?: string }> {
   try {
     const supabase = createServiceClient()
+
+    // 1. Verify recipient exists
+    const { data: current, error: fetchErr } = await supabase
+      .from('whatsapp_report_recipients')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (fetchErr || !current) {
+      return { 
+        success: false, 
+        error: 'Recipient not found in database. The recipient may have been removed on another device. Please refresh.' 
+      }
+    }
+
     const payload: Record<string, any> = {}
 
     if (updates.name !== undefined) {
@@ -441,17 +496,33 @@ export async function updateWaRecipient(
     }
 
     if (updates.phone_number !== undefined) {
-      let cleanPhone = updates.phone_number.replace(/\D/g, '')
-      if (cleanPhone.length === 10) {
-        cleanPhone = `91${cleanPhone}`
+      const clean = normalizeWaRecipientPhone(updates.phone_number)
+      if (!clean.valid) {
+        return { success: false, error: clean.error || 'Invalid phone number format' }
       }
-      if (!/^\d{10,15}$/.test(cleanPhone)) {
-        return { success: false, error: 'Invalid phone number format' }
+
+      // If phone changed, ensure no collision with another recipient
+      if (clean.phone !== current.phone_number) {
+        const { data: duplicate } = await supabase
+          .from('whatsapp_report_recipients')
+          .select('id, name')
+          .eq('phone_number', clean.phone)
+          .neq('id', id)
+          .maybeSingle()
+
+        if (duplicate) {
+          return { 
+            success: false, 
+            error: `Phone number +${clean.phone} is already used by another recipient${duplicate.name ? ` (${duplicate.name})` : ''}.` 
+          }
+        }
       }
-      payload.phone_number = cleanPhone
+
+      payload.phone_number = clean.phone
     }
+
     if (updates.report_times !== undefined) {
-      payload.report_times = updates.report_times
+      payload.report_times = normalizeWaReportTimings(updates.report_times)
     }
 
     const { data, error } = await supabase
@@ -459,9 +530,10 @@ export async function updateWaRecipient(
       .update(payload)
       .eq('id', id)
       .select()
+      .single()
 
     if (error) {
-      // If the error is because report_times column doesn't exist, retry without it
+      // Fallback if report_times column issue
       const msg = String(error?.message || '')
       if (msg.includes('report_times') && 'report_times' in payload) {
         const { report_times: _dropped, ...fallback } = payload
@@ -471,26 +543,23 @@ export async function updateWaRecipient(
             .update(fallback)
             .eq('id', id)
             .select()
+            .single()
           if (e2) throw e2
-          if (!d2 || d2.length === 0) throw new Error('Recipient not found in database')
-        } else {
-          // Only report_times was being updated and column doesn't exist
-          console.warn('report_times column does not exist yet in whatsapp_report_recipients. Skipping.')
           revalidatePath('/crm/modules')
-          return { success: true }
+          return { success: true, data: d2 as WaRecipient }
         }
-      } else {
-        throw error
       }
-    } else if (!data || data.length === 0) {
-      throw new Error('Recipient not found in database')
+      if (error.code === '23505' || String(error.message).includes('unique constraint')) {
+        return { success: false, error: 'This phone number is already registered by another recipient.' }
+      }
+      throw error
     }
 
     revalidatePath('/crm/modules')
-    return { success: true }
+    return { success: true, data: data as WaRecipient }
   } catch (err: any) {
     console.error('Error updating WA recipient:', err)
-    return { success: false, error: err.message || 'Failed to update recipient' }
+    return { success: false, error: err.message || 'Failed to update WhatsApp recipient' }
   }
 }
 

@@ -26,6 +26,7 @@
 !/tests/permissions.test.mjs
 !/tests/settings.test.mjs
 !/tests/lead_status.test.mjs
+!/tests/whatsapp-recipient-edge-cases.test.mjs
 
 # next.js
 /.next/
