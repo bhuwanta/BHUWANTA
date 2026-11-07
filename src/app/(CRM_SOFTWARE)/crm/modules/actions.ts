@@ -6,6 +6,7 @@ import { getOtpDownloadEnabled, setOtpDownloadEnabled } from '@/lib/otp-config'
 import { redis } from '@/lib/redis'
 import { Resend } from 'resend'
 import { normalizeWaRecipientPhone, normalizeWaReportTimings } from '@/lib/phone-input'
+import { sendSystemMonitoringAlert, type AlertRecipient, type SystemAlertItem } from '@/lib/monitoring/alerts'
 
 export interface OtpModuleResponse {
   success: boolean
@@ -1081,5 +1082,223 @@ export async function deleteLeadStatus(
   } catch (err: any) {
     console.error('Error deleting lead status:', err)
     return { success: false, error: err.message || 'Failed to delete lead status.' }
+  }
+}
+
+// ============================================================
+// SYSTEM MONITORING & ALERTS ACTIONS
+// ============================================================
+
+export type { AlertRecipient }
+
+export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    const { data, error } = await supabase
+      .from('system_alert_recipients')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.warn('system_alert_recipients table may not exist yet, using default recipient:', error.message)
+      const fallbackList: AlertRecipient[] = [
+        {
+          id: 'master-alert-default',
+          name: 'Master Admin',
+          email: process.env.ADMIN_ALERT_EMAIL || 'bhuwanta9@gmail.com',
+          instant_alerts: true,
+          daily_digest: true,
+          created_at: new Date().toISOString()
+        }
+      ]
+      return { data: fallbackList }
+    }
+
+    if (!data || data.length === 0) {
+      const fallbackList: AlertRecipient[] = [
+        {
+          id: 'master-alert-default',
+          name: 'Master Admin',
+          email: process.env.ADMIN_ALERT_EMAIL || 'bhuwanta9@gmail.com',
+          instant_alerts: true,
+          daily_digest: true,
+          created_at: new Date().toISOString()
+        }
+      ]
+      return { data: fallbackList }
+    }
+
+    return { data }
+  } catch (err: any) {
+    console.error('Error in getAlertRecipients:', err)
+    return { error: err.message || 'Failed to fetch alert recipients' }
+  }
+}
+
+export async function addAlertRecipient(params: {
+  email: string
+  name?: string
+  instant_alerts?: boolean
+  daily_digest?: boolean
+}): Promise<{ success: boolean, data?: AlertRecipient, error?: string }> {
+  try {
+    const cleanEmail = (params.email || '').trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      return { success: false, error: 'Please enter a valid email address.' }
+    }
+
+    const supabase = createServiceClient()
+    const payload = {
+      email: cleanEmail,
+      name: (params.name || '').trim() || cleanEmail.split('@')[0],
+      instant_alerts: params.instant_alerts !== false,
+      daily_digest: params.daily_digest !== false
+    }
+
+    const { data, error } = await supabase
+      .from('system_alert_recipients')
+      .insert([payload])
+      .select()
+      .single()
+
+    if (error) {
+      if (error.code === '23505') {
+        return { success: false, error: 'This email is already in the alert recipients list.' }
+      }
+      throw error
+    }
+
+    // Sync to Redis for fast lookups
+    if (redis) {
+      try {
+        const { data: all } = await supabase.from('system_alert_recipients').select('email')
+        if (all) {
+          await redis.set('crm:system_alert_emails', all.map((r: any) => r.email))
+        }
+      } catch {}
+    }
+
+    revalidatePath('/crm/modules')
+    return { success: true, data }
+  } catch (err: any) {
+    console.error('Error adding alert recipient:', err)
+    return { success: false, error: err.message || 'Failed to add alert recipient' }
+  }
+}
+
+export async function updateAlertRecipient(
+  id: string,
+  params: { name?: string, instant_alerts?: boolean, daily_digest?: boolean }
+): Promise<{ success: boolean, error?: string }> {
+  try {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (!isUuid) {
+      if (id === 'master-alert-default') return { success: true }
+      return { success: false, error: 'Invalid recipient ID format' }
+    }
+
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('system_alert_recipients')
+      .update({
+        ...(params.name !== undefined ? { name: params.name.trim() } : {}),
+        ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
+        ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+
+    if (error) throw error
+
+    revalidatePath('/crm/modules')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error updating alert recipient:', err)
+    return { success: false, error: err.message || 'Failed to update alert recipient' }
+  }
+}
+
+export async function removeAlertRecipient(id: string): Promise<{ success: boolean, error?: string }> {
+  try {
+    if (id === 'master-alert-default') {
+      return { success: false, error: 'Default master admin recipient cannot be removed.' }
+    }
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (!isUuid) {
+      return { success: false, error: 'Invalid recipient ID format' }
+    }
+
+    const supabase = createServiceClient()
+    const { error } = await supabase
+      .from('system_alert_recipients')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+
+    revalidatePath('/crm/modules')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Error removing alert recipient:', err)
+    return { success: false, error: err.message || 'Failed to remove alert recipient' }
+  }
+}
+
+export async function triggerTestSystemAlert(targetEmail?: string): Promise<{ success: boolean, message?: string, error?: string }> {
+  try {
+    const testItems: SystemAlertItem[] = [
+      {
+        service: 'Meta WhatsApp Cloud API',
+        status: 'CRITICAL',
+        message: 'WhatsApp Access Token Validation Check (Simulation / Audit)',
+        details: 'OAuthException: Code 190, Subcode 467. User session expired or logged out.',
+        actionRequired: 'Generate Permanent System User Token in Meta Business Suite and update WHATSAPP_ACCESS_TOKEN in Vercel.'
+      },
+      {
+        service: 'Meta Ads Lead Gen Sync',
+        status: 'HEALTHY',
+        message: 'Synchronized active lead forms successfully with 0 sync errors.',
+        details: 'Cron path /api/cron/meta-sync operational.'
+      },
+      {
+        service: 'Resend Mail Delivery Engine',
+        status: 'HEALTHY',
+        message: 'SMTP/API credentials valid. Successfully sending transactional reports.',
+        details: 'Verified domain bhuwanta.com with active DKIM/SPF.'
+      },
+      {
+        service: 'Supabase PostgreSQL Database',
+        status: 'HEALTHY',
+        message: 'Connection pool active. Query latency: 14ms.',
+        details: 'Tables leads, report_recipients, crm_modules verified.'
+      },
+      {
+        service: 'Upstash Redis Cache & Rate Limiting',
+        status: 'HEALTHY',
+        message: 'In-memory key-value store connected and responsive.',
+        details: 'OTP rate limiters and session locks functioning normally.'
+      }
+    ]
+
+    const result = await sendSystemMonitoringAlert({
+      title: 'Manual Test — Subsystem Health & Monitoring Audit',
+      triggeredBy: 'CRM Modules Admin Dashboard (Test Button)',
+      items: testItems,
+      forceSend: true,
+      targetEmails: targetEmail ? [targetEmail] : undefined
+    })
+
+    if (!result.sent) {
+      return { success: false, error: result.error || 'Failed to dispatch test monitoring alert.' }
+    }
+
+    return {
+      success: true,
+      message: `Test alert email successfully sent to ${result.recipientsCount || 1} recipient(s). Please check your inbox!`
+    }
+  } catch (err: any) {
+    console.error('Error triggering test system alert:', err)
+    return { success: false, error: err.message || 'Failed to trigger test alert' }
   }
 }

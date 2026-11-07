@@ -28,6 +28,7 @@
 !/tests/lead_status.test.mjs
 !/tests/whatsapp-recipient-edge-cases.test.mjs
 !/tests/crm-leads-date-timezone.test.mjs
+!/tests/system-alerts-monitoring.test.mjs
 
 # next.js
 /.next/

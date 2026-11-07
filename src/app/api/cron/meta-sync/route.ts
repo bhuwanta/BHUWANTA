@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendSystemMonitoringAlert } from '@/lib/monitoring/alerts'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -87,11 +88,29 @@ export async function GET(request: Request) {
       }
     }
 
+    if (syncErrors.length > 0 && forms && forms.length > 0 && totalLeadsAdded === 0) {
+      await sendSystemMonitoringAlert({
+        title: 'Meta Ads Lead Gen Sync Failed',
+        triggeredBy: 'Cron: /api/cron/meta-sync',
+        cooldownKey: 'meta-sync-auth-error',
+        cooldownSeconds: 7200,
+        items: [
+          {
+            service: 'Meta Ads Lead Gen Sync',
+            status: 'CRITICAL',
+            message: `Failed to fetch leads for ${syncErrors.length} form(s).`,
+            details: syncErrors.join(' | '),
+            actionRequired: 'Verify META_ACCESS_TOKEN and Meta Business Manager lead access permissions.'
+          }
+        ]
+      }).catch(err => console.error('[Monitoring] Error alerting meta-sync failure:', err))
+    }
+
     return NextResponse.json({ 
-      success: true, 
+      success: syncErrors.length === 0 || totalLeadsAdded > 0, 
       processed: totalLeadsAdded,
       errors: syncErrors.length > 0 ? syncErrors : undefined 
-    })
+    }, { status: (syncErrors.length > 0 && totalLeadsAdded === 0) ? 502 : 200 })
   } catch (error: unknown) {
     console.error('❌ Error in Meta Sync:', error)
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 })

@@ -17,7 +17,8 @@ import {
   updateWaRecipient,
   testReportWa,
   removeWaRecipient,
-  LeadStatus
+  LeadStatus,
+  AlertRecipient
 } from './actions'
 import { extractTenDigitWaPhone, normalizeWaRecipientPhone, normalizeWaReportTimings } from '@/lib/phone-input'
 
@@ -26,17 +27,19 @@ import AutomatedReportsEmail from './components/AutomatedReportsEmail'
 import WhatsAppReports from './components/WhatsAppReports'
 import AccessControl from './components/AccessControl'
 import LeadStatusManager from './components/LeadStatusManager'
+import Alerts from './components/Alerts'
 
 interface ModulesClientProps {
   initialOtpEnabled: boolean
   initialRecipients: ReportRecipient[]
   initialWaRecipients: WaRecipient[]
+  initialAlertRecipients?: AlertRecipient[]
   roles: any[]
   users: any[]
   initialLeadStatuses?: LeadStatus[]
 }
 
-export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients, roles, users, initialLeadStatuses = [] }: ModulesClientProps) {
+export default function ModulesClient({ initialOtpEnabled, initialRecipients, initialWaRecipients, initialAlertRecipients = [], roles, users, initialLeadStatuses = [] }: ModulesClientProps) {
   const [otpEnabled, setOtpEnabled] = useState(initialOtpEnabled)
   const [isPending, startTransition] = useTransition()
   
@@ -362,6 +365,11 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
       {/* Lead Pipeline & Statuses Module */}
       <div className="mb-6">
         <LeadStatusManager initialStatuses={initialLeadStatuses} />
+      </div>
+
+      {/* System Monitoring & Failure Alerts Module */}
+      <div className="mb-6">
+        <Alerts initialAlertRecipients={initialAlertRecipients} />
       </div>
 
       {/* Modules Grid */}

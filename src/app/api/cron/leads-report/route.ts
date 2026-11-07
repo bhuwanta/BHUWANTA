@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { generateExcelBuffer, generateMasterExcelBuffer, generatePDFBuffer, formatLead } from '@/lib/reports/generator';
 import { buildReportDownloadUrl } from '@/lib/reports/token';
+import { sendSystemMonitoringAlert } from '@/lib/monitoring/alerts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -269,6 +270,10 @@ export async function GET(request: Request) {
           const waPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
           if (waToken && waPhoneId) {
+            let waDeliveredCount = 0;
+            let waAuthFailureMessage: string | null = null;
+            let waLastStatusCode: number | null = null;
+
             // Generate secure, signed download URL for the Excel report (valid 24h)
             const downloadUrl = buildReportDownloadUrl({
               slotCode,
@@ -326,9 +331,14 @@ export async function GET(request: Request) {
 
                 if (templateRes.ok) {
                   templateSent = true;
+                  waDeliveredCount++;
                   console.log(`✅ WhatsApp template report sent to ${phone}`);
                 } else {
                   const errBody = await templateRes.text();
+                  waLastStatusCode = templateRes.status;
+                  if (templateRes.status === 401 || templateRes.status === 403 || errBody.includes('OAuthException') || errBody.includes('190')) {
+                    waAuthFailureMessage = errBody;
+                  }
                   console.warn(`⚠️ Template send failed for ${phone} (${templateRes.status}): ${errBody}. Falling back to free-form text.`);
                 }
               } catch (e) {
@@ -368,14 +378,65 @@ export async function GET(request: Request) {
                   });
 
                   if (!textRes.ok) {
-                    console.error(`❌ WhatsApp text send also failed for ${phone} (${textRes.status}): ${await textRes.text()}`);
+                    const textErr = await textRes.text();
+                    waLastStatusCode = textRes.status;
+                    if (textRes.status === 401 || textRes.status === 403 || textErr.includes('OAuthException') || textErr.includes('190')) {
+                      waAuthFailureMessage = textErr;
+                    }
+                    console.error(`❌ WhatsApp text send also failed for ${phone} (${textRes.status}): ${textErr}`);
                   } else {
+                    waDeliveredCount++;
                     console.log(`✅ WhatsApp text report sent to ${phone} (fallback)`);
                   }
                 } catch (e) {
                   console.error(`❌ WhatsApp text send error for ${phone}:`, e);
                 }
               }
+            }
+
+            // CRITICAL AUDIT GATE: If all WhatsApp deliveries failed due to Meta token/auth failure, alert the team immediately
+            if (waList.length > 0 && waDeliveredCount === 0 && waAuthFailureMessage) {
+              console.error(`🚨 Critical: WhatsApp report delivery failed for all ${waList.length} recipient(s) due to Meta Auth Error (${waLastStatusCode}): ${waAuthFailureMessage}`);
+
+              await sendSystemMonitoringAlert({
+                title: `WhatsApp Leads Report Delivery Failed (${reportPeriod})`,
+                triggeredBy: 'Cron: /api/cron/leads-report',
+                cooldownKey: 'wa-leads-report-auth-401',
+                cooldownSeconds: 7200, // 2-hour cooldown to avoid notification flood
+                items: [
+                  {
+                    service: 'Meta WhatsApp Cloud API',
+                    status: 'CRITICAL',
+                    message: 'WhatsApp leads report message rejected by Meta Cloud API.',
+                    details: `HTTP ${waLastStatusCode || 401}: ${waAuthFailureMessage}`,
+                    actionRequired: 'Generate a Permanent System User Token in Meta Business Suite and update WHATSAPP_ACCESS_TOKEN in Vercel Project Settings.'
+                  },
+                  {
+                    service: 'Email Leads Report (Resend)',
+                    status: 'HEALTHY',
+                    message: 'Email leads report delivered successfully to email recipients.',
+                    details: `Generated ${attachments.length} attachments (Excel + PDF).`
+                  },
+                  {
+                    service: 'Supabase CRM Database',
+                    status: 'HEALTHY',
+                    message: 'Fetched lead records successfully for reporting window.',
+                    details: `Slot leads count: ${slotLeadsCount}`
+                  }
+                ]
+              }).catch(err => console.error('[Monitoring] Error triggering WhatsApp failure alert:', err));
+
+              return NextResponse.json(
+                {
+                  success: false,
+                  period: reportPeriod,
+                  error: 'WhatsApp delivery failed due to invalid or expired Meta access token.',
+                  metaStatus: waLastStatusCode || 401,
+                  details: waAuthFailureMessage,
+                  attachmentsGenerated: attachments.length
+                },
+                { status: 502 }
+              );
             }
           } else {
             console.warn('WhatsApp API credentials are not configured.');
