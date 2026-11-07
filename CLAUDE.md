@@ -31,6 +31,10 @@ As an AI assistant working on this repository:
    git push origin main
    ```
 
+## Database Migrations & DDL Policy
+- **Direct Execution Required**: AI assistants have full DDL execution capabilities via `SUPABASE_ACCESS_TOKEN` in `.env.local` using the Supabase Management API (`https://api.supabase.com/v1/projects/<ref>/database/query`).
+- **NEVER** ask the user to manually run SQL in the Supabase Dashboard SQL Editor. The agent must run migrations and DDL queries directly and verify schema cache.
+
 ## Architectural Guidelines
 - **Framework**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Vanilla CSS tokens.
 - **Backend / Data**: Supabase (Database), Upstash Redis (Cache / Rate Limiting / Module Toggles), Sanity (CMS), Resend (Email).

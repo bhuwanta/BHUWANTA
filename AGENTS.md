@@ -157,12 +157,48 @@ This repository maintains configuration files tailored for each AI agent ecosyst
 
 ---
 
+## 🗄️ 8. DIRECT DATABASE DDL & MIGRATION DIRECTIVE (ZERO MANUAL USER SQL)
+
+> **MANDATORY POLICY**:
+> AI coding assistants have **direct, full database management and DDL execution authority**.
+> **NEVER ask the user to manually run SQL scripts in the Supabase Dashboard SQL Editor.** The agent must perform all database operations directly and autonomously.
+
+### 🔑 Authentication & Capabilities:
+- The workspace environment provides a **Permanent Supabase Personal Access Token** in `BHUWANTA_WEBSITE/.env.local`:
+  ```bash
+  SUPABASE_ACCESS_TOKEN="sbp_..."
+  ```
+- This token has full permission to execute PostgreSQL DDL (`CREATE TABLE`, `ALTER TABLE`, `DROP TABLE`, `CREATE POLICY`, `CREATE INDEX`, triggers, extensions, etc.) directly on the remote production Supabase instance.
+
+### 🛠️ How AI Agents Must Execute DDL & Migrations:
+Whenever database schema changes are required:
+1. **Record the Migration File**:
+   Always create or update the versioned SQL file in `BHUWANTA_WEBSITE/supabase/migrations/<timestamp>_<feature_name>.sql`.
+2. **Execute the Migration Programmatically**:
+   Execute the SQL directly against the **Supabase Management API** using a runner script or command:
+   ```bash
+   POST https://api.supabase.com/v1/projects/<project-ref>/database/query
+   Headers:
+     Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}
+     Content-Type: application/json
+   Body:
+     { "query": "<SQL statements>" }
+   ```
+   *(Project ref: `byroxiesodeyxxsalgsf` from `NEXT_PUBLIC_SUPABASE_URL`)*.
+3. **Verify PostgREST Schema Cache & CRUD**:
+   Query the table immediately via `@supabase/supabase-js` with `SUPABASE_SERVICE_ROLE_KEY` to verify that PostgREST schema cache has refreshed.
+4. **Sync Dual-Store Caches**:
+   If Upstash Redis maintains related caches, sync the data immediately.
+
+---
+
 ## 📋 AGENT PRE-FLIGHT CHECKLIST (RUN BEFORE EVERY TURN)
 
 ```
 [ ] 1. Checked current branch? (MUST NOT BE 'main' for coding)
 [ ] 2. All code written on a dedicated feature/hotfix branch?
-[ ] 3. Ran `npm test` and all 60 tests passed?
+[ ] 3. Ran `npm test` and all unit tests passed?
 [ ] 4. Ran `npx tsc --noEmit` and zero type errors?
-[ ] 5. Switched to main, merged the branch, and ran final tests before pushing?
+[ ] 5. Database migrations executed directly via SUPABASE_ACCESS_TOKEN (no manual user SQL)?
+[ ] 6. Switched to main, merged the branch, and ran final tests before pushing?
 ```

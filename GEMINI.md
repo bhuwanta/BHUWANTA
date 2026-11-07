@@ -10,4 +10,8 @@
    - `git checkout -b fix/<descriptive-name>`
 4. **Merging & Pushing**: Once your branch passes `npm test` and `npx tsc --noEmit`, you may switch to `main`, merge your branch (`git merge <branch>`), and push to remote (`git push origin main`).
 
+## 🗄️ DIRECT DATABASE DDL & MIGRATION DIRECTIVE
+- **Direct Database Execution Required**: AI assistants have full DDL capabilities via `SUPABASE_ACCESS_TOKEN` in `.env.local` querying `https://api.supabase.com/v1/projects/<ref>/database/query`.
+- **NEVER** ask the user to manually run SQL in the Supabase Dashboard SQL Editor. The agent must execute DDL statements and migrations directly and verify PostgREST schema cache.
+
 Refer to [AGENTS.md](./AGENTS.md) for full governance details.
