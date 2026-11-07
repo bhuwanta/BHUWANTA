@@ -1162,6 +1162,15 @@ export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], e
   }
 }
 
+function sanitizeInputText(raw?: string): string {
+  if (!raw || typeof raw !== 'string') return ''
+  return raw
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .trim()
+}
+
 export async function addAlertRecipient(params: {
   email: string
   name?: string
@@ -1174,7 +1183,7 @@ export async function addAlertRecipient(params: {
       return { success: false, error: 'Please enter a valid email address.' }
     }
 
-    const sanitizedName = (params.name || '').trim().replace(/<[^>]*>/g, '')
+    const sanitizedName = sanitizeInputText(params.name)
     const payload = {
       email: cleanEmail,
       name: sanitizedName || cleanEmail.split('@')[0],
@@ -1255,10 +1264,10 @@ export async function updateAlertRecipient(
     // 1. If updating master-alert-default
     if (id === 'master-alert-default') {
       const masterEmail = cleanEmail || process.env.ADMIN_ALERT_EMAIL || 'bhuwanta9@gmail.com'
-      const masterName = params.name !== undefined ? params.name.trim() : 'Master Admin'
+      const masterName = params.name !== undefined ? sanitizeInputText(params.name) : 'Master Admin'
       const payload = {
         email: masterEmail,
-        name: masterName.replace(/<[^>]*>/g, '') || masterEmail.split('@')[0],
+        name: masterName || masterEmail.split('@')[0],
         instant_alerts: params.instant_alerts !== false,
         daily_digest: params.daily_digest !== false
       }
@@ -1326,7 +1335,7 @@ export async function updateAlertRecipient(
     }
 
     const updatePayload: Record<string, any> = {
-      ...(params.name !== undefined ? { name: params.name.trim().replace(/<[^>]*>/g, '') } : {}),
+      ...(params.name !== undefined ? { name: sanitizeInputText(params.name) } : {}),
       ...(cleanEmail !== undefined ? { email: cleanEmail } : {}),
       ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
       ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),
