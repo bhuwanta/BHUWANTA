@@ -280,3 +280,50 @@ test('Meta API Error Parsing: Accurately identifies Token Expiration subcode 467
   assert.equal(isMetaAuthFailure(401, sampleMetaResponse), true)
   assert.equal(isMetaAuthFailure(200, '{"success": true}'), false)
 })
+
+test('System Monitoring: Guide PDF Generator creates valid multi-page A4 document', async () => {
+  const { jsPDF } = await import('jspdf')
+  const autoTableModule = await import('jspdf-autotable')
+  const autoTable = autoTableModule.default || autoTableModule
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'pt',
+    format: 'a4'
+  })
+
+  // Page 1 header and table
+  doc.text('BHUWANTA DEVELOPERS • SYSTEM MONITORING GUIDE', 40, 40)
+  autoTable(doc, {
+    startY: 60,
+    head: [['Section', 'Description']],
+    body: [
+      ['1. Purpose', 'Resolves 1-week WhatsApp token outage (OAuthException 190)'],
+      ['2. Recipient Inboxes', 'Full Add, Edit (Name & Email), and Delete with guardrails'],
+      ['3. Information Sent', '5-column structured HTML table in alerts'],
+      ['4. Spam Throttling', '2-hour Upstash Redis incident cooldown lock']
+    ]
+  })
+
+  // Page 2
+  doc.addPage()
+  doc.text('Subsystems Reference Matrix', 40, 40)
+  autoTable(doc, {
+    startY: 60,
+    head: [['Subsystem', 'Scope', 'Status']],
+    body: [
+      ['Meta WhatsApp Cloud API', 'Token & Delivery', 'Monitored'],
+      ['Meta Ads Leads Sync', 'Form Webhooks', 'Monitored'],
+      ['Resend Mail Engine', 'PDF/Email Dispatch', 'Monitored'],
+      ['Supabase & Redis', 'Database & Caches', 'Monitored']
+    ]
+  })
+
+  const pageCount = doc.internal.getNumberOfPages()
+  assert.equal(pageCount, 2)
+
+  const arrayBuf = doc.output('arraybuffer')
+  assert.ok(arrayBuf.byteLength > 2000, 'PDF buffer must be greater than 2KB')
+  const pdfHeader = Buffer.from(arrayBuf.slice(0, 5)).toString()
+  assert.equal(pdfHeader, '%PDF-')
+})

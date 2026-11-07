@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AlertRecipient } from '@/lib/monitoring/alerts'
+import { generateMonitoringGuidePdf } from '@/lib/monitoring/guide-pdf'
 import {
   addAlertRecipient,
   updateAlertRecipient,
@@ -79,6 +80,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   // Guide Modal & Tab State
   const [isGuideModalOpen, setIsGuideModalOpen] = useState(false)
   const [activeGuideTab, setActiveGuideTab] = useState<'purpose' | 'manage' | 'content' | 'spam'>('purpose')
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
   // Add Recipient Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -104,20 +106,16 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   // --- Handlers ---
 
-  const handleDownloadGuide = () => {
+  const handleDownloadGuide = async () => {
     try {
-      const blob = new Blob([GUIDE_MARKDOWN_CONTENT], { type: 'text/markdown;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', 'Bhuwanta_System_Monitoring_Guide.md')
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-      toast.success('Guide downloaded successfully (Bhuwanta_System_Monitoring_Guide.md)')
-    } catch {
-      toast.error('Failed to trigger file download')
+      setIsGeneratingPdf(true)
+      await generateMonitoringGuidePdf({ download: true })
+      toast.success('Downloaded Bhuwanta_System_Monitoring_Guide.pdf')
+    } catch (err) {
+      console.error('Failed to generate PDF:', err)
+      toast.error('Failed to generate PDF guide')
+    } finally {
+      setIsGeneratingPdf(false)
     }
   }
 
@@ -295,15 +293,20 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               <span>Feature Guide</span>
             </button>
 
-            {/* Direct Download Button */}
+            {/* Direct PDF Download Button */}
             <button
               type="button"
+              disabled={isGeneratingPdf}
               onClick={handleDownloadGuide}
-              title="Download documentation file (Markdown)"
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs"
+              title="Download official PDF guide"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs disabled:opacity-50"
             >
-              <Download className="w-3.5 h-3.5 text-[#002935]" />
-              <span className="hidden sm:inline">Download</span> Guide
+              {isGeneratingPdf ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#002935]" />
+              ) : (
+                <Download className="w-3.5 h-3.5 text-[#002935]" />
+              )}
+              <span className="hidden sm:inline">Download</span> PDF Guide
             </button>
 
             {/* Add Alert Email Button */}
@@ -676,14 +679,19 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               </div>
 
               <div className="flex items-center gap-2">
-                {/* Download Button in Modal Header */}
+                {/* Download PDF Button in Modal Header */}
                 <button
                   type="button"
+                  disabled={isGeneratingPdf}
                   onClick={handleDownloadGuide}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4a55a] hover:bg-[#d4b56a] px-3 py-1.5 text-xs font-bold text-[#002935] shadow-sm transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4a55a] hover:bg-[#d4b56a] px-3 py-1.5 text-xs font-bold text-[#002935] shadow-sm transition-all cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download (.md)</span>
+                  {isGeneratingPdf ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#002935]" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5" />
+                  )}
+                  <span>Download PDF</span>
                 </button>
 
                 {/* Close X Button */}
@@ -905,7 +913,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             {/* Modal Footer */}
             <div className="px-6 py-3.5 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between shrink-0">
               <span className="text-[11px] text-[#94a3b8]">
-                Documentation synced with <code className="font-mono text-[#002935]">docs/SYSTEM_MONITORING_GUIDE.md</code>
+                Official PDF Document • Exported as <code className="font-mono text-[#002935] font-semibold">Bhuwanta_System_Monitoring_Guide.pdf</code>
               </span>
               <button
                 type="button"
