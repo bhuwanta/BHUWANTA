@@ -347,7 +347,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {/* Feature Guide Popup Modal Trigger */}
             <button
               type="button"
@@ -518,7 +518,8 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
           </span>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-[#e8ecf2] shadow-2xs">
+        {/* Desktop View: Wide Data Table (>= 768px) */}
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-[#e8ecf2] shadow-2xs">
           <table className="w-full text-left text-xs text-[#0f1d33] min-w-[680px]">
             <thead className="bg-[#f8fafc] text-[#5a6a82] border-b border-[#e8ecf2] font-semibold">
               <tr>
@@ -739,6 +740,209 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile View: Responsive Cards for Mobile Viewports (< 768px) */}
+        <div className="md:hidden space-y-3">
+          {recipients.length === 0 ? (
+            <div className="p-6 text-center text-xs text-[#64748b] bg-white rounded-xl border border-[#e8ecf2]">
+              No alert recipients configured. Click &ldquo;+ Add Alert Email&rdquo; above to set up your first recipient.
+            </div>
+          ) : (
+            recipients.map(recipient => {
+              const isEditing = editingId === recipient.id
+              const isDeleting = deletingId === recipient.id
+              const isTesting = testingEmail === recipient.email
+
+              return (
+                <div
+                  key={`mobile-${recipient.id}`}
+                  className="bg-white p-4 rounded-xl border border-[#e8ecf2] shadow-2xs space-y-3"
+                >
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#5a6a82] uppercase mb-1">
+                          Recipient Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editName}
+                          onChange={e => setEditName(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleSaveEdit(recipient.id)
+                          }}
+                          className="w-full text-xs rounded-md border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
+                          placeholder="Recipient Name"
+                          autoFocus
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#5a6a82] uppercase mb-1">
+                          Email Address <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={e => setEditEmail(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleSaveEdit(recipient.id)
+                          }}
+                          className="w-full text-xs font-mono rounded-md border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
+                          placeholder="name@example.com"
+                        />
+                      </div>
+
+                      <div className="pt-2 border-t border-[#f1f5f9] space-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editInstantAlerts}
+                            onChange={e => setEditInstantAlerts(e.target.checked)}
+                            className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
+                          />
+                          <span className="text-xs text-[#0f1d33] font-medium">Receive instant failure alerts</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editDailyDigest}
+                            onChange={e => setEditDailyDigest(e.target.checked)}
+                            className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
+                          />
+                          <span className="text-xs text-[#0f1d33] font-medium">Include in tabular cron digests</span>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#f1f5f9]">
+                        <button
+                          type="button"
+                          disabled={isSavingEdit}
+                          onClick={() => setEditingId(null)}
+                          className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-200 cursor-pointer disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isSavingEdit}
+                          onClick={() => handleSaveEdit(recipient.id)}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-4 py-2 text-xs font-semibold text-white hover:bg-[#003847] cursor-pointer shadow-xs disabled:opacity-50"
+                        >
+                          {isSavingEdit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-[#c4a55a]" />}
+                          Save Changes
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Card Header: Name + Badges + Actions */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-sm text-[#0f1d33] flex items-center gap-1.5 flex-wrap">
+                            <span className="truncate">{recipient.name || 'Admin'}</span>
+                            {(recipient.id === 'master-alert-default' || recipient.email.toLowerCase() === 'bhuwanta9@gmail.com') && (
+                              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0">
+                                Master Default
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-[#5a6a82] font-mono mt-0.5 break-all">
+                            {recipient.email}
+                          </div>
+                        </div>
+
+                        {/* Quick Edit & Delete icons */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            disabled={Boolean(editingId) || Boolean(testingEmail) || Boolean(deletingId)}
+                            onClick={() => handleStartEdit(recipient)}
+                            className="rounded-lg p-2 text-gray-400 hover:text-[#0f1d33] hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-40"
+                            title="Edit Alert Preferences"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={Boolean(deletingId) || Boolean(testingEmail) || recipients.length <= 1}
+                            onClick={() => handleDelete(recipient.id, recipient.email)}
+                            className={`rounded-lg p-2 transition-colors disabled:pointer-events-none ${
+                              recipients.length <= 1
+                                ? 'text-gray-300 hover:text-gray-300 cursor-not-allowed'
+                                : 'text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
+                            }`}
+                            title={
+                              recipients.length <= 1
+                                ? 'Cannot remove the last recipient'
+                                : `Remove ${recipient.email}`
+                            }
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Status Badges Row */}
+                      <div className="flex flex-wrap gap-2 pt-1 border-t border-[#f1f5f9]">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                            recipient.instant_alerts !== false
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-gray-100 text-gray-500 border border-gray-200'
+                          }`}
+                        >
+                          {recipient.instant_alerts !== false ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>Instant Alerts Active</span>
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <span>Instant Alerts Off</span>
+                            </>
+                          )}
+                        </span>
+
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                            recipient.daily_digest !== false
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-gray-100 text-gray-500 border border-gray-200'
+                          }`}
+                        >
+                          <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span>{recipient.daily_digest !== false ? 'Tabular Digest Active' : 'Digest Off'}</span>
+                        </span>
+                      </div>
+
+                      {/* Prominent Mobile Tap Target for Test Email */}
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          disabled={Boolean(testingEmail)}
+                          onClick={() => handleTriggerTest(recipient.email)}
+                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 active:bg-amber-200 py-2.5 text-xs font-bold text-amber-800 border border-amber-200/80 transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
+                        >
+                          {isTesting ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-700" />
+                          ) : (
+                            <Send className="w-3.5 h-3.5 text-amber-600" />
+                          )}
+                          <span>Send Test Alert to {recipient.email}</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })
+          )}
+        </div>
       </div>
 
       {/* Feature Guide POPUP MODAL (Does NOT push layout down) */}
@@ -751,9 +955,9 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
         >
           <div className="w-full max-w-3xl max-h-[88vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
             {/* Modal Sticky Header */}
-            <div className="px-6 py-4.5 bg-gradient-to-r from-[#002935] to-[#013847] border-b border-[#0f3d4d] flex items-center justify-between shrink-0">
+            <div className="px-5 sm:px-6 py-4 bg-gradient-to-r from-[#002935] to-[#013847] border-b border-[#0f3d4d] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
+                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center border border-white/20 shrink-0">
                   <BookOpen className="w-4 h-4 text-[#c4a55a]" />
                 </div>
                 <div>
@@ -766,7 +970,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
                 {/* Download PDF Button in Modal Header */}
                 <button
                   type="button"
@@ -793,12 +997,12 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               </div>
             </div>
 
-            {/* Modal Tabs */}
-            <div className="px-6 pt-3 pb-2.5 bg-[#f8fafc] border-b border-[#e2e8f0] flex flex-wrap gap-2 shrink-0">
+            {/* Modal Tabs with Horizontal Scroll for Mobile */}
+            <div className="px-4 sm:px-6 pt-3 pb-2.5 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center gap-2 overflow-x-auto shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveGuideTab('purpose')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   activeGuideTab === 'purpose'
                     ? 'bg-[#002935] text-white shadow-xs'
                     : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
@@ -809,7 +1013,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               <button
                 type="button"
                 onClick={() => setActiveGuideTab('manage')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   activeGuideTab === 'manage'
                     ? 'bg-[#002935] text-white shadow-xs'
                     : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
@@ -820,7 +1024,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               <button
                 type="button"
                 onClick={() => setActiveGuideTab('content')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   activeGuideTab === 'content'
                     ? 'bg-[#002935] text-white shadow-xs'
                     : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
@@ -831,7 +1035,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               <button
                 type="button"
                 onClick={() => setActiveGuideTab('spam')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                   activeGuideTab === 'spam'
                     ? 'bg-[#002935] text-white shadow-xs'
                     : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
@@ -842,7 +1046,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-6 overflow-y-auto space-y-4 text-xs text-[#334155] leading-relaxed">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs text-[#334155] leading-relaxed">
               {/* Tab 1: Purpose */}
               {activeGuideTab === 'purpose' && (
                 <div className="space-y-3.5">
@@ -1023,7 +1227,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
           }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
         >
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[#e8ecf2]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-6 shadow-2xl border border-[#e8ecf2]">
             <div className="flex items-center justify-between border-b border-[#e8ecf2] pb-3.5 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg bg-[#002935] flex items-center justify-center shrink-0">
