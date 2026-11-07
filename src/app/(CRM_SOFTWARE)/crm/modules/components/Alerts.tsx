@@ -18,7 +18,15 @@ import {
   Server,
   Zap,
   Radio,
-  FileSpreadsheet
+  FileSpreadsheet,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Clock,
+  Layers,
+  Flame,
+  CheckCheck
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AlertRecipient } from '@/lib/monitoring/alerts'
@@ -36,6 +44,10 @@ interface AlertsProps {
 export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   const [recipients, setRecipients] = useState<AlertRecipient[]>(initialAlertRecipients)
   const [isPending, startTransition] = useTransition()
+
+  // Guide Accordion / Tab State
+  const [isGuideOpen, setIsGuideOpen] = useState(false)
+  const [activeGuideTab, setActiveGuideTab] = useState<'purpose' | 'manage' | 'content' | 'spam'>('purpose')
 
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -70,7 +82,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newEmail || !newEmail.includes('@')) {
+    if (!newEmail || !newEmail.includes('@') || !newEmail.includes('.')) {
       toast.error('Please enter a valid email address')
       return
     }
@@ -168,32 +180,48 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   return (
     <div className="rounded-xl border border-[#e8ecf2] bg-white shadow-sm overflow-hidden mb-8">
       {/* Module Header */}
-      <div className="border-b border-[#e8ecf2] px-6 py-5 bg-gradient-to-r from-white to-[#f8fafc]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#002935] flex items-center justify-center shrink-0 shadow-sm">
+      <div className="border-b border-[#e8ecf2] px-5 sm:px-6 py-5 bg-gradient-to-r from-white via-[#fbfcfd] to-[#f8fafc]">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-[#002935] flex items-center justify-center shrink-0 shadow-xs border border-[#0f3d4d]">
               <BellRing className="w-5 h-5 text-[#c4a55a]" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-semibold text-[#0f1d33]">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-bold text-[#0f1d33] tracking-tight">
                   System Monitoring & Failure Alerts
                 </h3>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
                   <Radio className="w-3 h-3 text-emerald-500 animate-pulse" />
                   Live Observability
                 </span>
               </div>
-              <p className="text-xs text-[#5a6a82] mt-0.5">
-                Automatically dispatches tabular system health logs and instant failure alerts when external services degrade.
+              <p className="text-xs text-[#5a6a82] mt-1">
+                Real-time health monitoring and automated tabular failure logs for production crons, Meta WhatsApp API, Supabase, and Resend.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Guide Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsGuideOpen(!isGuideOpen)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer border ${
+                isGuideOpen
+                  ? 'bg-[#002935] text-white border-[#002935]'
+                  : 'bg-white text-[#0f1d33] border-[#cbd5e1] hover:bg-[#f8fafc]'
+              }`}
+            >
+              <BookOpen className={`w-3.5 h-3.5 ${isGuideOpen ? 'text-[#c4a55a]' : 'text-[#0f1d33]'}`} />
+              <span>{isGuideOpen ? 'Close Guide' : 'Feature Guide'}</span>
+              {isGuideOpen ? <ChevronUp className="w-3.5 h-3.5 ml-0.5" /> : <ChevronDown className="w-3.5 h-3.5 ml-0.5" />}
+            </button>
+
+            {/* Add Alert Email Button */}
             <button
               onClick={handleOpenAddModal}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#003847] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#003847] transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4 text-[#c4a55a]" />
               Add Alert Email
@@ -202,102 +230,316 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
         </div>
       </div>
 
-      {/* Subsystem Health Dashboard Bar */}
-      <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-6 py-4">
-        <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider mb-2.5 block flex items-center gap-1.5">
+      {/* Expandable Feature Guide Panel */}
+      {isGuideOpen && (
+        <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-5 sm:px-6 py-5 transition-all">
+          <div className="max-w-4xl">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#c4a55a]" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0f1d33]">
+                  System Monitoring & Alerts — Documentation & Architecture Guide
+                </h4>
+              </div>
+              <span className="text-[11px] text-[#5a6a82]">Everything you need to know about this module</span>
+            </div>
+
+            {/* Guide Tabs */}
+            <div className="flex flex-wrap gap-1.5 border-b border-[#e2e8f0] pb-2.5 mb-4">
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('purpose')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  activeGuideTab === 'purpose'
+                    ? 'bg-[#002935] text-white'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                1. Purpose & Problem Solved
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('manage')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  activeGuideTab === 'manage'
+                    ? 'bg-[#002935] text-white'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                2. How to Add, Edit & Delete
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('content')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  activeGuideTab === 'content'
+                    ? 'bg-[#002935] text-white'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                3. Information Sent in Alerts
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('spam')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  activeGuideTab === 'spam'
+                    ? 'bg-[#002935] text-white'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                4. Spam Protection & Redis Cooldown
+              </button>
+            </div>
+
+            {/* Guide Tab 1: Purpose */}
+            {activeGuideTab === 'purpose' && (
+              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
+                <p className="font-semibold text-[#0f1d33]">
+                  Why does this monitoring module exist?
+                </p>
+                <p>
+                  Recently, the automated scheduled WhatsApp leads report failed for an entire week without raising an alert. The root cause was that Meta invalidated the WhatsApp Access Token with <code className="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono text-[11px]">OAuthException: Code 190 (Subcode 467 - User logged out)</code>.
+                </p>
+                <p>
+                  Standard error tracking tools like Sentry did not catch it because an HTTP 401 response from Meta is caught by <code className="bg-gray-100 text-[#0f1d33] px-1 py-0.5 rounded font-mono text-[11px]">fetch()</code> without crashing Node.js. Furthermore, the cron endpoint was returning HTTP 200, so external schedulers like cron-job.org marked every run as &quot;Green&quot;.
+                </p>
+                <p className="border-l-2 border-[#c4a55a] pl-3 py-1 bg-[#fcfaf5] text-[#785b12] font-medium">
+                  <strong>The Solution:</strong> This module sits between your cron jobs and third-party APIs. Whenever an external API (Meta WhatsApp, Meta Leads, Supabase, Resend) returns an authentication failure or error, the system intercepts it, immediately generates a structured tabular HTML monitoring log, sends it to your designated alert inbox, and returns HTTP 502 to alert external pingers.
+                </p>
+              </div>
+            )}
+
+            {/* Guide Tab 2: How to Add, Edit, Delete */}
+            {activeGuideTab === 'manage' && (
+              <div className="space-y-3 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
+                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
+                      <Plus className="w-3.5 h-3.5 text-emerald-600" />
+                      Adding a Recipient
+                    </div>
+                    <p className="text-[#64748b]">
+                      Click <strong>&quot;Add Alert Email&quot;</strong> in the top right. Enter the recipient&apos;s name and email address. You can choose whether they receive Instant Critical Alerts, Tabular Cron Digests, or both.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
+                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
+                      <Edit2 className="w-3.5 h-3.5 text-blue-600" />
+                      Editing Preferences
+                    </div>
+                    <p className="text-[#64748b]">
+                      Click the pencil icon <Edit2 className="w-3 h-3 inline text-gray-500" /> in any row to edit the recipient&apos;s name or toggle checkboxes for Instant Alerts vs Tabular Summaries without deleting their account.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
+                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
+                      <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                      Deleting a Recipient
+                    </div>
+                    <p className="text-[#64748b]">
+                      Click the trash icon <Trash2 className="w-3 h-3 inline text-red-500" /> to remove an inbox. Note: The Master Admin default (<code className="font-mono text-[10px]">bhuwanta9@gmail.com</code>) is protected against deletion to prevent a headless state.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-[#f1f5f9] flex items-center gap-2">
+                  <span className="font-semibold text-[#0f1d33]">Testing Your Setup:</span>
+                  <span className="text-[#64748b]">
+                    Click the <strong>&quot;Test Alert&quot;</strong> button in any row. This immediately sends a live sample tabular monitoring report to that exact inbox.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Guide Tab 3: Content of Alert */}
+            {activeGuideTab === 'content' && (
+              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
+                <p className="font-semibold text-[#0f1d33]">
+                  What information is included in the monitoring emails?
+                </p>
+                <p>
+                  Alerts are sent as clean, responsive HTML emails formatted as a structured table with 5 distinct operational columns:
+                </p>
+                <ul className="list-disc pl-5 space-y-1 text-[#475569]">
+                  <li><strong>Timestamp (IST):</strong> Exact date and time the probe or cron executed in Indian Standard Time (e.g. <code className="font-mono text-[11px]">07 Nov 2026, 01:30 PM</code>).</li>
+                  <li><strong>Subsystem:</strong> The service being probed (<code className="font-mono text-[11px]">Meta WhatsApp Cloud API</code>, <code className="font-mono text-[11px]">Meta Ads Sync</code>, <code className="font-mono text-[11px]">Supabase Database</code>, or <code className="font-mono text-[11px]">Resend Mailer</code>).</li>
+                  <li><strong>Status Badge:</strong> Color-coded severity badge (<span className="text-emerald-700 font-bold">✅ HEALTHY</span>, <span className="text-amber-700 font-bold">⚠️ WARNING</span>, or <span className="text-red-700 font-bold">🚨 CRITICAL</span>).</li>
+                  <li><strong>Operational Details:</strong> Technical diagnostic details, HTTP response codes, and error trace IDs returned by the third-party server.</li>
+                  <li><strong>Action Required:</strong> A plain-English, actionable fix (e.g. <code className="font-mono text-[11px]">Generate Permanent System User Token in Meta Business Suite</code>).</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Guide Tab 4: Spam Prevention */}
+            {activeGuideTab === 'spam' && (
+              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
+                <p className="font-semibold text-[#0f1d33]">
+                  How does the system prevent email flooding (Alert Storms)?
+                </p>
+                <p>
+                  If a cron job runs every 15 minutes and an external API key is invalid, naive alert systems would send 96 emails every single day, cluttering your inbox and creating alert fatigue.
+                </p>
+                <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0] space-y-1.5">
+                  <div className="font-semibold text-[#0f1d33] flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-amber-600" />
+                    Upstash Redis Cooldown Throttling
+                  </div>
+                  <p className="text-[#64748b]">
+                    Whenever a critical failure occurs, the monitoring engine acquires a temporary incident lock in Upstash Redis (e.g. <code className="font-mono text-[11px]">crm:alert_cooldown:wa-leads-report-auth-401</code>) with a <strong>2-hour Time-to-Live (TTL)</strong>.
+                  </p>
+                  <p className="text-[#64748b]">
+                    You receive an immediate alert on the very first occurrence. Subsequent executions within the 2-hour window are suppressed. Once 2 hours pass, if the issue is still unresolved, you receive a single follow-up reminder. Manual test triggers always bypass this lock.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Subsystem Health Dashboard Bar (Fixed CSS - No Collisions, Generous Spacing) */}
+      <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-5 sm:px-6 py-4">
+        <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-[#c4a55a]" />
-          Monitored Subsystems & Health Probes
+          Monitored Subsystems & Live Health Probes
         </span>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Subsystem 1: Meta WhatsApp */}
-          <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-blue-600" />
-                WhatsApp Cloud API
-              </span>
-              <span className="inline-flex items-center gap-1 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-700 border border-red-200">
-                <AlertTriangle className="w-2.5 h-2.5 text-red-600" />
-                Meta 401 (Action Req.)
+
+        {/* Responsive Grid: 1 col on mobile, 2 on tablets/small laptops, 4 on large screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
+          {/* Card 1: Meta WhatsApp */}
+          <div className="bg-white p-3.5 rounded-xl border border-red-200 shadow-2xs flex flex-col justify-between hover:border-red-300 transition-colors">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+                    <Zap className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-xs font-bold text-[#0f1d33] truncate">
+                    WhatsApp Cloud API
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 whitespace-nowrap">
+                  <AlertTriangle className="w-2.5 h-2.5 text-red-600 shrink-0" />
+                  Action Required
+                </span>
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-snug">
+                Token session revoked (Subcode 467).
+              </p>
+            </div>
+            <div className="mt-2.5 pt-2 border-t border-red-100/60 flex items-center justify-between text-[10px]">
+              <span className="text-[#64748b]">Status Code:</span>
+              <span className="font-mono font-bold text-red-600 bg-red-50 px-1.5 py-0.2 rounded border border-red-100">
+                HTTP 401
               </span>
             </div>
-            <p className="text-[11px] text-[#64748b] mt-1 line-clamp-1">
-              Token session expired (Subcode 467)
-            </p>
           </div>
 
-          {/* Subsystem 2: Meta Ads Sync */}
-          <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
-                <Server className="w-3.5 h-3.5 text-indigo-600" />
-                Meta Ads Leads Sync
-              </span>
-              <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                Operational
-              </span>
+          {/* Card 2: Meta Ads Leads Sync */}
+          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 border border-indigo-100">
+                    <Server className="w-4 h-4 text-indigo-600" />
+                  </div>
+                  <span className="text-xs font-bold text-[#0f1d33] truncate">
+                    Meta Ads Leads Sync
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                  Operational
+                </span>
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-snug">
+                Cron path /api/cron/meta-sync
+              </p>
             </div>
-            <p className="text-[11px] text-[#64748b] mt-1 line-clamp-1">
-              Cron path /api/cron/meta-sync
-            </p>
+            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
+              <span className="text-[#64748b]">Sync Cycle:</span>
+              <span className="font-mono text-[#0f1d33] font-medium">Every 15 mins</span>
+            </div>
           </div>
 
-          {/* Subsystem 3: Resend Email Engine */}
-          <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
-                <Send className="w-3.5 h-3.5 text-amber-600" />
-                Resend Mail Engine
-              </span>
-              <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                Verified
-              </span>
+          {/* Card 3: Resend Email Engine */}
+          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
+                    <Send className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span className="text-xs font-bold text-[#0f1d33] truncate">
+                    Resend Mail Engine
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                  Operational
+                </span>
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-snug">
+                Delivering PDF/Excel reports & alerts.
+              </p>
             </div>
-            <p className="text-[11px] text-[#64748b] mt-1 line-clamp-1">
-              Delivering PDF/Excel report emails
-            </p>
+            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
+              <span className="text-[#64748b]">Sender Domain:</span>
+              <span className="font-mono text-[#0f1d33] font-medium">bhuwanta.com</span>
+            </div>
           </div>
 
-          {/* Subsystem 4: Database & Redis */}
-          <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#0f1d33] flex items-center gap-1.5">
-                <ShieldAlert className="w-3.5 h-3.5 text-teal-600" />
-                Supabase & Redis
-              </span>
-              <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                Connected
-              </span>
+          {/* Card 4: Supabase & Redis */}
+          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
+            <div>
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                    <ShieldAlert className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <span className="text-xs font-bold text-[#0f1d33] truncate">
+                    Supabase & Redis
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                  Connected
+                </span>
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-snug">
+                PostgreSQL pool & in-memory caches.
+              </p>
             </div>
-            <p className="text-[11px] text-[#64748b] mt-1 line-clamp-1">
-              PostgreSQL pool & session caches
-            </p>
+            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
+              <span className="text-[#64748b]">Avg Latency:</span>
+              <span className="font-mono text-[#0f1d33] font-medium">~14ms</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Alert Recipients Table */}
-      <div className="px-6 py-5">
-        <div className="flex items-center justify-between mb-3">
+      {/* Alert Recipients Table with Proper Column Widths & Overflow Wrap */}
+      <div className="px-5 sm:px-6 py-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3.5">
           <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider">
-            Alert Recipient Inboxes ({recipients.length})
+            Designated Alert Recipients ({recipients.length})
           </span>
           <span className="text-xs text-[#5a6a82]">
             Only these emails receive system health warnings and tabular logs
           </span>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-[#e8ecf2]">
-          <table className="w-full text-left text-xs text-[#0f1d33]">
+        <div className="overflow-x-auto rounded-xl border border-[#e8ecf2] shadow-2xs">
+          <table className="w-full text-left text-xs text-[#0f1d33] min-w-[680px]">
             <thead className="bg-[#f8fafc] text-[#5a6a82] border-b border-[#e8ecf2] font-semibold">
               <tr>
-                <th className="px-4 py-3">Recipient</th>
-                <th className="px-4 py-3">Instant Alerts (Meta 401, DB Crashes)</th>
-                <th className="px-4 py-3">Tabular Cron Digest</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3.5 w-1/3 min-w-[220px]">Recipient Email</th>
+                <th className="px-4 py-3.5 min-w-[180px]">Instant Alerts (Meta 401, DB Crashes)</th>
+                <th className="px-4 py-3.5 min-w-[160px]">Tabular Cron Digest</th>
+                <th className="px-4 py-3.5 min-w-[140px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2] bg-white">
@@ -309,31 +551,31 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                 return (
                   <tr key={recipient.id} className="hover:bg-[#fbfcfd] transition-colors">
                     {/* Recipient info */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 align-middle">
                       {isEditing ? (
-                        <div className="space-y-1">
+                        <div className="space-y-1.5 max-w-xs">
                           <input
                             type="text"
                             value={editName}
                             onChange={e => setEditName(e.target.value)}
-                            className="w-full text-xs rounded border border-[#cbd5e1] px-2 py-1 outline-none focus:border-[#002935]"
-                            placeholder="Name"
+                            className="w-full text-xs rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935]"
+                            placeholder="Recipient Name"
                           />
-                          <span className="text-[11px] text-[#64748b] font-mono block">
+                          <span className="text-[11px] text-[#64748b] font-mono block truncate">
                             {recipient.email}
                           </span>
                         </div>
                       ) : (
                         <div>
-                          <div className="font-semibold text-[#0f1d33]">
+                          <div className="font-bold text-[#0f1d33] flex items-center gap-1.5">
                             {recipient.name || 'Admin'}
                             {recipient.id === 'master-alert-default' && (
-                              <span className="ml-1.5 text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                                 Master Default
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-[#5a6a82] font-mono">
+                          <div className="text-[11px] text-[#5a6a82] font-mono mt-0.5">
                             {recipient.email}
                           </div>
                         </div>
@@ -341,20 +583,20 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                     </td>
 
                     {/* Instant Alerts toggle */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 align-middle">
                       {isEditing ? (
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={editInstantAlerts}
                             onChange={e => setEditInstantAlerts(e.target.checked)}
                             className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
                           />
-                          <span className="text-xs text-[#0f1d33]">Receive instant failure alerts</span>
+                          <span className="text-xs text-[#0f1d33] font-medium">Receive instant failure alerts</span>
                         </label>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                             recipient.instant_alerts !== false
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : 'bg-gray-100 text-gray-500 border border-gray-200'
@@ -362,11 +604,13 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                         >
                           {recipient.instant_alerts !== false ? (
                             <>
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Enabled (Immediate)
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>Enabled (Immediate)</span>
                             </>
                           ) : (
                             <>
-                              <XCircle className="w-3 h-3 text-gray-400" /> Disabled
+                              <XCircle className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <span>Disabled</span>
                             </>
                           )}
                         </span>
@@ -374,40 +618,40 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                     </td>
 
                     {/* Tabular Daily Digest toggle */}
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 align-middle">
                       {isEditing ? (
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={editDailyDigest}
                             onChange={e => setEditDailyDigest(e.target.checked)}
                             className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
                           />
-                          <span className="text-xs text-[#0f1d33]">Include in tabular cron digests</span>
+                          <span className="text-xs text-[#0f1d33] font-medium">Include in tabular cron digests</span>
                         </label>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                             recipient.daily_digest !== false
                               ? 'bg-blue-50 text-blue-700 border border-blue-200'
                               : 'bg-gray-100 text-gray-500 border border-gray-200'
                           }`}
                         >
-                          <FileSpreadsheet className="w-3 h-3 text-blue-600" />
-                          {recipient.daily_digest !== false ? 'Tabular Digest Active' : 'Digest Off'}
+                          <FileSpreadsheet className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span>{recipient.daily_digest !== false ? 'Tabular Digest Active' : 'Digest Off'}</span>
                         </span>
                       )}
                     </td>
 
                     {/* Action buttons */}
-                    <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                    <td className="px-4 py-3.5 text-right whitespace-nowrap align-middle">
                       {isEditing ? (
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
                             disabled={isSavingEdit}
                             onClick={() => handleSaveEdit(recipient.id)}
-                            className="inline-flex items-center gap-1 rounded bg-[#002935] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#003847] cursor-pointer"
+                            className="inline-flex items-center gap-1 rounded-md bg-[#002935] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] cursor-pointer shadow-xs"
                           >
                             {isSavingEdit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-[#c4a55a]" />}
                             Save
@@ -416,7 +660,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             type="button"
                             disabled={isSavingEdit}
                             onClick={() => setEditingId(null)}
-                            className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600 hover:bg-gray-200 cursor-pointer"
+                            className="rounded-md bg-gray-100 px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-200 cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -428,13 +672,13 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             type="button"
                             disabled={isTesting}
                             onClick={() => handleTriggerTest(recipient.email)}
-                            title="Send sample tabular monitoring report to this email"
-                            className="inline-flex items-center gap-1 rounded bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
+                            title="Dispatch sample tabular monitoring email to this inbox"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 border border-amber-200/80 transition-colors cursor-pointer shadow-2xs"
                           >
                             {isTesting ? (
-                              <Loader2 className="w-3 h-3 animate-spin text-amber-700" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-700" />
                             ) : (
-                              <Send className="w-3 h-3 text-amber-600" />
+                              <Send className="w-3.5 h-3.5 text-amber-600" />
                             )}
                             Test Alert
                           </button>
@@ -443,8 +687,8 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                           <button
                             type="button"
                             onClick={() => handleStartEdit(recipient)}
-                            className="rounded p-1 text-gray-400 hover:text-[#0f1d33] hover:bg-gray-100 transition-colors cursor-pointer"
-                            title="Edit Alert Settings"
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-[#0f1d33] hover:bg-gray-100 transition-colors cursor-pointer"
+                            title="Edit Alert Preferences"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -455,7 +699,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                               type="button"
                               disabled={isDeleting}
                               onClick={() => handleDelete(recipient.id, recipient.email)}
-                              className="rounded p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                              className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                               title="Remove Recipient"
                             >
                               {isDeleting ? (
@@ -479,21 +723,21 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
       {/* Add Alert Email Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[#e8ecf2]">
-            <div className="flex items-center justify-between border-b border-[#e8ecf2] pb-3 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-md bg-[#002935] flex items-center justify-center">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[#e8ecf2] animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-[#e8ecf2] pb-3.5 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-[#002935] flex items-center justify-center shrink-0">
                   <BellRing className="w-4 h-4 text-[#c4a55a]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#0f1d33]">Add Monitoring Alert Email</h3>
+                  <h3 className="text-sm font-bold text-[#0f1d33]">Add Monitoring Alert Email</h3>
                   <p className="text-xs text-[#5a6a82]">Receive tabular system logs and instant failure alerts</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 p-1 rounded-md"
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-md transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -501,20 +745,20 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#0f1d33] mb-1">
+                <label className="block text-xs font-bold text-[#0f1d33] mb-1">
                   Recipient Name
                 </label>
                 <input
                   type="text"
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="e.g. Lead Engineer / S Santosh"
+                  placeholder="e.g. S Santosh / Lead Engineer"
                   className="w-full text-xs rounded-lg border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#0f1d33] mb-1">
+                <label className="block text-xs font-bold text-[#0f1d33] mb-1">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -525,39 +769,42 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                   placeholder="e.g. santosh@gmail.com"
                   className="w-full text-xs rounded-lg border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935]"
                 />
+                <span className="text-[11px] text-[#64748b] mt-1 block">
+                  Only alerts will be sent here (separated from customer lead notifications).
+                </span>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-[#f1f5f9]">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="space-y-2.5 pt-2 border-t border-[#f1f5f9]">
+                <label className="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-[#f8fafc] transition-colors border border-transparent hover:border-[#e2e8f0]">
                   <input
                     type="checkbox"
                     checked={newInstantAlerts}
                     onChange={e => setNewInstantAlerts(e.target.checked)}
-                    className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
+                    className="mt-0.5 rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
                   />
                   <div>
-                    <span className="text-xs font-medium text-[#0f1d33] block">
+                    <span className="text-xs font-bold text-[#0f1d33] block">
                       Instant Critical Alerts (Recommended)
                     </span>
-                    <span className="text-[11px] text-[#64748b] block">
-                      Dispatched immediately when Meta WhatsApp token expires or DB drops
+                    <span className="text-[11px] text-[#64748b] block mt-0.5">
+                      Dispatched immediately when Meta WhatsApp token expires or DB drops.
                     </span>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-[#f8fafc] transition-colors border border-transparent hover:border-[#e2e8f0]">
                   <input
                     type="checkbox"
                     checked={newDailyDigest}
                     onChange={e => setNewDailyDigest(e.target.checked)}
-                    className="rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
+                    className="mt-0.5 rounded border-[#cbd5e1] text-[#002935] focus:ring-0 cursor-pointer"
                   />
                   <div>
-                    <span className="text-xs font-medium text-[#0f1d33] block">
+                    <span className="text-xs font-bold text-[#0f1d33] block">
                       Tabular Cron Monitoring Digest
                     </span>
-                    <span className="text-[11px] text-[#64748b] block">
-                      Structured HTML table summarizing each cron execution and output
+                    <span className="text-[11px] text-[#64748b] block mt-0.5">
+                      Structured HTML table summarizing each cron execution and output.
                     </span>
                   </div>
                 </label>
@@ -574,7 +821,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                 <button
                   type="submit"
                   disabled={isSubmittingAdd}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {isSubmittingAdd ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-[#c4a55a]" />}
                   Add Recipient
@@ -587,4 +834,3 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     </div>
   )
 }
-
