@@ -17,9 +17,9 @@ import {
   updateWaRecipient,
   testReportWa,
   removeWaRecipient,
-  LeadStatus,
-  AlertRecipient
+  LeadStatus
 } from './actions'
+import type { AlertRecipient } from '@/lib/monitoring/alerts'
 import { extractTenDigitWaPhone, normalizeWaRecipientPhone, normalizeWaReportTimings } from '@/lib/phone-input'
 
 import WebsiteDownloadsOtp from './components/WebsiteDownloadsOtp'

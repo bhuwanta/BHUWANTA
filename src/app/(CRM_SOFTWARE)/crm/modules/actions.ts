@@ -1089,8 +1089,6 @@ export async function deleteLeadStatus(
 // SYSTEM MONITORING & ALERTS ACTIONS
 // ============================================================
 
-export type { AlertRecipient }
-
 export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], error?: string }> {
   try {
     const supabase = createServiceClient()

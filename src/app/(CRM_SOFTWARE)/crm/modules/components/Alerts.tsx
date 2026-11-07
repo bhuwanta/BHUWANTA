@@ -21,8 +21,8 @@ import {
   FileSpreadsheet
 } from 'lucide-react'
 import { toast } from 'sonner'
+import type { AlertRecipient } from '@/lib/monitoring/alerts'
 import {
-  type AlertRecipient,
   addAlertRecipient,
   updateAlertRecipient,
   removeAlertRecipient,
@@ -587,3 +587,4 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     </div>
   )
 }
+

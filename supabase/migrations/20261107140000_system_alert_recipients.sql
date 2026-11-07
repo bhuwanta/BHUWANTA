@@ -34,3 +34,4 @@ USING (true);
 INSERT INTO system_alert_recipients (email, name, instant_alerts, daily_digest)
 VALUES ('bhuwanta9@gmail.com', 'Master Admin', true, true)
 ON CONFLICT (email) DO NOTHING;
+
