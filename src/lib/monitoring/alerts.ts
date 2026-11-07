@@ -83,9 +83,23 @@ export async function getAlertRecipientsList(onlyInstant: boolean = true): Promi
   // Redis fallback if DB table not yet migrated
   if (redis) {
     try {
+      const fullCached = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full')
+      if (fullCached && Array.isArray(fullCached) && fullCached.length > 0) {
+        const filtered = fullCached
+          .filter(r => (onlyInstant ? r.instant_alerts !== false : true))
+          .map(r => r.email.trim().toLowerCase())
+          .filter(e => e.includes('@'))
+
+        if (filtered.length > 0) {
+          return Array.from(new Set(filtered))
+        }
+      }
+    } catch {}
+
+    try {
       const cached = await redis.get<string[]>('crm:system_alert_emails')
       if (cached && Array.isArray(cached) && cached.length > 0) {
-        return Array.from(new Set(cached))
+        return Array.from(new Set(cached.map(e => e.trim().toLowerCase()).filter(e => e.includes('@'))))
       }
     } catch {
       // Ignore Redis error

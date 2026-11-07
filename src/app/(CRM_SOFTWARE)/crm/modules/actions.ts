@@ -1262,6 +1262,13 @@ export async function updateAlertRecipient(
         daily_digest: params.daily_digest !== false
       }
 
+      // If changing email from default bhuwanta9@gmail.com, delete the old default record to prevent duplicates
+      if (cleanEmail && cleanEmail !== 'bhuwanta9@gmail.com') {
+        try {
+          await supabase.from('system_alert_recipients').delete().eq('email', 'bhuwanta9@gmail.com')
+        } catch {}
+      }
+
       const { data, error } = await supabase
         .from('system_alert_recipients')
         .upsert([payload], { onConflict: 'email' })
@@ -1414,6 +1421,9 @@ export async function removeAlertRecipient(id: string): Promise<{ success: boole
 
     // 2. If ID is master-alert-default
     if (id === 'master-alert-default') {
+      try {
+        await supabase.from('system_alert_recipients').delete().eq('email', 'bhuwanta9@gmail.com')
+      } catch {}
       if (redis) {
         try {
           let list = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []

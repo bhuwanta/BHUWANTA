@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import {
   BellRing,
   AlertTriangle,
@@ -104,6 +104,19 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   // Test Alert State
   const [testingEmail, setTestingEmail] = useState<string | null>(null)
 
+  // Listen for Escape key to close modals or cancel inline editing
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsGuideModalOpen(false)
+        setIsAddModalOpen(false)
+        setEditingId(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   // --- Handlers ---
 
   const handleDownloadGuide = async () => {
@@ -127,26 +140,40 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     setIsAddModalOpen(true)
   }
 
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false)
+    setNewName('')
+    setNewEmail('')
+    setNewInstantAlerts(true)
+    setNewDailyDigest(true)
+  }
+
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newEmail || !newEmail.includes('@')) {
+    const cleanEmail = newEmail.trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       toast.error('Please enter a valid email address')
+      return
+    }
+
+    if (recipients.some(r => r.email.toLowerCase() === cleanEmail)) {
+      toast.error(`Email ${cleanEmail} is already in the alert recipients list`)
       return
     }
 
     setIsSubmittingAdd(true)
     try {
       const res = await addAlertRecipient({
-        email: newEmail,
-        name: newName,
+        email: cleanEmail,
+        name: newName.trim(),
         instant_alerts: newInstantAlerts,
         daily_digest: newDailyDigest
       })
 
       if (res.success && res.data) {
-        setRecipients(prev => [res.data!, ...prev.filter(r => r.email !== res.data!.email)])
-        toast.success(`Added ${newEmail} to alert recipients`)
-        setIsAddModalOpen(false)
+        setRecipients(prev => [res.data!, ...prev.filter(r => r.email.toLowerCase() !== res.data!.email.toLowerCase())])
+        toast.success(`Added ${cleanEmail} to alert recipients`)
+        handleCloseAddModal()
       } else {
         toast.error(res.error || 'Failed to add alert recipient')
       }
@@ -193,6 +220,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             r.id === id
               ? {
                   ...r,
+                  id: res.data?.id || r.id,
                   name: editName.trim() || cleanEmail.split('@')[0],
                   email: cleanEmail,
                   instant_alerts: editInstantAlerts,
@@ -505,7 +533,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                         <div>
                           <div className="font-bold text-[#0f1d33] flex items-center gap-1.5">
                             {recipient.name || 'Admin'}
-                            {recipient.id === 'master-alert-default' && (
+                            {(recipient.id === 'master-alert-default' || recipient.email.toLowerCase() === 'bhuwanta9@gmail.com') && (
                               <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                                 Master Default
                               </span>
@@ -629,12 +657,16 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Delete Button (Always rendered so user can remove emails; guarded if only 1 remaining) */}
+                          {/* Delete Button (Guarded if only 1 recipient remains so alerts are never silenced) */}
                           <button
                             type="button"
                             disabled={isDeleting}
                             onClick={() => handleDelete(recipient.id, recipient.email)}
-                            className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            className={`rounded-lg p-1.5 transition-colors ${
+                              recipients.length <= 1
+                                ? 'text-gray-300 hover:text-gray-300 cursor-not-allowed'
+                                : 'text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
+                            }`}
                             title={
                               recipients.length <= 1
                                 ? 'Cannot remove the last recipient (add replacement first or edit this email)'
@@ -660,7 +692,12 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
       {/* Feature Guide POPUP MODAL (Does NOT push layout down) */}
       {isGuideModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsGuideModalOpen(false)
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-3xl max-h-[88vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
             {/* Modal Sticky Header */}
             <div className="px-6 py-4.5 bg-gradient-to-r from-[#002935] to-[#013847] border-b border-[#0f3d4d] flex items-center justify-between shrink-0">
@@ -929,7 +966,12 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
       {/* Add Alert Email Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCloseAddModal()
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[#e8ecf2]">
             <div className="flex items-center justify-between border-b border-[#e8ecf2] pb-3.5 mb-4">
               <div className="flex items-center gap-2.5">
@@ -943,7 +985,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               </div>
               <button
                 type="button"
-                onClick={() => setIsAddModalOpen(false)}
+                onClick={handleCloseAddModal}
                 className="text-gray-400 hover:text-gray-600 p-1 rounded-md transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -1020,7 +1062,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#e8ecf2]">
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={handleCloseAddModal}
                   className="rounded-lg border border-[#cbd5e1] px-3.5 py-1.5 text-xs font-semibold text-[#5a6a82] hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
