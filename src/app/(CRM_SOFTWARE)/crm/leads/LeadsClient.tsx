@@ -10,6 +10,7 @@ import { createLead, updateLead, deleteLead, deleteMultipleLeads, updateLeadStat
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
 import { toast } from 'sonner'
+import ExportLeadsModal from './components/ExportLeadsModal'
 
 const extractIncomingMessage = (details: string) => {
   if (!details) return '(no text content)';
@@ -206,6 +207,7 @@ export default function LeadsClient({
   const [dateFilterType, setDateFilterType] = useState<'single' | 'range'>('single')
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   
   // WhatsApp History State
   const [isWhatsappHistoryOpen, setIsWhatsappHistoryOpen] = useState(false)
@@ -804,11 +806,13 @@ export default function LeadsClient({
             )}
 
             <button
-              onClick={exportToCSV}
-              className={`${userRole === 'Super Admin' ? 'col-span-2 sm:col-span-1' : 'col-span-2 sm:w-auto'} inline-flex items-center gap-1.5 justify-center rounded-lg bg-[#0f1d33] px-3.5 py-2 sm:py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#1e3a5f] transition-colors`}
+              type="button"
+              onClick={() => setIsExportModalOpen(true)}
+              className={`${userRole === 'Super Admin' ? 'col-span-2 sm:col-span-1' : 'col-span-2 sm:w-auto'} inline-flex items-center gap-1.5 justify-center rounded-lg bg-[#002935] px-3.5 py-2 sm:py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#003847] transition-all cursor-pointer`}
+              title="Export leads as PDF, Excel, or CSV with custom columns"
             >
-              <Download className="h-3.5 w-3.5" />
-              Export CSV
+              <Download className="h-3.5 w-3.5 text-[#c4a55a]" />
+              Export
             </button>
           </div>
         </div>
@@ -1939,6 +1943,22 @@ export default function LeadsClient({
           </div>
         </div>
       )}
+      {/* Export Leads Custom Modal (PDF, Excel, CSV with column selection) */}
+      <ExportLeadsModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        leads={filteredLeads}
+        selectedLeadIds={selectedLeadIds}
+        activeFiltersSummary={
+          [
+            selectedStatus !== 'all' ? `Status: ${selectedStatus}` : null,
+            selectedSources.length > 0 ? `Source: ${selectedSources.join(', ')}` : null,
+            startDate ? `From: ${startDate}` : null,
+            endDate ? `To: ${endDate}` : null,
+            debouncedSearchQuery ? `Search: "${debouncedSearchQuery}"` : null
+          ].filter(Boolean).join(' • ')
+        }
+      />
     </div>
   )
 }
