@@ -1098,7 +1098,10 @@ export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], e
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.warn('system_alert_recipients table may not exist yet, checking Redis fallback:', error.message)
+      // PGRST205 means table is not yet created in Supabase schema cache; use Redis fallback quietly
+      if (error.code !== 'PGRST205' && !error.message?.includes('schema cache')) {
+        console.warn('system_alert_recipients fetch notice:', error.message)
+      }
       if (redis) {
         try {
           const cached = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full')
