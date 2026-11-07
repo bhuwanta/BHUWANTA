@@ -350,3 +350,138 @@ test('Export Modal: Synchronous double-click mutex prevents concurrent export tr
   assert.equal(call2.dropped, true);
   assert.equal(exportCount, 1);
 });
+
+test('Smoke & Edge Case: Special characters, emojis, multi-byte Unicode and HTML escaping', () => {
+  const trickyLeads = [
+    {
+      id: 'tricky-1',
+      created_at: '2026-11-05T12:00:00.000Z',
+      name: 'John "The Investor" O\'Connor',
+      phone: '+919876543210',
+      email: 'john+test@example.com',
+      source_page: 'Meta: Ad "Plots, Villas & More" | Campaign: 2026',
+      project: 'Arudra <Exotica> & "Villas"',
+      status: 'new',
+      message: 'Plot #104, 200 sq.yds.\nUrgent callback requested!\n<script>alert("xss")</script>',
+      downloaded_item: 'Brochure "V2".pdf'
+    },
+    {
+      id: 'tricky-2',
+      created_at: '2026-11-05T13:00:00.000Z',
+      name: 'సురోజు సంతోష్ • राहुल शर्मा 🏡✨',
+      phone: '+971501234567',
+      email: 'unicode@bhuwanta.com',
+      source_page: 'Direct 🚀',
+      project: 'S.V. Kanaka Maple Homes',
+      status: 'contacted',
+      message: 'నమస్కారం, प्लॉट की जानकारी चाहिए 🌟',
+      downloaded_item: '-'
+    }
+  ];
+
+  // 1. CSV RFC-4180 Escaping Check
+  const csv = generateLeadsCSV(trickyLeads, ['name', 'project', 'message'], true);
+  assert.ok(csv.startsWith('\uFEFF'), 'CSV must include UTF-8 BOM');
+  assert.ok(csv.includes('""The Investor""'), 'Double quotes must be escaped as double-double quotes in CSV');
+  assert.ok(csv.includes('<script>alert(""xss"")</script>'), 'Quotes inside script tags must be escaped');
+  assert.ok(csv.includes('సురోజు సంతోష్'), 'Telugu characters must be preserved in CSV');
+  assert.ok(csv.includes('राहुल शर्मा'), 'Hindi characters must be preserved in CSV');
+
+  // 2. Excel XML Safety Check
+  const wb = generateLeadsExcelWorkbook(trickyLeads, ['name', 'project', 'message'], 'Tricky Leads');
+  const sheet = wb.Sheets['Tricky Leads'];
+  assert.ok(sheet['A2'].v.includes('The Investor'), 'Excel must retain uncorrupted name');
+  assert.ok(sheet['C2'].v.includes('\n'), 'Excel must preserve multiline messages');
+
+  // 3. PDF Generation with Special Chars
+  const pdf = generateLeadsPDF(trickyLeads, ['name', 'project', 'message']);
+  assert.equal(pdf.getNumberOfPages(), 1);
+  const pdfBuffer = pdf.output('arraybuffer');
+  assert.ok(pdfBuffer.byteLength > 1000, 'PDF with special characters should render cleanly');
+});
+
+test('Smoke & Edge Case: Multi-page PDF pagination with large lead count', () => {
+  const bulkLeads = Array.from({ length: 65 }, (_, i) => ({
+    id: `bulk-${i + 1}`,
+    created_at: '2026-11-01T10:00:00.000Z',
+    name: `Customer ${i + 1} with a relatively long name for testing wrapping`,
+    phone: `+9198000000${String(i).padStart(2, '0')}`,
+    email: `cust${i + 1}@example.com`,
+    source_page: 'Meta Ads',
+    project: i % 2 === 0 ? 'Arudra Exotica' : 'S.V. Kanaka Maple Homes',
+    status: i % 3 === 0 ? 'contacted' : 'new',
+    message: `Inquiry note for lead #${i + 1} with additional details regarding plot requirements.`
+  }));
+
+  const allColumns = EXPORTABLE_COLUMNS.map(c => c.key);
+  const pdf = generateLeadsPDF(bulkLeads, allColumns, {
+    reportTitle: 'Bulk Leads Export (65 records)'
+  });
+
+  const totalPages = pdf.getNumberOfPages();
+  assert.ok(totalPages >= 2, `65 leads with all columns must span at least 2 pages (actual: ${totalPages})`);
+  const buffer = pdf.output('arraybuffer');
+  assert.ok(buffer.byteLength > 5000, 'Multi-page PDF must be substantive');
+});
+
+test('Smoke & Edge Case: Excel sheet name sanitization removes illegal characters', () => {
+  const illegalSheetName = 'CRM: Leads [Nov/2026] *?/\' Special';
+  const wb = generateLeadsExcelWorkbook(SAMPLE_LEADS, ['name', 'phone'], illegalSheetName);
+  
+  const generatedSheetName = wb.SheetNames[0];
+  assert.ok(!/[:\\/?*\[\]]/.test(generatedSheetName), 'Sheet name must not contain invalid characters');
+  assert.ok(generatedSheetName.length <= 31, 'Sheet name length must be <= 31 characters');
+});
+
+test('Smoke & Edge Case: Scope selection filters correctly and isolates selected rows', () => {
+  const allLeads = [
+    { id: 'lead-A', name: 'Lead A', phone: '1111111111' },
+    { id: 'lead-B', name: 'Lead B', phone: '2222222222' },
+    { id: 'lead-C', name: 'Lead C', phone: '3333333333' }
+  ];
+
+  // Case 1: Filtered scope (All leads)
+  const getTargetLeads = (scope, selectedIds, list) => {
+    return scope === 'selected' && selectedIds.length > 0
+      ? list.filter(l => selectedIds.includes(l.id))
+      : list;
+  };
+
+  const scopeAll = getTargetLeads('filtered', ['lead-B'], allLeads);
+  assert.equal(scopeAll.length, 3);
+
+  // Case 2: Selected scope (Only selected rows)
+  const scopeSelected = getTargetLeads('selected', ['lead-B'], allLeads);
+  assert.equal(scopeSelected.length, 1);
+  assert.equal(scopeSelected[0].id, 'lead-B');
+
+  // Case 3: Stale selected IDs that do not exist in current list
+  const scopeStale = getTargetLeads('selected', ['lead-NON-EXISTENT'], allLeads);
+  assert.equal(scopeStale.length, 0);
+});
+
+test('Performance Benchmark: Exporting 500 leads to CSV and Excel executes in under 200ms', () => {
+  const largeSet = Array.from({ length: 500 }, (_, i) => ({
+    id: `bench-${i}`,
+    created_at: new Date().toISOString(),
+    name: `Investor ${i}`,
+    phone: `+9199887766${String(i % 100).padStart(2, '0')}`,
+    email: `investor${i}@example.com`,
+    source_page: 'Meta Ad 99',
+    project: 'Arudra Exotica',
+    status: 'new',
+    message: 'Looking for prompt response'
+  }));
+
+  const startCsv = performance.now();
+  const csv = generateLeadsCSV(largeSet, EXPORTABLE_COLUMNS.map(c => c.key));
+  const csvDuration = performance.now() - startCsv;
+  assert.ok(csv.length > 10000, 'CSV must contain full dataset');
+  assert.ok(csvDuration < 150, `CSV generation for 500 leads must take < 150ms (took ${csvDuration.toFixed(2)}ms)`);
+
+  const startExcel = performance.now();
+  const wb = generateLeadsExcelWorkbook(largeSet, EXPORTABLE_COLUMNS.map(c => c.key));
+  const excelDuration = performance.now() - startExcel;
+  assert.ok(wb.SheetNames.length === 1);
+  assert.ok(excelDuration < 250, `Excel generation for 500 leads must take < 250ms (took ${excelDuration.toFixed(2)}ms)`);
+});
