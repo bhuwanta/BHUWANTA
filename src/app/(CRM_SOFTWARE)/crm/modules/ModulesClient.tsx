@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useRef, useTransition } from 'react'
 import { Blocks } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
@@ -80,6 +80,17 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   const [isSavingWaEdit, setIsSavingWaEdit] = useState(false)
   const [isRefreshingWa, setIsRefreshingWa] = useState(false)
 
+  // Synchronous double-click mutex refs
+  const isTogglingOtpRef = useRef(false)
+  const isSendingOtpRef = useRef(false)
+  const isVerifyingRef = useRef(false)
+  const isSavingEmailEditRef = useRef(false)
+  const deletingEmailIdRef = useRef<string | null>(null)
+  const isAddingWaRef = useRef(false)
+  const isSavingWaEditRef = useRef(false)
+  const deletingWaIdRef = useRef<string | null>(null)
+  const isExecutingTestRef = useRef(false)
+
   const refreshWaRecipients = async () => {
     setIsRefreshingWa(true)
     try {
@@ -96,6 +107,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
 
   // --- OTP Toggle Handler ---
   const handleToggleOtp = (nextState: boolean) => {
+    if (isTogglingOtpRef.current) return
+    isTogglingOtpRef.current = true
     const prevState = otpEnabled
     setOtpEnabled(nextState)
 
@@ -124,6 +137,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
         toast.error('Network error', {
           description: 'Could not communicate with the server.',
         })
+      } finally {
+        isTogglingOtpRef.current = false
       }
     })
   }
@@ -131,47 +146,59 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   // --- Email Handlers ---
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSendingOtpRef.current) return
     if (!newEmail || !newEmail.includes('@')) return
     
+    isSendingOtpRef.current = true
     setIsSendingOtp(true)
-    const res = await sendEmailOtp(newEmail.toLowerCase().trim())
-    if (res.success) {
-      toast.success('Verification code sent!', { description: `Check your inbox at ${newEmail}` })
-      setShowOtpField(true)
-    } else {
-      toast.error('Failed to send code', { description: res.error })
+    try {
+      const res = await sendEmailOtp(newEmail.toLowerCase().trim())
+      if (res.success) {
+        toast.success('Verification code sent!', { description: `Check your inbox at ${newEmail}` })
+        setShowOtpField(true)
+      } else {
+        toast.error('Failed to send code', { description: res.error })
+      }
+    } finally {
+      isSendingOtpRef.current = false
+      setIsSendingOtp(false)
     }
-    setIsSendingOtp(false)
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isVerifyingRef.current) return
     if (!otpCode || otpCode.length !== 6) {
       toast.error('Please enter a valid 6-digit code')
       return
     }
 
+    isVerifyingRef.current = true
     setIsVerifying(true)
-    const trimmedEmail = newEmail.toLowerCase().trim()
-    const trimmedName = newEmailName.trim() || null
-    const res = await verifyAndAddEmail(trimmedEmail, otpCode.trim(), trimmedName)
-    if (res.success) {
-      toast.success('Email verified and added!')
-      const addedRecipient = res.data || { 
-        id: Date.now().toString(), 
-        email: trimmedEmail, 
-        name: trimmedName, 
-        created_at: new Date().toISOString() 
+    try {
+      const trimmedEmail = newEmail.toLowerCase().trim()
+      const trimmedName = newEmailName.trim() || null
+      const res = await verifyAndAddEmail(trimmedEmail, otpCode.trim(), trimmedName)
+      if (res.success) {
+        toast.success('Email verified and added!')
+        const addedRecipient = res.data || { 
+          id: Date.now().toString(), 
+          email: trimmedEmail, 
+          name: trimmedName, 
+          created_at: new Date().toISOString() 
+        }
+        setRecipients([...recipients, addedRecipient])
+        setNewEmail('')
+        setNewEmailName('')
+        setOtpCode('')
+        setShowOtpField(false)
+      } else {
+        toast.error('Verification failed', { description: res.error })
       }
-      setRecipients([...recipients, addedRecipient])
-      setNewEmail('')
-      setNewEmailName('')
-      setOtpCode('')
-      setShowOtpField(false)
-    } else {
-      toast.error('Verification failed', { description: res.error })
+    } finally {
+      isVerifyingRef.current = false
+      setIsVerifying(false)
     }
-    setIsVerifying(false)
   }
 
   const handleStartEditEmail = (r: ReportRecipient) => {
@@ -183,79 +210,98 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   }
 
   const handleSaveEmailEdit = async (id: string) => {
+    if (isSavingEmailEditRef.current) return
+    isSavingEmailEditRef.current = true
     setIsSavingEmailEdit(true)
     const trimmedName = editEmailName.trim() || null
     const trimmedEmail = editEmailAddress.trim().toLowerCase()
     const isMaster = id === 'master-admin-default' || trimmedEmail === 'bhuwanta9@gmail.com'
 
-    const res = await updateReportRecipient(id, {
-      name: trimmedName,
-      email: trimmedEmail || undefined,
-      report_times: editEmailTimings
-    })
-
-    if (res.success) {
-      toast.success('Recipient updated successfully!')
-      setRecipients(prev => {
-        const hasMaster = prev.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com')
-        if (isMaster && !hasMaster) {
-          return [
-            { id: '8afdf3c6-c3c9-4dba-bfac-cc8fc2446e3f', email: 'bhuwanta9@gmail.com', name: trimmedName, created_at: new Date().toISOString(), report_times: editEmailTimings },
-            ...prev
-          ]
-        }
-        return prev.map(r => (r.id === id || (isMaster && r.email.toLowerCase() === 'bhuwanta9@gmail.com')) ? {
-          ...r,
-          name: trimmedName,
-          email: trimmedEmail || r.email,
-          report_times: editEmailTimings
-        } : r)
+    try {
+      const res = await updateReportRecipient(id, {
+        name: trimmedName,
+        email: trimmedEmail || undefined,
+        report_times: editEmailTimings
       })
-      setEditingEmailId(null)
-    } else {
-      toast.error('Failed to update recipient', { description: res.error })
+
+      if (res.success) {
+        toast.success('Recipient updated successfully!')
+        setRecipients(prev => {
+          const hasMaster = prev.some(r => r.email.toLowerCase() === 'bhuwanta9@gmail.com')
+          if (isMaster && !hasMaster) {
+            return [
+              { id: '8afdf3c6-c3c9-4dba-bfac-cc8fc2446e3f', email: 'bhuwanta9@gmail.com', name: trimmedName, created_at: new Date().toISOString(), report_times: editEmailTimings },
+              ...prev
+            ]
+          }
+          return prev.map(r => (r.id === id || (isMaster && r.email.toLowerCase() === 'bhuwanta9@gmail.com')) ? {
+            ...r,
+            name: trimmedName,
+            email: trimmedEmail || r.email,
+            report_times: editEmailTimings
+          } : r)
+        })
+        setEditingEmailId(null)
+      } else {
+        toast.error('Failed to update recipient', { description: res.error })
+      }
+    } finally {
+      isSavingEmailEditRef.current = false
+      setIsSavingEmailEdit(false)
     }
-    setIsSavingEmailEdit(false)
   }
 
   const handleDeleteEmail = async (id: string, email: string) => {
+    if (deletingEmailIdRef.current) return
     if (!window.confirm(`Are you sure you want to remove ${email} from the report recipients list?`)) return
     
+    deletingEmailIdRef.current = id
     setDeletingEmailId(id)
-    const res = await removeReportRecipient(id)
-    if (res.success) {
-      toast.success('Email removed')
-      setRecipients(recipients.filter(r => r.id !== id))
-    } else {
-      toast.error('Failed to remove email', { description: res.error })
+    try {
+      const res = await removeReportRecipient(id)
+      if (res.success) {
+        toast.success('Email removed')
+        setRecipients(recipients.filter(r => r.id !== id))
+      } else {
+        toast.error('Failed to remove email', { description: res.error })
+      }
+    } finally {
+      deletingEmailIdRef.current = null
+      setDeletingEmailId(null)
     }
-    setDeletingEmailId(null)
   }
 
   // --- WhatsApp Handlers ---
   const handleAddWa = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isAddingWaRef.current) return
+
     const clean = normalizeWaRecipientPhone(newWaNumber)
     if (!clean.valid) {
       toast.error(clean.error || 'Please enter a valid 10-digit Indian phone number')
       return
     }
     
+    isAddingWaRef.current = true
     setIsAddingWa(true)
-    const trimmedName = newWaName.trim() || null
-    const res = await addWaRecipient(clean.phone, trimmedName)
-    if (res.success && res.data) {
-      toast.success('WhatsApp recipient added!')
-      setWaRecipients(prev => [...prev, res.data!])
-      setNewWaNumber('')
-      setNewWaName('')
-    } else {
-      toast.error('Failed to add number', { description: res.error })
-      if (res.error?.includes('already')) {
-        refreshWaRecipients()
+    try {
+      const trimmedName = newWaName.trim() || null
+      const res = await addWaRecipient(clean.phone, trimmedName)
+      if (res.success && res.data) {
+        toast.success('WhatsApp recipient added!')
+        setWaRecipients(prev => [...prev, res.data!])
+        setNewWaNumber('')
+        setNewWaName('')
+      } else {
+        toast.error('Failed to add number', { description: res.error })
+        if (res.error?.includes('already')) {
+          refreshWaRecipients()
+        }
       }
+    } finally {
+      isAddingWaRef.current = false
+      setIsAddingWa(false)
     }
-    setIsAddingWa(false)
   }
 
   const handleStartEditWa = (r: WaRecipient) => {
@@ -268,46 +314,60 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   }
 
   const handleSaveWaEdit = async (id: string) => {
+    if (isSavingWaEditRef.current) return
+
     const clean = normalizeWaRecipientPhone(editWaPhone)
     if (!clean.valid) {
       toast.error(clean.error || 'Please enter a valid 10-digit Indian phone number')
       return
     }
+
+    isSavingWaEditRef.current = true
     setIsSavingWaEdit(true)
-    const trimmedName = editWaName.trim() || null
-    const normalizedTimings = normalizeWaReportTimings(editWaTimings)
+    try {
+      const trimmedName = editWaName.trim() || null
+      const normalizedTimings = normalizeWaReportTimings(editWaTimings)
 
-    const res = await updateWaRecipient(id, {
-      name: trimmedName,
-      phone_number: clean.phone,
-      report_times: normalizedTimings
-    })
+      const res = await updateWaRecipient(id, {
+        name: trimmedName,
+        phone_number: clean.phone,
+        report_times: normalizedTimings
+      })
 
-    if (res.success && res.data) {
-      toast.success('Recipient updated successfully!')
-      setWaRecipients(waRecipients.map(r => r.id === id ? res.data! : r))
-      setEditingWaId(null)
-    } else {
-      toast.error('Failed to update recipient', { description: res.error })
-      if (res.error?.includes('not found') || res.error?.includes('another device')) {
-        refreshWaRecipients()
+      if (res.success && res.data) {
+        toast.success('Recipient updated successfully!')
+        setWaRecipients(waRecipients.map(r => r.id === id ? res.data! : r))
+        setEditingWaId(null)
+      } else {
+        toast.error('Failed to update recipient', { description: res.error })
+        if (res.error?.includes('not found') || res.error?.includes('another device')) {
+          refreshWaRecipients()
+        }
       }
+    } finally {
+      isSavingWaEditRef.current = false
+      setIsSavingWaEdit(false)
     }
-    setIsSavingWaEdit(false)
   }
 
   const handleDeleteWa = async (id: string, phone: string) => {
+    if (deletingWaIdRef.current) return
     if (!window.confirm(`Are you sure you want to remove ${phone} from the WhatsApp report recipients?`)) return
     
+    deletingWaIdRef.current = id
     setDeletingWaId(id)
-    const res = await removeWaRecipient(id)
-    if (res.success) {
-      toast.success('Number removed')
-      setWaRecipients(waRecipients.filter(r => r.id !== id))
-    } else {
-      toast.error('Failed to remove number', { description: res.error })
+    try {
+      const res = await removeWaRecipient(id)
+      if (res.success) {
+        toast.success('Number removed')
+        setWaRecipients(waRecipients.filter(r => r.id !== id))
+      } else {
+        toast.error('Failed to remove number', { description: res.error })
+      }
+    } finally {
+      deletingWaIdRef.current = null
+      setDeletingWaId(null)
     }
-    setDeletingWaId(null)
   }
 
   // --- Inline Test Handlers ---
@@ -321,6 +381,8 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
   }
 
   const handleExecuteInlineTest = async (type: 'email' | 'wa', target: string) => {
+    if (isExecutingTestRef.current) return
+    isExecutingTestRef.current = true
     setIsExecutingTest(true)
     const hourNum = selectedTestHour === 'current' ? undefined : parseInt(selectedTestHour, 10)
 
@@ -345,6 +407,7 @@ export default function ModulesClient({ initialOtpEnabled, initialRecipients, in
     } catch (err: any) {
       toast.error('Test execution failed', { description: err.message })
     } finally {
+      isExecutingTestRef.current = false
       setIsExecutingTest(false)
     }
   }

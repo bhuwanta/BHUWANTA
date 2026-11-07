@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useTransition } from 'react'
+import React, { useState, useEffect, useRef, useTransition } from 'react'
 import { 
   Tag, 
   Plus, 
@@ -72,11 +72,13 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
   const [selectedPalette, setSelectedPalette] = useState(STATUS_COLOR_PALETTES[1]) // Default Blue
   const [formError, setFormError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isSubmittingRef = useRef(false)
 
   // Delete & Reassign Safe Modal State
   const [deletingStatus, setDeletingStatus] = useState<LeadStatus | null>(null)
   const [reassignToKey, setReassignToKey] = useState<string>('')
   const [isDeleting, setIsDeleting] = useState(false)
+  const isDeletingRef = useRef(false)
   const [deleteError, setDeleteError] = useState('')
 
   // Open Create Modal
@@ -107,6 +109,8 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
   // Handle Form Submit (Create or Update)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmittingRef.current) return
+
     setFormError('')
     const trimmed = name.trim()
 
@@ -115,6 +119,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
       return
     }
 
+    isSubmittingRef.current = true
     setIsSubmitting(true)
 
     try {
@@ -130,7 +135,6 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
 
         if (!res.success) {
           setFormError(res.error || 'Failed to update status.')
-          setIsSubmitting(false)
           return
         }
 
@@ -150,7 +154,6 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
 
         if (!res.success) {
           setFormError(res.error || 'Failed to create status.')
-          setIsSubmitting(false)
           return
         }
 
@@ -164,6 +167,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
     } catch (err: any) {
       setFormError(err.message || 'An unexpected error occurred.')
     } finally {
+      isSubmittingRef.current = false
       setIsSubmitting(false)
     }
   }
@@ -188,6 +192,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
   // Confirm Delete
   const handleConfirmDelete = async () => {
     if (!deletingStatus) return
+    if (isDeletingRef.current) return
 
     const count = deletingStatus.leads_count || 0
     if (count > 0 && !reassignToKey) {
@@ -195,6 +200,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
       return
     }
 
+    isDeletingRef.current = true
     setIsDeleting(true)
     setDeleteError('')
 
@@ -203,7 +209,6 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
 
       if (!res.success) {
         setDeleteError(res.error || 'Failed to delete status.')
-        setIsDeleting(false)
         return
       }
 
@@ -231,6 +236,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
     } catch (err: any) {
       setDeleteError(err.message || 'An error occurred during deletion.')
     } finally {
+      isDeletingRef.current = false
       setIsDeleting(false)
     }
   }
@@ -537,7 +543,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-[#1e3a5f] hover:bg-[#152843] rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-[#1e3a5f] hover:bg-[#152843] rounded-lg shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-colors"
                 >
                   {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   {editingStatus ? 'Save Changes' : 'Create Status'}
@@ -633,7 +639,7 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
                   type="button"
                   onClick={handleConfirmDelete}
                   disabled={isDeleting}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-colors"
                 >
                   {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   {(deletingStatus.leads_count || 0) > 0 

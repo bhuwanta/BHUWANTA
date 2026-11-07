@@ -327,3 +327,39 @@ test('System Monitoring: Guide PDF Generator creates valid multi-page A4 documen
   const pdfHeader = Buffer.from(arrayBuf.slice(0, 5)).toString()
   assert.equal(pdfHeader, '%PDF-')
 })
+
+test('Double Click Prevention: Synchronous mutex lock blocks concurrent rapid button clicks', async () => {
+  let executionsCount = 0
+  const isExecutingRef = { current: false }
+
+  const asyncAction = async () => {
+    if (isExecutingRef.current) {
+      return { skipped: true }
+    }
+    isExecutingRef.current = true
+    try {
+      executionsCount++
+      // Simulate network / async delay
+      await new Promise(resolve => setTimeout(resolve, 20))
+      return { success: true }
+    } finally {
+      isExecutingRef.current = false
+    }
+  }
+
+  // Simulate two rapid, concurrent clicks fired in the same microtask frame
+  const [click1, click2] = await Promise.all([
+    asyncAction(),
+    asyncAction()
+  ])
+
+  // Click 1 succeeded, Click 2 was dropped synchronously by the mutex lock
+  assert.equal(click1.success, true)
+  assert.equal(click2.skipped, true)
+  assert.equal(executionsCount, 1)
+
+  // Subsequent click after completion is permitted
+  const click3 = await asyncAction()
+  assert.equal(click3.success, true)
+  assert.equal(executionsCount, 2)
+})

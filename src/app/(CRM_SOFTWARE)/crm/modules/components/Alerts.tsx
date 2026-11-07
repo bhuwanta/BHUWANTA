@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useTransition } from 'react'
+import React, { useState, useEffect, useRef, useTransition } from 'react'
 import {
   BellRing,
   AlertTriangle,
@@ -104,6 +104,13 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   // Test Alert State
   const [testingEmail, setTestingEmail] = useState<string | null>(null)
 
+  // Synchronous Double-Click Prevention Guards (Zero-lag hardware mutex)
+  const isGeneratingPdfRef = useRef(false)
+  const isSubmittingAddRef = useRef(false)
+  const isSavingEditRef = useRef(false)
+  const deletingIdRef = useRef<string | null>(null)
+  const testingEmailRef = useRef<string | null>(null)
+
   // Listen for Escape key to close modals or cancel inline editing
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -120,14 +127,17 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   // --- Handlers ---
 
   const handleDownloadGuide = async () => {
+    if (isGeneratingPdfRef.current) return
+    isGeneratingPdfRef.current = true
+    setIsGeneratingPdf(true)
     try {
-      setIsGeneratingPdf(true)
       await generateMonitoringGuidePdf({ download: true })
       toast.success('Downloaded Bhuwanta_System_Monitoring_Guide.pdf')
     } catch (err) {
       console.error('Failed to generate PDF:', err)
       toast.error('Failed to generate PDF guide')
     } finally {
+      isGeneratingPdfRef.current = false
       setIsGeneratingPdf(false)
     }
   }
@@ -150,6 +160,8 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmittingAddRef.current) return
+
     const cleanEmail = newEmail.trim().toLowerCase()
     if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       toast.error('Please enter a valid email address')
@@ -161,6 +173,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
       return
     }
 
+    isSubmittingAddRef.current = true
     setIsSubmittingAdd(true)
     try {
       const res = await addAlertRecipient({
@@ -180,6 +193,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     } catch {
       toast.error('Unexpected error adding alert recipient')
     } finally {
+      isSubmittingAddRef.current = false
       setIsSubmittingAdd(false)
     }
   }
@@ -193,6 +207,8 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   }
 
   const handleSaveEdit = async (id: string) => {
+    if (isSavingEditRef.current) return
+
     const cleanEmail = editEmail.trim().toLowerCase()
     if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       toast.error('Please enter a valid email address')
@@ -205,6 +221,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
       return
     }
 
+    isSavingEditRef.current = true
     setIsSavingEdit(true)
     try {
       const res = await updateAlertRecipient(id, {
@@ -237,11 +254,14 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     } catch {
       toast.error('Failed to update alert recipient')
     } finally {
+      isSavingEditRef.current = false
       setIsSavingEdit(false)
     }
   }
 
   const handleDelete = async (id: string, email: string) => {
+    if (deletingIdRef.current) return
+
     if (recipients.length <= 1) {
       toast.error('At least one alert recipient is required so system failures are never silenced. Please add a replacement email first, or edit this email.')
       return
@@ -251,6 +271,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
       return
     }
 
+    deletingIdRef.current = id
     setDeletingId(id)
     startTransition(async () => {
       try {
@@ -264,12 +285,16 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
       } catch {
         toast.error('Unexpected error removing recipient')
       } finally {
+        deletingIdRef.current = null
         setDeletingId(null)
       }
     })
   }
 
   const handleTriggerTest = async (email: string) => {
+    if (testingEmailRef.current) return
+
+    testingEmailRef.current = email
     setTestingEmail(email)
     try {
       const res = await triggerTestSystemAlert(email)
@@ -281,6 +306,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     } catch {
       toast.error('Failed to dispatch test alert email')
     } finally {
+      testingEmailRef.current = null
       setTestingEmail(null)
     }
   }
@@ -327,7 +353,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               disabled={isGeneratingPdf}
               onClick={handleDownloadGuide}
               title="Download official PDF guide"
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs disabled:opacity-50 disabled:pointer-events-none"
             >
               {isGeneratingPdf ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#002935]" />
@@ -615,7 +641,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             type="button"
                             disabled={isSavingEdit}
                             onClick={() => handleSaveEdit(recipient.id)}
-                            className="inline-flex items-center gap-1 rounded-md bg-[#002935] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] cursor-pointer shadow-xs"
+                            className="inline-flex items-center gap-1 rounded-md bg-[#002935] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] cursor-pointer shadow-xs disabled:opacity-50 disabled:pointer-events-none"
                           >
                             {isSavingEdit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-[#c4a55a]" />}
                             Save
@@ -624,7 +650,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             type="button"
                             disabled={isSavingEdit}
                             onClick={() => setEditingId(null)}
-                            className="rounded-md bg-gray-100 px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-200 cursor-pointer"
+                            className="rounded-md bg-gray-100 px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                           >
                             Cancel
                           </button>
@@ -634,10 +660,10 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                           {/* Test Email Button */}
                           <button
                             type="button"
-                            disabled={isTesting}
+                            disabled={Boolean(testingEmail)}
                             onClick={() => handleTriggerTest(recipient.email)}
                             title="Dispatch sample tabular monitoring email to this inbox"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 border border-amber-200/80 transition-colors cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 border border-amber-200/80 transition-colors cursor-pointer shadow-2xs disabled:opacity-50 disabled:pointer-events-none"
                           >
                             {isTesting ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-700" />
@@ -650,8 +676,9 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                           {/* Edit Button */}
                           <button
                             type="button"
+                            disabled={Boolean(editingId) || Boolean(testingEmail) || Boolean(deletingId)}
                             onClick={() => handleStartEdit(recipient)}
-                            className="rounded-lg p-1.5 text-gray-400 hover:text-[#0f1d33] hover:bg-gray-100 transition-colors cursor-pointer"
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-[#0f1d33] hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
                             title="Edit Alert Preferences"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -660,9 +687,9 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                           {/* Delete Button (Guarded if only 1 recipient remains so alerts are never silenced) */}
                           <button
                             type="button"
-                            disabled={isDeleting}
+                            disabled={Boolean(deletingId) || Boolean(testingEmail) || recipients.length <= 1}
                             onClick={() => handleDelete(recipient.id, recipient.email)}
-                            className={`rounded-lg p-1.5 transition-colors ${
+                            className={`rounded-lg p-1.5 transition-colors disabled:pointer-events-none ${
                               recipients.length <= 1
                                 ? 'text-gray-300 hover:text-gray-300 cursor-not-allowed'
                                 : 'text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
@@ -721,7 +748,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                   type="button"
                   disabled={isGeneratingPdf}
                   onClick={handleDownloadGuide}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4a55a] hover:bg-[#d4b56a] px-3 py-1.5 text-xs font-bold text-[#002935] shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4a55a] hover:bg-[#d4b56a] px-3 py-1.5 text-xs font-bold text-[#002935] shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {isGeneratingPdf ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-[#002935]" />
@@ -1070,7 +1097,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                 <button
                   type="submit"
                   disabled={isSubmittingAdd}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] disabled:opacity-50 cursor-pointer shadow-xs"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] disabled:opacity-50 disabled:pointer-events-none cursor-pointer shadow-xs"
                 >
                   {isSubmittingAdd ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 text-[#c4a55a]" />}
                   Add Recipient
