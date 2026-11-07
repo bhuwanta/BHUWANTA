@@ -27,6 +27,7 @@
 !/tests/settings.test.mjs
 !/tests/lead_status.test.mjs
 !/tests/whatsapp-recipient-edge-cases.test.mjs
+!/tests/crm-leads-date-timezone.test.mjs
 
 # next.js
 /.next/

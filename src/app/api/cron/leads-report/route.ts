@@ -113,6 +113,7 @@ export async function GET(request: Request) {
     }
 
     const startUtc = startSlotDate.toISOString();
+    const endUtc = endSlotDate.toISOString();
     const startOfTodayUtc = new Date(`${todayIstStr}T00:00:00+05:30`).toISOString();
 
     let slotLeadsCount = 0;
@@ -121,19 +122,24 @@ export async function GET(request: Request) {
 
     if (isMaster) {
       // ── Master reports: 3 PDFs (slot + today + all-time) + 1 Master Excel Workbook ──
-      const { data: allTimeLeads } = await supabase
+      const { data: allTimeLeads, error: masterLeadsErr } = await supabase
         .from('leads')
         .select('*')
         .order('created_at', { ascending: false });
 
+      if (masterLeadsErr) {
+        console.error('Supabase error fetching leads for master report:', masterLeadsErr);
+        return NextResponse.json({ error: masterLeadsErr.message }, { status: 500 });
+      }
+
       if (allTimeLeads) {
         const allTime = allTimeLeads.map(formatLead);
 
-        // Slot leads
-        const slotLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startUtc);
+        // Slot leads bounded by [startUtc, endUtc] to avoid double counting across slots
+        const slotLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startUtc && l.created_at <= endUtc);
 
-        // Today's leads
-        const todayLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startOfTodayUtc);
+        // Today's leads bounded up to endUtc
+        const todayLeadsRaw = allTimeLeads.filter((l: any) => l.created_at >= startOfTodayUtc && l.created_at <= endUtc);
 
         const slotLeads = slotLeadsRaw.map(formatLead);
         const todayLeads = todayLeadsRaw.map(formatLead);
@@ -166,12 +172,18 @@ export async function GET(request: Request) {
         `;
       }
     } else {
-      // ── Regular slot reports: PDF + Excel ──
-      const { data: leads } = await supabase
+      // ── Regular slot reports: PDF + Excel (bounded by startUtc and endUtc) ──
+      const { data: leads, error: slotLeadsErr } = await supabase
         .from('leads')
         .select('*')
         .gte('created_at', startUtc)
+        .lte('created_at', endUtc)
         .order('created_at', { ascending: false });
+
+      if (slotLeadsErr) {
+        console.error('Supabase error fetching leads for slot report:', slotLeadsErr);
+        return NextResponse.json({ error: slotLeadsErr.message }, { status: 500 });
+      }
 
       const reportData = leads ? leads.map(formatLead) : [];
       slotLeadsCount = reportData.length;
@@ -235,14 +247,19 @@ export async function GET(request: Request) {
       if (!testEmail) { // Skip WA if testing only email
         let waList: string[] = [];
         if (testWaPhone) {
-          waList = [testWaPhone];
+          const cleanTest = testWaPhone.replace(/\D/g, '');
+          waList = [cleanTest.length === 10 ? `91${cleanTest}` : cleanTest];
         } else {
           const { data: waRecipients } = await supabase.from('whatsapp_report_recipients').select('*');
           if (waRecipients && waRecipients.length > 0) {
             waList = [...new Set(
               waRecipients
                 .filter((r: any) => !r.report_times || r.report_times.length === 0 || r.report_times.includes(slotCode))
-                .map((r: any) => r.phone_number)
+                .map((r: any) => {
+                  const raw = String(r.phone_number || '').replace(/\D/g, '');
+                  return raw.length === 10 ? `91${raw}` : raw;
+                })
+                .filter((p: string) => p.length >= 10)
             )];
           }
         }

@@ -83,7 +83,6 @@ export async function POST(request: NextRequest) {
     const campaign = campaignSource(attribution)
     const attributedSource = `${campaign ? campaign + ' | ' : ''}${sourcePage || 'Website'}`
     const attributionNote = Object.keys(attribution).length ? `\nCampaign metadata (browser supplied): ${JSON.stringify(attribution)}` : ''
-    let leadId: string
 
     // Create a summarized budget string for CRM (Sanity/Supabase) backwards compatibility
     const locationStr = location && location !== 'Not Sure' ? `Location: ${location} | ` : ''
@@ -114,6 +113,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert into Sanity (Primary CRM)
+    let leadId = ''
     try {
       const savedLead = await writeClient.create({
         _type: 'lead',
@@ -128,14 +128,10 @@ export async function POST(request: NextRequest) {
       })
       leadId = savedLead._id
     } catch (dbError) {
-      console.error('Sanity insert error:', dbError)
-      return NextResponse.json(
-        { error: 'Failed to save your message. Please try again.' },
-        { status: 500 }
-      )
+      console.warn('Sanity insert failed (falling back to Supabase CRM):', dbError)
     }
 
-    // Backup into Supabase (Safety net — non-blocking)
+    // Backup / Primary into Supabase (Guarantees lead retention)
     try {
       const supabase = createServiceClient()
       
@@ -143,22 +139,46 @@ export async function POST(request: NextRequest) {
       const isDownload = enquiryType?.includes('Document Download')
       const downloadedItem = isDownload ? enquiryType.replace('Document Download: ', '') : null
 
-      const { error: backupError } = await supabase.from('leads').insert({
-        name,
-        email: email || '',
-        phone: savedPhone,
-        message: `${message || ''}${attributionNote}`,
-        location: location && location !== 'All' ? location : null,
-        project: project && project !== 'Not Sure' ? project : null,
-        enquiry_type: enquiryType || 'Website Inquiry',
-        downloaded_item: downloadedItem,
-        source_page: attributedSource,
-        referred_by: referredBy || null,
-        status: 'new',
-      })
+      const insertQuery = supabase
+        .from('leads')
+        .insert({
+          name,
+          email: email || '',
+          phone: savedPhone,
+          message: `${message || ''}${attributionNote}`,
+          location: location && location !== 'All' ? location : null,
+          project: project && project !== 'Not Sure' ? project : null,
+          enquiry_type: enquiryType || 'Website Inquiry',
+          downloaded_item: downloadedItem,
+          source_page: attributedSource,
+          referred_by: referredBy || null,
+          status: 'new',
+        })
+
+      let supabaseLead: any = null
+      let backupError: any = null
+      if (typeof (insertQuery as any)?.select === 'function') {
+        const res = await (insertQuery as any).select('id').single()
+        supabaseLead = res.data
+        backupError = res.error
+      } else {
+        const res = await insertQuery
+        backupError = res?.error
+      }
+
       if (backupError) throw backupError
+      if (!leadId && supabaseLead?.id) {
+        leadId = supabaseLead.id
+      }
     } catch (backupErr) {
-      console.error('Supabase backup insert failed (non-critical):', backupErr)
+      console.error('Supabase insert error:', backupErr)
+    }
+
+    if (!leadId) {
+      return NextResponse.json(
+        { error: 'Failed to save your message. Please try again.' },
+        { status: 500 }
+      )
     }
 
     // Send emails (non-blocking, don't fail the request) — the autoresponder and

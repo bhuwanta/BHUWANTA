@@ -231,6 +231,15 @@ export async function updateReportRecipient(
 
 export async function removeReportRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
+    if (id === 'master-admin-default') {
+      return { success: false, error: 'Master Admin cannot be removed.' }
+    }
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (!isUuid) {
+      return { success: false, error: 'Invalid recipient ID format.' }
+    }
+
     const supabase = createServiceClient()
 
     // Protect Master Admin from deletion
@@ -569,6 +578,11 @@ export async function updateWaRecipientName(id: string, name: string): Promise<{
 
 export async function removeWaRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (!isUuid) {
+      return { success: false, error: 'Invalid recipient ID format.' }
+    }
+
     const supabase = createServiceClient()
     const { error } = await supabase
       .from('whatsapp_report_recipients')

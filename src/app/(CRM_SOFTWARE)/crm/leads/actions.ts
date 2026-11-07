@@ -26,10 +26,13 @@ export async function getLeads(
     .from('leads')
     .select('*', { count: 'exact' })
 
-  // Apply Search
+  // Apply Search (Sanitized against PostgREST expression delimiters ,()" to prevent HTTP 400 crashes)
   if (filters?.searchQuery) {
-    const q = `%${filters.searchQuery}%`;
-    query = query.or(`name.ilike.${q},email.ilike.${q},phone.ilike.${q},project.ilike.${q}`);
+    const cleanSearch = filters.searchQuery.replace(/[,()"]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (cleanSearch) {
+      const q = `%${cleanSearch}%`;
+      query = query.or(`name.ilike.${q},email.ilike.${q},phone.ilike.${q},project.ilike.${q}`);
+    }
   }
 
   // Apply Status
@@ -55,16 +58,21 @@ export async function getLeads(
     query = query.or(sourceOrQuery);
   }
 
-  // Apply Dates
+  // Apply Dates (Anchored explicitly to Indian Standard Time Asia/Kolkata +05:30)
+  // Prevents UTC day-shift bugs on production Vercel servers where selecting e.g. 24th pulled in 25th early morning leads
   if (filters?.startDate) {
-    const start = new Date(filters.startDate);
-    start.setHours(0, 0, 0, 0);
-    query = query.gte('created_at', start.toISOString());
+    const dateOnly = filters.startDate.split('T')[0].trim();
+    if (dateOnly) {
+      const startIst = new Date(`${dateOnly}T00:00:00+05:30`);
+      query = query.gte('created_at', startIst.toISOString());
+    }
   }
   if (filters?.endDate) {
-    const end = new Date(filters.endDate);
-    end.setHours(23, 59, 59, 999);
-    query = query.lte('created_at', end.toISOString());
+    const dateOnly = filters.endDate.split('T')[0].trim();
+    if (dateOnly) {
+      const endIst = new Date(`${dateOnly}T23:59:59.999+05:30`);
+      query = query.lte('created_at', endIst.toISOString());
+    }
   }
 
   // Apply Sorting
@@ -176,6 +184,11 @@ export async function updateLead(id: string, formData: FormData) {
 }
 
 export async function deleteLead(id: string) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  if (!isUuid) {
+    return { error: 'Invalid lead ID format.' }
+  }
+
   const supabase = await createClient()
 
   const { error } = await supabase
@@ -192,14 +205,17 @@ export async function deleteLead(id: string) {
 }
 
 export async function deleteMultipleLeads(ids: string[]) {
-  const supabase = await createClient()
-
   if (!ids || ids.length === 0) return { success: true }
+
+  const validIds = ids.filter(id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+  if (validIds.length === 0) return { success: true }
+
+  const supabase = await createClient()
 
   const { error } = await supabase
     .from('leads')
     .delete()
-    .in('id', ids)
+    .in('id', validIds)
 
   if (error) {
     return { error: error.message }

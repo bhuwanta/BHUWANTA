@@ -143,36 +143,6 @@ export function DownloadPopup({ isOpen, onClose, urls, projectName, documentType
     }
   }
 
-  const handleInstantDownload = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (formData.phone.length !== 10) {
-      setPhoneError('Please enter a valid 10-digit number')
-      return
-    }
-
-    setIsSubmitting(true)
-    setError('')
-
-    try {
-      const data = await submitContactLead({
-        attribution: getLeadAttribution(),
-        ...formData,
-        project: projectName,
-        enquiryType: `Document Download: ${documentType}`,
-        message: `Requested to download ${documentType} for ${projectName}`,
-        sourcePage: 'Website Document Download',
-      })
-      trackDocumentDownload(data.leadId)
-      clearRecaptcha()
-      setDownloadReady(true)
-    } catch (err: unknown) {
-      console.error('Instant download submission error:', err)
-      setError('We could not confirm your request was saved. Please retry.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault()
     if (isSubmitting || isOtpConfigLoading || hasOtpConfigError || !confirmationResult || !otp || !contactPhone) return

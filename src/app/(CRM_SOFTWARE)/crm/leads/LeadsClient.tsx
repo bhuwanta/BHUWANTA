@@ -473,7 +473,7 @@ export default function LeadsClient({
 
     for (const lead of leadsToExport) {
       const values = [
-        `"${new Date(lead.created_at).toLocaleDateString()}"`,
+        `"${new Date(lead.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} ${new Date(lead.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}"`,
         `"${(lead.name || '').replace(/"/g, '""')}"`,
         `"${(lead.email || '').replace(/"/g, '""')}"`,
         `"${(lead.phone || '').replace(/"/g, '""')}"`,
@@ -1017,6 +1017,7 @@ export default function LeadsClient({
                     <td className="px-3 py-2 whitespace-nowrap">
                       <div className="font-medium text-[#0f1d33]">
                         {new Date(lead.created_at).toLocaleDateString('en-US', {
+                          timeZone: 'Asia/Kolkata',
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric'
@@ -1024,6 +1025,7 @@ export default function LeadsClient({
                       </div>
                       <div className="text-xs text-[#5a6a82] mt-0.5">
                         {new Date(lead.created_at).toLocaleTimeString('en-US', {
+                          timeZone: 'Asia/Kolkata',
                           hour: '2-digit',
                           minute: '2-digit'
                         })}
@@ -1142,7 +1144,7 @@ export default function LeadsClient({
                     <div>
                       <div className="font-semibold text-[#0f1d33] text-base">{lead.name}</div>
                       <div className="text-sm text-[#5a6a82] mt-0.5">
-                        {new Date(lead.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(lead.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(lead.created_at).toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(lead.created_at).toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
                   </div>
