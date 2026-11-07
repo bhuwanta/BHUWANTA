@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, startTransition } from 'react'
+import { useState, useRef } from 'react'
 import { Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { BrandLockup } from '@/components/layout/BrandLockup'
 import { login, resetPassword } from './actions'
@@ -10,30 +10,43 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
+  const isPendingRef = useRef(false)
   
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [resetSuccess, setResetSuccess] = useState(false)
 
   async function handleLoginSubmit(formData: FormData) {
+    if (isPendingRef.current) return
+    isPendingRef.current = true
     setIsPending(true)
     setError(null)
-    const result = await login(formData)
-    if (result?.error) {
-      setError(result.error)
+    try {
+      const result = await login(formData)
+      if (result?.error) {
+        setError(result.error)
+      }
+    } finally {
+      isPendingRef.current = false
       setIsPending(false)
     }
   }
 
   async function handleResetSubmit(formData: FormData) {
+    if (isPendingRef.current) return
+    isPendingRef.current = true
     setIsPending(true)
     setError(null)
-    const result = await resetPassword(formData)
-    if (result?.error) {
-      setError(result.error)
-    } else {
-      setResetSuccess(true)
+    try {
+      const result = await resetPassword(formData)
+      if (result?.error) {
+        setError(result.error)
+      } else {
+        setResetSuccess(true)
+      }
+    } finally {
+      isPendingRef.current = false
+      setIsPending(false)
     }
-    setIsPending(false)
   }
 
   return (
@@ -98,7 +111,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full gradient-gold text-white font-semibold rounded-lg py-2.5 shadow-lg shadow-[#c4a55a]/20 hover:scale-[1.02] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+              className="w-full gradient-gold text-white font-semibold rounded-lg py-2.5 shadow-lg shadow-[#c4a55a]/20 hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center gap-2"
             >
               {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               {isPending ? 'Sending Link...' : 'Send Reset Link'}
@@ -111,7 +124,7 @@ export default function AdminLoginPage() {
                 setIsForgotPassword(false)
                 setError(null)
               }}
-              className="w-full flex items-center justify-center gap-2 text-sm text-[#5a6a82] hover:text-[#c4a55a] transition-colors"
+              className="w-full flex items-center justify-center gap-2 text-sm text-[#5a6a82] hover:text-[#c4a55a] transition-colors disabled:pointer-events-none"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Login
@@ -169,7 +182,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full gradient-gold text-white font-semibold rounded-lg py-2.5 shadow-lg shadow-[#c4a55a]/20 hover:scale-[1.02] transition-transform disabled:opacity-70 flex items-center justify-center gap-2"
+              className="w-full gradient-gold text-white font-semibold rounded-lg py-2.5 shadow-lg shadow-[#c4a55a]/20 hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center gap-2"
             >
               {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
               {isPending ? 'Logging in...' : 'Login'}

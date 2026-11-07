@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2, Key, Eye, EyeOff } from 'lucide-react'
 
@@ -8,6 +8,7 @@ export default function SettingsClient() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isSubmittingRef = useRef(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -16,6 +17,7 @@ export default function SettingsClient() {
 
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault()
+    if (isSubmittingRef.current) return
     setMessage(null)
     
     if (newPassword.length < 6) {
@@ -28,20 +30,24 @@ export default function SettingsClient() {
       return
     }
 
+    isSubmittingRef.current = true
     setIsSubmitting(true)
     
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    })
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      })
 
-    setIsSubmitting(false)
-
-    if (error) {
-      setMessage({ type: 'error', text: error.message })
-    } else {
-      setMessage({ type: 'success', text: 'Password updated successfully!' })
-      setNewPassword('')
-      setConfirmPassword('')
+      if (error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'success', text: 'Password updated successfully!' })
+        setNewPassword('')
+        setConfirmPassword('')
+      }
+    } finally {
+      isSubmittingRef.current = false
+      setIsSubmitting(false)
     }
   }
 
@@ -121,7 +127,7 @@ export default function SettingsClient() {
               <button
                 type="submit"
                 disabled={isSubmitting || !newPassword || !confirmPassword}
-                className="inline-flex items-center justify-center rounded-md bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0f1d33] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center rounded-md bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0f1d33] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
               >
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Update Password

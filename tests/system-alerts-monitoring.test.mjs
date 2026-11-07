@@ -29,7 +29,15 @@ function renderMonitoringTableHtml(payload) {
     ? 'WARNING — Subsystem Operating with Notices' 
     : 'SYSTEM HEALTH — All Subsystems Operating Normally'
 
-  const rows = payload.items.map((item, index) => {
+  const rows = payload.items.length === 0
+    ? `
+      <tr style="background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
+        <td colspan="5" style="padding: 24px; text-align: center; color: #64748B; font-size: 13px;">
+          No operational events or errors reported. All monitored subsystems are nominal.
+        </td>
+      </tr>
+    `
+    : payload.items.map((item, index) => {
     const rowBg = index % 2 === 0 ? '#FFFFFF' : '#F8FAFC'
     
     let badgeBg = '#DCFCE7'
@@ -362,4 +370,40 @@ test('Double Click Prevention: Synchronous mutex lock blocks concurrent rapid bu
   const click3 = await asyncAction()
   assert.equal(click3.success, true)
   assert.equal(executionsCount, 2)
+})
+
+test('System Monitoring: HTML Table handles empty items array with clean nominal fallback', () => {
+  const payload = {
+    title: 'Routine Health Ping',
+    items: []
+  }
+  const html = renderMonitoringTableHtml(payload)
+  assert.match(html, /No operational events or errors reported/i)
+  assert.match(html, /All monitored subsystems are nominal/i)
+})
+
+test('Alert Recipient Deduplication: Deduplicates casing, whitespace, and strips invalid items', () => {
+  const rawList = [
+    ' Admin@bhuwanta.com ',
+    'admin@bhuwanta.com',
+    'SUPPORT@BHUWANTA.COM',
+    'support@bhuwanta.com ',
+    '',
+    'not-an-email',
+    null,
+    undefined
+  ]
+
+  const deduplicated = Array.from(
+    new Set(
+      rawList
+        .map(e => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
+        .filter(e => e.includes('@'))
+    )
+  )
+
+  assert.deepEqual(deduplicated, [
+    'admin@bhuwanta.com',
+    'support@bhuwanta.com'
+  ])
 })

@@ -124,6 +124,17 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  // Prevent background scrolling when modal overlays are active
+  useEffect(() => {
+    if (isGuideModalOpen || isAddModalOpen) {
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = originalOverflow
+      }
+    }
+  }, [isGuideModalOpen, isAddModalOpen])
+
   // --- Handlers ---
 
   const handleDownloadGuide = async () => {
@@ -518,7 +529,14 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e8ecf2] bg-white">
-              {recipients.map(recipient => {
+              {recipients.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-xs text-[#64748b]">
+                    No alert recipients configured. Click &ldquo;+ Add Alert Email&rdquo; above to set up your first recipient.
+                  </td>
+                </tr>
+              ) : (
+                recipients.map(recipient => {
                 const isEditing = editingId === recipient.id
                 const isDeleting = deletingId === recipient.id
                 const isTesting = testingEmail === recipient.email
@@ -537,6 +555,9 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                               type="text"
                               value={editName}
                               onChange={e => setEditName(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') handleSaveEdit(recipient.id)
+                              }}
                               className="w-full text-xs rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
                               placeholder="Recipient Name"
                               autoFocus
@@ -550,6 +571,9 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                               type="email"
                               value={editEmail}
                               onChange={e => setEditEmail(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') handleSaveEdit(recipient.id)
+                              }}
                               className="w-full text-xs font-mono rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
                               placeholder="name@example.com"
                             />
@@ -711,7 +735,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                     </td>
                   </tr>
                 )
-              })}
+              }))}
             </tbody>
           </table>
         </div>

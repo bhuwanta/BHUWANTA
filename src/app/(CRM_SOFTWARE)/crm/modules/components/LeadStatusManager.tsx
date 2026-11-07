@@ -81,6 +81,28 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
   const isDeletingRef = useRef(false)
   const [deleteError, setDeleteError] = useState('')
 
+  // Escape key listener & body scroll lock
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isModalOpen) setIsModalOpen(false)
+        if (deletingStatus) setDeletingStatus(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isModalOpen, deletingStatus])
+
+  useEffect(() => {
+    if (isModalOpen || deletingStatus) {
+      const orig = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = orig
+      }
+    }
+  }, [isModalOpen, deletingStatus])
+
   // Open Create Modal
   const openCreateModal = () => {
     setEditingStatus(null)
@@ -436,7 +458,10 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
       {/* 1. ADD / EDIT STATUS MODAL */}
       {/* ======================================================== */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsModalOpen(false) }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+        >
           <div className="bg-white rounded-xl shadow-xl border border-[#e8ecf2] max-w-md w-full overflow-hidden">
             <div className="p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-[#f8fafc]">
               <div className="flex items-center gap-2">
@@ -558,7 +583,10 @@ export default function LeadStatusManager({ initialStatuses }: LeadStatusManager
       {/* 2. SAFE DELETION & REASSIGNMENT MODAL */}
       {/* ======================================================== */}
       {deletingStatus && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setDeletingStatus(null) }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+        >
           <div className="bg-white rounded-xl shadow-xl border border-[#e8ecf2] max-w-md w-full overflow-hidden">
             <div className="p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-red-50/50">
               <div className="flex items-center gap-2 text-red-600">

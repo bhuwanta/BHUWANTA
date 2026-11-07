@@ -129,7 +129,15 @@ export function renderMonitoringTableHtml(payload: SystemMonitoringPayload): str
     ? 'WARNING — Subsystem Operating with Notices' 
     : 'SYSTEM HEALTH — All Subsystems Operating Normally'
 
-  const rows = payload.items.map((item, index) => {
+  const rows = payload.items.length === 0
+    ? `
+      <tr style="background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0;">
+        <td colspan="5" style="padding: 24px; text-align: center; color: #64748B; font-size: 13px;">
+          No operational events or errors reported. All monitored subsystems are nominal.
+        </td>
+      </tr>
+    `
+    : payload.items.map((item, index) => {
     const rowBg = index % 2 === 0 ? '#FFFFFF' : '#F8FAFC'
     
     let badgeBg = '#DCFCE7'
@@ -277,9 +285,17 @@ export async function sendSystemMonitoringAlert(payload: SystemMonitoringPayload
     }
 
     // 2. Resolve Recipients
-    const recipients = payload.targetEmails && payload.targetEmails.length > 0
+    const rawRecipients = payload.targetEmails && payload.targetEmails.length > 0
       ? payload.targetEmails
       : await getAlertRecipientsList(true)
+
+    const recipients = Array.from(
+      new Set(
+        rawRecipients
+          .map(e => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
+          .filter(e => e.includes('@'))
+      )
+    )
 
     if (!recipients || recipients.length === 0) {
       console.warn('[Monitoring] No alert recipients found to dispatch alert')

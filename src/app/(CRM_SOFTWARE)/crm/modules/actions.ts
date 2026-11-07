@@ -1174,9 +1174,10 @@ export async function addAlertRecipient(params: {
       return { success: false, error: 'Please enter a valid email address.' }
     }
 
+    const sanitizedName = (params.name || '').trim().replace(/<[^>]*>/g, '')
     const payload = {
       email: cleanEmail,
-      name: (params.name || '').trim() || cleanEmail.split('@')[0],
+      name: sanitizedName || cleanEmail.split('@')[0],
       instant_alerts: params.instant_alerts !== false,
       daily_digest: params.daily_digest !== false
     }
@@ -1257,7 +1258,7 @@ export async function updateAlertRecipient(
       const masterName = params.name !== undefined ? params.name.trim() : 'Master Admin'
       const payload = {
         email: masterEmail,
-        name: masterName || masterEmail.split('@')[0],
+        name: masterName.replace(/<[^>]*>/g, '') || masterEmail.split('@')[0],
         instant_alerts: params.instant_alerts !== false,
         daily_digest: params.daily_digest !== false
       }
@@ -1325,7 +1326,7 @@ export async function updateAlertRecipient(
     }
 
     const updatePayload: Record<string, any> = {
-      ...(params.name !== undefined ? { name: params.name.trim() } : {}),
+      ...(params.name !== undefined ? { name: params.name.trim().replace(/<[^>]*>/g, '') } : {}),
       ...(cleanEmail !== undefined ? { email: cleanEmail } : {}),
       ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
       ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),

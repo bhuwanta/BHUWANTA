@@ -79,6 +79,7 @@ export default function WhatsappDashboardClient({
   const [currentPage, setCurrentPage] = useState(1)
   const [totalLeadsCount, setTotalLeadsCount] = useState(totalCount || initialLeads.length)
   const [isPageLoading, setIsPageLoading] = useState(false)
+  const isPageLoadingRef = useRef(false)
   const pageSize = 50
   
   const chatScrollRef = useRef<HTMLDivElement>(null)
@@ -95,8 +96,31 @@ export default function WhatsappDashboardClient({
     }
   }, [selectedLead])
 
+  // Escape key dismiss & body scroll lock for panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedLead) {
+        setSelectedLead(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedLead])
+
+  useEffect(() => {
+    if (selectedLead) {
+      const orig = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = orig
+      }
+    }
+  }, [selectedLead])
+
   const handlePageChange = async (newPage: number) => {
+    if (isPageLoadingRef.current) return;
     if (newPage < 1 || newPage > Math.ceil(totalLeadsCount / pageSize)) return;
+    isPageLoadingRef.current = true;
     setIsPageLoading(true);
     try {
       const res = await getWhatsappLeadsWithActivity(newPage, pageSize);
@@ -106,6 +130,7 @@ export default function WhatsappDashboardClient({
     } catch (err) {
       console.error('Error fetching leads:', err);
     } finally {
+      isPageLoadingRef.current = false;
       setIsPageLoading(false);
     }
   };
@@ -440,14 +465,14 @@ export default function WhatsappDashboardClient({
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1 || isPageLoading}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
                 >
                   Next
                 </button>
@@ -465,7 +490,7 @@ export default function WhatsappDashboardClient({
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1 || isPageLoading}
-                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:z-20 focus:outline-offset-0"
                     >
                       <span className="sr-only">Previous</span>
                       <svg className="h-5 w-5 text-black" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -475,7 +500,7 @@ export default function WhatsappDashboardClient({
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
-                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:z-20 focus:outline-offset-0"
                     >
                       <span className="sr-only">Next</span>
                       <svg className="h-5 w-5 text-black" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

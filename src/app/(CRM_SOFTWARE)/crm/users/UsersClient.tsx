@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { listAdminUsers, addAdminUser, deleteAdminUser, changeAdminPassword, toggleAdminStatus, editAdminUser, getRoles, addRole, deleteRole, deleteAndReassignRole, sendPasswordResetEmail } from './actions'
 import { Users, Loader2, Plus, Search, X, Eye, EyeOff, Shield, Trash2, Key, UserX, UserCheck, ChevronLeft, ChevronRight, Pencil } from 'lucide-react'
 
@@ -62,6 +62,15 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
   // Action State
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
 
+  // Mutex refs to synchronously prevent double clicks
+  const isAddingRoleRef = useRef(false)
+  const isDeletingRoleRef = useRef(false)
+  const isAddingUserRef = useRef(false)
+  const isEditingUserRef = useRef(false)
+  const isChangingPasswordRef = useRef(false)
+  const isSendingResetRef = useRef(false)
+  const actionLoadingIdRef = useRef<string | null>(null)
+
   useEffect(() => {
     fetchUsers()
     fetchRoles()
@@ -74,7 +83,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
   async function handleAddRole(e: React.FormEvent) {
     e.preventDefault()
+    if (isAddingRoleRef.current) return
     if (!newRoleName.trim()) return
+
+    isAddingRoleRef.current = true
     setIsAddingRole(true)
     setRoleError('')
     try {
@@ -90,21 +102,19 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       setRoleError('An unexpected error occurred.')
     } finally {
+      isAddingRoleRef.current = false
       setIsAddingRole(false)
     }
   }
 
   async function handleDeleteRoleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (isDeletingRoleRef.current) return
     if (!roleToDelete) return
-
-    setIsDeletingRole(true)
-    setDeleteRoleError('')
 
     const roleObj = roles.find(r => r.id === roleToDelete)
     if (!roleObj) {
       setDeleteRoleError('Role not found.')
-      setIsDeletingRole(false)
       return
     }
 
@@ -113,9 +123,12 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
     if (usersWithRole.length > 0 && !fallbackRole) {
       setDeleteRoleError(`There are ${usersWithRole.length} users with this role. Please select a fallback role to reassign them to.`)
-      setIsDeletingRole(false)
       return
     }
+
+    isDeletingRoleRef.current = true
+    setIsDeletingRole(true)
+    setDeleteRoleError('')
 
     try {
       const fallbackRoleName = fallbackRole ? roles.find(r => r.id === fallbackRole)?.name || null : null
@@ -136,6 +149,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       setDeleteRoleError('An unexpected error occurred while deleting the role.')
     } finally {
+      isDeletingRoleRef.current = false
       setIsDeletingRole(false)
     }
   }
@@ -176,6 +190,8 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
   const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isAddingUserRef.current) return
+    isAddingUserRef.current = true
     setIsAdding(true)
     setAddError('')
 
@@ -192,14 +208,17 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       setAddError('An unexpected error occurred while creating the user.')
     } finally {
+      isAddingUserRef.current = false
       setIsAdding(false)
     }
   }
 
   const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isEditingUserRef.current) return
     if (!selectedUserToEdit) return
 
+    isEditingUserRef.current = true
     setIsEditing(true)
     setEditError('')
     
@@ -217,6 +236,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       setEditError('An unexpected error occurred while updating the user.')
     } finally {
+      isEditingUserRef.current = false
       setIsEditing(false)
     }
   }
@@ -245,8 +265,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
   const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isChangingPasswordRef.current) return
     if (!selectedUserId) return
 
+    isChangingPasswordRef.current = true
     setIsChangingPassword(true)
     setPasswordError('')
 
@@ -264,22 +286,24 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       setPasswordError('An unexpected error occurred.')
     } finally {
+      isChangingPasswordRef.current = false
       setIsChangingPassword(false)
     }
   }
 
   const handleSendResetEmail = async () => {
+    if (isSendingResetRef.current) return
     if (!selectedUserId) return
-    
-    setIsSendingReset(true)
-    setPasswordError('')
     
     const userToReset = users.find(u => u.id === selectedUserId)
     if (!userToReset || !userToReset.email) {
       setPasswordError('User email not found')
-      setIsSendingReset(false)
       return
     }
+
+    isSendingResetRef.current = true
+    setIsSendingReset(true)
+    setPasswordError('')
 
     try {
       const res = await sendPasswordResetEmail(userToReset.email)
@@ -287,19 +311,21 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
         setPasswordError(res.error)
       } else {
         closePasswordModal()
-        // Optional: show a success toast here if you have a toast library
         alert('Password reset email sent successfully!')
       }
     } catch (err: any) {
       setPasswordError(err.message || 'Failed to send reset email')
     } finally {
+      isSendingResetRef.current = false
       setIsSendingReset(false)
     }
   }
 
   const handleDelete = async (userId: string) => {
+    if (actionLoadingIdRef.current) return
     if (!confirm('Are you sure you want to delete this admin user?')) return
 
+    actionLoadingIdRef.current = userId
     setActionLoadingId(userId)
     try {
       const result = await deleteAdminUser(userId)
@@ -311,11 +337,14 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       alert('Failed to delete user.')
     } finally {
+      actionLoadingIdRef.current = null
       setActionLoadingId(null)
     }
   }
 
   const handleToggleStatus = async (userId: string, currentDisabled: boolean) => {
+    if (actionLoadingIdRef.current) return
+    actionLoadingIdRef.current = userId
     setActionLoadingId(userId)
     try {
       const result = await toggleAdminStatus(userId, !currentDisabled)
@@ -327,9 +356,37 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
     } catch (err) {
       alert('Failed to update user status.')
     } finally {
+      actionLoadingIdRef.current = null
       setActionLoadingId(null)
     }
   }
+
+  // Global Escape key listener to close modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isModalOpen) closeModal()
+        if (isPasswordModalOpen) closePasswordModal()
+        if (isEditModalOpen) setIsEditModalOpen(false)
+        if (isRoleModalOpen) setIsRoleModalOpen(false)
+        if (isDeleteRoleModalOpen) setIsDeleteRoleModalOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isModalOpen, isPasswordModalOpen, isEditModalOpen, isRoleModalOpen, isDeleteRoleModalOpen])
+
+  // Prevent background scrolling when modal overlays are active
+  useEffect(() => {
+    const anyModalOpen = isModalOpen || isPasswordModalOpen || isEditModalOpen || isRoleModalOpen || isDeleteRoleModalOpen
+    if (anyModalOpen) {
+      const orig = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = orig
+      }
+    }
+  }, [isModalOpen, isPasswordModalOpen, isEditModalOpen, isRoleModalOpen, isDeleteRoleModalOpen])
 
   return (
     <div className="space-y-6">
@@ -500,7 +557,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                               onClick={() => handleToggleStatus(user.id, user.is_disabled || false)}
                               disabled={actionLoadingId === user.id}
                               title={user.is_disabled ? "Enable user" : "Disable user"}
-                              className={`p-1.5 rounded transition-all disabled:opacity-50 ${
+                              className={`p-1.5 rounded transition-all disabled:opacity-50 disabled:pointer-events-none ${
                                 user.is_disabled 
                                   ? "text-emerald-600 hover:bg-emerald-50" 
                                   : "text-amber-600 hover:bg-amber-50"
@@ -515,7 +572,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                               }}
                               disabled={actionLoadingId === user.id}
                               title="Edit user"
-                              className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50"
+                              className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
@@ -523,7 +580,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                               onClick={() => openPasswordModal(user.id)}
                               disabled={actionLoadingId === user.id}
                               title="Change password"
-                              className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50"
+                              className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                             >
                               <Key className="w-4 h-4" />
                             </button>
@@ -531,7 +588,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                               onClick={() => handleDelete(user.id)}
                               disabled={actionLoadingId === user.id}
                               title="Delete user"
-                              className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50"
+                              className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                             >
                               {actionLoadingId === user.id ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -618,7 +675,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                           onClick={() => handleToggleStatus(user.id, user.is_disabled || false)}
                           disabled={actionLoadingId === user.id}
                           title={user.is_disabled ? "Enable user" : "Disable user"}
-                          className={`p-1.5 rounded transition-all disabled:opacity-50 ${
+                          className={`p-1.5 rounded transition-all disabled:opacity-50 disabled:pointer-events-none ${
                             user.is_disabled 
                               ? "text-emerald-600 hover:bg-emerald-50" 
                               : "text-amber-600 hover:bg-amber-50"
@@ -633,7 +690,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                           }}
                           disabled={actionLoadingId === user.id}
                           title="Edit user"
-                          className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50"
+                          className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
@@ -641,7 +698,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                           onClick={() => openPasswordModal(user.id)}
                           disabled={actionLoadingId === user.id}
                           title="Change password"
-                          className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50"
+                          className="p-1.5 text-[#1e3a5f] hover:bg-[#1e3a5f]/10 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                         >
                           <Key className="w-4 h-4" />
                         </button>
@@ -649,7 +706,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                           onClick={() => handleDelete(user.id)}
                           disabled={actionLoadingId === user.id}
                           title="Delete user"
-                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50"
+                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all disabled:opacity-50 disabled:pointer-events-none"
                         >
                           {actionLoadingId === user.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -738,7 +795,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm p-4"
+        >
           <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#e8ecf2] px-6 py-4">
               <h3 className="text-lg font-semibold text-[#0f1d33] flex items-center gap-2">
@@ -826,7 +886,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                   <button
                     type="submit"
                     disabled={isAdding}
-                    className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f1d33] transition-colors disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f1d33] transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {isAdding ? (
                       <>
@@ -846,7 +906,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
       )}
 
       {isPasswordModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closePasswordModal() }}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/40 backdrop-blur-sm p-4"
+        >
           <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#e8ecf2] px-6 py-4">
               <h3 className="text-lg font-semibold text-[#0f1d33] flex items-center gap-2">
@@ -902,7 +965,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                     type="button"
                     onClick={handleSendResetEmail}
                     disabled={isSendingReset}
-                    className="w-full inline-flex items-center justify-center rounded-lg border border-[#c4a55a] px-4 py-2 text-sm font-medium text-[#c4a55a] hover:bg-[#c4a55a]/10 transition-colors disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center rounded-lg border border-[#c4a55a] px-4 py-2 text-sm font-medium text-[#c4a55a] hover:bg-[#c4a55a]/10 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {isSendingReset ? (
                       <>
@@ -926,7 +989,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                   <button
                     type="submit"
                     disabled={isChangingPassword}
-                    className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f1d33] transition-colors disabled:opacity-50"
+                    className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#0f1d33] transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {isChangingPassword ? (
                       <>
@@ -947,7 +1010,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
       {/* Edit User Modal */}
       {isEditModalOpen && selectedUserToEdit && (
-        <div className="fixed inset-0 bg-[#0f1d33]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsEditModalOpen(false) }}
+          className="fixed inset-0 bg-[#0f1d33]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <div className="bg-white rounded-2xl w-full max-w-md overflow-visible shadow-xl border border-[#e8ecf2]">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#e8ecf2] bg-[#f8fafc] rounded-t-2xl">
               <div className="flex items-center gap-3">
@@ -1023,7 +1089,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                 <button
                   type="submit"
                   disabled={isEditing}
-                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none flex justify-center items-center gap-2"
                 >
                   {isEditing ? (
                     <>
@@ -1042,7 +1108,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
 
       {/* Add Role Modal */}
       {isRoleModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d33]/40 backdrop-blur-sm">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsRoleModalOpen(false) }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d33]/40 backdrop-blur-sm"
+        >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-visible flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 border-b border-[#e8ecf2] shrink-0">
               <h2 className="text-lg font-bold text-[#0f1d33]">Add New Role</h2>
@@ -1088,7 +1157,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                 <button
                   type="submit"
                   disabled={isAddingRole || !newRoleName.trim()}
-                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-[#1e3a5f] hover:bg-[#0f1d33] transition-colors disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center gap-2"
                 >
                   {isAddingRole ? (
                     <>
@@ -1106,7 +1175,10 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
       )}
       {/* Delete Role Modal */}
       {isDeleteRoleModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d33]/40 backdrop-blur-sm">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsDeleteRoleModalOpen(false) }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f1d33]/40 backdrop-blur-sm"
+        >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-visible flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between p-5 border-b border-[#e8ecf2] shrink-0">
               <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
@@ -1212,7 +1284,7 @@ export default function UsersClient({ userRole = 'Admin' }: { userRole?: string 
                 <button
                   type="submit"
                   disabled={isDeletingRole || !roleToDelete || (users.filter(u => u.role === roles.find(r => r.id === roleToDelete)?.name).length > 0 && !fallbackRole)}
-                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:pointer-events-none flex justify-center items-center gap-2"
                 >
                   {isDeletingRole ? (
                     <>

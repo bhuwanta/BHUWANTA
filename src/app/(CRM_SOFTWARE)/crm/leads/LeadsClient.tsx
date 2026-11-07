@@ -243,6 +243,14 @@ export default function LeadsClient({
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncCountdown, setSyncCountdown] = useState(15 * 60) // 15 minutes
   
+  // Mutex refs to synchronously prevent double clicks
+  const isSubmittingLeadRef = useRef(false)
+  const isDeletingLeadRef = useRef(false)
+  const isBulkDeletingRef = useRef(false)
+  const isExportingCsvRef = useRef(false)
+  const isSyncingRef = useRef(false)
+  const isMetaLoadingRef = useRef(false)
+  
   // Sort State
   type SortField = 'created_at' | 'name' | 'phone' | 'source_page' | 'status'
   const [sortField, setSortField] = useState<SortField>('created_at')
@@ -351,46 +359,66 @@ export default function LeadsClient({
 
   const handleAddMetaForm = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isMetaLoadingRef.current) return
     if (!newFormId.trim()) return
+    isMetaLoadingRef.current = true
     setIsMetaLoading(true)
-    const res = await addMetaForm(newFormId, newFormName)
-    if (res.error) {
-      alert(res.error)
-    } else {
-      setNewFormId('')
-      setNewFormName('')
-      const { data } = await getMetaForms()
-      setMetaForms(data || [])
+    try {
+      const res = await addMetaForm(newFormId, newFormName)
+      if (res.error) {
+        alert(res.error)
+      } else {
+        setNewFormId('')
+        setNewFormName('')
+        const { data } = await getMetaForms()
+        setMetaForms(data || [])
+      }
+    } finally {
+      isMetaLoadingRef.current = false
+      setIsMetaLoading(false)
     }
-    setIsMetaLoading(false)
   }
 
   const handleDeleteMetaForm = async (id: string) => {
+    if (isMetaLoadingRef.current) return
     if (!confirm('Remove this Form ID?')) return
+    isMetaLoadingRef.current = true
     setIsMetaLoading(true)
-    const res = await deleteMetaForm(id)
-    if (res.error) {
-      alert(res.error)
-    } else {
-      setMetaForms(metaForms.filter(f => f.id !== id))
+    try {
+      const res = await deleteMetaForm(id)
+      if (res.error) {
+        alert(res.error)
+      } else {
+        setMetaForms(metaForms.filter(f => f.id !== id))
+      }
+    } finally {
+      isMetaLoadingRef.current = false
+      setIsMetaLoading(false)
     }
-    setIsMetaLoading(false)
   }
 
   const handleUpdateMetaFormName = async (id: string) => {
+    if (isMetaLoadingRef.current) return
     if (!editingMetaFormId) return
+    isMetaLoadingRef.current = true
     setIsMetaLoading(true)
-    const res = await updateMetaFormName(id, editingMetaFormName)
-    if (res.error) {
-      alert(res.error)
-    } else {
-      setMetaForms(metaForms.map(f => f.id === id ? { ...f, name: editingMetaFormName } : f))
-      setEditingMetaFormId(null)
+    try {
+      const res = await updateMetaFormName(id, editingMetaFormName)
+      if (res.error) {
+        alert(res.error)
+      } else {
+        setMetaForms(metaForms.map(f => f.id === id ? { ...f, name: editingMetaFormName } : f))
+        setEditingMetaFormId(null)
+      }
+    } finally {
+      isMetaLoadingRef.current = false
+      setIsMetaLoading(false)
     }
-    setIsMetaLoading(false)
   }
 
   const handleManualSync = async () => {
+    if (isSyncingRef.current) return
+    isSyncingRef.current = true
     setIsSyncing(true)
     setSyncCountdown(15 * 60)
     try {
@@ -408,8 +436,10 @@ export default function LeadsClient({
       }
     } catch (err) {
       alert('Failed to sync leads.')
+    } finally {
+      isSyncingRef.current = false
+      setIsSyncing(false)
     }
-    setIsSyncing(false)
   }
 
   const closeWhatsappHistory = () => {
@@ -417,6 +447,33 @@ export default function LeadsClient({
     setWhatsappLead(null)
     setWhatsappActivities([])
   }
+
+  // Global Escape key listener to close modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (leadToDelete) setLeadToDelete(null)
+        if (isBulkDeleteModalOpen) setIsBulkDeleteModalOpen(false)
+        if (isModalOpen) closeModal()
+        if (isWhatsappHistoryOpen) closeWhatsappHistory()
+        if (isMetaSettingsOpen) setIsMetaSettingsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [leadToDelete, isBulkDeleteModalOpen, isModalOpen, isWhatsappHistoryOpen, isMetaSettingsOpen])
+
+  // Prevent background scrolling when modal overlays are active
+  useEffect(() => {
+    const anyModalOpen = Boolean(leadToDelete || isBulkDeleteModalOpen || isModalOpen || isWhatsappHistoryOpen || isMetaSettingsOpen)
+    if (anyModalOpen) {
+      const orig = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = orig
+      }
+    }
+  }, [leadToDelete, isBulkDeleteModalOpen, isModalOpen, isWhatsappHistoryOpen, isMetaSettingsOpen])
 
   const toggleSelectAll = () => {
     if (selectedLeadIds.length === filteredLeads.length && filteredLeads.length > 0) {
@@ -440,7 +497,9 @@ export default function LeadsClient({
   }
 
   const confirmBulkDelete = async () => {
+    if (isBulkDeletingRef.current) return
     if (selectedLeadIds.length === 0) return
+    isBulkDeletingRef.current = true
     setIsBulkDeleting(true)
     try {
       const result = await deleteMultipleLeads(selectedLeadIds)
@@ -457,50 +516,61 @@ export default function LeadsClient({
     } catch {
       toast.error('Failed to delete leads.')
     } finally {
+      isBulkDeletingRef.current = false
       setIsBulkDeleting(false)
     }
   }
 
   const exportToCSV = () => {
-    const leadsToExport = filteredLeads;
-    if (!leadsToExport || leadsToExport.length === 0) {
-      alert('No leads to export');
-      return;
+    if (isExportingCsvRef.current) return
+    isExportingCsvRef.current = true
+    try {
+      const leadsToExport = filteredLeads;
+      if (!leadsToExport || leadsToExport.length === 0) {
+        alert('No leads to export');
+        return;
+      }
+
+      const headers = ['Date', 'Name', 'Email', 'Phone', 'Source', 'Project', 'Enquiry Type', 'Property Interest', 'Location', 'Status', 'Message'];
+      const csvRows = [headers.join(',')];
+
+      for (const lead of leadsToExport) {
+        const values = [
+          `"${new Date(lead.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} ${new Date(lead.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}"`,
+          `"${(lead.name || '').replace(/"/g, '""')}"`,
+          `"${(lead.email || '').replace(/"/g, '""')}"`,
+          `"${(lead.phone || '').replace(/"/g, '""')}"`,
+          `"${(lead.source_page || 'contact').replace(/"/g, '""')}"`,
+          `"${(lead.project || '').replace(/"/g, '""')}"`,
+          `"${(lead.enquiry_type || '').replace(/"/g, '""')}"`,
+          `"${(lead.property_interest || '').replace(/"/g, '""')}"`,
+          `"${(lead.location || '').replace(/"/g, '""')}"`,
+          `"${(lead.status || 'new').replace(/"/g, '""')}"`,
+          `"${(lead.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
+        ];
+        csvRows.push(values.join(','));
+      }
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `leads_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setTimeout(() => {
+        isExportingCsvRef.current = false
+      }, 500)
     }
-
-    const headers = ['Date', 'Name', 'Email', 'Phone', 'Source', 'Project', 'Enquiry Type', 'Property Interest', 'Location', 'Status', 'Message'];
-    const csvRows = [headers.join(',')];
-
-    for (const lead of leadsToExport) {
-      const values = [
-        `"${new Date(lead.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })} ${new Date(lead.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}"`,
-        `"${(lead.name || '').replace(/"/g, '""')}"`,
-        `"${(lead.email || '').replace(/"/g, '""')}"`,
-        `"${(lead.phone || '').replace(/"/g, '""')}"`,
-        `"${(lead.source_page || 'contact').replace(/"/g, '""')}"`,
-        `"${(lead.project || '').replace(/"/g, '""')}"`,
-        `"${(lead.enquiry_type || '').replace(/"/g, '""')}"`,
-        `"${(lead.property_interest || '').replace(/"/g, '""')}"`,
-        `"${(lead.location || '').replace(/"/g, '""')}"`,
-        `"${(lead.status || 'new').replace(/"/g, '""')}"`,
-        `"${(lead.message || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
-      ];
-      csvRows.push(values.join(','));
-    }
-
-    const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `leads_export_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (isSubmittingLeadRef.current) return
+    isSubmittingLeadRef.current = true
     setIsLoading(true)
     setError('')
 
@@ -530,6 +600,7 @@ export default function LeadsClient({
     } catch (err) {
       setError('An unexpected error occurred.')
     } finally {
+      isSubmittingLeadRef.current = false
       setIsLoading(false)
     }
   }
@@ -540,6 +611,8 @@ export default function LeadsClient({
 
   const confirmDeleteLead = async () => {
     if (!leadToDelete) return
+    if (isDeletingLeadRef.current) return
+    isDeletingLeadRef.current = true
     setIsDeletingLead(true)
     try {
       const result = await deleteLead(leadToDelete.id)
@@ -555,6 +628,7 @@ export default function LeadsClient({
     } catch {
       toast.error('Failed to delete lead.')
     } finally {
+      isDeletingLeadRef.current = false
       setIsDeletingLead(false)
     }
   }
@@ -714,7 +788,7 @@ export default function LeadsClient({
                 <button
                   onClick={handleManualSync}
                   disabled={isSyncing}
-                  className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 sm:px-3.5 sm:py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 justify-center rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 sm:px-3.5 sm:py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50 disabled:pointer-events-none transition-colors"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                   {isSyncing ? 'Syncing...' : `Sync Meta (${formatCountdown(syncCountdown)})`}
@@ -1244,14 +1318,14 @@ export default function LeadsClient({
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1 || isPageLoading}
-                className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
               >
                 Previous
               </button>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
-                className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
               >
                 Next
               </button>
@@ -1269,7 +1343,7 @@ export default function LeadsClient({
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1 || isPageLoading}
-                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:z-20 focus:outline-offset-0"
                   >
                     <span className="sr-only">Previous</span>
                     <svg className="h-5 w-5 text-black" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -1279,7 +1353,7 @@ export default function LeadsClient({
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage * pageSize >= totalLeadsCount || isPageLoading}
-                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 focus:z-20 focus:outline-offset-0"
+                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-black ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:z-20 focus:outline-offset-0"
                   >
                     <span className="sr-only">Next</span>
                     <svg className="h-5 w-5 text-black" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -1295,7 +1369,10 @@ export default function LeadsClient({
 
       {/* Single Lead Delete Confirmation Modal */}
       {leadToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setLeadToDelete(null) }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-red-50/50">
               <div className="flex items-center gap-2.5 text-red-600">
@@ -1353,7 +1430,7 @@ export default function LeadsClient({
                   type="button"
                   onClick={confirmDeleteLead}
                   disabled={isDeletingLead}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-colors"
                 >
                   {isDeletingLead ? (
                     <>
@@ -1375,7 +1452,10 @@ export default function LeadsClient({
 
       {/* Bulk Delete Confirmation Modal */}
       {isBulkDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsBulkDeleteModalOpen(false) }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
             <div className="p-4 sm:p-5 border-b border-[#e8ecf2] flex items-center justify-between bg-red-50/50">
               <div className="flex items-center gap-2.5 text-red-600">
@@ -1418,7 +1498,7 @@ export default function LeadsClient({
                   type="button"
                   onClick={confirmBulkDelete}
                   disabled={isBulkDeleting}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm disabled:opacity-50 disabled:pointer-events-none transition-colors"
                 >
                   {isBulkDeleting ? (
                     <>
@@ -1439,7 +1519,10 @@ export default function LeadsClient({
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-3 sm:p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal() }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-3 sm:p-4"
+        >
           <div className="w-full max-w-2xl rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl max-h-[92dvh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <h2 className="text-lg sm:text-xl font-bold text-[#0f1d33]">
@@ -1601,7 +1684,7 @@ export default function LeadsClient({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#c4a55a] to-[#b3954c] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#c4a55a]/20 hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-[#c4a55a] to-[#b3954c] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#c4a55a]/20 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {isLoading ? 'Saving...' : 'Save Lead'}
                 </button>
@@ -1613,7 +1696,10 @@ export default function LeadsClient({
 
       {/* WhatsApp History Modal */}
       {isWhatsappHistoryOpen && whatsappLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closeWhatsappHistory() }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-4"
+        >
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#e8ecf2]">
               <div className="flex items-center gap-3">
@@ -1731,7 +1817,10 @@ export default function LeadsClient({
 
       {/* Meta Settings Modal */}
       {isMetaSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-4">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) setIsMetaSettingsOpen(false) }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0f1d33]/50 p-4"
+        >
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#e8ecf2]">
               <div className="flex items-center gap-3">
@@ -1773,7 +1862,7 @@ export default function LeadsClient({
                     <button
                       type="submit"
                       disabled={isMetaLoading}
-                      className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f1d33] disabled:opacity-50"
+                      className="inline-flex items-center justify-center rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0f1d33] disabled:opacity-50 disabled:pointer-events-none"
                     >
                       {isMetaLoading ? 'Adding...' : 'Add'}
                     </button>
