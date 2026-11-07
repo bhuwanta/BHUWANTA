@@ -41,10 +41,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '16x16 32x32 48x48', type: 'image/x-icon' },
-      { url: '/favicon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon.ico?v=20261107', sizes: '16x16 32x32 48x48', type: 'image/x-icon' },
+      { url: '/favicon.png?v=20261107', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png?v=20261107', sizes: '192x192', type: 'image/png' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png?v=20261107', sizes: '180x180', type: 'image/png' }],
+    shortcut: '/favicon.ico?v=20261107',
   },
 }
 
