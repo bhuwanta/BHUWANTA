@@ -20,13 +20,9 @@ import {
   Radio,
   FileSpreadsheet,
   BookOpen,
-  ChevronDown,
-  ChevronUp,
+  Download,
   Info,
-  Clock,
-  Layers,
-  Flame,
-  CheckCheck
+  Flame
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AlertRecipient } from '@/lib/monitoring/alerts'
@@ -41,15 +37,50 @@ interface AlertsProps {
   initialAlertRecipients: AlertRecipient[]
 }
 
+const GUIDE_MARKDOWN_CONTENT = `# Bhuwanta CRM — System Monitoring & Failure Alerts Guide
+
+## 1. Overview & Purpose
+During production operations, external APIs (Meta WhatsApp Cloud API, Meta Ads Lead Gen, Supabase, Resend) can experience authentication revocation, rate limiting, or network disconnects.
+
+A prime example occurred when Meta invalidated the WhatsApp Access Token with OAuthException Code 190 (Subcode 467 - User logged out). Because Node.js fetch() does not throw an exception on HTTP 401, standard crash-monitoring tools like Sentry did not trigger an alert, and the cron endpoint returned HTTP 200, meaning external cron schedulers (like cron-job.org) saw every run as "Green". As a result, automated WhatsApp leads reports stopped arriving for a week without anyone being alerted.
+
+### The Solution: Domain-Level Health Observability
+1. Zero Silent Failures: Any third-party authentication failure or sync error triggers an immediate structured alert.
+2. Dedicated Inbox Routing: Alerts are sent exclusively to designated engineer/admin emails, completely decoupled from customer lead notifications.
+3. Tabular Monitoring Digest: Information is presented in a clean, human-readable HTML table rather than raw developer stack traces.
+4. Accurate HTTP Statuses: Failed cron deliveries return HTTP 502 Bad Gateway to turn external uptime monitors Red immediately.
+
+## 2. Managing Alert Recipients (Add, Edit, Delete)
+- How to Add: Click "+ Add Alert Email", enter name & email, select preferences (Instant Alerts, Tabular Digest), click Add Recipient.
+- How to Edit: Click the pencil icon (Edit) on any row to change name or toggle checkboxes without deleting.
+- How to Delete: Click the trash icon (Delete). Note: The Master Admin default (bhuwanta9@gmail.com) is protected against deletion to prevent an alert-less state.
+
+## 3. What Information Is Sent in Alerts?
+Every alert is sent as a responsive HTML email featuring a structured 5-column operational table:
+1. Timestamp (IST): Exact date and time in Indian Standard Time (+05:30).
+2. Subsystem: The exact service being probed (Meta WhatsApp Cloud API, Meta Ads Sync, Supabase, Resend).
+3. Severity Status: Color badge (HEALTHY, WARNING, CRITICAL).
+4. Operational Details: Technical diagnostics, HTTP status codes, and Meta/database error trace IDs.
+5. Action Required: Clear, step-by-step instructions on how to resolve the issue.
+
+## 4. How Spam Protection & Redis Cooldown Works
+If a cron job runs every 15 minutes and an API token is invalid, naive alert systems would send 96 duplicate emails every single day.
+The monitoring engine acquires a temporary incident lock in Upstash Redis (crm:alert_cooldown:...) with a 2-hour Time-to-Live (TTL).
+You receive an immediate alert on the first failure. Subsequent identical failures within the 2-hour window are suppressed. If the issue remains unresolved after 2 hours, a single reminder is dispatched. Manual "Test Alert" clicks always bypass this lock.
+
+## 5. How to Test the System
+Click "Test Alert" on any recipient row to immediately generate and deliver a sample tabular monitoring report to that inbox.
+`
+
 export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   const [recipients, setRecipients] = useState<AlertRecipient[]>(initialAlertRecipients)
   const [isPending, startTransition] = useTransition()
 
-  // Guide Accordion / Tab State
-  const [isGuideOpen, setIsGuideOpen] = useState(false)
+  // Guide Modal & Tab State
+  const [isGuideModalOpen, setIsGuideModalOpen] = useState(false)
   const [activeGuideTab, setActiveGuideTab] = useState<'purpose' | 'manage' | 'content' | 'spam'>('purpose')
 
-  // Modal State
+  // Add Recipient Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newEmail, setNewEmail] = useState('')
@@ -72,6 +103,23 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   // --- Handlers ---
 
+  const handleDownloadGuide = () => {
+    try {
+      const blob = new Blob([GUIDE_MARKDOWN_CONTENT], { type: 'text/markdown;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'Bhuwanta_System_Monitoring_Guide.md')
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      toast.success('Guide downloaded successfully (Bhuwanta_System_Monitoring_Guide.md)')
+    } catch {
+      toast.error('Failed to trigger file download')
+    }
+  }
+
   const handleOpenAddModal = () => {
     setNewName('')
     setNewEmail('')
@@ -82,7 +130,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newEmail || !newEmail.includes('@') || !newEmail.includes('.')) {
+    if (!newEmail || !newEmail.includes('@')) {
       toast.error('Please enter a valid email address')
       return
     }
@@ -202,20 +250,26 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
-            {/* Guide Toggle Button */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Feature Guide Popup Modal Trigger */}
             <button
               type="button"
-              onClick={() => setIsGuideOpen(!isGuideOpen)}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer border ${
-                isGuideOpen
-                  ? 'bg-[#002935] text-white border-[#002935]'
-                  : 'bg-white text-[#0f1d33] border-[#cbd5e1] hover:bg-[#f8fafc]'
-              }`}
+              onClick={() => setIsGuideModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs"
             >
-              <BookOpen className={`w-3.5 h-3.5 ${isGuideOpen ? 'text-[#c4a55a]' : 'text-[#0f1d33]'}`} />
-              <span>{isGuideOpen ? 'Close Guide' : 'Feature Guide'}</span>
-              {isGuideOpen ? <ChevronUp className="w-3.5 h-3.5 ml-0.5" /> : <ChevronDown className="w-3.5 h-3.5 ml-0.5" />}
+              <BookOpen className="w-3.5 h-3.5 text-[#002935]" />
+              <span>Feature Guide</span>
+            </button>
+
+            {/* Direct Download Button */}
+            <button
+              type="button"
+              onClick={handleDownloadGuide}
+              title="Download documentation file (Markdown)"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs"
+            >
+              <Download className="w-3.5 h-3.5 text-[#002935]" />
+              <span className="hidden sm:inline">Download</span> Guide
             </button>
 
             {/* Add Alert Email Button */}
@@ -230,177 +284,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
         </div>
       </div>
 
-      {/* Expandable Feature Guide Panel */}
-      {isGuideOpen && (
-        <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-5 sm:px-6 py-5 transition-all">
-          <div className="max-w-4xl">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-[#c4a55a]" />
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0f1d33]">
-                  System Monitoring & Alerts — Documentation & Architecture Guide
-                </h4>
-              </div>
-              <span className="text-[11px] text-[#5a6a82]">Everything you need to know about this module</span>
-            </div>
-
-            {/* Guide Tabs */}
-            <div className="flex flex-wrap gap-1.5 border-b border-[#e2e8f0] pb-2.5 mb-4">
-              <button
-                type="button"
-                onClick={() => setActiveGuideTab('purpose')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeGuideTab === 'purpose'
-                    ? 'bg-[#002935] text-white'
-                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
-                }`}
-              >
-                1. Purpose & Problem Solved
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveGuideTab('manage')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeGuideTab === 'manage'
-                    ? 'bg-[#002935] text-white'
-                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
-                }`}
-              >
-                2. How to Add, Edit & Delete
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveGuideTab('content')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeGuideTab === 'content'
-                    ? 'bg-[#002935] text-white'
-                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
-                }`}
-              >
-                3. Information Sent in Alerts
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveGuideTab('spam')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeGuideTab === 'spam'
-                    ? 'bg-[#002935] text-white'
-                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
-                }`}
-              >
-                4. Spam Protection & Redis Cooldown
-              </button>
-            </div>
-
-            {/* Guide Tab 1: Purpose */}
-            {activeGuideTab === 'purpose' && (
-              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
-                <p className="font-semibold text-[#0f1d33]">
-                  Why does this monitoring module exist?
-                </p>
-                <p>
-                  Recently, the automated scheduled WhatsApp leads report failed for an entire week without raising an alert. The root cause was that Meta invalidated the WhatsApp Access Token with <code className="bg-red-50 text-red-700 px-1 py-0.5 rounded font-mono text-[11px]">OAuthException: Code 190 (Subcode 467 - User logged out)</code>.
-                </p>
-                <p>
-                  Standard error tracking tools like Sentry did not catch it because an HTTP 401 response from Meta is caught by <code className="bg-gray-100 text-[#0f1d33] px-1 py-0.5 rounded font-mono text-[11px]">fetch()</code> without crashing Node.js. Furthermore, the cron endpoint was returning HTTP 200, so external schedulers like cron-job.org marked every run as &quot;Green&quot;.
-                </p>
-                <p className="border-l-2 border-[#c4a55a] pl-3 py-1 bg-[#fcfaf5] text-[#785b12] font-medium">
-                  <strong>The Solution:</strong> This module sits between your cron jobs and third-party APIs. Whenever an external API (Meta WhatsApp, Meta Leads, Supabase, Resend) returns an authentication failure or error, the system intercepts it, immediately generates a structured tabular HTML monitoring log, sends it to your designated alert inbox, and returns HTTP 502 to alert external pingers.
-                </p>
-              </div>
-            )}
-
-            {/* Guide Tab 2: How to Add, Edit, Delete */}
-            {activeGuideTab === 'manage' && (
-              <div className="space-y-3 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
-                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
-                      <Plus className="w-3.5 h-3.5 text-emerald-600" />
-                      Adding a Recipient
-                    </div>
-                    <p className="text-[#64748b]">
-                      Click <strong>&quot;Add Alert Email&quot;</strong> in the top right. Enter the recipient&apos;s name and email address. You can choose whether they receive Instant Critical Alerts, Tabular Cron Digests, or both.
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
-                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
-                      <Edit2 className="w-3.5 h-3.5 text-blue-600" />
-                      Editing Preferences
-                    </div>
-                    <p className="text-[#64748b]">
-                      Click the pencil icon <Edit2 className="w-3 h-3 inline text-gray-500" /> in any row to edit the recipient&apos;s name or toggle checkboxes for Instant Alerts vs Tabular Summaries without deleting their account.
-                    </p>
-                  </div>
-
-                  <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0]">
-                    <div className="font-bold text-[#0f1d33] mb-1 flex items-center gap-1.5">
-                      <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                      Deleting a Recipient
-                    </div>
-                    <p className="text-[#64748b]">
-                      Click the trash icon <Trash2 className="w-3 h-3 inline text-red-500" /> to remove an inbox. Note: The Master Admin default (<code className="font-mono text-[10px]">bhuwanta9@gmail.com</code>) is protected against deletion to prevent a headless state.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-[#f1f5f9] flex items-center gap-2">
-                  <span className="font-semibold text-[#0f1d33]">Testing Your Setup:</span>
-                  <span className="text-[#64748b]">
-                    Click the <strong>&quot;Test Alert&quot;</strong> button in any row. This immediately sends a live sample tabular monitoring report to that exact inbox.
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Guide Tab 3: Content of Alert */}
-            {activeGuideTab === 'content' && (
-              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
-                <p className="font-semibold text-[#0f1d33]">
-                  What information is included in the monitoring emails?
-                </p>
-                <p>
-                  Alerts are sent as clean, responsive HTML emails formatted as a structured table with 5 distinct operational columns:
-                </p>
-                <ul className="list-disc pl-5 space-y-1 text-[#475569]">
-                  <li><strong>Timestamp (IST):</strong> Exact date and time the probe or cron executed in Indian Standard Time (e.g. <code className="font-mono text-[11px]">07 Nov 2026, 01:30 PM</code>).</li>
-                  <li><strong>Subsystem:</strong> The service being probed (<code className="font-mono text-[11px]">Meta WhatsApp Cloud API</code>, <code className="font-mono text-[11px]">Meta Ads Sync</code>, <code className="font-mono text-[11px]">Supabase Database</code>, or <code className="font-mono text-[11px]">Resend Mailer</code>).</li>
-                  <li><strong>Status Badge:</strong> Color-coded severity badge (<span className="text-emerald-700 font-bold">✅ HEALTHY</span>, <span className="text-amber-700 font-bold">⚠️ WARNING</span>, or <span className="text-red-700 font-bold">🚨 CRITICAL</span>).</li>
-                  <li><strong>Operational Details:</strong> Technical diagnostic details, HTTP response codes, and error trace IDs returned by the third-party server.</li>
-                  <li><strong>Action Required:</strong> A plain-English, actionable fix (e.g. <code className="font-mono text-[11px]">Generate Permanent System User Token in Meta Business Suite</code>).</li>
-                </ul>
-              </div>
-            )}
-
-            {/* Guide Tab 4: Spam Prevention */}
-            {activeGuideTab === 'spam' && (
-              <div className="space-y-2.5 text-xs text-[#334155] leading-relaxed bg-white p-4 rounded-lg border border-[#e2e8f0]">
-                <p className="font-semibold text-[#0f1d33]">
-                  How does the system prevent email flooding (Alert Storms)?
-                </p>
-                <p>
-                  If a cron job runs every 15 minutes and an external API key is invalid, naive alert systems would send 96 emails every single day, cluttering your inbox and creating alert fatigue.
-                </p>
-                <div className="p-3 bg-[#f8fafc] rounded-md border border-[#e2e8f0] space-y-1.5">
-                  <div className="font-semibold text-[#0f1d33] flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-amber-600" />
-                    Upstash Redis Cooldown Throttling
-                  </div>
-                  <p className="text-[#64748b]">
-                    Whenever a critical failure occurs, the monitoring engine acquires a temporary incident lock in Upstash Redis (e.g. <code className="font-mono text-[11px]">crm:alert_cooldown:wa-leads-report-auth-401</code>) with a <strong>2-hour Time-to-Live (TTL)</strong>.
-                  </p>
-                  <p className="text-[#64748b]">
-                    You receive an immediate alert on the very first occurrence. Subsequent executions within the 2-hour window are suppressed. Once 2 hours pass, if the issue is still unresolved, you receive a single follow-up reminder. Manual test triggers always bypass this lock.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Subsystem Health Dashboard Bar (Fixed CSS - No Collisions, Generous Spacing) */}
+      {/* Subsystem Health Dashboard Bar (No Collisions, Generous Spacing) */}
       <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-5 sm:px-6 py-4">
         <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-[#c4a55a]" />
@@ -720,10 +604,274 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
         </div>
       </div>
 
+      {/* Feature Guide POPUP MODAL (Does NOT push layout down) */}
+      {isGuideModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-3xl max-h-[88vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-[#e8ecf2] overflow-hidden">
+            {/* Modal Sticky Header */}
+            <div className="px-6 py-4.5 bg-gradient-to-r from-[#002935] to-[#013847] border-b border-[#0f3d4d] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
+                  <BookOpen className="w-4 h-4 text-[#c4a55a]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight">
+                    System Monitoring & Alerts — User Guide
+                  </h3>
+                  <p className="text-[11px] text-[#94a3b8]">
+                    Architecture, operational policies, and recipient management
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Download Button in Modal Header */}
+                <button
+                  type="button"
+                  onClick={handleDownloadGuide}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#c4a55a] hover:bg-[#d4b56a] px-3 py-1.5 text-xs font-bold text-[#002935] shadow-sm transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download (.md)</span>
+                </button>
+
+                {/* Close X Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsGuideModalOpen(false)}
+                  className="rounded-lg p-1.5 text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="px-6 pt-3 pb-2.5 bg-[#f8fafc] border-b border-[#e2e8f0] flex flex-wrap gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('purpose')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeGuideTab === 'purpose'
+                    ? 'bg-[#002935] text-white shadow-xs'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                1. Purpose & Outage Solved
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('manage')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeGuideTab === 'manage'
+                    ? 'bg-[#002935] text-white shadow-xs'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                2. How to Add, Edit & Delete
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('content')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeGuideTab === 'content'
+                    ? 'bg-[#002935] text-white shadow-xs'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                3. Information Sent in Alerts
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveGuideTab('spam')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  activeGuideTab === 'spam'
+                    ? 'bg-[#002935] text-white shadow-xs'
+                    : 'bg-white text-[#5a6a82] hover:text-[#0f1d33] border border-[#e2e8f0]'
+                }`}
+              >
+                4. Spam Protection & Redis
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs text-[#334155] leading-relaxed">
+              {/* Tab 1: Purpose */}
+              {activeGuideTab === 'purpose' && (
+                <div className="space-y-3.5">
+                  <div className="p-4 bg-red-50/60 rounded-xl border border-red-200">
+                    <h4 className="font-bold text-red-900 text-sm mb-1.5 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      The 1-Week Outage Problem Solved
+                    </h4>
+                    <p className="text-red-800 leading-relaxed">
+                      Recently, the automated scheduled WhatsApp leads report failed for an entire week without raising any alarm. The root cause was that Meta invalidated the WhatsApp Access Token with <code className="bg-white/80 text-red-700 px-1.5 py-0.5 rounded font-mono font-bold text-[11px]">OAuthException: Code 190 (Subcode 467 - User logged out)</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h5 className="font-bold text-[#0f1d33] text-xs uppercase tracking-wider">
+                      Why Sentry & cron-job.org Didn&apos;t Alert You:
+                    </h5>
+                    <ul className="list-disc pl-5 space-y-1.5 text-[#475569]">
+                      <li>
+                        <strong>Sentry only tracks unhandled code crashes:</strong> When Node.js calls <code className="font-mono bg-gray-100 px-1 py-0.5 rounded">fetch()</code> to Meta API, an HTTP 401 response is handled as a standard response object without crashing the server. Sentry assumed the function executed normally.
+                      </li>
+                      <li>
+                        <strong>Cron returned HTTP 200:</strong> The endpoint logged a warning and finished with HTTP 200 OK. As a result, <code className="font-mono bg-gray-100 px-1 py-0.5 rounded">cron-job.org</code> registered every scheduled run as &quot;Success / Green&quot;.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3.5 bg-[#fcfaf5] rounded-xl border border-[#c4a55a]/40 text-[#785b12]">
+                    <span className="font-bold block mb-1">The Architecture Fix:</span>
+                    This monitoring module now actively intercepts external API HTTP 4xx/5xx responses. It returns <strong>HTTP 502 Bad Gateway</strong> to turn external schedulers Red, and immediately dispatches a styled tabular diagnostic report to your designated alert inbox.
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2: Manage */}
+              {activeGuideTab === 'manage' && (
+                <div className="space-y-3.5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="p-3.5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0]">
+                      <div className="font-bold text-[#0f1d33] mb-1.5 flex items-center gap-1.5">
+                        <Plus className="w-4 h-4 text-emerald-600" />
+                        1. Adding Recipient
+                      </div>
+                      <p className="text-[#64748b]">
+                        Click <strong>&quot;Add Alert Email&quot;</strong> in the top header. Enter the name and email. Choose whether to receive Instant Critical Alerts, Tabular Cron Digests, or both.
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0]">
+                      <div className="font-bold text-[#0f1d33] mb-1.5 flex items-center gap-1.5">
+                        <Edit2 className="w-4 h-4 text-blue-600" />
+                        2. Editing Settings
+                      </div>
+                      <p className="text-[#64748b]">
+                        Click the pencil icon <Edit2 className="w-3 h-3 inline text-gray-500" /> in any row to update recipient preferences or name at any time without deleting.
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0]">
+                      <div className="font-bold text-[#0f1d33] mb-1.5 flex items-center gap-1.5">
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                        3. Deleting Recipient
+                      </div>
+                      <p className="text-[#64748b]">
+                        Click the trash icon <Trash2 className="w-3 h-3 inline text-red-500" /> to remove an inbox. Note: The Master Admin default (<code className="font-mono text-[10px]">bhuwanta9@gmail.com</code>) is protected against deletion.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200 flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-amber-900 block">Instant Verification:</span>
+                      <span className="text-amber-800 text-[11px]">
+                        Click the <strong>&quot;Test Alert&quot;</strong> button in any row to send a sample tabular monitoring email to that exact inbox.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Content */}
+              {activeGuideTab === 'content' && (
+                <div className="space-y-3">
+                  <p className="font-semibold text-[#0f1d33]">
+                    What information is sent in the monitoring emails?
+                  </p>
+                  <p className="text-[#64748b]">
+                    Alerts are sent as clean, responsive HTML emails formatted as a structured 5-column operational table:
+                  </p>
+
+                  <div className="border border-[#e2e8f0] rounded-xl overflow-hidden">
+                    <table className="w-full text-left text-[11px]">
+                      <thead className="bg-[#f8fafc] border-b border-[#e2e8f0] text-[#475569] font-bold">
+                        <tr>
+                          <th className="px-3.5 py-2.5">Column Name</th>
+                          <th className="px-3.5 py-2.5">What It Contains</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#e2e8f0]">
+                        <tr>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#0f1d33]">Timestamp (IST)</td>
+                          <td className="px-3.5 py-2 text-[#64748b]">Exact execution timestamp in Indian Standard Time (+05:30).</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#0f1d33]">Subsystem</td>
+                          <td className="px-3.5 py-2 text-[#64748b]">The probed service: Meta WhatsApp Cloud API, Meta Ads Sync, Supabase, Resend.</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#0f1d33]">Status Badge</td>
+                          <td className="px-3.5 py-2 text-[#64748b]">Color-coded severity: HEALTHY (Green), WARNING (Yellow), CRITICAL (Red).</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#0f1d33]">Operational Details</td>
+                          <td className="px-3.5 py-2 text-[#64748b]">HTTP status codes, technical diagnostics, and Meta trace IDs.</td>
+                        </tr>
+                        <tr>
+                          <td className="px-3.5 py-2 font-mono font-bold text-[#0f1d33]">Action Required</td>
+                          <td className="px-3.5 py-2 text-[#64748b]">Clear instructions on how to resolve the degradation (e.g. update token in Vercel).</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 4: Spam Protection */}
+              {activeGuideTab === 'spam' && (
+                <div className="space-y-3.5">
+                  <div className="p-4 bg-[#f8fafc] rounded-xl border border-[#e2e8f0] space-y-2">
+                    <h4 className="font-bold text-[#0f1d33] text-sm flex items-center gap-2">
+                      <Flame className="w-4 h-4 text-amber-600" />
+                      Upstash Redis Cooldown Throttling
+                    </h4>
+                    <p className="text-[#64748b] leading-relaxed">
+                      If a cron job runs every 15 minutes and an external API key is invalid, naive alert systems would send <strong>96 emails every day</strong>, cluttering inboxes and causing alert fatigue.
+                    </p>
+                    <div className="pt-2 border-t border-[#e2e8f0] space-y-1 text-[#475569]">
+                      <p>
+                        • <strong>Immediate Alert:</strong> The monitoring engine acquires a temporary incident lock in Upstash Redis (<code className="font-mono text-[10px] bg-white px-1 py-0.5 rounded border">crm:alert_cooldown:...</code>) with a <strong>2-hour Time-to-Live (TTL)</strong>.
+                      </p>
+                      <p>
+                        • <strong>Suppression Window:</strong> You are alerted immediately on the first failure. Subsequent identical failures are suppressed for 2 hours.
+                      </p>
+                      <p>
+                        • <strong>Reminder:</strong> If the issue is still active after 2 hours, a single reminder is dispatched.
+                      </p>
+                      <p>
+                        • <strong>Manual Override:</strong> The &quot;Test Alert&quot; button always bypasses cooldown locks.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3.5 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between shrink-0">
+              <span className="text-[11px] text-[#94a3b8]">
+                Documentation synced with <code className="font-mono text-[#002935]">docs/SYSTEM_MONITORING_GUIDE.md</code>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsGuideModalOpen(false)}
+                className="rounded-lg bg-[#002935] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#003847] transition-all cursor-pointer shadow-xs"
+              >
+                Close Guide
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Alert Email Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-[#e8ecf2] animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-[#e8ecf2]">
             <div className="flex items-center justify-between border-b border-[#e8ecf2] pb-3.5 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg bg-[#002935] flex items-center justify-center shrink-0">

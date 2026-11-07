@@ -94,3 +94,4 @@ The module actively monitors four critical production pillars:
    * Checks DKIM/SPF domain authorization.
 4. **Supabase & Upstash Redis**:
    * Measures database connection pool latency and Redis session cache responsiveness.
+
