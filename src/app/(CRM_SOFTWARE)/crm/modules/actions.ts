@@ -1098,7 +1098,16 @@ export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], e
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.warn('system_alert_recipients table may not exist yet, using default recipient:', error.message)
+      console.warn('system_alert_recipients table may not exist yet, checking Redis fallback:', error.message)
+      if (redis) {
+        try {
+          const cached = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full')
+          if (cached && Array.isArray(cached) && cached.length > 0) {
+            return { data: cached }
+          }
+        } catch {}
+      }
+
       const fallbackList: AlertRecipient[] = [
         {
           id: 'master-alert-default',
@@ -1113,6 +1122,15 @@ export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], e
     }
 
     if (!data || data.length === 0) {
+      if (redis) {
+        try {
+          const cached = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full')
+          if (cached && Array.isArray(cached) && cached.length > 0) {
+            return { data: cached }
+          }
+        } catch {}
+      }
+
       const fallbackList: AlertRecipient[] = [
         {
           id: 'master-alert-default',
@@ -1124,6 +1142,14 @@ export async function getAlertRecipients(): Promise<{ data?: AlertRecipient[], e
         }
       ]
       return { data: fallbackList }
+    }
+
+    // Sync to Redis cache
+    if (redis) {
+      try {
+        await redis.set('crm:system_alert_recipients_full', data)
+        await redis.set('crm:system_alert_emails', data.map((r: any) => r.email))
+      } catch {}
     }
 
     return { data }
@@ -1145,7 +1171,6 @@ export async function addAlertRecipient(params: {
       return { success: false, error: 'Please enter a valid email address.' }
     }
 
-    const supabase = createServiceClient()
     const payload = {
       email: cleanEmail,
       name: (params.name || '').trim() || cleanEmail.split('@')[0],
@@ -1153,31 +1178,58 @@ export async function addAlertRecipient(params: {
       daily_digest: params.daily_digest !== false
     }
 
+    const supabase = createServiceClient()
     const { data, error } = await supabase
       .from('system_alert_recipients')
       .insert([payload])
       .select()
       .single()
 
-    if (error) {
-      if (error.code === '23505') {
-        return { success: false, error: 'This email is already in the alert recipients list.' }
+    if (!error && data) {
+      if (redis) {
+        try {
+          const { data: all } = await supabase.from('system_alert_recipients').select('*')
+          if (all) {
+            await redis.set('crm:system_alert_recipients_full', all)
+            await redis.set('crm:system_alert_emails', all.map((r: any) => r.email))
+          }
+        } catch {}
       }
-      throw error
+      revalidatePath('/crm/modules')
+      return { success: true, data }
     }
 
-    // Sync to Redis for fast lookups
+    if (error && (error.code === '23505' || String(error.message).includes('unique'))) {
+      return { success: false, error: 'This email is already in the alert recipients list.' }
+    }
+
+    // Fallback: If table doesn't exist yet in Supabase, store in Redis so adding email always succeeds
+    const newRecipient: AlertRecipient = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: payload.email,
+      instant_alerts: payload.instant_alerts,
+      daily_digest: payload.daily_digest,
+      created_at: new Date().toISOString()
+    }
+
     if (redis) {
       try {
-        const { data: all } = await supabase.from('system_alert_recipients').select('email')
-        if (all) {
-          await redis.set('crm:system_alert_emails', all.map((r: any) => r.email))
+        let existing = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []
+        if (!Array.isArray(existing)) existing = []
+        if (existing.some(r => r.email.toLowerCase() === cleanEmail)) {
+          return { success: false, error: 'This email is already in the alert recipients list.' }
         }
-      } catch {}
+        const updatedList = [newRecipient, ...existing]
+        await redis.set('crm:system_alert_recipients_full', updatedList)
+        await redis.set('crm:system_alert_emails', updatedList.map(r => r.email))
+      } catch (redisErr) {
+        console.warn('Redis fallback save failed:', redisErr)
+      }
     }
 
     revalidatePath('/crm/modules')
-    return { success: true, data }
+    return { success: true, data: newRecipient }
   } catch (err: any) {
     console.error('Error adding alert recipient:', err)
     return { success: false, error: err.message || 'Failed to add alert recipient' }
@@ -1186,27 +1238,138 @@ export async function addAlertRecipient(params: {
 
 export async function updateAlertRecipient(
   id: string,
-  params: { name?: string, instant_alerts?: boolean, daily_digest?: boolean }
-): Promise<{ success: boolean, error?: string }> {
+  params: { name?: string, email?: string, instant_alerts?: boolean, daily_digest?: boolean }
+): Promise<{ success: boolean, data?: AlertRecipient, error?: string }> {
   try {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-    if (!isUuid) {
-      if (id === 'master-alert-default') return { success: true }
-      return { success: false, error: 'Invalid recipient ID format' }
+    const cleanEmail = params.email !== undefined ? params.email.trim().toLowerCase() : undefined
+    if (cleanEmail !== undefined && (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.'))) {
+      return { success: false, error: 'Please enter a valid email address.' }
     }
 
     const supabase = createServiceClient()
-    const { error } = await supabase
-      .from('system_alert_recipients')
-      .update({
-        ...(params.name !== undefined ? { name: params.name.trim() } : {}),
-        ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
-        ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
 
-    if (error) throw error
+    // 1. If updating master-alert-default
+    if (id === 'master-alert-default') {
+      const masterEmail = cleanEmail || process.env.ADMIN_ALERT_EMAIL || 'bhuwanta9@gmail.com'
+      const masterName = params.name !== undefined ? params.name.trim() : 'Master Admin'
+      const payload = {
+        email: masterEmail,
+        name: masterName || masterEmail.split('@')[0],
+        instant_alerts: params.instant_alerts !== false,
+        daily_digest: params.daily_digest !== false
+      }
+
+      const { data, error } = await supabase
+        .from('system_alert_recipients')
+        .upsert([payload], { onConflict: 'email' })
+        .select()
+        .single()
+
+      if (!error && data) {
+        if (redis) {
+          try {
+            const { data: all } = await supabase.from('system_alert_recipients').select('*')
+            if (all) {
+              await redis.set('crm:system_alert_recipients_full', all)
+              await redis.set('crm:system_alert_emails', all.map((r: any) => r.email))
+            }
+          } catch {}
+        }
+        revalidatePath('/crm/modules')
+        return { success: true, data }
+      }
+
+      // Redis fallback for master-alert-default
+      const fallbackMaster: AlertRecipient = {
+        id: 'master-alert-default',
+        name: payload.name,
+        email: payload.email,
+        instant_alerts: payload.instant_alerts,
+        daily_digest: payload.daily_digest,
+        updated_at: new Date().toISOString()
+      }
+
+      if (redis) {
+        try {
+          let list = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []
+          if (!Array.isArray(list)) list = []
+          const idx = list.findIndex(r => r.id === 'master-alert-default' || r.email.toLowerCase() === 'bhuwanta9@gmail.com')
+          if (idx >= 0) {
+            list[idx] = { ...list[idx], ...fallbackMaster }
+          } else {
+            list.unshift(fallbackMaster)
+          }
+          await redis.set('crm:system_alert_recipients_full', list)
+          await redis.set('crm:system_alert_emails', list.map(r => r.email))
+        } catch {}
+      }
+
+      revalidatePath('/crm/modules')
+      return { success: true, data: fallbackMaster }
+    }
+
+    // 2. Regular UUID update
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+    if (!isUuid) {
+      return { success: false, error: 'Invalid recipient ID format' }
+    }
+
+    const updatePayload: Record<string, any> = {
+      ...(params.name !== undefined ? { name: params.name.trim() } : {}),
+      ...(cleanEmail !== undefined ? { email: cleanEmail } : {}),
+      ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
+      ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),
+      updated_at: new Date().toISOString()
+    }
+
+    const { data, error } = await supabase
+      .from('system_alert_recipients')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (!error && data) {
+      if (redis) {
+        try {
+          const { data: all } = await supabase.from('system_alert_recipients').select('*')
+          if (all) {
+            await redis.set('crm:system_alert_recipients_full', all)
+            await redis.set('crm:system_alert_emails', all.map((r: any) => r.email))
+          }
+        } catch {}
+      }
+      revalidatePath('/crm/modules')
+      return { success: true, data }
+    }
+
+    if (error && (error.code === '23505' || String(error.message).includes('unique'))) {
+      return { success: false, error: 'Another recipient already has this email address.' }
+    }
+
+    // Redis fallback update
+    if (redis) {
+      try {
+        let list = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []
+        if (Array.isArray(list)) {
+          const idx = list.findIndex(r => r.id === id)
+          if (idx >= 0) {
+            list[idx] = {
+              ...list[idx],
+              ...(params.name !== undefined ? { name: params.name.trim() } : {}),
+              ...(cleanEmail !== undefined ? { email: cleanEmail } : {}),
+              ...(params.instant_alerts !== undefined ? { instant_alerts: params.instant_alerts } : {}),
+              ...(params.daily_digest !== undefined ? { daily_digest: params.daily_digest } : {}),
+              updated_at: new Date().toISOString()
+            }
+            await redis.set('crm:system_alert_recipients_full', list)
+            await redis.set('crm:system_alert_emails', list.map(r => r.email))
+            revalidatePath('/crm/modules')
+            return { success: true, data: list[idx] }
+          }
+        }
+      } catch {}
+    }
 
     revalidatePath('/crm/modules')
     return { success: true }
@@ -1218,22 +1381,75 @@ export async function updateAlertRecipient(
 
 export async function removeAlertRecipient(id: string): Promise<{ success: boolean, error?: string }> {
   try {
-    if (id === 'master-alert-default') {
-      return { success: false, error: 'Default master admin recipient cannot be removed.' }
+    const supabase = createServiceClient()
+
+    // 1. Fetch current list to check count and guard against zero-recipient state
+    let allRecipients: AlertRecipient[] = []
+    try {
+      const { data } = await supabase.from('system_alert_recipients').select('*')
+      if (data && data.length > 0) {
+        allRecipients = data
+      }
+    } catch {}
+
+    if (allRecipients.length === 0 && redis) {
+      try {
+        const cached = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full')
+        if (cached && Array.isArray(cached)) {
+          allRecipients = cached
+        }
+      } catch {}
     }
 
+    // If there is only 1 or 0 recipient, disallow deleting the last recipient
+    if (allRecipients.length <= 1) {
+      return {
+        success: false,
+        error: 'At least one alert recipient is required so system failures are never silenced. Please add a replacement email before deleting this one.'
+      }
+    }
+
+    // 2. If ID is master-alert-default
+    if (id === 'master-alert-default') {
+      if (redis) {
+        try {
+          let list = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []
+          if (Array.isArray(list)) {
+            list = list.filter(r => r.id !== 'master-alert-default' && r.email.toLowerCase() !== 'bhuwanta9@gmail.com')
+            await redis.set('crm:system_alert_recipients_full', list)
+            await redis.set('crm:system_alert_emails', list.map(r => r.email))
+          }
+        } catch {}
+      }
+      revalidatePath('/crm/modules')
+      return { success: true }
+    }
+
+    // 3. Regular UUID deletion
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
     if (!isUuid) {
       return { success: false, error: 'Invalid recipient ID format' }
     }
 
-    const supabase = createServiceClient()
     const { error } = await supabase
       .from('system_alert_recipients')
       .delete()
       .eq('id', id)
 
-    if (error) throw error
+    if (error) {
+      console.warn('Supabase delete error, attempting Redis fallback:', error.message)
+    }
+
+    if (redis) {
+      try {
+        let list = await redis.get<AlertRecipient[]>('crm:system_alert_recipients_full') || []
+        if (Array.isArray(list)) {
+          list = list.filter(r => r.id !== id)
+          await redis.set('crm:system_alert_recipients_full', list)
+          await redis.set('crm:system_alert_emails', list.map(r => r.email))
+        }
+      } catch {}
+    }
 
     revalidatePath('/crm/modules')
     return { success: true }

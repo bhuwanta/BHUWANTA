@@ -172,19 +172,65 @@ test('System Monitoring: HTML Table escapes unsafe strings against injection', (
   assert.match(html, /&quot;/)
 })
 
-test('Alert Recipient Email Validation & Normalization', () => {
-  const normalizeEmail = (email) => {
-    const clean = (email || '').trim().toLowerCase()
-    if (!clean || !clean.includes('@') || !clean.includes('.')) return null
-    return clean
+test('Alert Recipient Edit: allows updating email address with duplicate prevention', () => {
+  let recipients = [
+    { id: '1', name: 'Admin', email: 'bhuwanta9@gmail.com' },
+    { id: '2', name: 'DevOps', email: 'devops@bhuwanta.com' }
+  ]
+
+  const updateRecipientEmail = (id, newEmail) => {
+    const clean = (newEmail || '').trim().toLowerCase()
+    if (!clean || !clean.includes('@') || !clean.includes('.')) {
+      return { success: false, error: 'Invalid email' }
+    }
+    const duplicate = recipients.find(r => r.id !== id && r.email.toLowerCase() === clean)
+    if (duplicate) {
+      return { success: false, error: 'Duplicate email' }
+    }
+    recipients = recipients.map(r => r.id === id ? { ...r, email: clean } : r)
+    return { success: true, updated: recipients.find(r => r.id === id) }
   }
 
-  assert.equal(normalizeEmail('  Santosh@Bhuwanta.COM  '), 'santosh@bhuwanta.com')
-  assert.equal(normalizeEmail('tech-alerts@domain.co.in'), 'tech-alerts@domain.co.in')
-  assert.equal(normalizeEmail('invalid-email'), null)
-  assert.equal(normalizeEmail('user@'), null)
-  assert.equal(normalizeEmail(''), null)
-  assert.equal(normalizeEmail(null), null)
+  // 1. Successfully edit email
+  const res1 = updateRecipientEmail('1', 'santosh@bhuwanta.com')
+  assert.equal(res1.success, true)
+  assert.equal(res1.updated.email, 'santosh@bhuwanta.com')
+
+  // 2. Reject duplicate email
+  const res2 = updateRecipientEmail('1', 'devops@bhuwanta.com')
+  assert.equal(res2.success, false)
+  assert.equal(res2.error, 'Duplicate email')
+
+  // 3. Reject invalid email
+  const res3 = updateRecipientEmail('1', 'notanemail')
+  assert.equal(res3.success, false)
+  assert.equal(res3.error, 'Invalid email')
+})
+
+test('Alert Recipient Deletion Guardrail: allows removal when count > 1, rejects when count <= 1', () => {
+  let recipients = [
+    { id: '1', email: 'first@bhuwanta.com' },
+    { id: '2', email: 'second@bhuwanta.com' }
+  ]
+
+  const removeRecipient = (id) => {
+    if (recipients.length <= 1) {
+      return { success: false, error: 'At least one alert recipient is required' }
+    }
+    recipients = recipients.filter(r => r.id !== id)
+    return { success: true }
+  }
+
+  // Deletion allowed when 2 recipients exist
+  const res1 = removeRecipient('1')
+  assert.equal(res1.success, true)
+  assert.equal(recipients.length, 1)
+
+  // Deletion blocked when only 1 recipient is left
+  const res2 = removeRecipient('2')
+  assert.equal(res2.success, false)
+  assert.match(res2.error, /At least one alert recipient is required/)
+  assert.equal(recipients.length, 1)
 })
 
 test('Redis Cooldown Logic: Throttles identical error alerts to avoid inbox flooding', () => {

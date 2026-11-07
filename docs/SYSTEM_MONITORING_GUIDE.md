@@ -31,13 +31,13 @@ The module is managed inside **CRM > Modules > System Monitoring & Failure Alert
 
 ### B. How to Edit a Recipient
 1. In the recipient table, click the **Pencil Icon (`Edit`)** in the target row.
-2. Update the name or toggle the **Instant Alerts** / **Tabular Digest** checkboxes.
-3. Click **`Save`**.
+2. Update the **Name**, **Email Address**, or toggle the **Instant Alerts** / **Tabular Digest** checkboxes.
+3. Click **`Save`**. Both the database and Redis cache are updated immediately.
 
 ### C. How to Delete a Recipient
-1. In the recipient table, click the **Trash Icon (`Delete`)**.
-2. Confirm removal. The recipient will stop receiving alerts.
-> **Note on Master Default**: The master admin email (`bhuwanta9@gmail.com`) is protected against deletion to prevent the system from entering an alert-less state.
+1. In the recipient table, click the **Trash Icon (`Delete`)** on any row.
+2. Confirm removal. The recipient will be deleted from the database and Redis cache.
+> **Safe Guardrail**: To prevent the CRM from entering an alert-less state where silent failures go unnoticed, the system maintains at least 1 active recipient. If you want to replace the current recipient, either edit their email address directly or add your new email first before deleting the previous one.
 
 ---
 

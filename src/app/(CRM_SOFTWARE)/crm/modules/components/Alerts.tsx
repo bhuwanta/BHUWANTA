@@ -51,9 +51,9 @@ A prime example occurred when Meta invalidated the WhatsApp Access Token with OA
 4. Accurate HTTP Statuses: Failed cron deliveries return HTTP 502 Bad Gateway to turn external uptime monitors Red immediately.
 
 ## 2. Managing Alert Recipients (Add, Edit, Delete)
-- How to Add: Click "+ Add Alert Email", enter name & email, select preferences (Instant Alerts, Tabular Digest), click Add Recipient.
-- How to Edit: Click the pencil icon (Edit) on any row to change name or toggle checkboxes without deleting.
-- How to Delete: Click the trash icon (Delete). Note: The Master Admin default (bhuwanta9@gmail.com) is protected against deletion to prevent an alert-less state.
+- How to Add: Click "+ Add Alert Email", enter recipient name & email address, select preferences (Instant Alerts, Tabular Digest), click Add Recipient.
+- How to Edit: Click the pencil icon (Edit) on any row to change the Name, Email Address, or toggle notification preferences.
+- How to Delete: Click the trash icon (Delete) to remove any recipient. Note: A minimum of 1 recipient is maintained so system alerts are never silenced (add a replacement before deleting the last recipient, or edit the existing email).
 
 ## 3. What Information Is Sent in Alerts?
 Every alert is sent as a responsive HTML email featuring a structured 5-column operational table:
@@ -91,6 +91,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   // Edit State
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
   const [editInstantAlerts, setEditInstantAlerts] = useState(true)
   const [editDailyDigest, setEditDailyDigest] = useState(true)
   const [isSavingEdit, setIsSavingEdit] = useState(false)
@@ -161,36 +162,69 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
   const handleStartEdit = (recipient: AlertRecipient) => {
     setEditingId(recipient.id)
     setEditName(recipient.name || '')
+    setEditEmail(recipient.email || '')
     setEditInstantAlerts(recipient.instant_alerts !== false)
     setEditDailyDigest(recipient.daily_digest !== false)
   }
 
   const handleSaveEdit = async (id: string) => {
+    const cleanEmail = editEmail.trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    const duplicate = recipients.find(r => r.id !== id && r.email.toLowerCase() === cleanEmail)
+    if (duplicate) {
+      toast.error(`Email ${cleanEmail} is already assigned to ${duplicate.name || 'another recipient'}`)
+      return
+    }
+
     setIsSavingEdit(true)
     try {
       const res = await updateAlertRecipient(id, {
         name: editName,
+        email: cleanEmail,
         instant_alerts: editInstantAlerts,
         daily_digest: editDailyDigest
       })
 
       if (res.success) {
         setRecipients(prev =>
-          prev.map(r => (r.id === id ? { ...r, name: editName, instant_alerts: editInstantAlerts, daily_digest: editDailyDigest } : r))
+          prev.map(r =>
+            r.id === id
+              ? {
+                  ...r,
+                  name: editName.trim() || cleanEmail.split('@')[0],
+                  email: cleanEmail,
+                  instant_alerts: editInstantAlerts,
+                  daily_digest: editDailyDigest
+                }
+              : r
+          )
         )
-        toast.success('Alert preferences updated successfully')
+        toast.success(`Updated alert recipient: ${cleanEmail}`)
         setEditingId(null)
       } else {
-        toast.error(res.error || 'Failed to update preferences')
+        toast.error(res.error || 'Failed to update alert recipient')
       }
     } catch {
-      toast.error('Failed to update alert preferences')
+      toast.error('Failed to update alert recipient')
     } finally {
       setIsSavingEdit(false)
     }
   }
 
   const handleDelete = async (id: string, email: string) => {
+    if (recipients.length <= 1) {
+      toast.error('At least one alert recipient is required so system failures are never silenced. Please add a replacement email first, or edit this email.')
+      return
+    }
+
+    if (!confirm(`Are you sure you want to remove ${email} from receiving system monitoring alerts?`)) {
+      return
+    }
+
     setDeletingId(id)
     startTransition(async () => {
       try {
@@ -437,17 +471,32 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                     {/* Recipient info */}
                     <td className="px-4 py-3.5 align-middle">
                       {isEditing ? (
-                        <div className="space-y-1.5 max-w-xs">
-                          <input
-                            type="text"
-                            value={editName}
-                            onChange={e => setEditName(e.target.value)}
-                            className="w-full text-xs rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935]"
-                            placeholder="Recipient Name"
-                          />
-                          <span className="text-[11px] text-[#64748b] font-mono block truncate">
-                            {recipient.email}
-                          </span>
+                        <div className="space-y-2 max-w-xs">
+                          <div>
+                            <label className="block text-[10px] font-bold text-[#5a6a82] uppercase mb-0.5">
+                              Recipient Name
+                            </label>
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={e => setEditName(e.target.value)}
+                              className="w-full text-xs rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
+                              placeholder="Recipient Name"
+                              autoFocus
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-[#5a6a82] uppercase mb-0.5">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              value={editEmail}
+                              onChange={e => setEditEmail(e.target.value)}
+                              className="w-full text-xs font-mono rounded-md border border-[#cbd5e1] px-2.5 py-1.5 outline-none focus:border-[#002935] focus:ring-1 focus:ring-[#002935] bg-white text-[#0f1d33]"
+                              placeholder="name@example.com"
+                            />
+                          </div>
                         </div>
                       ) : (
                         <div>
@@ -577,22 +626,24 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Delete Button */}
-                          {recipient.id !== 'master-alert-default' && (
-                            <button
-                              type="button"
-                              disabled={isDeleting}
-                              onClick={() => handleDelete(recipient.id, recipient.email)}
-                              className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                              title="Remove Recipient"
-                            >
-                              {isDeleting ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
-                              ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-                          )}
+                          {/* Delete Button (Always rendered so user can remove emails; guarded if only 1 remaining) */}
+                          <button
+                            type="button"
+                            disabled={isDeleting}
+                            onClick={() => handleDelete(recipient.id, recipient.email)}
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            title={
+                              recipients.length <= 1
+                                ? 'Cannot remove the last recipient (add replacement first or edit this email)'
+                                : `Remove ${recipient.email}`
+                            }
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                         </div>
                       )}
                     </td>
@@ -747,20 +798,20 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                     <div className="p-3.5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0]">
                       <div className="font-bold text-[#0f1d33] mb-1.5 flex items-center gap-1.5">
                         <Edit2 className="w-4 h-4 text-blue-600" />
-                        2. Editing Settings
+                        2. Editing Recipient
                       </div>
                       <p className="text-[#64748b]">
-                        Click the pencil icon <Edit2 className="w-3 h-3 inline text-gray-500" /> in any row to update recipient preferences or name at any time without deleting.
+                        Click the pencil icon <Edit2 className="w-3 h-3 inline text-gray-500" /> on any row to change the <strong>Name</strong>, <strong>Email Address</strong>, or notification preferences at any time.
                       </p>
                     </div>
 
                     <div className="p-3.5 bg-[#f8fafc] rounded-xl border border-[#e2e8f0]">
                       <div className="font-bold text-[#0f1d33] mb-1.5 flex items-center gap-1.5">
                         <Trash2 className="w-4 h-4 text-red-600" />
-                        3. Deleting Recipient
+                        3. Removing Recipient
                       </div>
                       <p className="text-[#64748b]">
-                        Click the trash icon <Trash2 className="w-3 h-3 inline text-red-500" /> to remove an inbox. Note: The Master Admin default (<code className="font-mono text-[10px]">bhuwanta9@gmail.com</code>) is protected against deletion.
+                        Click the trash icon <Trash2 className="w-3 h-3 inline text-red-500" /> to remove an email. A minimum of 1 recipient is maintained to prevent silent failures (add a replacement before removing the last one, or edit the existing email).
                       </p>
                     </div>
                   </div>
