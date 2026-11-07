@@ -115,13 +115,17 @@ supabase/.temp/
 # Next creates no route from it (a folder becomes a route only via page.tsx).
 src/app/(public)/implementation-plan/
 
-# Local changelog folder (internal notes, never shipped)
-/change\ log/
-/change-log/
-/changelog/
-change\ log/
-change-log/
-changelog/
+# Local changelog folder
+/change\ log/*
+/change-log/*
+/changelog/*
+change\ log/*
+change-log/*
+changelog/*
+!/change\ log/CHANGELOG.md
+!change\ log/CHANGELOG.md
+!/change log/CHANGELOG.md
+!change log/CHANGELOG.md
 
 # Local Sanity media assets for offline backup / pendrive storage
 /sanity\ images/

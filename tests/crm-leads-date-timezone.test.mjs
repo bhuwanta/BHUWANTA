@@ -74,3 +74,4 @@ test('Cron Lead Reports: Normalizes WhatsApp recipient phones to pure digits for
   assert.equal(normalizeForMeta('9876543210'), '919876543210')
   assert.equal(normalizeForMeta('919876543210'), '919876543210')
 })
+
