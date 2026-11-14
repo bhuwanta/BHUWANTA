@@ -291,11 +291,12 @@ export async function GET(request: Request) {
               const formattedCurrentTime = formatIstTime(nowUtc);
 
               // Build lead counts summary and download link for template param {{4}}
+              // Note: Meta WhatsApp template parameters strictly forbid newline/tab characters
               let leadCountsSummary = '';
               if (isMaster) {
-                leadCountsSummary = `Slot Leads: ${slotLeadsCount}\nTotal Leads Today: ${todayLeadsCount}\nTotal Leads All-Time: ${allTimeCount}\n\n📥 Download Excel:\n${downloadUrl}`;
+                leadCountsSummary = `Slot Leads: ${slotLeadsCount} • Total Today: ${todayLeadsCount} • All-Time: ${allTimeCount} • Download Excel: ${downloadUrl}`;
               } else {
-                leadCountsSummary = `Total Leads in Slot: ${slotLeadsCount}\n\n📥 Download Excel:\n${downloadUrl}`;
+                leadCountsSummary = `Total Leads in Slot: ${slotLeadsCount} • Download Excel: ${downloadUrl}`;
               }
 
               // Try sending via Template Message first (works outside 24-hour window)
@@ -318,10 +319,10 @@ export async function GET(request: Request) {
                         {
                           type: 'body',
                           parameters: [
-                            { type: 'text', text: reportPeriod },
-                            { type: 'text', text: `${formattedCurrentDate} at ${formattedCurrentTime}` },
-                            { type: 'text', text: coverageWindowText },
-                            { type: 'text', text: leadCountsSummary }
+                            { type: 'text', text: reportPeriod.replace(/[\r\n\t]+/g, ' ').trim() },
+                            { type: 'text', text: `${formattedCurrentDate} at ${formattedCurrentTime}`.replace(/[\r\n\t]+/g, ' ').trim() },
+                            { type: 'text', text: coverageWindowText.replace(/[\r\n\t]+/g, ' ').trim() },
+                            { type: 'text', text: leadCountsSummary.replace(/[\r\n\t]+/g, ' • ').trim() }
                           ]
                         }
                       ]
