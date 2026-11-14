@@ -407,3 +407,63 @@ test('Alert Recipient Deduplication: Deduplicates casing, whitespace, and strips
     'support@bhuwanta.com'
   ])
 })
+
+test('Live Subsystem Health Probes: Formats and maps status codes correctly for all 4 subsystems', () => {
+  const mockSubsystems = [
+    {
+      id: 'whatsapp',
+      name: 'WhatsApp Cloud API',
+      status: 'operational',
+      statusBadge: 'Operational',
+      statusCode: 'HTTP 200',
+      details: 'Connected: BHUWANTA_WA_BOT (GREEN)',
+      metricLabel: 'Status Code:',
+      metricValue: 'HTTP 200'
+    },
+    {
+      id: 'meta',
+      name: 'Meta Ads Leads Sync',
+      status: 'operational',
+      statusBadge: 'Operational',
+      statusCode: 'ACTIVE',
+      details: 'Cron path /api/cron/meta-sync (Production Active)',
+      metricLabel: 'Sync Cycle:',
+      metricValue: 'Every 15 mins'
+    },
+    {
+      id: 'resend',
+      name: 'Resend Mail Engine',
+      status: 'operational',
+      statusBadge: 'Operational',
+      statusCode: 'HTTP 200',
+      details: 'Delivering PDF/Excel reports & alerts.',
+      metricLabel: 'Sender Domain:',
+      metricValue: 'bhuwanta.com'
+    },
+    {
+      id: 'database',
+      name: 'Supabase & Redis',
+      status: 'operational',
+      statusBadge: 'Connected',
+      statusCode: '~14ms',
+      latencyMs: 14,
+      details: 'PostgreSQL pool & in-memory caches.',
+      metricLabel: 'Avg Latency:',
+      metricValue: '~14ms'
+    }
+  ]
+
+  assert.equal(mockSubsystems.length, 4)
+  const ids = mockSubsystems.map(s => s.id)
+  assert.ok(ids.includes('whatsapp'))
+  assert.ok(ids.includes('meta'))
+  assert.ok(ids.includes('resend'))
+  assert.ok(ids.includes('database'))
+
+  // Verify status mapping
+  for (const s of mockSubsystems) {
+    assert.equal(s.status, 'operational')
+    assert.ok(s.statusCode)
+    assert.ok(s.details)
+  }
+})

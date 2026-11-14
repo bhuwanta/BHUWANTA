@@ -22,7 +22,8 @@ import {
   BookOpen,
   Download,
   Info,
-  Flame
+  Flame,
+  RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AlertRecipient } from '@/lib/monitoring/alerts'
@@ -31,7 +32,9 @@ import {
   addAlertRecipient,
   updateAlertRecipient,
   removeAlertRecipient,
-  triggerTestSystemAlert
+  triggerTestSystemAlert,
+  getLiveSubsystemHealth,
+  type SubsystemHealthItem
 } from '../actions'
 
 interface AlertsProps {
@@ -103,6 +106,35 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
   // Test Alert State
   const [testingEmail, setTestingEmail] = useState<string | null>(null)
+
+  // Live Subsystem Health Probes State
+  const [subsystems, setSubsystems] = useState<SubsystemHealthItem[]>([])
+  const [isLoadingProbes, setIsLoadingProbes] = useState(true)
+  const [lastProbedAt, setLastProbedAt] = useState<string | null>(null)
+
+  const handleRefreshProbes = async (showToast = true) => {
+    setIsLoadingProbes(true)
+    try {
+      const res = await getLiveSubsystemHealth()
+      if (res.success && res.subsystems) {
+        setSubsystems(res.subsystems)
+        setLastProbedAt(res.checkedAt)
+        if (showToast) {
+          toast.success('Live subsystem health refreshed!')
+        }
+      } else {
+        if (showToast) toast.error('Failed to probe subsystems')
+      }
+    } catch {
+      if (showToast) toast.error('Error running live health probes')
+    } finally {
+      setIsLoadingProbes(false)
+    }
+  }
+
+  useEffect(() => {
+    handleRefreshProbes(false)
+  }, [])
 
   // Synchronous Double-Click Prevention Guards (Zero-lag hardware mutex)
   const isGeneratingPdfRef = useRef(false)
@@ -388,122 +420,150 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
 
       {/* Subsystem Health Dashboard Bar (No Collisions, Generous Spacing) */}
       <div className="border-b border-[#e8ecf2] bg-[#f8fafc] px-5 sm:px-6 py-4">
-        <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5 text-[#c4a55a]" />
-          Monitored Subsystems & Live Health Probes
-        </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <span className="text-xs font-bold text-[#0f1d33] uppercase tracking-wider flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-[#c4a55a]" />
+            Monitored Subsystems & Live Health Probes
+          </span>
+          <div className="flex items-center gap-2">
+            {lastProbedAt && (
+              <span className="text-[11px] text-[#5a6a82]">
+                Live checked: <span className="font-semibold text-[#0f1d33]">{lastProbedAt}</span>
+              </span>
+            )}
+            <button
+              type="button"
+              disabled={isLoadingProbes}
+              onClick={() => handleRefreshProbes(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-[#cbd5e1] text-[#0f1d33] hover:bg-[#f1f5f9] transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              title="Run real-time API health probe"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-[#002935] ${isLoadingProbes ? 'animate-spin' : ''}`} />
+              <span>{isLoadingProbes ? 'Probing...' : 'Refresh'}</span>
+            </button>
+          </div>
+        </div>
 
         {/* Responsive Grid: 1 col on mobile, 2 on tablets/small laptops, 4 on large screens */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
-          {/* Card 1: Meta WhatsApp */}
-          <div className="bg-white p-3.5 rounded-xl border border-red-200 shadow-2xs flex flex-col justify-between hover:border-red-300 transition-colors">
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
-                    <Zap className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <span className="text-xs font-bold text-[#0f1d33] truncate">
-                    WhatsApp Cloud API
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 whitespace-nowrap">
-                  <AlertTriangle className="w-2.5 h-2.5 text-red-600 shrink-0" />
-                  Action Required
-                </span>
-              </div>
-              <p className="text-[11px] text-[#64748b] leading-snug">
-                Token session revoked (Subcode 467).
-              </p>
-            </div>
-            <div className="mt-2.5 pt-2 border-t border-red-100/60 flex items-center justify-between text-[10px]">
-              <span className="text-[#64748b]">Status Code:</span>
-              <span className="font-mono font-bold text-red-600 bg-red-50 px-1.5 py-0.2 rounded border border-red-100">
-                HTTP 401
-              </span>
-            </div>
-          </div>
+          {(subsystems.length > 0 ? subsystems : [
+            {
+              id: 'whatsapp' as const,
+              name: 'WhatsApp Cloud API',
+              status: 'operational' as const,
+              statusBadge: 'Probing...',
+              statusCode: '...',
+              details: 'Checking Meta Graph API session...',
+              metricLabel: 'Status Code:',
+              metricValue: '...'
+            },
+            {
+              id: 'meta' as const,
+              name: 'Meta Ads Leads Sync',
+              status: 'operational' as const,
+              statusBadge: 'Probing...',
+              statusCode: '...',
+              details: 'Checking cron sync status...',
+              metricLabel: 'Sync Cycle:',
+              metricValue: 'Every 15 mins'
+            },
+            {
+              id: 'resend' as const,
+              name: 'Resend Mail Engine',
+              status: 'operational' as const,
+              statusBadge: 'Probing...',
+              statusCode: '...',
+              details: 'Checking email delivery engine...',
+              metricLabel: 'Sender Domain:',
+              metricValue: 'bhuwanta.com'
+            },
+            {
+              id: 'database' as const,
+              name: 'Supabase & Redis',
+              status: 'operational' as const,
+              statusBadge: 'Probing...',
+              statusCode: '...',
+              details: 'Measuring database round-trip latency...',
+              metricLabel: 'Avg Latency:',
+              metricValue: '...'
+            }
+          ]).map((subsystem) => {
+            const isCritical = subsystem.status === 'critical'
+            const isWarning = subsystem.status === 'warning'
+            
+            const cardBorder = isCritical
+              ? 'border-red-200 hover:border-red-300'
+              : isWarning
+              ? 'border-amber-200 hover:border-amber-300'
+              : 'border-emerald-200/80 hover:border-emerald-300'
 
-          {/* Card 2: Meta Ads Leads Sync */}
-          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 border border-indigo-100">
-                    <Server className="w-4 h-4 text-indigo-600" />
-                  </div>
-                  <span className="text-xs font-bold text-[#0f1d33] truncate">
-                    Meta Ads Leads Sync
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-                  Operational
-                </span>
-              </div>
-              <p className="text-[11px] text-[#64748b] leading-snug">
-                Cron path /api/cron/meta-sync
-              </p>
-            </div>
-            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
-              <span className="text-[#64748b]">Sync Cycle:</span>
-              <span className="font-mono text-[#0f1d33] font-medium">Every 15 mins</span>
-            </div>
-          </div>
+            const badgeClasses = isCritical
+              ? 'bg-red-50 text-red-700 border-red-200'
+              : isWarning
+              ? 'bg-amber-50 text-amber-700 border-amber-200'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
 
-          {/* Card 3: Resend Email Engine */}
-          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
-                    <Send className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <span className="text-xs font-bold text-[#0f1d33] truncate">
-                    Resend Mail Engine
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-                  Operational
-                </span>
-              </div>
-              <p className="text-[11px] text-[#64748b] leading-snug">
-                Delivering PDF/Excel reports & alerts.
-              </p>
-            </div>
-            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
-              <span className="text-[#64748b]">Sender Domain:</span>
-              <span className="font-mono text-[#0f1d33] font-medium">bhuwanta.com</span>
-            </div>
-          </div>
+            const badgeIcon = isCritical ? (
+              <AlertTriangle className="w-2.5 h-2.5 text-red-600 shrink-0" />
+            ) : isWarning ? (
+              <AlertTriangle className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+            )
 
-          {/* Card 4: Supabase & Redis */}
-          <div className="bg-white p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:border-emerald-300 transition-colors">
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
-                    <ShieldAlert className="w-4 h-4 text-teal-600" />
+            const metricTextClass = isCritical
+              ? 'font-mono font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100'
+              : isWarning
+              ? 'font-mono text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 font-medium'
+              : 'font-mono text-[#0f1d33] font-medium'
+
+            return (
+              <div
+                key={subsystem.id}
+                className={`bg-white p-3.5 rounded-xl border ${cardBorder} shadow-2xs flex flex-col justify-between transition-colors`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {subsystem.id === 'whatsapp' ? (
+                        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+                          <Zap className="w-4 h-4 text-blue-600" />
+                        </div>
+                      ) : subsystem.id === 'meta' ? (
+                        <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0 border border-indigo-100">
+                          <Server className="w-4 h-4 text-indigo-600" />
+                        </div>
+                      ) : subsystem.id === 'resend' ? (
+                        <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100">
+                          <Send className="w-4 h-4 text-amber-600" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center shrink-0 border border-teal-100">
+                          <ShieldAlert className="w-4 h-4 text-teal-600" />
+                        </div>
+                      )}
+                      <span className="text-xs font-bold text-[#0f1d33] truncate">
+                        {subsystem.name}
+                      </span>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold border whitespace-nowrap ${badgeClasses}`}>
+                      {badgeIcon}
+                      {subsystem.statusBadge}
+                    </span>
                   </div>
-                  <span className="text-xs font-bold text-[#0f1d33] truncate">
-                    Supabase & Redis
+                  <p className="text-[11px] text-[#64748b] leading-snug line-clamp-2" title={subsystem.details}>
+                    {subsystem.details}
+                  </p>
+                </div>
+                <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
+                  <span className="text-[#64748b]">{subsystem.metricLabel}</span>
+                  <span className={metricTextClass}>
+                    {subsystem.metricValue}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-                  Connected
-                </span>
               </div>
-              <p className="text-[11px] text-[#64748b] leading-snug">
-                PostgreSQL pool & in-memory caches.
-              </p>
-            </div>
-            <div className="mt-2.5 pt-2 border-t border-[#f1f5f9] flex items-center justify-between text-[10px]">
-              <span className="text-[#64748b]">Avg Latency:</span>
-              <span className="font-mono text-[#0f1d33] font-medium">~14ms</span>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </div>
 
