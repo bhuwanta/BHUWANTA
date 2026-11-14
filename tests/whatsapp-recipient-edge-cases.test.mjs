@@ -154,3 +154,19 @@ test('WhatsApp Recipient: Multi-device phone update validation detects collision
   const collisionNew = existingRecipients.find(r => r.phone_number === editNew.phone && r.id !== 'uuid-4')
   assert.equal(collisionNew, undefined, 'Unique number has no collision')
 })
+
+test('WhatsApp Webhook: Fallback message directs users to website with proper URL link', () => {
+  const routeContent = readFileSync(resolve(repositoryRoot, 'src/app/api/whatsapp/route.ts'), 'utf8')
+  assert.ok(
+    !routeContent.includes("I didn't quite get that. Type 'Hi' to explore our projects!"),
+    'Old boring fallback message must be removed'
+  )
+  assert.ok(
+    routeContent.includes('To explore more about our projects, please visit our website:'),
+    'New fallback must contain website prompt'
+  )
+  assert.ok(
+    routeContent.includes('https://bhuwanta.com'),
+    'New fallback must contain https://bhuwanta.com link'
+  )
+})

@@ -349,7 +349,10 @@ export async function POST(request: Request) {
         }
 
         // Fallback for unknown input
-        await sendTextMessage(senderPhone, "I didn't quite get that. Type 'Hi' to explore our projects!")
+        await sendTextMessage(
+          senderPhone, 
+          "To explore more about our projects, please visit our website:\nhttps://bhuwanta.com\n\nYou can also type 'Hi' anytime to explore our projects directly on WhatsApp!"
+        )
       }
       
       return new NextResponse('EVENT_RECEIVED', { status: 200 })
