@@ -32,10 +32,6 @@ function formatRecordedAt(date?: string): string | null {
  */
 function VideoCard({ video }: { video: ProjectVideo }) {
   const [isPlaying, setIsPlaying] = useState(false)
-  // YouTube only generates maxresdefault for videos uploaded above 720p, so it
-  // 404s on plenty of them. hqdefault always exists — fall back on error.
-  const [posterFailed, setPosterFailed] = useState(false)
-
   // Branch on `source` first, never on which URL happens to be populated:
   // Sanity keeps the value of a conditionally hidden field, so a video switched
   // from YouTube to upload can still carry a stale youtubeUrl.
@@ -43,8 +39,12 @@ function VideoCard({ video }: { video: ProjectVideo }) {
   const youtubeId = !isUpload && video.youtubeUrl ? extractYouTubeId(video.youtubeUrl) : null
   const playable = isUpload ? Boolean(video.videoUrl) : Boolean(youtubeId)
 
+  // hqdefault (480×360) always exists for every YouTube video.
+  // maxresdefault only exists for videos originally uploaded at 720p+ and
+  // triggers a 404 → onError → re-render cycle that causes the black-to-image
+  // flicker the user sees on page load. Skip it entirely.
   const youtubePoster = youtubeId
-    ? `https://img.youtube.com/vi/${youtubeId}/${posterFailed ? 'hqdefault' : 'maxresdefault'}.jpg`
+    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
     : null
   // Uploaded videos have no auto-generated poster frame, and pulling one from
   // the video file itself would cost bandwidth for visitors who never press
@@ -106,7 +106,6 @@ function VideoCard({ video }: { video: ProjectVideo }) {
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-contain"
-                onError={() => setPosterFailed(true)}
               />
             ) : isUpload && video.videoUrl ? (
               // The real first frame of the actual video, rather than an
