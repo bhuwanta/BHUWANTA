@@ -368,10 +368,12 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
                 <h3 className="text-base font-bold text-[#0f1d33] tracking-tight">
                   System Monitoring & Failure Alerts
                 </h3>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                  <Radio className="w-3 h-3 text-emerald-500 animate-pulse" />
-                  Live Observability
-                </span>
+                {lastProbedAt && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 border border-slate-200">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Last checked: <span className="font-semibold text-[#0f1d33]">{lastProbedAt}</span>
+                  </span>
+                )}
               </div>
               <p className="text-xs text-[#5a6a82] mt-1">
                 Real-time health monitoring and automated tabular failure logs for production crons, Meta WhatsApp API, Supabase, and Resend.
@@ -379,12 +381,12 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 overflow-x-auto shrink-0 py-1">
             {/* Feature Guide Popup Modal Trigger */}
             <button
               type="button"
               onClick={() => setIsGuideModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-[#002935]" />
               <span>Feature Guide</span>
@@ -396,23 +398,23 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
               disabled={isGeneratingPdf}
               onClick={handleDownloadGuide}
               title="Download official PDF guide"
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs disabled:opacity-50 disabled:pointer-events-none"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold bg-white text-[#0f1d33] border border-[#cbd5e1] hover:bg-[#f8fafc] transition-all cursor-pointer shadow-2xs disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap shrink-0"
             >
               {isGeneratingPdf ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-[#002935]" />
               ) : (
                 <Download className="w-3.5 h-3.5 text-[#002935]" />
               )}
-              <span className="hidden sm:inline">Download</span> PDF Guide
+              <span>Download PDF Guide</span>
             </button>
 
             {/* Add Alert Email Button */}
             <button
               onClick={handleOpenAddModal}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#003847] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#002935] px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#003847] transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus className="w-4 h-4 text-[#c4a55a]" />
-              Add Alert Email
+              <span>Add Alert Email</span>
             </button>
           </div>
         </div>
@@ -428,7 +430,7 @@ export default function Alerts({ initialAlertRecipients }: AlertsProps) {
           <div className="flex items-center gap-2">
             {lastProbedAt && (
               <span className="text-[11px] text-[#5a6a82]">
-                Live checked: <span className="font-semibold text-[#0f1d33]">{lastProbedAt}</span>
+                Last checked: <span className="font-semibold text-[#0f1d33]">{lastProbedAt}</span>
               </span>
             )}
             <button
