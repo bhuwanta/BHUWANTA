@@ -92,7 +92,6 @@ export function ProjectLayout3DViewer({
   const groundMeshRef = useRef<THREE.Mesh | null>(null)
   const orrMeshGroupRef = useRef<THREE.Group | null>(null)
   const nearbySplinesRef = useRef<THREE.Group | null>(null)
-  const roadsGroupRef = useRef<THREE.Group | null>(null)
   const plotMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map())
   const plotOutlinesRef = useRef<Map<string, THREE.LineSegments>>(new Map())
   const plotLabelsRef = useRef<Map<string, THREE.Sprite>>(new Map())
@@ -133,83 +132,6 @@ export function ProjectLayout3DViewer({
       active: true,
     }
   }, [])
-
-  // Helper to construct continuous 3D Asphalt Road Ribbons with Slate Curbs and Dashed Yellow Centerlines
-  const createRoadRibbon = (
-    start: [number, number],
-    end: [number, number],
-    width: number,
-    hasCenterLine: boolean = true
-  ) => {
-    const group = new THREE.Group()
-    const dx = end[0] - start[0]
-    const dz = end[1] - start[1]
-    const length = Math.sqrt(dx * dx + dz * dz)
-    if (length < 0.1) return group
-    const angle = Math.atan2(dx, dz)
-    const midX = (start[0] + end[0]) / 2
-    const midZ = (start[1] + end[1]) / 2
-
-    // 1. Asphalt Bed with anti-flicker depth offset
-    const roadGeo = new THREE.PlaneGeometry(width, length)
-    const roadMat = new THREE.MeshStandardMaterial({
-      color: 0x1e2530,
-      roughness: 0.88,
-      metalness: 0.05,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-      polygonOffsetUnits: -2,
-    })
-    const roadMesh = new THREE.Mesh(roadGeo, roadMat)
-    roadMesh.rotation.x = -Math.PI / 2
-    roadMesh.rotation.z = -angle
-    roadMesh.position.set(midX, 0.15, midZ)
-    roadMesh.receiveShadow = true
-    group.add(roadMesh)
-
-    // 2. Concrete Curb Edge Lines (Slate Grey borders)
-    const curbGeo = new THREE.PlaneGeometry(0.35, length)
-    const curbMat = new THREE.MeshStandardMaterial({
-      color: 0x64748b,
-      roughness: 0.6,
-      polygonOffset: true,
-      polygonOffsetFactor: -3,
-      polygonOffsetUnits: -3,
-    })
-    const cosA = Math.cos(angle) * (width / 2)
-    const sinA = Math.sin(angle) * (width / 2)
-
-    const leftCurb = new THREE.Mesh(curbGeo, curbMat)
-    leftCurb.rotation.x = -Math.PI / 2
-    leftCurb.rotation.z = -angle
-    leftCurb.position.set(midX - cosA, 0.17, midZ + sinA)
-    group.add(leftCurb)
-
-    const rightCurb = new THREE.Mesh(curbGeo, curbMat)
-    rightCurb.rotation.x = -Math.PI / 2
-    rightCurb.rotation.z = -angle
-    rightCurb.position.set(midX + cosA, 0.17, midZ - sinA)
-    group.add(rightCurb)
-
-    // 3. Dashed Yellow Centerline for primary sector avenues
-    if (hasCenterLine && width >= 4.0) {
-      const lineGeo = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(start[0], 0.20, start[1]),
-        new THREE.Vector3(end[0], 0.20, end[1]),
-      ])
-      const lineMat = new THREE.LineDashedMaterial({
-        color: 0xfacc15,
-        dashSize: 2.2,
-        gapSize: 1.6,
-        linewidth: 2,
-      })
-      const line = new THREE.Line(lineGeo, lineMat)
-      line.computeLineDistances()
-      group.add(line)
-    }
-
-    return group
-  }
 
   // Create Billboard Sprite for Plots (High-DPI Vector Supersampling + True Depth Testing)
   const createPlotSprite = (text: string, isAvailable: boolean) => {
@@ -346,7 +268,8 @@ export function ProjectLayout3DViewer({
     // 1. Scene
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0a1120)
-    scene.fog = new THREE.FogExp2(0x0a1120, 0.0022)
+    // Subtle horizon fog instead of heavy dark fog to keep satellite blueprint bright and vibrant
+    scene.fog = new THREE.FogExp2(0x0a1120, 0.0007)
     sceneRef.current = scene
 
     // 2. Camera
@@ -367,7 +290,7 @@ export function ProjectLayout3DViewer({
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.15
+    renderer.toneMappingExposure = 1.25
     rendererRef.current = renderer
 
     // 4. Orbit Controls
@@ -380,12 +303,12 @@ export function ProjectLayout3DViewer({
     controls.target.set(35, 0, 5)
     controlsRef.current = controls
 
-    // 5. Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95)
+    // 5. Studio Lighting (Warm, crisp, sun-drenched aerial illumination matching MapX)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.25)
     scene.add(ambientLight)
     ambientLightRef.current = ambientLight
 
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.4)
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.6)
     sunLight.position.set(80, 140, 70)
     sunLight.castShadow = true
     sunLight.shadow.mapSize.width = 2048
@@ -434,53 +357,7 @@ export function ProjectLayout3DViewer({
     foundation.position.set(0, -1.6, 0)
     scene.add(foundation)
 
-    // 7. Continuous 3D Vector Asphalt Roads (Eliminating Cut-offs & Connecting to Shabad Road)
-    const roadsGroup = new THREE.Group()
-
-    // Primary Central Spine Boulevard (runs North-South through township)
-    roadsGroup.add(createRoadRibbon([45, -55], [45, 75], 5.8, true))
-    // Extended Approach Connector Road (extends south boundary out to meet Shabad village road)
-    roadsGroup.add(createRoadRibbon([45, 75], [35, 105], 6.4, true))
-    roadsGroup.add(createRoadRibbon([35, 105], [15, 125], 6.4, true))
-    roadsGroup.add(createRoadRibbon([15, 125], [-10, 140], 6.0, true))
-
-    // Phase 1 Central Cross Road (40 Ft)
-    roadsGroup.add(createRoadRibbon([10, 18], [80, 18], 4.8, true))
-    // Phase 1 Internal Avenue (33 Ft)
-    roadsGroup.add(createRoadRibbon([15, -6], [75, -6], 4.2, false))
-    // Phase 2 Sector Road (40 Ft)
-    roadsGroup.add(createRoadRibbon([15, -30], [80, -30], 4.8, true))
-    // Jubilee Central Cross Avenue (40 Ft)
-    roadsGroup.add(createRoadRibbon([20, 42], [92, 42], 4.8, true))
-    // South Sector Link Road (33 Ft)
-    roadsGroup.add(createRoadRibbon([25, 62], [75, 62], 4.2, false))
-    // West Boundary Perimeter Road (33 Ft)
-    roadsGroup.add(createRoadRibbon([20, -45], [20, 65], 4.2, false))
-    // East Boundary Perimeter Road (33 Ft)
-    roadsGroup.add(createRoadRibbon([72, -40], [72, 55], 4.2, false))
-
-    scene.add(roadsGroup)
-    roadsGroupRef.current = roadsGroup
-
-    // 7b. Glowing Cyan Township Boundary Polygon (MapX Style)
-    const boundaryPts = [
-      new THREE.Vector3(12, 0.25, -50),
-      new THREE.Vector3(82, 0.25, -50),
-      new THREE.Vector3(82, 0.25, 20),
-      new THREE.Vector3(96, 0.25, 40),
-      new THREE.Vector3(96, 0.25, 66),
-      new THREE.Vector3(50, 0.25, 76),
-      new THREE.Vector3(40, 0.25, 76),
-      new THREE.Vector3(18, 0.25, 66),
-      new THREE.Vector3(18, 0.25, 20),
-      new THREE.Vector3(12, 0.25, -50),
-    ]
-    const boundaryGeo = new THREE.BufferGeometry().setFromPoints(boundaryPts)
-    const boundaryMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, linewidth: 3 })
-    const boundaryLine = new THREE.Line(boundaryGeo, boundaryMat)
-    scene.add(boundaryLine)
-
-    // 7c. Central Floating Project Beacon (MapX Style)
+    // 7. Central Floating Project Beacon (MapX Style)
     const centerBeacon = createProjectCenterBeacon('Vian Valley', '160 Villa Plots • Shabad')
     centerBeacon.position.set(45, 0, 8)
     scene.add(centerBeacon)
@@ -505,16 +382,17 @@ export function ProjectLayout3DViewer({
         color: baseColor,
         roughness: isAvailable ? 0.3 : 0.65,
         metalness: isAvailable ? 0.2 : 0.05,
-        transparent: !isAvailable,
-        opacity: isAvailable ? 1.0 : 0.45,
+        transparent: true,
+        // Sold plots are invisible by default so the underlying pristine blueprint drawing is completely visible and unobscured
+        opacity: isAvailable ? 0.95 : 0.0,
         emissive: isAvailable ? 0x059669 : 0x000000,
         emissiveIntensity: isAvailable ? 0.45 : 0,
       })
 
       const mesh = new THREE.Mesh(plotGeo, plotMat)
       mesh.position.set(px, py, pz)
-      mesh.castShadow = true
-      mesh.receiveShadow = true
+      mesh.castShadow = isAvailable
+      mesh.receiveShadow = isAvailable
       mesh.userData = { plotId: p.id, plotData: p }
 
       const edgeGeo = new THREE.EdgesGeometry(plotGeo)
@@ -522,13 +400,15 @@ export function ProjectLayout3DViewer({
         color: isAvailable ? 0xffffff : 0xef4444,
         linewidth: isAvailable ? 2 : 1,
         transparent: true,
-        opacity: isAvailable ? 0.95 : 0.45,
+        opacity: isAvailable ? 0.95 : 0.0,
       })
       const outline = new THREE.LineSegments(edgeGeo, edgeMat)
       outline.position.copy(mesh.position)
+      outline.visible = isAvailable
 
       const sprite = createPlotSprite(p.plotNumber, isAvailable)
       sprite.position.set(px, py + (isAvailable ? 2.5 : 1.2), pz)
+      sprite.visible = isAvailable
 
       if (isAvailable) {
         const ringGeo = new THREE.RingGeometry(Math.max(w, d) * 0.6, Math.max(w, d) * 0.9, 24)
@@ -758,9 +638,6 @@ export function ProjectLayout3DViewer({
       // High-altitude Aerial 360 view: hide 151 sold plot labels to eliminate blue blur & visual smear.
       // Low-altitude Zoom (< 82 units) or Plot Details mode: display labels crisply.
       // The 9 available plots and hovered/selected plots are always highlighted.
-      const camDist = camera.position.distanceTo(controls.target)
-      const showSoldLabels = camDist < 82 || activeMode === 'plot-details'
-
       project.plots.forEach((p) => {
         const sprite = plotLabelsRef.current.get(p.id)
         if (!sprite) return
@@ -768,10 +645,12 @@ export function ProjectLayout3DViewer({
         const isHovered = hoveredPlot?.id === p.id
         const isSelected = selectedPlot?.id === p.id
 
+        // Only show floating badges for the 9 available plots and active/hovered plots
+        // This eliminates all visual clutter and the "blue blur" completely
         if (isAvailable || isHovered || isSelected) {
           sprite.visible = true
         } else {
-          sprite.visible = showSoldLabels
+          sprite.visible = false
         }
       })
 
@@ -815,7 +694,6 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
-      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([30, 115, 130], [35, 0, 5])
     } else if (mode === 'plot-details') {
@@ -827,7 +705,6 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
-      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = false
       animateCameraTo([50, 70, 75], [52, 0, 12])
     } else if (mode === 'project-details') {
@@ -839,7 +716,6 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
-      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([40, 95, 95], [45, 0, 10])
     } else if (mode === 'nearby') {
@@ -851,7 +727,6 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = true
-      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([10, 140, 150], [20, 0, 0])
     } else if (mode === 'orr-rrr') {
@@ -863,7 +738,6 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = true
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
-      if (roadsGroupRef.current) roadsGroupRef.current.visible = false
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([0, 180, 70], [0, 0, 0])
     }
@@ -911,34 +785,37 @@ export function ProjectLayout3DViewer({
 
       if (!matchesFilter) {
         mat.color.setHex(0x475569)
-        mat.opacity = 0.15
+        mat.opacity = 0.0
         mat.transparent = true
         mesh.position.y = 0.1
         outline.visible = false
         label.visible = false
       } else {
-        outline.visible = true
-        label.visible = true
-
         if (isSelected) {
           mat.color.setHex(STATUS_COLORS.highlight)
           mat.transparent = false
           mat.opacity = 1.0
           mesh.position.y = 1.2
+          outline.visible = true
+          label.visible = true
           outline.position.y = mesh.position.y
           label.position.y = mesh.position.y + 1.8
         } else if (isHovered) {
           mat.color.setHex(isAvailable ? STATUS_HOVER_COLORS.available : STATUS_HOVER_COLORS.sold)
           mat.transparent = false
-          mat.opacity = 1.0
+          mat.opacity = isAvailable ? 1.0 : 0.7
           mesh.position.y = isAvailable ? 0.9 : 0.6
+          outline.visible = true
+          label.visible = true
           outline.position.y = mesh.position.y
           label.position.y = mesh.position.y + 1.6
         } else {
           mat.color.setHex(isAvailable ? STATUS_COLORS.available : STATUS_COLORS.sold)
-          mat.transparent = !isAvailable
-          mat.opacity = isAvailable ? 1.0 : 0.45
+          mat.transparent = true
+          mat.opacity = isAvailable ? 0.95 : (statusFilter === 'sold' ? 0.45 : 0.0)
           mesh.position.y = p.position[1]
+          outline.visible = isAvailable || statusFilter === 'sold'
+          label.visible = isAvailable
           outline.position.y = mesh.position.y
           label.position.y = mesh.position.y + (isAvailable ? 2.5 : 1.2)
         }
