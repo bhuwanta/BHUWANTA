@@ -92,6 +92,7 @@ export function ProjectLayout3DViewer({
   const groundMeshRef = useRef<THREE.Mesh | null>(null)
   const orrMeshGroupRef = useRef<THREE.Group | null>(null)
   const nearbySplinesRef = useRef<THREE.Group | null>(null)
+  const roadsGroupRef = useRef<THREE.Group | null>(null)
   const plotMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map())
   const plotOutlinesRef = useRef<Map<string, THREE.LineSegments>>(new Map())
   const plotLabelsRef = useRef<Map<string, THREE.Sprite>>(new Map())
@@ -133,45 +134,138 @@ export function ProjectLayout3DViewer({
     }
   }, [])
 
-  // Create Billboard Sprite for Plots
+  // Helper to construct continuous 3D Asphalt Road Ribbons with Slate Curbs and Dashed Yellow Centerlines
+  const createRoadRibbon = (
+    start: [number, number],
+    end: [number, number],
+    width: number,
+    hasCenterLine: boolean = true
+  ) => {
+    const group = new THREE.Group()
+    const dx = end[0] - start[0]
+    const dz = end[1] - start[1]
+    const length = Math.sqrt(dx * dx + dz * dz)
+    if (length < 0.1) return group
+    const angle = Math.atan2(dx, dz)
+    const midX = (start[0] + end[0]) / 2
+    const midZ = (start[1] + end[1]) / 2
+
+    // 1. Asphalt Bed with anti-flicker depth offset
+    const roadGeo = new THREE.PlaneGeometry(width, length)
+    const roadMat = new THREE.MeshStandardMaterial({
+      color: 0x1e2530,
+      roughness: 0.88,
+      metalness: 0.05,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    })
+    const roadMesh = new THREE.Mesh(roadGeo, roadMat)
+    roadMesh.rotation.x = -Math.PI / 2
+    roadMesh.rotation.z = -angle
+    roadMesh.position.set(midX, 0.15, midZ)
+    roadMesh.receiveShadow = true
+    group.add(roadMesh)
+
+    // 2. Concrete Curb Edge Lines (Slate Grey borders)
+    const curbGeo = new THREE.PlaneGeometry(0.35, length)
+    const curbMat = new THREE.MeshStandardMaterial({
+      color: 0x64748b,
+      roughness: 0.6,
+      polygonOffset: true,
+      polygonOffsetFactor: -3,
+      polygonOffsetUnits: -3,
+    })
+    const cosA = Math.cos(angle) * (width / 2)
+    const sinA = Math.sin(angle) * (width / 2)
+
+    const leftCurb = new THREE.Mesh(curbGeo, curbMat)
+    leftCurb.rotation.x = -Math.PI / 2
+    leftCurb.rotation.z = -angle
+    leftCurb.position.set(midX - cosA, 0.17, midZ + sinA)
+    group.add(leftCurb)
+
+    const rightCurb = new THREE.Mesh(curbGeo, curbMat)
+    rightCurb.rotation.x = -Math.PI / 2
+    rightCurb.rotation.z = -angle
+    rightCurb.position.set(midX + cosA, 0.17, midZ - sinA)
+    group.add(rightCurb)
+
+    // 3. Dashed Yellow Centerline for primary sector avenues
+    if (hasCenterLine && width >= 4.0) {
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(start[0], 0.20, start[1]),
+        new THREE.Vector3(end[0], 0.20, end[1]),
+      ])
+      const lineMat = new THREE.LineDashedMaterial({
+        color: 0xfacc15,
+        dashSize: 2.2,
+        gapSize: 1.6,
+        linewidth: 2,
+      })
+      const line = new THREE.Line(lineGeo, lineMat)
+      line.computeLineDistances()
+      group.add(line)
+    }
+
+    return group
+  }
+
+  // Create Billboard Sprite for Plots (High-DPI Vector Supersampling + True Depth Testing)
   const createPlotSprite = (text: string, isAvailable: boolean) => {
     const canvas = document.createElement('canvas')
-    canvas.width = 160
-    canvas.height = 70
+    canvas.width = 384
+    canvas.height = 144
     const ctx = canvas.getContext('2d')
     if (ctx) {
       if (isAvailable) {
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.95)'
-        ctx.roundRect(4, 4, 152, 62, 16)
+        // Vibrant Emerald Available Badge
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.98)'
+        ctx.roundRect(8, 8, 368, 128, 32)
         ctx.fill()
         ctx.strokeStyle = '#ffffff'
-        ctx.lineWidth = 3
-        ctx.roundRect(4, 4, 152, 62, 16)
+        ctx.lineWidth = 6
+        ctx.roundRect(8, 8, 368, 128, 32)
         ctx.stroke()
-        ctx.font = 'bold 30px Poppins, sans-serif'
+
+        ctx.font = '900 42px Poppins, sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = '#ffffff'
-        ctx.fillText(`Plot ${text}`, 80, 35)
+        ctx.fillText(`Plot ${text}`, 192, 52)
+
+        ctx.font = 'bold 24px Poppins, sans-serif'
+        ctx.fillStyle = '#d1fae5'
+        ctx.fillText('AVAILABLE', 192, 98)
       } else {
-        ctx.fillStyle = 'rgba(10, 17, 32, 0.85)'
-        ctx.roundRect(6, 6, 148, 58, 12)
+        // Clean Slate Crimson Sold Badge (Shown when zoomed in or on hover)
+        ctx.fillStyle = 'rgba(10, 17, 32, 0.92)'
+        ctx.roundRect(8, 8, 368, 128, 26)
         ctx.fill()
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)'
-        ctx.lineWidth = 2
-        ctx.roundRect(6, 6, 148, 58, 12)
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.85)'
+        ctx.lineWidth = 4
+        ctx.roundRect(8, 8, 368, 128, 26)
         ctx.stroke()
-        ctx.font = 'bold 26px Poppins, sans-serif'
+
+        ctx.font = '900 48px Poppins, sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = '#f87171'
-        ctx.fillText(text, 80, 35)
+        ctx.fillText(text, 192, 72)
       }
     }
     const texture = new THREE.CanvasTexture(canvas)
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false })
+    texture.minFilter = THREE.LinearMipmapLinearFilter
+    texture.magFilter = THREE.LinearFilter
+    texture.generateMipmaps = true
+    const spriteMaterial = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+    })
     const sprite = new THREE.Sprite(spriteMaterial)
-    sprite.scale.set(isAvailable ? 4.8 : 3.2, isAvailable ? 2.2 : 1.5, 1)
+    sprite.scale.set(isAvailable ? 4.6 : 3.0, isAvailable ? 1.7 : 1.1, 1)
     return sprite
   }
 
@@ -340,7 +434,53 @@ export function ProjectLayout3DViewer({
     foundation.position.set(0, -1.6, 0)
     scene.add(foundation)
 
-    // 7. Central Floating Project Beacon (MapX Style)
+    // 7. Continuous 3D Vector Asphalt Roads (Eliminating Cut-offs & Connecting to Shabad Road)
+    const roadsGroup = new THREE.Group()
+
+    // Primary Central Spine Boulevard (runs North-South through township)
+    roadsGroup.add(createRoadRibbon([45, -55], [45, 75], 5.8, true))
+    // Extended Approach Connector Road (extends south boundary out to meet Shabad village road)
+    roadsGroup.add(createRoadRibbon([45, 75], [35, 105], 6.4, true))
+    roadsGroup.add(createRoadRibbon([35, 105], [15, 125], 6.4, true))
+    roadsGroup.add(createRoadRibbon([15, 125], [-10, 140], 6.0, true))
+
+    // Phase 1 Central Cross Road (40 Ft)
+    roadsGroup.add(createRoadRibbon([10, 18], [80, 18], 4.8, true))
+    // Phase 1 Internal Avenue (33 Ft)
+    roadsGroup.add(createRoadRibbon([15, -6], [75, -6], 4.2, false))
+    // Phase 2 Sector Road (40 Ft)
+    roadsGroup.add(createRoadRibbon([15, -30], [80, -30], 4.8, true))
+    // Jubilee Central Cross Avenue (40 Ft)
+    roadsGroup.add(createRoadRibbon([20, 42], [92, 42], 4.8, true))
+    // South Sector Link Road (33 Ft)
+    roadsGroup.add(createRoadRibbon([25, 62], [75, 62], 4.2, false))
+    // West Boundary Perimeter Road (33 Ft)
+    roadsGroup.add(createRoadRibbon([20, -45], [20, 65], 4.2, false))
+    // East Boundary Perimeter Road (33 Ft)
+    roadsGroup.add(createRoadRibbon([72, -40], [72, 55], 4.2, false))
+
+    scene.add(roadsGroup)
+    roadsGroupRef.current = roadsGroup
+
+    // 7b. Glowing Cyan Township Boundary Polygon (MapX Style)
+    const boundaryPts = [
+      new THREE.Vector3(12, 0.25, -50),
+      new THREE.Vector3(82, 0.25, -50),
+      new THREE.Vector3(82, 0.25, 20),
+      new THREE.Vector3(96, 0.25, 40),
+      new THREE.Vector3(96, 0.25, 66),
+      new THREE.Vector3(50, 0.25, 76),
+      new THREE.Vector3(40, 0.25, 76),
+      new THREE.Vector3(18, 0.25, 66),
+      new THREE.Vector3(18, 0.25, 20),
+      new THREE.Vector3(12, 0.25, -50),
+    ]
+    const boundaryGeo = new THREE.BufferGeometry().setFromPoints(boundaryPts)
+    const boundaryMat = new THREE.LineBasicMaterial({ color: 0x06b6d4, linewidth: 3 })
+    const boundaryLine = new THREE.Line(boundaryGeo, boundaryMat)
+    scene.add(boundaryLine)
+
+    // 7c. Central Floating Project Beacon (MapX Style)
     const centerBeacon = createProjectCenterBeacon('Vian Valley', '160 Villa Plots • Shabad')
     centerBeacon.position.set(45, 0, 8)
     scene.add(centerBeacon)
@@ -614,6 +754,27 @@ export function ProjectLayout3DViewer({
       const azimuth = controls.getAzimuthalAngle()
       setCompassAngle((azimuth * 180) / Math.PI)
 
+      // LOD (Level of Detail) Dynamic Visibility:
+      // High-altitude Aerial 360 view: hide 151 sold plot labels to eliminate blue blur & visual smear.
+      // Low-altitude Zoom (< 82 units) or Plot Details mode: display labels crisply.
+      // The 9 available plots and hovered/selected plots are always highlighted.
+      const camDist = camera.position.distanceTo(controls.target)
+      const showSoldLabels = camDist < 82 || activeMode === 'plot-details'
+
+      project.plots.forEach((p) => {
+        const sprite = plotLabelsRef.current.get(p.id)
+        if (!sprite) return
+        const isAvailable = p.status === 'available'
+        const isHovered = hoveredPlot?.id === p.id
+        const isSelected = selectedPlot?.id === p.id
+
+        if (isAvailable || isHovered || isSelected) {
+          sprite.visible = true
+        } else {
+          sprite.visible = showSoldLabels
+        }
+      })
+
       controls.autoRotate = false
       controls.update()
       renderer.render(scene, camera)
@@ -654,6 +815,7 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
+      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([30, 115, 130], [35, 0, 5])
     } else if (mode === 'plot-details') {
@@ -665,6 +827,7 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
+      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = false
       animateCameraTo([50, 70, 75], [52, 0, 12])
     } else if (mode === 'project-details') {
@@ -676,6 +839,7 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
+      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([40, 95, 95], [45, 0, 10])
     } else if (mode === 'nearby') {
@@ -687,6 +851,7 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = false
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = true
+      if (roadsGroupRef.current) roadsGroupRef.current.visible = true
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([10, 140, 150], [20, 0, 0])
     } else if (mode === 'orr-rrr') {
@@ -698,6 +863,7 @@ export function ProjectLayout3DViewer({
       }
       if (orrMeshGroupRef.current) orrMeshGroupRef.current.visible = true
       if (nearbySplinesRef.current) nearbySplinesRef.current.visible = false
+      if (roadsGroupRef.current) roadsGroupRef.current.visible = false
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([0, 180, 70], [0, 0, 0])
     }
