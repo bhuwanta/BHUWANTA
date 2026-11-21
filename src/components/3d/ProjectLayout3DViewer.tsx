@@ -13,11 +13,8 @@ import {
   X,
   Maximize2,
   Minimize2,
-  Compass,
-  MapPin,
   CheckCircle2,
   Phone,
-  FileText,
   Sparkles,
   ShieldCheck,
   ArrowLeft,
@@ -29,15 +26,30 @@ import {
   RotateCw,
   Navigation,
   Download,
+  Share2,
+  ChevronRight,
 } from 'lucide-react'
 import Link from 'next/link'
 
-// Strict Status Colors: Available: Green, Booked: Yellow, Sold: Red
+// MapX Color & Design Tokens
+const MAPX_COLORS = {
+  bg: '#0a1120',
+  glass: 'rgba(10, 17, 32, 0.88)',
+  line: 'rgba(255, 255, 255, 0.13)',
+  ink: '#f4f6fa',
+  mut: '#a9b6ca',
+  gold: '#e9b95c',
+  cyan: '#06b6d4',
+  purple: '#a855f7',
+  pink: '#ec4899',
+}
+
+// Strict Plot Status Colors: Available (Green), Booked (Yellow), Sold (Red)
 const STATUS_COLORS = {
   available: 0x10b981, // Emerald Green
   booked: 0xf59e0b,    // Amber Yellow
   sold: 0xef4444,      // Crimson Red
-  highlight: 0xfbbf24, // Radiant Amber Gold
+  highlight: 0xe9b95c, // Radiant Gold
 }
 
 const STATUS_HOVER_COLORS = {
@@ -79,6 +91,8 @@ export function ProjectLayout3DViewer({
   const [isAutoRotate, setIsAutoRotate] = useState(false)
   const [isEveningMode, setIsEveningMode] = useState(false)
   const [isMusicPlaying, setIsMusicPlaying] = useState(false)
+  const [compassAngle, setCompassAngle] = useState(0)
+  const [tourStarted, setTourStarted] = useState(false)
   const [loading, setLoading] = useState(true)
 
   // Three.js Scene References
@@ -108,7 +122,7 @@ export function ProjectLayout3DViewer({
     active: boolean
   } | null>(null)
 
-  // Summaries
+  // Summaries (Available: 9, Booked: 0, Sold: 151)
   const stats = useMemo(() => {
     const total = project.plots.length
     const available = project.plots.filter((p) => p.status === 'available').length
@@ -145,20 +159,20 @@ export function ProjectLayout3DViewer({
         ctx.lineWidth = 3
         ctx.roundRect(4, 4, 152, 62, 16)
         ctx.stroke()
-        ctx.font = 'bold 30px sans-serif'
+        ctx.font = 'bold 30px Poppins, sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = '#ffffff'
         ctx.fillText(`Plot ${text}`, 80, 35)
       } else {
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.75)'
+        ctx.fillStyle = 'rgba(10, 17, 32, 0.85)'
         ctx.roundRect(6, 6, 148, 58, 12)
         ctx.fill()
-        ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)'
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)'
         ctx.lineWidth = 2
         ctx.roundRect(6, 6, 148, 58, 12)
         ctx.stroke()
-        ctx.font = 'bold 26px sans-serif'
+        ctx.font = 'bold 26px Poppins, sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = '#f87171'
@@ -172,18 +186,16 @@ export function ProjectLayout3DViewer({
     return sprite
   }
 
-  // Create Central Floating 3D Beacon for the Project
+  // Create Central Floating 3D Beacon for the Project (Exact MapX Arudra Exotica Badge Style)
   const createProjectCenterBeacon = (name: string, subtitle: string) => {
     const group = new THREE.Group()
 
-    // 1. Stem line
     const stemGeo = new THREE.CylinderGeometry(0.2, 0.2, 16, 8)
     const stemMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.85 })
     const stem = new THREE.Mesh(stemGeo, stemMat)
     stem.position.y = 8
     group.add(stem)
 
-    // 2. Base ground pulsing ring
     const ringGeo = new THREE.RingGeometry(2.5, 4.5, 32)
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
     const ring = new THREE.Mesh(ringGeo, ringMat)
@@ -191,14 +203,12 @@ export function ProjectLayout3DViewer({
     ring.position.y = 0.2
     group.add(ring)
 
-    // 3. Floating Badge Card (Image 1 style)
     const canvas = document.createElement('canvas')
     canvas.width = 440
     canvas.height = 140
     const ctx = canvas.getContext('2d')
     if (ctx) {
-      // Glow border
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.95)'
+      ctx.fillStyle = 'rgba(10, 17, 32, 0.95)'
       ctx.roundRect(8, 8, 424, 124, 28)
       ctx.fill()
       ctx.strokeStyle = '#06b6d4'
@@ -206,7 +216,6 @@ export function ProjectLayout3DViewer({
       ctx.roundRect(8, 8, 424, 124, 28)
       ctx.stroke()
 
-      // Inner emblem circle
       ctx.fillStyle = '#0e7490'
       ctx.beginPath()
       ctx.arc(60, 70, 36, 0, Math.PI * 2)
@@ -215,23 +224,21 @@ export function ProjectLayout3DViewer({
       ctx.lineWidth = 2
       ctx.stroke()
 
-      ctx.font = 'bold 24px sans-serif'
+      ctx.font = 'bold 24px Poppins, sans-serif'
       ctx.fillStyle = '#ffffff'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillText('BV', 60, 70)
 
-      // Project title & Subtitle
       ctx.textAlign = 'left'
-      ctx.font = '900 32px sans-serif'
+      ctx.font = '900 32px Poppins, sans-serif'
       ctx.fillStyle = '#ffffff'
       ctx.fillText(name.toUpperCase(), 115, 54)
 
-      // Pill for details
       ctx.fillStyle = '#0891b2'
       ctx.roundRect(115, 78, 280, 34, 17)
       ctx.fill()
-      ctx.font = 'bold 16px sans-serif'
+      ctx.font = 'bold 16px Poppins, sans-serif'
       ctx.fillStyle = '#ffffff'
       ctx.textAlign = 'center'
       ctx.fillText(subtitle.toUpperCase(), 255, 96)
@@ -247,7 +254,7 @@ export function ProjectLayout3DViewer({
     return group
   }
 
-  // Initialize Three.js WebGL Scene
+  // Initialize Three.js Scene
   useEffect(() => {
     const container = containerRef.current
     const canvas = canvasRef.current
@@ -255,8 +262,8 @@ export function ProjectLayout3DViewer({
 
     // 1. Scene
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x0a0f1d)
-    scene.fog = new THREE.FogExp2(0x0a0f1d, 0.0022)
+    scene.background = new THREE.Color(0x0a1120)
+    scene.fog = new THREE.FogExp2(0x0a1120, 0.0022)
     sceneRef.current = scene
 
     // 2. Camera
@@ -280,7 +287,7 @@ export function ProjectLayout3DViewer({
     renderer.toneMappingExposure = 1.15
     rendererRef.current = renderer
 
-    // 4. Controls
+    // 4. Orbit Controls
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
     controls.dampingFactor = 0.06
@@ -290,7 +297,7 @@ export function ProjectLayout3DViewer({
     controls.target.set(35, 0, 5)
     controlsRef.current = controls
 
-    // 5. Lighting
+    // 5. Studio Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.95)
     scene.add(ambientLight)
     ambientLightRef.current = ambientLight
@@ -337,14 +344,14 @@ export function ProjectLayout3DViewer({
     scene.add(groundMesh)
     groundMeshRef.current = groundMesh
 
-    // Subtle table foundation
+    // Subtle dark foundation base
     const foundationGeo = new THREE.BoxGeometry(250, 3, 250)
-    const foundationMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 })
+    const foundationMat = new THREE.MeshStandardMaterial({ color: 0x0a1120, roughness: 0.9 })
     const foundation = new THREE.Mesh(foundationGeo, foundationMat)
     foundation.position.set(0, -1.6, 0)
     scene.add(foundation)
 
-    // 7. Central Floating Project Beacon (Image 1 style)
+    // 7. Central Floating Project Beacon (MapX Style)
     const centerBeacon = createProjectCenterBeacon('Vian Valley', '160 Villa Plots • Shabad')
     centerBeacon.position.set(45, 0, 8)
     scene.add(centerBeacon)
@@ -420,16 +427,16 @@ export function ProjectLayout3DViewer({
 
     scene.add(plotGroup)
 
-    // 9. Nearby Landmarks & Glowing Highway Route Splines (Image 3 style)
+    // 9. Nearby Landmarks & Highway Route Splines (MapX Mode 4)
     const nearbyGroup = new THREE.Group()
     const splinesGroup = new THREE.Group()
 
     const beaconGeo = new THREE.OctahedronGeometry(1.8, 0)
     const beaconMat = new THREE.MeshStandardMaterial({
-      color: 0x8b5cf6, // Vibrant purple beacon
+      color: 0xa855f7,
       roughness: 0.2,
       metalness: 0.8,
-      emissive: 0x8b5cf6,
+      emissive: 0xa855f7,
       emissiveIntensity: 0.6,
     })
 
@@ -440,35 +447,35 @@ export function ProjectLayout3DViewer({
       beacon.userData = { landmarkId: lm.id, landmarkData: lm }
 
       const stemGeo = new THREE.CylinderGeometry(0.12, 0.12, ly, 6)
-      const stemMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.7 })
+      const stemMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.7 })
       const stem = new THREE.Mesh(stemGeo, stemMat)
       stem.position.set(lx, ly / 2, lz)
 
       const ringGeo = new THREE.RingGeometry(1.6, 2.8, 24)
-      const ringMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, side: THREE.DoubleSide, transparent: true, opacity: 0.75 })
       const ring = new THREE.Mesh(ringGeo, ringMat)
       ring.rotation.x = -Math.PI / 2
       ring.position.set(lx, 0.1, lz)
 
-      // Landmark Billboard Label
+      // Landmark Pill
       const canvas = document.createElement('canvas')
       canvas.width = 280
       canvas.height = 76
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        ctx.fillStyle = 'rgba(24, 18, 48, 0.94)'
+        ctx.fillStyle = 'rgba(10, 17, 32, 0.94)'
         ctx.roundRect(4, 4, 272, 68, 16)
         ctx.fill()
         ctx.strokeStyle = '#a855f7'
         ctx.lineWidth = 3
         ctx.roundRect(4, 4, 272, 68, 16)
         ctx.stroke()
-        ctx.font = 'bold 23px sans-serif'
+        ctx.font = 'bold 23px Poppins, sans-serif'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillStyle = '#ffffff'
         ctx.fillText(lm.name, 140, 28)
-        ctx.font = 'bold 18px sans-serif'
+        ctx.font = 'bold 18px Poppins, sans-serif'
         ctx.fillStyle = '#fef08a'
         ctx.fillText(`${lm.travelTime} • ${lm.distance}`, 140, 52)
       }
@@ -483,13 +490,13 @@ export function ProjectLayout3DViewer({
       nearbyGroup.add(ring)
       nearbyGroup.add(labelSprite)
 
-      // Glowing curved 3D highway line connecting Vian Valley to landmark (Image 3 style)
+      // Curved highway spline line
       const projectOrigin = new THREE.Vector3(45, 0.2, 8)
       const landmarkTarget = new THREE.Vector3(lx, 0.2, lz)
       const midPoint = new THREE.Vector3(
-        (projectOrigin.x + landmarkTarget.x) / 2 + (Math.random() - 0.5) * 10,
+        (projectOrigin.x + landmarkTarget.x) / 2 + (Math.random() - 0.5) * 8,
         1.5,
-        (projectOrigin.z + landmarkTarget.z) / 2 + (Math.random() - 0.5) * 10
+        (projectOrigin.z + landmarkTarget.z) / 2 + (Math.random() - 0.5) * 8
       )
       const curve = new THREE.QuadraticBezierCurve3(projectOrigin, midPoint, landmarkTarget)
       const tubeGeo = new THREE.TubeGeometry(curve, 24, 0.22, 6, false)
@@ -502,11 +509,10 @@ export function ProjectLayout3DViewer({
     scene.add(splinesGroup)
     nearbySplinesRef.current = splinesGroup
 
-    // 10. ORR & RRR Macro Rings Mode (Image 4 style)
+    // 10. ORR & RRR Macro Rings Mode (MapX Mode 5)
     const orrGroup = new THREE.Group()
     orrGroup.visible = false
 
-    // Inner ORR Ring (Cyan)
     const orrRadius = 45
     const orrCurve = new THREE.EllipseCurve(0, 0, orrRadius * 1.1, orrRadius, 0, 2 * Math.PI, false, 0)
     const orrPoints = orrCurve.getPoints(64).map((p) => new THREE.Vector3(p.x, 0.4, p.y))
@@ -515,7 +521,6 @@ export function ProjectLayout3DViewer({
     const orrLine = new THREE.Line(orrGeo, orrMat)
     orrGroup.add(orrLine)
 
-    // Outer RRR Ring (Orange)
     const rrrRadius = 85
     const rrrCurve = new THREE.EllipseCurve(0, 0, rrrRadius * 1.05, rrrRadius, 0, 2 * Math.PI, false, 0)
     const rrrPoints = rrrCurve.getPoints(96).map((p) => new THREE.Vector3(p.x, 0.4, p.y))
@@ -577,7 +582,7 @@ export function ProjectLayout3DViewer({
     canvas.addEventListener('mousemove', onPointerMove)
     canvas.addEventListener('mouseup', onPointerUp)
 
-    // Resize
+    // Resize handler
     const handleResize = () => {
       if (!container || !renderer || !camera) return
       const w = container.clientWidth
@@ -589,14 +594,13 @@ export function ProjectLayout3DViewer({
 
     window.addEventListener('resize', handleResize)
 
-    // Animation Loop
+    // Animation loop & Compass orientation tracking
     let clock = new THREE.Clock()
     const animate = () => {
       animFrameId.current = requestAnimationFrame(animate)
       const delta = clock.getDelta()
       const time = clock.getElapsedTime()
 
-      // Handle camera smooth transitions
       if (cameraTransition.current && cameraTransition.current.active) {
         const ct = cameraTransition.current
         ct.progress += delta * 1.8
@@ -612,11 +616,14 @@ export function ProjectLayout3DViewer({
         }
       }
 
-      // Pulse beacon rings
       beaconRingsRef.current.forEach((ring) => {
         const scale = 1 + Math.sin(time * 3) * 0.12
         ring.scale.set(scale, scale, 1)
       })
+
+      // Track compass azimuth angle
+      const azimuth = controls.getAzimuthalAngle()
+      setCompassAngle((azimuth * 180) / Math.PI)
 
       controls.autoRotate = isAutoRotate
       controls.autoRotateSpeed = 1.2
@@ -645,11 +652,10 @@ export function ProjectLayout3DViewer({
     }
   }, [project, animateCameraTo, initialPlotId, isAutoRotate])
 
-  // Lighting Mode (Day / Evening)
+  // Lighting mode
   useEffect(() => {
     if (!directionalLightRef.current || !ambientLightRef.current || !sceneRef.current) return
     if (isEveningMode) {
-      // Golden Hour / Twilight
       sceneRef.current.background = new THREE.Color(0x1a0f28)
       sceneRef.current.fog = new THREE.FogExp2(0x1a0f28, 0.0025)
       directionalLightRef.current.color.setHex(0xf97316)
@@ -657,9 +663,8 @@ export function ProjectLayout3DViewer({
       ambientLightRef.current.color.setHex(0xc084fc)
       ambientLightRef.current.intensity = 0.65
     } else {
-      // Crisp Daylight
-      sceneRef.current.background = new THREE.Color(0x0a0f1d)
-      sceneRef.current.fog = new THREE.FogExp2(0x0a0f1d, 0.0022)
+      sceneRef.current.background = new THREE.Color(0x0a1120)
+      sceneRef.current.fog = new THREE.FogExp2(0x0a1120, 0.0022)
       directionalLightRef.current.color.setHex(0xfffbeb)
       directionalLightRef.current.intensity = 1.4
       ambientLightRef.current.color.setHex(0xffffff)
@@ -667,14 +672,12 @@ export function ProjectLayout3DViewer({
     }
   }, [isEveningMode])
 
-  // Mode Transition Handler (Switching between the 5 view modes)
+  // Mode Transition Handler
   const handleSwitchMode = (mode: ViewerMode) => {
     setActiveMode(mode)
-
     const textureLoader = new THREE.TextureLoader()
 
     if (mode === 'aerial') {
-      // Mode 1: Aerial 360 View
       if (groundMeshRef.current) {
         groundMeshRef.current.material = new THREE.MeshStandardMaterial({
           map: textureLoader.load('/images/projects/vian_valley_satellite_aerial.jpg'),
@@ -686,7 +689,6 @@ export function ProjectLayout3DViewer({
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([30, 115, 130], [35, 0, 5])
     } else if (mode === 'plot-details') {
-      // Mode 2: Plot Details (Zoom into plots)
       if (groundMeshRef.current) {
         groundMeshRef.current.material = new THREE.MeshStandardMaterial({
           map: textureLoader.load('/images/projects/vian_valley_satellite_aerial.jpg'),
@@ -698,7 +700,6 @@ export function ProjectLayout3DViewer({
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = false
       animateCameraTo([50, 70, 75], [52, 0, 12])
     } else if (mode === 'project-details') {
-      // Mode 3: Project Details (Overhead isometric angle with left drawer)
       if (groundMeshRef.current) {
         groundMeshRef.current.material = new THREE.MeshStandardMaterial({
           map: textureLoader.load('/images/projects/vian_valley_satellite_aerial.jpg'),
@@ -710,7 +711,6 @@ export function ProjectLayout3DViewer({
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([40, 95, 95], [45, 0, 10])
     } else if (mode === 'nearby') {
-      // Mode 4: Nearby Locations (Wide view with glowing road ribbons)
       if (groundMeshRef.current) {
         groundMeshRef.current.material = new THREE.MeshStandardMaterial({
           map: textureLoader.load('/images/projects/vian_valley_satellite_aerial.jpg'),
@@ -722,7 +722,6 @@ export function ProjectLayout3DViewer({
       if (centerProjectPinRef.current) centerProjectPinRef.current.visible = true
       animateCameraTo([10, 140, 150], [20, 0, 0])
     } else if (mode === 'orr-rrr') {
-      // Mode 5: ORR & RRR Macro Regional Map
       if (groundMeshRef.current) {
         groundMeshRef.current.material = new THREE.MeshStandardMaterial({
           map: textureLoader.load('/images/projects/hyderabad_macro_satellite.jpg'),
@@ -736,7 +735,16 @@ export function ProjectLayout3DViewer({
     }
   }
 
-  // Handle Plot Search
+  // Compass North Reset
+  const handleResetNorth = () => {
+    if (!cameraRef.current || !controlsRef.current) return
+    const curPos = cameraRef.current.position
+    const target = controlsRef.current.target
+    const radius = Math.sqrt(Math.pow(curPos.x - target.x, 2) + Math.pow(curPos.z - target.z, 2))
+    animateCameraTo([target.x, curPos.y, target.z + radius], [target.x, target.y, target.z])
+  }
+
+  // Plot search
   const handleSearchPlot = (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchQuery.trim()) return
@@ -748,11 +756,11 @@ export function ProjectLayout3DViewer({
       const [px, , pz] = match.position
       animateCameraTo([px + 14, 22, pz + 20], [px, 0, pz])
     } else {
-      alert(`Plot #${q} not found. Available open plots: 1309, 1301, 1245, 1246, 1247, 1253, 1284, 486, 698`)
+      alert(`Plot #${q} not found. 9 open plots are currently available: 1309, 1301, 1245, 1246, 1247, 1253, 1284, 486, 698`)
     }
   }
 
-  // Filter Updates
+  // Visual filter updates
   useEffect(() => {
     project.plots.forEach((p) => {
       const mesh = plotMeshesRef.current.get(p.id)
@@ -804,7 +812,7 @@ export function ProjectLayout3DViewer({
     })
   }, [project.plots, selectedPlot, hoveredPlot, statusFilter])
 
-  // Fullscreen toggle
+  // Fullscreen
   const handleToggleFullscreen = () => {
     if (!containerRef.current) return
     if (!document.fullscreenElement) {
@@ -817,206 +825,258 @@ export function ProjectLayout3DViewer({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden select-none bg-slate-950 font-sans ${
+      className={`relative w-full overflow-hidden select-none bg-[#0a1120] font-sans ${
         fullScreenPage
           ? 'fixed inset-0 w-screen h-screen z-50 rounded-none border-none'
           : isModal
-          ? 'h-[92vh] rounded-2xl shadow-2xl border border-brand-border/40'
-          : 'h-[780px] md:h-[840px] rounded-2xl border border-brand-border'
+          ? 'h-[92vh] rounded-2xl shadow-2xl border border-white/10'
+          : 'h-[780px] md:h-[840px] rounded-2xl border border-white/10'
       }`}
     >
-      {/* 3D Canvas */}
+      {/* 3D WebGL Canvas (#stage) */}
       <canvas ref={canvasRef} className="w-full h-full block touch-none" />
 
-      {/* Loading Overlay */}
+      {/* Cinematic Vignette Overlay matching MapX */}
+      <div className="pointer-events-none fixed inset-0 z-10 bg-[radial-gradient(120%_95%_at_50%_45%,rgba(0,0,0,0)_52%,rgba(2,5,18,0.78)_100%)]" />
+
+      {/* Loading Screen Overlay */}
       {loading && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md text-white">
-          <div className="w-12 h-12 border-4 border-cyan-400/20 border-t-cyan-400 rounded-full animate-spin mb-4" />
-          <p className="text-sm font-semibold tracking-wide text-cyan-400 uppercase">Loading Aerial 360° Digital Twin...</p>
-          <p className="text-xs text-slate-400 mt-1">Streaming satellite orthomosaic &amp; live plot coordinates</p>
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0a1120] text-white">
+          <div className="w-14 h-14 border-4 border-[#e9b95c]/20 border-t-[#e9b95c] rounded-full animate-spin mb-4" />
+          <h2 className="text-xl font-bold tracking-wider text-white">VIAN <span className="text-[#e9b95c]">VALLEY</span></h2>
+          <p className="text-xs text-[#a9b6ca] mt-1 uppercase tracking-widest">Earthstay Plotted Township · Shabad</p>
+          <div className="w-48 h-1 bg-white/10 rounded-full mt-4 overflow-hidden">
+            <div className="h-full bg-[#e9b95c] animate-pulse w-3/4 rounded-full" />
+          </div>
         </div>
       )}
 
-      {/* TOP STATUS HUD BAR (Matching User Reference Image 1 & 2) */}
-      <div className="absolute top-0 left-0 right-0 z-30 p-3 md:p-4 bg-gradient-to-b from-slate-950/95 via-slate-950/75 to-transparent pointer-events-none">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pointer-events-auto">
-          {/* Left: Project Branding & Back to Project */}
-          <div className="flex items-center gap-2.5">
-            <Link
-              href={`/projects/${project.slug}`}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Back</span>
-            </Link>
+      {/* TOPBAR (Exact MapX Layout & Typography) */}
+      <header className="fixed top-0 left-0 right-0 z-30 h-14 md:h-16 px-3 md:px-6 bg-gradient-to-b from-[#0a1120]/95 via-[#0a1120]/75 to-transparent flex items-center justify-between pointer-events-none">
+        {/* Logo Branding */}
+        <div className="flex items-center gap-3 pointer-events-auto">
+          <Link
+            href={`/projects/${project.slug}`}
+            className="h-8 px-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-white border border-white/15 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#e9b95c]" />
+            <span className="hidden sm:inline">Back</span>
+          </Link>
 
-            <div>
-              <h1 className="text-sm md:text-base font-bold text-white tracking-tight flex items-center gap-1.5">
-                {project.projectName.toUpperCase()}
-              </h1>
-              <p className="text-[11px] text-slate-300">
-                Premium Villa Plots • {project.location}
-              </p>
+          <div>
+            <div className="text-sm md:text-base font-extrabold tracking-wider text-white">
+              VIAN <span className="text-[#e9b95c]">VALLEY</span>
             </div>
-          </div>
-
-          {/* Center: Inventory Counts & Plot Search */}
-          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-            <button
-              onClick={() => setStatusFilter(statusFilter === 'available' ? 'all' : 'available')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                statusFilter === 'available'
-                  ? 'bg-emerald-500 text-white ring-2 ring-emerald-300 shadow-lg shadow-emerald-500/30'
-                  : 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/60'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Available <span className="font-bold">{stats.available}</span>
-            </button>
-            <button
-              onClick={() => setStatusFilter(statusFilter === 'booked' ? 'all' : 'booked')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                statusFilter === 'booked'
-                  ? 'bg-amber-500 text-white ring-2 ring-amber-300'
-                  : 'bg-amber-950/80 border border-amber-500/50 text-amber-300 hover:bg-amber-900/60'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              Booked <span className="font-bold">{stats.booked}</span>
-            </button>
-            <button
-              onClick={() => setStatusFilter(statusFilter === 'sold' ? 'all' : 'sold')}
-              className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                statusFilter === 'sold'
-                  ? 'bg-red-500 text-white ring-2 ring-red-300'
-                  : 'bg-red-950/80 border border-red-500/50 text-red-300 hover:bg-red-900/60'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-red-400" />
-              Sold <span className="font-bold">{stats.sold}</span>
-            </button>
-
-            {/* Instant Plot No. Search Form */}
-            <form onSubmit={handleSearchPlot} className="relative flex items-center">
-              <input
-                type="text"
-                placeholder="Plot no."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-24 px-2.5 py-1 text-xs bg-slate-900/90 border border-slate-700 rounded-md text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400"
-              />
-              <button type="submit" className="absolute right-1 text-slate-400 hover:text-white">
-                <Search className="w-3 h-3" />
-              </button>
-            </form>
-          </div>
-
-          {/* Right: Quick Action Controls */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setIsAutoRotate(!isAutoRotate)}
-              title="Auto Rotate 360"
-              className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 border transition-colors cursor-pointer ${
-                isAutoRotate ? 'bg-cyan-500 text-slate-950 border-cyan-400' : 'bg-slate-800/80 text-slate-300 border-slate-700'
-              }`}
-            >
-              <RotateCw className={`w-3 h-3 ${isAutoRotate ? 'animate-spin' : ''}`} />
-              <span>Auto</span>
-            </button>
-            <button
-              onClick={() => setIsMusicPlaying(!isMusicPlaying)}
-              title="Music"
-              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-white flex items-center gap-1 cursor-pointer"
-            >
-              {isMusicPlaying ? <Volume2 className="w-3 h-3 text-cyan-400" /> : <VolumeX className="w-3 h-3 text-slate-400" />}
-              <span>{isMusicPlaying ? 'Music On' : 'Music Off'}</span>
-            </button>
-            <button
-              onClick={() => setIsEveningMode(!isEveningMode)}
-              title="Time of Day"
-              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-white flex items-center gap-1 cursor-pointer"
-            >
-              {isEveningMode ? <Moon className="w-3 h-3 text-amber-400" /> : <Sun className="w-3 h-3 text-amber-300" />}
-              <span>{isEveningMode ? 'Evening' : 'Morning'}</span>
-            </button>
-            <a
-              href="https://maps.google.com/?q=Shabad,+Telangana"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-white flex items-center gap-1 cursor-pointer"
-            >
-              <Navigation className="w-3 h-3 text-cyan-400" />
-              <span>Directions</span>
-            </a>
-            <button
-              onClick={handleToggleFullscreen}
-              className="w-7 h-7 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 cursor-pointer"
-            >
-              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-            </button>
+            <p className="text-[10px] md:text-[11px] text-[#a9b6ca] truncate max-w-[200px] sm:max-w-none">
+              Premium Villa Plots · 160 Plots · Shabad, Hyderabad
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* RIGHT-HAND FLOATING NAVIGATION DOCK (Exact match for User Reference Images 1, 2, 3, 4) */}
-      <div className="absolute top-24 right-4 z-30 flex flex-col gap-1.5 w-48 sm:w-56 pointer-events-auto">
+        {/* Center: Real-time Plot Counts & Search Input */}
+        <div className="flex items-center gap-1.5 md:gap-2 pointer-events-auto">
+          <button
+            onClick={() => setStatusFilter(statusFilter === 'available' ? 'all' : 'available')}
+            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md ${
+              statusFilter === 'available'
+                ? 'bg-emerald-500 text-white ring-2 ring-emerald-300'
+                : 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-900/60'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Available <span className="font-black">{stats.available}</span>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter(statusFilter === 'booked' ? 'all' : 'booked')}
+            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              statusFilter === 'booked'
+                ? 'bg-amber-500 text-white ring-2 ring-amber-300'
+                : 'bg-amber-950/80 border border-amber-500/50 text-amber-300 hover:bg-amber-900/60'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            Booked <span className="font-black">{stats.booked}</span>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter(statusFilter === 'sold' ? 'all' : 'sold')}
+            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              statusFilter === 'sold'
+                ? 'bg-red-500 text-white ring-2 ring-red-300'
+                : 'bg-red-950/80 border border-red-500/50 text-red-300 hover:bg-red-900/60'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-red-400" />
+            Sold <span className="font-black">{stats.sold}</span>
+          </button>
+
+          {/* Plot Search Field */}
+          <form onSubmit={handleSearchPlot} className="relative hidden sm:flex items-center">
+            <input
+              type="text"
+              placeholder="Plot no."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-24 px-2.5 py-1 text-xs bg-[#0a1120]/90 border border-white/20 rounded-full text-white placeholder-slate-400 focus:outline-none focus:border-[#e9b95c]"
+            />
+            <button type="submit" className="absolute right-2 text-slate-400 hover:text-white cursor-pointer">
+              <Search className="w-3 h-3" />
+            </button>
+          </form>
+        </div>
+
+        {/* Top-Right Quick Action Toolbar (Matching MapX `#tb-btns`) */}
+        <div className="flex items-center gap-1 md:gap-1.5 pointer-events-auto">
+          <button
+            onClick={() => setIsAutoRotate(!isAutoRotate)}
+            title="Auto rotate"
+            className={`h-8 px-2.5 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-colors cursor-pointer ${
+              isAutoRotate ? 'bg-[#e9b95c] text-[#1c1405] border-[#e9b95c]' : 'bg-white/10 text-white border-white/15 hover:bg-white/15'
+            }`}
+          >
+            <RotateCw className={`w-3.5 h-3.5 ${isAutoRotate ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Auto</span>
+          </button>
+
+          <button
+            onClick={() => setIsMusicPlaying(!isMusicPlaying)}
+            title="Music"
+            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
+          >
+            {isMusicPlaying ? <Volume2 className="w-3.5 h-3.5 text-[#e9b95c]" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+            <span className="hidden sm:inline">{isMusicPlaying ? 'Music On' : 'Music Off'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsEveningMode(!isEveningMode)}
+            title="Lighting mode"
+            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
+          >
+            {isEveningMode ? <Moon className="w-3.5 h-3.5 text-amber-400" /> : <Sun className="w-3.5 h-3.5 text-amber-300" />}
+            <span className="hidden sm:inline">{isEveningMode ? 'Evening' : 'Morning'}</span>
+          </button>
+
+          <a
+            href="https://maps.google.com/?q=Shabad,+Telangana"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Directions"
+            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
+          >
+            <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Directions</span>
+          </a>
+
+          <button
+            onClick={handleToggleFullscreen}
+            className="w-8 h-8 rounded-lg bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center justify-center cursor-pointer"
+          >
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      </header>
+
+      {/* TOP-LEFT FLOATING PROJECT CARD (MapX Image 1 Style) */}
+      {activeMode === 'aerial' && (
+        <button
+          onClick={() => handleSwitchMode('project-details')}
+          className="fixed top-20 left-4 z-20 flex items-center gap-3 p-3 rounded-2xl bg-[#0a1120]/90 border border-white/15 hover:border-[#e9b95c]/60 shadow-2xl backdrop-blur-xl cursor-pointer transition-all hover:scale-[1.02] text-left group pointer-events-auto"
+        >
+          <div className="w-13 h-13 rounded-xl overflow-hidden border border-white/10 shrink-0 relative">
+            <img
+              src="/images/projects/vian_valley_layout.png"
+              alt="Vian Valley"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+            />
+          </div>
+          <div className="pr-1">
+            <span className="text-[10px] font-black tracking-wider text-[#e9b95c] uppercase block">
+              Villa Plots For Sale
+            </span>
+            <h3 className="text-sm font-extrabold text-white leading-snug">Vian Valley</h3>
+            <p className="text-[11px] text-[#a9b6ca]">Earthstay Township · 65+ Acres</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all ml-1" />
+        </button>
+      )}
+
+      {/* COMPASS NEEDLE (Exact MapX Bottom-Right `.compass` Reset to North) */}
+      <button
+        onClick={handleResetNorth}
+        title="Reset to North"
+        className="fixed bottom-9 right-4 z-20 w-11 h-11 rounded-full bg-[#0a1120]/85 border border-white/20 shadow-xl flex items-center justify-center cursor-pointer hover:scale-105 transition-transform backdrop-blur-md pointer-events-auto"
+      >
+        <svg
+          viewBox="0 0 46 46"
+          className="w-8 h-8 transition-transform duration-200"
+          style={{ transform: `rotate(${-compassAngle}deg)` }}
+        >
+          <text x="23" y="9" textAnchor="middle" fontSize="9" fill="#fff" fontWeight="700">N</text>
+          <path d="M23 12 L27 23 L23 21 L19 23Z" fill="#e5484d" />
+          <path d="M23 34 L27 23 L23 25 L19 23Z" fill="#fff" />
+        </svg>
+      </button>
+
+      {/* RIGHT-HAND FLOATING NAVIGATION DOCK (`.scenes` exact MapX style) */}
+      <nav className="fixed top-20 right-4 z-30 flex flex-col gap-1.5 w-48 sm:w-56 pointer-events-auto">
         <button
           onClick={() => handleSwitchMode('aerial')}
-          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer shadow-lg backdrop-blur-md ${
+          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 transition-all cursor-pointer shadow-xl backdrop-blur-md ${
             activeMode === 'aerial'
-              ? 'bg-[#0084ff] text-white ring-2 ring-blue-300 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700'
+              ? 'bg-[#0084ff] text-white ring-2 ring-white scale-[1.02] shadow-[#0084ff]/50'
+              : 'bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15'
           }`}
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">1</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">1</span>
           <span>Aerial 360° View</span>
         </button>
 
         <button
           onClick={() => handleSwitchMode('plot-details')}
-          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer shadow-lg backdrop-blur-md ${
+          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 transition-all cursor-pointer shadow-xl backdrop-blur-md ${
             activeMode === 'plot-details'
-              ? 'bg-[#10b981] text-white ring-2 ring-emerald-300 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700'
+              ? 'bg-[#10b981] text-white ring-2 ring-white scale-[1.02] shadow-[#10b981]/50'
+              : 'bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15'
           }`}
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">2</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">2</span>
           <span>Plot Details</span>
         </button>
 
         <button
           onClick={() => handleSwitchMode('project-details')}
-          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer shadow-lg backdrop-blur-md ${
+          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 transition-all cursor-pointer shadow-xl backdrop-blur-md ${
             activeMode === 'project-details'
-              ? 'bg-[#f59e0b] text-white ring-2 ring-amber-300 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700'
+              ? 'bg-[#f59e0b] text-white ring-2 ring-white scale-[1.02] shadow-[#f59e0b]/50'
+              : 'bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15'
           }`}
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">3</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">3</span>
           <span>Project Details</span>
         </button>
 
         <button
           onClick={() => handleSwitchMode('nearby')}
-          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer shadow-lg backdrop-blur-md ${
+          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 transition-all cursor-pointer shadow-xl backdrop-blur-md ${
             activeMode === 'nearby'
-              ? 'bg-[#a855f7] text-white ring-2 ring-purple-300 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700'
+              ? 'bg-[#a855f7] text-white ring-2 ring-white scale-[1.02] shadow-[#a855f7]/50'
+              : 'bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15'
           }`}
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">4</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">4</span>
           <span>Nearby Locations</span>
         </button>
 
         <button
           onClick={() => handleSwitchMode('orr-rrr')}
-          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer shadow-lg backdrop-blur-md ${
+          className={`w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 transition-all cursor-pointer shadow-xl backdrop-blur-md ${
             activeMode === 'orr-rrr'
-              ? 'bg-[#ec4899] text-white ring-2 ring-pink-300 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700'
+              ? 'bg-[#ec4899] text-white ring-2 ring-white scale-[1.02] shadow-[#ec4899]/50'
+              : 'bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15'
           }`}
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">5</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">5</span>
           <span>ORR &amp; RRR Corridor</span>
         </button>
 
@@ -1026,9 +1086,9 @@ export function ProjectLayout3DViewer({
           href="https://maps.google.com/?q=Shabad,+Telangana"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all cursor-pointer shadow-lg backdrop-blur-md"
+          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15 transition-all cursor-pointer shadow-xl backdrop-blur-md"
         >
-          <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-black">7</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center text-[10px] font-black">7</span>
           <span>View in Google Maps</span>
         </a>
 
@@ -1036,7 +1096,7 @@ export function ProjectLayout3DViewer({
           href={project.pdfLayoutUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 bg-[#0284c7] hover:bg-[#0369a1] text-white transition-all cursor-pointer shadow-lg backdrop-blur-md mt-1"
+          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 bg-[#0284c7] hover:bg-[#0369a1] text-white transition-all cursor-pointer shadow-xl backdrop-blur-md mt-1"
         >
           <Download className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">Download Brochure</span>
@@ -1046,64 +1106,64 @@ export function ProjectLayout3DViewer({
           href={project.pdfLayoutUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white transition-all cursor-pointer shadow-lg backdrop-blur-md"
+          className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white transition-all cursor-pointer shadow-xl backdrop-blur-md"
         >
           <Download className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">Download Master Plan</span>
         </a>
-      </div>
+      </nav>
 
-      {/* LEFT-SIDE CONTEXT DRAWER: MODE 3 (PROJECT DETAILS - Image 2 Style) */}
+      {/* LEFT-SIDE ASIDE CARD: MODE 3 (PROJECT DETAILS - Exact MapX Image 2 Card Style) */}
       {activeMode === 'project-details' && (
-        <div className="absolute top-24 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-slate-900/95 border border-cyan-500/40 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+        <aside className="fixed top-20 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-[#0a1120]/95 border border-white/15 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200 pointer-events-auto">
           <div>
-            <div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 border border-slate-700">
+            <div className="relative w-full h-36 rounded-xl overflow-hidden mb-3 border border-white/10">
               <img
                 src="/images/projects/vian_valley_layout.png"
                 alt="Vian Valley Entrance"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1120] via-[#0a1120]/30 to-transparent" />
               <button
                 onClick={() => setActiveMode('aerial')}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 flex items-center justify-center"
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#0a1120]/80 hover:bg-[#0a1120] text-slate-300 flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
               <div className="absolute bottom-2 left-3">
-                <h3 className="font-black text-lg text-white">Vian Valley</h3>
-                <p className="text-[11px] text-cyan-300">Shabad – Southwest Hyderabad</p>
+                <h3 className="font-extrabold text-lg text-white">Vian Valley</h3>
+                <p className="text-[11px] text-[#06b6d4]">Theegapur Road, Shabad – Southwest Hyderabad</p>
               </div>
             </div>
 
-            {/* Quick Metrics Grid (Image 2 style) */}
+            {/* Quick Metrics Grid */}
             <div className="grid grid-cols-2 gap-2 mb-3">
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Project Area</span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-[#a9b6ca] uppercase font-semibold block">Project Area</span>
                 <span className="text-base font-black text-white">65+ acres</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Villa Plots</span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-[#a9b6ca] uppercase font-semibold block">Villa Plots</span>
                 <span className="text-base font-black text-white">160 plots</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Plot Sizes</span>
-                <span className="text-base font-black text-amber-400">167 – 350+ <span className="text-xs font-normal text-slate-300">sq.yds</span></span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-[#a9b6ca] uppercase font-semibold block">Plot Sizes</span>
+                <span className="text-base font-black text-[#e9b95c]">167 – 350+ <span className="text-xs font-normal text-slate-300">sq.yds</span></span>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700">
-                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Approvals</span>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-[#a9b6ca] uppercase font-semibold block">Approvals</span>
                 <span className="text-base font-black text-emerald-400">HMDA &amp; RERA</span>
               </div>
             </div>
 
-            {/* PLOTS TODAY Section (Image 2 style) */}
+            {/* PLOTS TODAY Section (Matching MapX Screenshot) */}
             <div className="mb-3">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Plots Today</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#a9b6ca] block mb-1.5">Plots Today</span>
               <div className="grid grid-cols-3 gap-1.5">
                 <button
                   onClick={() => setStatusFilter(statusFilter === 'available' ? 'all' : 'available')}
-                  className={`p-2 rounded-lg text-center border cursor-pointer ${
-                    statusFilter === 'available' ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-emerald-300 border-emerald-500/40'
+                  className={`p-2 rounded-xl text-center border cursor-pointer ${
+                    statusFilter === 'available' ? 'bg-emerald-500 text-white' : 'bg-white/5 text-emerald-300 border-emerald-500/40'
                   }`}
                 >
                   <span className="text-base font-black block">{stats.available}</span>
@@ -1111,8 +1171,8 @@ export function ProjectLayout3DViewer({
                 </button>
                 <button
                   onClick={() => setStatusFilter(statusFilter === 'booked' ? 'all' : 'booked')}
-                  className={`p-2 rounded-lg text-center border cursor-pointer ${
-                    statusFilter === 'booked' ? 'bg-amber-500 text-white' : 'bg-slate-800 text-amber-300 border-amber-500/40'
+                  className={`p-2 rounded-xl text-center border cursor-pointer ${
+                    statusFilter === 'booked' ? 'bg-amber-500 text-white' : 'bg-white/5 text-amber-300 border-amber-500/40'
                   }`}
                 >
                   <span className="text-base font-black block">{stats.booked}</span>
@@ -1120,40 +1180,40 @@ export function ProjectLayout3DViewer({
                 </button>
                 <button
                   onClick={() => setStatusFilter(statusFilter === 'sold' ? 'all' : 'sold')}
-                  className={`p-2 rounded-lg text-center border cursor-pointer ${
-                    statusFilter === 'sold' ? 'bg-red-500 text-white' : 'bg-slate-800 text-red-300 border-red-500/40'
+                  className={`p-2 rounded-xl text-center border cursor-pointer ${
+                    statusFilter === 'sold' ? 'bg-red-500 text-white' : 'bg-white/5 text-red-300 border-red-500/40'
                   }`}
                 >
                   <span className="text-base font-black block">{stats.sold}</span>
                   <span className="text-[10px] uppercase font-semibold">Sold</span>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 italic">
-                Tap a plot on the map to see its size, sides, facing and status.
+              <p className="text-[10px] text-[#a9b6ca] mt-1.5 italic">
+                Tap a plot on the map to see its size, sides, facing and status. Tap a box above to show only those plots.
               </p>
             </div>
 
             {/* Metadata Table */}
-            <div className="space-y-1.5 text-xs bg-slate-800/50 rounded-xl p-3 border border-slate-700/80">
-              <div className="flex justify-between py-0.5 border-b border-slate-700/60">
-                <span className="text-slate-400">Project</span>
-                <span className="font-semibold text-white">Vian Valley Township</span>
+            <div className="space-y-1.5 text-xs bg-white/5 rounded-xl p-3 border border-white/10">
+              <div className="flex justify-between py-0.5 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Project</span>
+                <span className="font-semibold text-white">Vian Valley – Earthstay Villas</span>
               </div>
-              <div className="flex justify-between py-0.5 border-b border-slate-700/60">
-                <span className="text-slate-400">Location</span>
+              <div className="flex justify-between py-0.5 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Location</span>
                 <span className="font-semibold text-white">Shabad, Southwest Hyderabad</span>
               </div>
-              <div className="flex justify-between py-0.5 border-b border-slate-700/60">
-                <span className="text-slate-400">Approvals</span>
-                <span className="font-semibold text-emerald-400">HMDA &amp; TS RERA Registered</span>
+              <div className="flex justify-between py-0.5 border-b border-white/10">
+                <span className="text-[#a9b6ca]">HMDA LP No.</span>
+                <span className="font-semibold text-emerald-400">Clear Title Sanctioned</span>
               </div>
-              <div className="flex justify-between py-0.5 border-b border-slate-700/60">
-                <span className="text-slate-400">Registration</span>
-                <span className="font-semibold text-white">Spot registration eligible</span>
+              <div className="flex justify-between py-0.5 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Registration</span>
+                <span className="font-semibold text-white">Spot registration</span>
               </div>
               <div className="flex justify-between py-0.5">
-                <span className="text-slate-400">Finance</span>
-                <span className="font-semibold text-white">Bank loan assistance</span>
+                <span className="text-[#a9b6ca]">Finance</span>
+                <span className="font-semibold text-white">Bank loans available</span>
               </div>
             </div>
           </div>
@@ -1162,18 +1222,18 @@ export function ProjectLayout3DViewer({
             href="https://maps.google.com/?q=Shabad,+Telangana"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs text-center flex items-center justify-center gap-1.5 transition-all mt-3"
+            className="w-full py-3 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs text-center flex items-center justify-center gap-1.5 transition-all mt-3 cursor-pointer shadow-lg"
           >
             <Navigation className="w-4 h-4" /> Get directions to the plot
           </a>
-        </div>
+        </aside>
       )}
 
-      {/* LEFT-SIDE CONTEXT DRAWER: MODE 2 (PLOT DETAILS) */}
+      {/* LEFT-SIDE ASIDE CARD: MODE 2 (PLOT DETAILS POPUP) */}
       {selectedPlot && (
-        <div className="absolute top-24 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-slate-900/95 border border-cyan-500/40 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+        <aside className="fixed top-20 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-[#0a1120]/95 border border-cyan-500/40 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200 pointer-events-auto">
           <div>
-            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-start justify-between pb-3 border-b border-white/10">
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-black text-white tracking-tight">
@@ -1191,51 +1251,49 @@ export function ProjectLayout3DViewer({
                     {selectedPlot.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">{selectedPlot.sector} • {project.projectName}</p>
+                <p className="text-xs text-[#a9b6ca] mt-0.5">{selectedPlot.sector} • {project.projectName}</p>
               </div>
               <button
                 onClick={() => setSelectedPlot(null)}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Metrics */}
             <div className="grid grid-cols-2 gap-2.5 mt-4">
-              <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block">Plot Area</span>
-                <span className="text-lg font-bold text-white block mt-0.5">{selectedPlot.areaSqYds} <span className="text-xs font-normal text-slate-300">Sq. Yds</span></span>
-                <span className="text-[11px] text-slate-400">({selectedPlot.areaSqFt} Sq. Ft.)</span>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <span className="text-[11px] font-semibold text-[#a9b6ca] uppercase tracking-wide block">Plot Area</span>
+                <span className="text-lg font-black text-white block mt-0.5">{selectedPlot.areaSqYds} <span className="text-xs font-normal text-slate-300">Sq. Yds</span></span>
+                <span className="text-[11px] text-[#a9b6ca]">({selectedPlot.areaSqFt} Sq. Ft.)</span>
               </div>
-              <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide block">Facing &amp; Vastu</span>
-                <span className="text-lg font-bold text-amber-400 block mt-0.5">{selectedPlot.facing}</span>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <span className="text-[11px] font-semibold text-[#a9b6ca] uppercase tracking-wide block">Facing &amp; Vastu</span>
+                <span className="text-lg font-black text-[#e9b95c] block mt-0.5">{selectedPlot.facing}</span>
                 <span className="text-[11px] text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> 100% Vastu</span>
               </div>
             </div>
 
-            {/* Spec List */}
-            <div className="mt-4 space-y-2 text-xs bg-slate-800/50 rounded-xl p-3.5 border border-slate-800">
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Dimensions</span>
+            <div className="mt-4 space-y-2 text-xs bg-white/5 rounded-xl p-3.5 border border-white/10">
+              <div className="flex justify-between py-1 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Dimensions</span>
                 <span className="font-semibold text-white">{selectedPlot.dimensions}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Road Width</span>
+              <div className="flex justify-between py-1 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Road Width</span>
                 <span className="font-semibold text-white">{selectedPlot.roadWidth}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Category</span>
+              <div className="flex justify-between py-1 border-b border-white/10">
+                <span className="text-[#a9b6ca]">Category</span>
                 <span className="font-semibold text-white">{selectedPlot.isCorner ? 'Premium Corner Plot' : 'Standard Residential Plot'}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-slate-400">Pricing</span>
-                <span className="font-semibold text-amber-400">Available on Request</span>
+                <span className="text-[#a9b6ca]">Pricing</span>
+                <span className="font-semibold text-[#e9b95c]">Available on Request</span>
               </div>
             </div>
 
-            <div className="mt-4 bg-slate-800/60 border border-cyan-500/30 rounded-xl p-3">
+            <div className="mt-4 bg-white/5 border border-cyan-500/30 rounded-xl p-3">
               <div className="flex items-center gap-2 text-cyan-400 font-semibold text-xs mb-1">
                 <ShieldCheck className="w-4 h-4 text-cyan-400" />
                 <span>HMDA &amp; RERA Sanctioned Boundary</span>
@@ -1250,12 +1308,12 @@ export function ProjectLayout3DViewer({
             {selectedPlot.status === 'available' ? (
               <a
                 href={`/projects/${project.slug}#book-visit`}
-                className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm text-center flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-[#e9b95c] hover:bg-[#d4a34b] text-[#1c1405] font-extrabold text-sm text-center flex items-center justify-center gap-2 shadow-lg cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" /> Request Quote for Plot #{selectedPlot.plotNumber}
               </a>
             ) : (
-              <div className="p-3 rounded-xl bg-slate-800 text-center text-xs text-slate-300 border border-slate-700">
+              <div className="p-3 rounded-xl bg-white/5 text-center text-xs text-slate-300 border border-white/10">
                 Plot #{selectedPlot.plotNumber} is <span className="font-bold text-red-400 uppercase">{selectedPlot.status}</span>. Only 9 open plots are currently available: <span className="text-emerald-400 font-bold">1309, 1301, 1245, 1246, 1247, 1253, 1284, 486, 698</span>.
               </div>
             )}
@@ -1271,23 +1329,23 @@ export function ProjectLayout3DViewer({
               <Phone className="w-4 h-4" /> Chat on WhatsApp for Plot #{selectedPlot.plotNumber}
             </a>
           </div>
-        </div>
+        </aside>
       )}
 
-      {/* LEFT-SIDE CONTEXT DRAWER: MODE 4 (NEARBY LOCATIONS - Image 3 Style) */}
+      {/* LEFT-SIDE ASIDE CARD: MODE 4 (NEARBY LOCATIONS - MapX Image 3 Style) */}
       {activeMode === 'nearby' && (
-        <div className="absolute top-24 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-slate-900/95 border border-purple-500/40 shadow-2xl rounded-2xl p-4 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+        <aside className="fixed top-20 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-[#0a1120]/95 border border-purple-500/40 shadow-2xl rounded-2xl p-4 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200 pointer-events-auto">
           <div>
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
               <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-purple-400" /> Nearby Growth Corridors
+                <Navigation className="w-4 h-4 text-purple-400" /> Nearby Growth Corridors
               </h3>
               <button onClick={() => setActiveMode('aerial')} className="text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-slate-400 mt-1 mb-3">
-              Tap any destination to swing the camera towards that highway corridor:
+            <p className="text-xs text-[#a9b6ca] mt-1 mb-3">
+              Tap any destination to swing the 3D camera along that highway corridor:
             </p>
             <div className="space-y-2">
               {project.landmarks.map((lm) => (
@@ -1301,34 +1359,34 @@ export function ProjectLayout3DViewer({
                   className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between ${
                     selectedLandmark?.id === lm.id
                       ? 'bg-purple-950/80 border-purple-400'
-                      : 'bg-slate-800/60 border-slate-700/60 hover:bg-slate-800'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10'
                   }`}
                 >
                   <div>
                     <h4 className="font-bold text-xs text-white flex items-center gap-1.5">{lm.name}</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{lm.subtitle}</p>
+                    <p className="text-[11px] text-[#a9b6ca] mt-0.5">{lm.subtitle}</p>
                     <span className="inline-block mt-1 text-[10px] font-semibold text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/30">
                       Direction: {lm.direction}
                     </span>
                   </div>
                   <div className="text-right shrink-0">
                     <span className="font-bold text-xs text-emerald-400 block">{lm.travelTime}</span>
-                    <span className="text-[10px] text-slate-400">{lm.distance}</span>
+                    <span className="text-[10px] text-[#a9b6ca]">{lm.distance}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </aside>
       )}
 
-      {/* LEFT-SIDE CONTEXT DRAWER: MODE 5 (ORR & RRR - Image 4 Style) */}
+      {/* LEFT-SIDE ASIDE CARD: MODE 5 (ORR & RRR - MapX Image 4 Style) */}
       {activeMode === 'orr-rrr' && (
-        <div className="absolute top-24 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-slate-900/95 border border-pink-500/40 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+        <aside className="fixed top-20 left-4 bottom-6 z-30 w-[92%] sm:w-[380px] bg-[#0a1120]/95 border border-pink-500/40 shadow-2xl rounded-2xl p-5 backdrop-blur-xl text-white flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200 pointer-events-auto">
           <div>
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-2 border-b border-white/10">
               <h3 className="font-black text-base text-white flex items-center gap-2">
-                <Compass className="w-5 h-5 text-pink-400" /> Strategic ORR &amp; RRR Alignment
+                <Navigation className="w-5 h-5 text-pink-400" /> Strategic ORR &amp; RRR Alignment
               </h3>
               <button onClick={() => setActiveMode('aerial')} className="text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-4 h-4" />
@@ -1356,9 +1414,9 @@ export function ProjectLayout3DViewer({
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700">
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
                 <span className="text-xs font-bold text-white block">Why Invest in this Corridor?</span>
-                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                <p className="text-[11px] text-[#a9b6ca] mt-1 leading-relaxed">
                   Vian Valley sits directly between ORR and RRR in Shabad—poised for exponential commercial growth adjacent to the Chandanvelly SEZ (Amazon &amp; Welspun).
                 </p>
               </div>
@@ -1367,17 +1425,22 @@ export function ProjectLayout3DViewer({
 
           <a
             href={`/projects/${project.slug}#book-visit`}
-            className="w-full py-3 px-4 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs text-center flex items-center justify-center gap-2 transition-all mt-4"
+            className="w-full py-3 px-4 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs text-center flex items-center justify-center gap-2 transition-all mt-4 cursor-pointer"
           >
             <Sparkles className="w-4 h-4" /> Book a Site Visit to Vian Valley
           </a>
-        </div>
+        </aside>
       )}
+
+      {/* FOOTER ATTRIBUTION (Exact MapX `#attr`) */}
+      <div className="fixed bottom-2 right-3 z-20 text-[8px] md:text-[9px] text-white/50 tracking-wider pointer-events-none bg-[#0a1120]/60 px-2 py-0.5 rounded backdrop-blur-sm">
+        Imagery © Esri, Maxar, Earthstar Geographics · Roads © OpenStreetMap
+      </div>
 
       {/* FLOATING HOVER TOOLTIP */}
       {hoveredPlot && tooltipPos && !selectedPlot && (
         <div
-          className="fixed pointer-events-none z-40 transform -translate-x-1/2 -translate-y-full mb-3 px-3 py-2 rounded-lg bg-slate-900/95 border border-cyan-400/60 text-white shadow-xl backdrop-blur-md"
+          className="fixed pointer-events-none z-40 transform -translate-x-1/2 -translate-y-full mb-3 px-3 py-2 rounded-lg bg-[#0a1120]/95 border border-cyan-400/60 text-white shadow-xl backdrop-blur-md"
           style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
         >
           <div className="flex items-center gap-2">
