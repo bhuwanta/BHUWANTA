@@ -11,19 +11,12 @@ import {
 } from '@/data/projects3d/types'
 import {
   X,
-  Maximize2,
-  Minimize2,
   CheckCircle2,
   Phone,
   Sparkles,
   ShieldCheck,
   ArrowLeft,
   Search,
-  Volume2,
-  VolumeX,
-  Sun,
-  Moon,
-  RotateCw,
   Navigation,
   Download,
   Share2,
@@ -87,10 +80,6 @@ export function ProjectLayout3DViewer({
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark3D | null>(null)
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'booked' | 'sold'>('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isAutoRotate, setIsAutoRotate] = useState(false)
-  const [isEveningMode, setIsEveningMode] = useState(false)
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [compassAngle, setCompassAngle] = useState(0)
   const [tourStarted, setTourStarted] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -625,8 +614,7 @@ export function ProjectLayout3DViewer({
       const azimuth = controls.getAzimuthalAngle()
       setCompassAngle((azimuth * 180) / Math.PI)
 
-      controls.autoRotate = isAutoRotate
-      controls.autoRotateSpeed = 1.2
+      controls.autoRotate = false
       controls.update()
       renderer.render(scene, camera)
     }
@@ -650,27 +638,7 @@ export function ProjectLayout3DViewer({
       canvas.removeEventListener('mouseup', onPointerUp)
       renderer.dispose()
     }
-  }, [project, animateCameraTo, initialPlotId, isAutoRotate])
-
-  // Lighting mode
-  useEffect(() => {
-    if (!directionalLightRef.current || !ambientLightRef.current || !sceneRef.current) return
-    if (isEveningMode) {
-      sceneRef.current.background = new THREE.Color(0x1a0f28)
-      sceneRef.current.fog = new THREE.FogExp2(0x1a0f28, 0.0025)
-      directionalLightRef.current.color.setHex(0xf97316)
-      directionalLightRef.current.intensity = 1.1
-      ambientLightRef.current.color.setHex(0xc084fc)
-      ambientLightRef.current.intensity = 0.65
-    } else {
-      sceneRef.current.background = new THREE.Color(0x0a1120)
-      sceneRef.current.fog = new THREE.FogExp2(0x0a1120, 0.0022)
-      directionalLightRef.current.color.setHex(0xfffbeb)
-      directionalLightRef.current.intensity = 1.4
-      ambientLightRef.current.color.setHex(0xffffff)
-      ambientLightRef.current.intensity = 0.95
-    }
-  }, [isEveningMode])
+  }, [project, animateCameraTo, initialPlotId])
 
   // Mode Transition Handler
   const handleSwitchMode = (mode: ViewerMode) => {
@@ -812,16 +780,6 @@ export function ProjectLayout3DViewer({
     })
   }, [project.plots, selectedPlot, hoveredPlot, statusFilter])
 
-  // Fullscreen
-  const handleToggleFullscreen = () => {
-    if (!containerRef.current) return
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {})
-    } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {})
-    }
-  }
-
   return (
     <div
       ref={containerRef}
@@ -926,54 +884,17 @@ export function ProjectLayout3DViewer({
           </form>
         </div>
 
-        {/* Top-Right Quick Action Toolbar (Matching MapX `#tb-btns`) */}
-        <div className="flex items-center gap-1 md:gap-1.5 pointer-events-auto">
-          <button
-            onClick={() => setIsAutoRotate(!isAutoRotate)}
-            title="Auto rotate"
-            className={`h-8 px-2.5 rounded-lg text-xs font-semibold flex items-center gap-1 border transition-colors cursor-pointer ${
-              isAutoRotate ? 'bg-[#e9b95c] text-[#1c1405] border-[#e9b95c]' : 'bg-white/10 text-white border-white/15 hover:bg-white/15'
-            }`}
-          >
-            <RotateCw className={`w-3.5 h-3.5 ${isAutoRotate ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Auto</span>
-          </button>
-
-          <button
-            onClick={() => setIsMusicPlaying(!isMusicPlaying)}
-            title="Music"
-            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
-          >
-            {isMusicPlaying ? <Volume2 className="w-3.5 h-3.5 text-[#e9b95c]" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
-            <span className="hidden sm:inline">{isMusicPlaying ? 'Music On' : 'Music Off'}</span>
-          </button>
-
-          <button
-            onClick={() => setIsEveningMode(!isEveningMode)}
-            title="Lighting mode"
-            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
-          >
-            {isEveningMode ? <Moon className="w-3.5 h-3.5 text-amber-400" /> : <Sun className="w-3.5 h-3.5 text-amber-300" />}
-            <span className="hidden sm:inline">{isEveningMode ? 'Evening' : 'Morning'}</span>
-          </button>
-
-          <a
-            href="https://maps.google.com/?q=Shabad,+Telangana"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Directions"
-            className="h-8 px-2.5 rounded-lg text-xs font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center gap-1 cursor-pointer"
-          >
-            <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">Directions</span>
-          </a>
-
-          <button
-            onClick={handleToggleFullscreen}
-            className="w-8 h-8 rounded-lg bg-white/10 text-white border border-white/15 hover:bg-white/15 flex items-center justify-center cursor-pointer"
-          >
-            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          </button>
+        {/* Right Action / Close button */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors border border-white/15"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </header>
 
