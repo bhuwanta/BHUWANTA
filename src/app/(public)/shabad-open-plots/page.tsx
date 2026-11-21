@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { TrustStrip } from '@/components/ui/TrustStrip'
 import { cache } from 'react'
-import { MapPin, ArrowRight, FileCheck2, IndianRupee, CalendarCheck } from 'lucide-react'
+import { MapPin, ArrowRight, FileCheck2, IndianRupee, CalendarCheck, Box } from 'lucide-react'
 import { sanityFetch, projectByNameQuery } from '@/lib/sanity'
 import { getSiteUrl } from '@/lib/site-url'
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildRealEstateListingSchema } from '@/components/seo/JsonLd'
@@ -97,6 +97,14 @@ export default async function ShabadOpenPlotsPage() {
             <p className="text-sm text-white/70 mt-2">Get a quote for your preferred size, facing and phase.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/projects/vian-vally/3d"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-brand-primary to-brand-deep text-white border border-brand-gold/60 font-bold hover:shadow-xl hover:border-brand-gold transition-all shadow-md"
+            >
+              <Box className="w-5 h-5 text-brand-gold animate-pulse" /> View 3D Layout of Vian Valley
+            </Link>
             <Link href="#book-visit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl btn-outline">
               Request Price &amp; Plot Details
             </Link>
