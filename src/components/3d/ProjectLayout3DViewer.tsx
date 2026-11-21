@@ -1004,7 +1004,7 @@ export function ProjectLayout3DViewer({
         {/* 6 is skipped as requested */}
 
         <a
-          href="https://maps.google.com/?q=Shabad,+Telangana"
+          href={project.googleMapsUrl || 'https://maps.app.goo.gl/PxP6owF57ouPdg966'}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full py-2 px-3 rounded-full text-xs font-bold text-left flex items-center gap-2.5 bg-[#0a1120]/85 hover:bg-[#0a1120] text-white border border-white/15 transition-all cursor-pointer shadow-xl backdrop-blur-md"
@@ -1140,7 +1140,7 @@ export function ProjectLayout3DViewer({
           </div>
 
           <a
-            href="https://maps.google.com/?q=Shabad,+Telangana"
+            href={project.googleMapsUrl || 'https://maps.app.goo.gl/PxP6owF57ouPdg966'}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs text-center flex items-center justify-center gap-1.5 transition-all mt-3 cursor-pointer shadow-lg"

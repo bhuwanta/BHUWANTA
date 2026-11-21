@@ -53,6 +53,7 @@ export interface Project3DData {
   mortgagePlots: number
   ratePerSqYd: number
   pdfLayoutUrl: string
+  googleMapsUrl?: string
   sectors: SectorView3D[]
   landmarks: Landmark3D[]
   plots: Plot3D[]

@@ -476,6 +476,7 @@ export const VIAN_VALLEY_3D_PROJECT: Project3DData = {
   mortgagePlots: 0,
   ratePerSqYd: 0,
   pdfLayoutUrl: '/documents/vian_valley_shabad_layout.pdf',
+  googleMapsUrl: 'https://maps.app.goo.gl/PxP6owF57ouPdg966',
   sectors: VIAN_VALLEY_SECTORS,
   landmarks: VIAN_VALLEY_LANDMARKS,
   plots: allPlots,
