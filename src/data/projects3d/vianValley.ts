@@ -1,41 +1,30 @@
 import { Project3DData, Plot3D, Landmark3D, SectorView3D } from './types'
 
-// Coordinate transformation:
-// Layout image dimensions: 1385 x 1940
-// 3D Ground plane dimensions: 171.34 width x 240 height
-function pxTo3D(pxX: number, pxY: number): [number, number, number] {
-  const u = pxX / 1385
-  const v = pxY / 1940
-  const x = Number(((u - 0.5) * 171.34).toFixed(2))
+// Transformation from layout pixel space to 3D satellite world space:
+// The layout is mapped onto the 2048x2048 satellite texture at left: 374, top: 114, width: 1300, height: 1820
+// The 3D satellite ground plane is 240 x 240 world units.
+function pxToSatellite3D(layoutPxX: number, layoutPxY: number): [number, number, number] {
+  const satPxX = 374 + (layoutPxX / 1385) * 1300
+  const satPxY = 114 + (layoutPxY / 1940) * 1820
+  const u = satPxX / 2048
+  const v = satPxY / 2048
+  const x = Number(((u - 0.5) * 240).toFixed(2))
   const z = Number(((v - 0.5) * 240).toFixed(2))
-  return [x, 0.35, z]
+  return [x, 0.45, z]
 }
-
-// Available plots explicitly requested by user:
-// 1309, 1301, 1245, 1246, 1247, 1253, 1284, 486, 698
-const AVAILABLE_PLOT_NUMS = new Set([
-  '1309',
-  '1301',
-  '1245',
-  '1246',
-  '1247',
-  '1253',
-  '1284',
-  '486',
-  '698',
-])
 
 function generateAllPlots(): Plot3D[] {
   const plots: Plot3D[] = []
 
-  // 1. Explicit definitions for the 9 AVAILABLE plots with real layout coordinates
+  // 1. Exactly the 9 AVAILABLE plots requested by user:
+  // 1309, 1301, 1245, 1246, 1247, 1253, 1284, 486, 698
   const availablePlotsData = [
     {
       num: '1309',
       px: 1160,
       py: 1070,
-      w: 4.0,
-      d: 5.5,
+      w: 4.2,
+      d: 5.6,
       facing: 'North' as const,
       sqYds: 201.6,
       dims: "33' × 55'",
@@ -47,8 +36,8 @@ function generateAllPlots(): Plot3D[] {
       num: '1301',
       px: 1160,
       py: 965,
-      w: 4.0,
-      d: 5.5,
+      w: 4.2,
+      d: 5.6,
       facing: 'North' as const,
       sqYds: 201.6,
       dims: "33' × 55'",
@@ -60,7 +49,7 @@ function generateAllPlots(): Plot3D[] {
       num: '1245',
       px: 1255,
       py: 1050,
-      w: 4.5,
+      w: 4.6,
       d: 6.2,
       facing: 'East' as const,
       sqYds: 240,
@@ -73,7 +62,7 @@ function generateAllPlots(): Plot3D[] {
       num: '1246',
       px: 1255,
       py: 1068,
-      w: 4.5,
+      w: 4.6,
       d: 6.2,
       facing: 'East' as const,
       sqYds: 240,
@@ -99,7 +88,7 @@ function generateAllPlots(): Plot3D[] {
       num: '1253',
       px: 1235,
       py: 1135,
-      w: 4.2,
+      w: 4.4,
       d: 6.0,
       facing: 'North' as const,
       sqYds: 220,
@@ -112,7 +101,7 @@ function generateAllPlots(): Plot3D[] {
       num: '1284',
       px: 1195,
       py: 1135,
-      w: 4.2,
+      w: 4.4,
       d: 6.0,
       facing: 'South' as const,
       sqYds: 220,
@@ -125,8 +114,8 @@ function generateAllPlots(): Plot3D[] {
       num: '486',
       px: 1010,
       py: 725,
-      w: 3.8,
-      d: 5.2,
+      w: 4.0,
+      d: 5.4,
       facing: 'West' as const,
       sqYds: 167,
       dims: "30' × 50'",
@@ -138,8 +127,8 @@ function generateAllPlots(): Plot3D[] {
       num: '698',
       px: 930,
       py: 920,
-      w: 4.5,
-      d: 6.5,
+      w: 4.8,
+      d: 6.6,
       facing: 'East' as const,
       sqYds: 260,
       dims: "36' × 65'",
@@ -150,7 +139,7 @@ function generateAllPlots(): Plot3D[] {
   ]
 
   availablePlotsData.forEach((item) => {
-    const pos = pxTo3D(item.px, item.py)
+    const pos = pxToSatellite3D(item.px, item.py)
     plots.push({
       id: `plot-${item.num}`,
       plotNumber: item.num,
@@ -165,13 +154,12 @@ function generateAllPlots(): Plot3D[] {
       totalPrice: 0,
       isCorner: item.isCorner,
       isMortgage: false,
-      position: [pos[0], 0.6, pos[2]],
-      size: [item.w, 0.9, item.d],
+      position: [pos[0], 0.7, pos[2]],
+      size: [item.w, 1.0, item.d],
     })
   })
 
-  // 2. Add realistic sold plots covering Phase 1, Phase 2, and Jubilee Central
-  // Phase 1 - Resort Block Surrounding Plots (all sold)
+  // 2. Realistic sold plots covering Phase 1, Phase 2, and Jubilee Central
   const resortSurrounding = [
     { num: '1248', px: 1270, py: 1130, w: 4.5, d: 5.5, f: 'East' as const },
     { num: '1249', px: 1270, py: 1160, w: 4.5, d: 5.5, f: 'East' as const },
@@ -196,7 +184,7 @@ function generateAllPlots(): Plot3D[] {
   ]
 
   resortSurrounding.forEach((item) => {
-    const pos = pxTo3D(item.px, item.py)
+    const pos = pxToSatellite3D(item.px, item.py)
     plots.push({
       id: `plot-${item.num}`,
       plotNumber: item.num,
@@ -212,11 +200,11 @@ function generateAllPlots(): Plot3D[] {
       isCorner: false,
       isMortgage: false,
       position: [pos[0], 0.25, pos[2]],
-      size: [item.w, 0.4, item.d],
+      size: [item.w, 0.35, item.d],
     })
   })
 
-  // Phase 1 - Central Blocks (Plots 400-500 series, 600-700 series, 800-1100 series)
+  // Phase 1 Central Grid (Sold)
   const phase1Grid = [
     { num: '484', px: 1010, py: 690, w: 3.8, d: 5.2, f: 'West' as const },
     { num: '485', px: 1010, py: 708, w: 3.8, d: 5.2, f: 'West' as const },
@@ -252,7 +240,7 @@ function generateAllPlots(): Plot3D[] {
   ]
 
   phase1Grid.forEach((item) => {
-    const pos = pxTo3D(item.px, item.py)
+    const pos = pxToSatellite3D(item.px, item.py)
     plots.push({
       id: `plot-${item.num}`,
       plotNumber: item.num,
@@ -268,11 +256,11 @@ function generateAllPlots(): Plot3D[] {
       isCorner: false,
       isMortgage: false,
       position: [pos[0], 0.25, pos[2]],
-      size: [item.w, 0.4, item.d],
+      size: [item.w, 0.35, item.d],
     })
   })
 
-  // Phase 2 Plots (All sold)
+  // Phase 2 Plots (Sold)
   const phase2Grid = [
     { num: '201', px: 620, py: 1000, w: 4.0, d: 5.5, f: 'North' as const },
     { num: '202', px: 645, py: 1000, w: 4.0, d: 5.5, f: 'North' as const },
@@ -295,7 +283,7 @@ function generateAllPlots(): Plot3D[] {
   ]
 
   phase2Grid.forEach((item) => {
-    const pos = pxTo3D(item.px, item.py)
+    const pos = pxToSatellite3D(item.px, item.py)
     plots.push({
       id: `plot-${item.num}`,
       plotNumber: item.num,
@@ -311,11 +299,11 @@ function generateAllPlots(): Plot3D[] {
       isCorner: false,
       isMortgage: false,
       position: [pos[0], 0.25, pos[2]],
-      size: [item.w, 0.4, item.d],
+      size: [item.w, 0.35, item.d],
     })
   })
 
-  // Jubilee Central Plots (Near Mini Tank Bund - All sold)
+  // Jubilee Central Plots (Near lake - Sold)
   const jcGrid = [
     { num: '301', px: 220, py: 1600, w: 4.2, d: 6.0, f: 'North' as const },
     { num: '302', px: 245, py: 1600, w: 4.2, d: 6.0, f: 'North' as const },
@@ -336,7 +324,7 @@ function generateAllPlots(): Plot3D[] {
   ]
 
   jcGrid.forEach((item) => {
-    const pos = pxTo3D(item.px, item.py)
+    const pos = pxToSatellite3D(item.px, item.py)
     plots.push({
       id: `plot-${item.num}`,
       plotNumber: item.num,
@@ -352,7 +340,7 @@ function generateAllPlots(): Plot3D[] {
       isCorner: false,
       isMortgage: false,
       position: [pos[0], 0.25, pos[2]],
-      size: [item.w, 0.4, item.d],
+      size: [item.w, 0.35, item.d],
     })
   })
 
@@ -373,7 +361,7 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     distance: '6.5 km',
     travelTime: '10 Mins',
     direction: 'North-East',
-    position: [20, 6, -115],
+    position: [78, 6, -65],
     type: 'sez',
   },
   {
@@ -383,7 +371,7 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     distance: 'Direct Access',
     travelTime: 'Adjacent',
     direction: 'Main Corridor',
-    position: [-38, 4, -40],
+    position: [-24, 4, -40],
     type: 'highway',
   },
   {
@@ -393,7 +381,7 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     distance: '2.0 km',
     travelTime: '3 Mins',
     direction: 'West',
-    position: [-72, 4, 30],
+    position: [-85, 4, 35],
     type: 'civic',
   },
   {
@@ -403,17 +391,17 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     distance: '1.2 km',
     travelTime: '2 Mins',
     direction: 'South-West',
-    position: [-58, 4, 45],
+    position: [-65, 4, 55],
     type: 'education',
   },
   {
     id: 'mini-tank-bund',
-    name: 'Mini Tank Bund',
-    subtitle: 'Scenic Waterbody & Eco-Park Tourism Spot',
+    name: 'Mini Tank Bund Lake',
+    subtitle: 'Scenic Waterbody & Eco Tourism Spot',
     distance: 'Walking Distance',
     travelTime: 'Adjacent',
     direction: 'South-West',
-    position: [-78, 4, 90],
+    position: [-88, 4, 98],
     type: 'lake',
   },
   {
@@ -423,7 +411,7 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     distance: '32 km',
     travelTime: '35 Mins',
     direction: 'East',
-    position: [88, 6, 15],
+    position: [100, 6, 20],
     type: 'airport',
   },
   {
@@ -437,13 +425,13 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
     type: 'highway',
   },
   {
-    id: 'towards-chevella',
-    name: 'Towards Chevella & Srirampur SEZ',
-    subtitle: 'Future Electronics & IT Corridor',
-    distance: '12 km',
+    id: 'microsoft-dc',
+    name: 'Microsoft Data Center',
+    subtitle: 'Upcoming Hyperscale Cloud Infrastructure',
+    distance: '14 km',
     travelTime: '15 Mins',
-    direction: 'North',
-    position: [-40, 6, -118],
+    direction: 'North-East',
+    position: [65, 6, -95],
     type: 'sez',
   },
 ]
@@ -451,33 +439,27 @@ export const VIAN_VALLEY_LANDMARKS: Landmark3D[] = [
 export const VIAN_VALLEY_SECTORS: SectorView3D[] = [
   {
     id: 'overview',
-    name: 'Masterplan Overview',
-    cameraPosition: [0, 115, 125],
-    target: [0, 0, 0],
+    name: 'Aerial 360° View',
+    cameraPosition: [15, 110, 130],
+    target: [25, 0, 10],
   },
   {
     id: 'phase-1',
     name: 'Vian Valley Phase 1',
-    cameraPosition: [55, 45, 30],
-    target: [50, 0, 10],
+    cameraPosition: [55, 45, 35],
+    target: [50, 0, 12],
   },
   {
     id: 'phase-2',
     name: 'Vian Valley Phase 2',
-    cameraPosition: [15, 45, 30],
-    target: [15, 0, 10],
+    cameraPosition: [10, 42, 35],
+    target: [8, 0, 15],
   },
   {
     id: 'jubilee-central',
     name: 'Vian Jubilee Central',
-    cameraPosition: [-40, 45, 95],
-    target: [-45, 0, 85],
-  },
-  {
-    id: 'resort-club',
-    name: '30,000 Sq.Ft Resort Club',
-    cameraPosition: [75, 35, 15],
-    target: [65, 0, 10],
+    cameraPosition: [-45, 45, 105],
+    target: [-50, 0, 95],
   },
 ]
 
