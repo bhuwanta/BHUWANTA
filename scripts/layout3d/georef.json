@@ -1,0 +1,56 @@
+{
+  "_comment": "Brochure PDF points -> global Web-Mercator pixel coordinates at `zoom`, fitted with register.py against satellite imagery (Nov 2026). VV2 is not built yet; it shares VV1's drawing frame (its link road to VV1 matches the track on the ground).",
+  "zoom": 17,
+  "ventures": {
+    "VV1": {
+      "score": 0.367,
+      "affine": [
+        [
+          1.246481,
+          0.093723,
+          24059368.335839
+        ],
+        [
+          -0.093723,
+          1.246481,
+          15151704.737021
+        ]
+      ]
+    },
+    "VV2": {
+      "sameAs": "VV1"
+    },
+    "JC": {
+      "score": 0.643,
+      "affine": [
+        [
+          0.954999,
+          -0.001667,
+          24059366.523144
+        ],
+        [
+          0.001667,
+          0.954999,
+          15152243.484806
+        ]
+      ]
+    }
+  },
+  "osm": "data/shabad_osm.json",
+  "keepRoads": [
+    [
+      540,
+      972,
+      1100,
+      1002
+    ]
+  ],
+  "_keepRoads": "Brochure PDF rectangles (VV1 frame) of roads kept although they are away from plots: the VV2 -> VV1 link road (a track exists on the ground).",
+  "clubhouse": [
+    1132,
+    758,
+    1140,
+    815
+  ],
+  "contextMarginUnits": 950
+}
