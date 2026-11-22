@@ -226,16 +226,19 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
         if (!e || getComputedStyle(e).display === 'none') return null
         return e.getBoundingClientRect()
       }
-      const top = el('top'), right = el('right'), bottom = el('bottom')
+      const top = el('top'), right = el('right'), bottom = el('bottom'), sheet = el('sheet')
       // phone layout: the tool dock sits on the right edge (on desktop it is a small bottom bar)
       const tools = bottom ? el('tools') : null
       // the top bar is a full-width strip; its real height is its content
       const topBottom = top ? Math.max(...[...root.querySelectorAll<HTMLElement>('[data-inset="top"] [data-ui-chrome]')].map((c) => c.getBoundingClientRect().bottom), top.top) : box.top
+      // an open card/panel also covers the map: bottom sheet on phones, left column on desktop
+      const sheetBottom = bottom && sheet ? box.bottom - sheet.top + 6 : 0
+      const sheetLeft = !bottom && sheet ? sheet.right - box.left + 8 : 0
       scene.setInsets({
         top: topBottom - box.top + 6,
         right: right ? box.right - right.left + 8 : tools ? box.right - tools.left + 6 : 0,
-        bottom: bottom ? box.bottom - bottom.top + 6 : 0,
-        left: 0,
+        bottom: Math.max(bottom ? box.bottom - bottom.top + 6 : 0, sheetBottom),
+        left: sheetLeft,
       })
     }
     measure()
@@ -243,8 +246,12 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
     ro.observe(root)
     const top = root.querySelector('[data-inset="top"]')
     if (top) ro.observe(top)
+    const sheetEl = root.querySelector('[data-inset="sheet"]')
+    if (sheetEl) ro.observe(sheetEl)
     return () => ro.disconnect()
-  }, [ready, sceneKey])
+    // re-measure when a card/panel opens or closes; this runs before the selection effect below,
+    // so the camera frames the plot in the space left visible by the card
+  }, [ready, sceneKey, selectedId, panel])
 
   // ── plot colours ───────────────────────────────────────
   useEffect(() => {
@@ -311,7 +318,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
         if (!el) continue
         const c = centreOf(p)
         // always on screen from any zoom (only hidden up close, where the green plot shows its own number)
-        items.push({ el, x: c.x, y: c.y, lift: 3, priority: 100, hideNear: 230, sticky: true })
+        items.push({ el, x: c.x, y: c.y, lift: 3, priority: 100, hideNear: 480, sticky: true })
       }
     } else if (region) {
       const pin = (key: string, lat: number, lon: number, priority: number, lift = 0) => {
@@ -780,7 +787,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* Sold / booked plot: just the status, nothing more */}
       {showSoldCard && selected && selectedStatus && (
-        <div data-ui-chrome className={`absolute left-1/2 ${ABOVE_STRIP} z-40 -translate-x-1/2 desk:bottom-auto desk:left-4 desk:top-24 desk:translate-x-0`}>
+        <div data-ui-chrome data-inset="sheet" className={`absolute left-1/2 ${ABOVE_STRIP} z-40 -translate-x-1/2 desk:bottom-auto desk:left-4 desk:top-24 desk:translate-x-0`}>
           <div className={`flex items-center gap-3 rounded-2xl py-2.5 pl-4 pr-2 ${GLASS}`}>
             <span className="h-3 w-3 rounded-full" style={{ background: STATUS_COLORS[selectedStatus] }} />
             <span className="whitespace-nowrap text-base font-extrabold">
@@ -795,7 +802,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* Available plot: full details */}
       {showPlotCard && selected && (
-        <aside data-ui-chrome className={drawerCls}>
+        <aside data-ui-chrome data-inset="sheet" className={drawerCls}>
           <PanelHead kicker={ventureName(selected.v)} title={`Plot ${selected.n}`} onClose={() => setSelectedId(null)} />
           <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-extrabold text-emerald-400">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -838,7 +845,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* Plot details (no plot chosen yet): available plots */}
       {showPlotPanel && (
-        <aside data-ui-chrome className={drawerCls}>
+        <aside data-ui-chrome data-inset="sheet" className={drawerCls}>
           <PanelHead kicker="Plot details" title="Tap any plot" onClose={() => setPanel(null)} />
           <p className="mt-2 text-sm text-slate-300">Tap a plot on the map or search its number. Plots open for booking right now:</p>
           <div className="mt-4 grid grid-cols-3 gap-2">
@@ -856,7 +863,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* Project details */}
       {panel === 'project' && !selected && (
-        <aside data-ui-chrome className={drawerCls}>
+        <aside data-ui-chrome data-inset="sheet" className={drawerCls}>
           <PanelHead kicker={project.location} title={project.projectName} onClose={() => setPanel(null)} />
           {project.images?.[0] && (
             // eslint-disable-next-line @next/next/no-img-element -- remote CMS image inside a client-only overlay
@@ -897,7 +904,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* Nearby locations: project highlights + connectivity */}
       {panel === 'nearby' && (
-        <aside data-ui-chrome className={drawerCls}>
+        <aside data-ui-chrome data-inset="sheet" className={drawerCls}>
           <PanelHead kicker="Nearby locations" title="Project highlights" onClose={() => setPanel(null)} />
           {project.highlights && project.highlights.length > 0 && (
             <ul className="mt-3 grid gap-1.5">
@@ -933,7 +940,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
 
       {/* ORR & RRR */}
       {panel === 'rings' && region && (
-        <aside data-ui-chrome className={drawerCls}>
+        <aside data-ui-chrome data-inset="sheet" className={drawerCls}>
           <PanelHead kicker="Connectivity" title="ORR & RRR" onClose={() => setPanel(null)} />
           <div className="mt-4 grid gap-2">
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
