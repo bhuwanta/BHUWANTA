@@ -652,7 +652,7 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
       </div>
 
       {/* ───────────── Main menu: numbered list (desktop) / strip (phone) ───────────── */}
-      <nav data-ui-chrome data-inset="right" aria-label="Layout views" className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-30 hidden w-60 flex-col gap-2 desk:flex">
+      <nav data-ui-chrome data-inset="right" aria-label="Layout views" className="absolute right-4 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-30 hidden w-60 flex-col gap-2 desk:flex">
         {MENU.map((m, i) => (
           <MenuPill key={m.key} n={i + 1} label={m.label} color={m.color} active={menu === m.key} onClick={() => onMenu(m.key)} />
         ))}
@@ -994,7 +994,11 @@ export function LayoutTwinViewer({ project, backHref = '/projects/vian-vally' }:
       )}
 
       {download && (
-        <DownloadPopup isOpen onClose={() => setDownload(null)} urls={download.urls} projectName={project.projectName} documentType={download.documentType} />
+        // The 3D page lives outside the public layout; this scope gives the popup the site theme
+        // (gold buttons, title styles) without adding a box: `contents` renders no element.
+        <div className="public-site contents">
+          <DownloadPopup isOpen onClose={() => setDownload(null)} urls={download.urls} projectName={project.projectName} documentType={download.documentType} />
+        </div>
       )}
     </div>
   )

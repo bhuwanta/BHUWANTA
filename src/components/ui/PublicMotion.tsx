@@ -33,6 +33,8 @@ export function PublicMotion() {
         )
           return
         if (element.parentElement?.closest('[data-reveal]')) return
+        // Leave late-hydrating regions alone until React has hydrated them (see ProjectsDirectory)
+        if (element.closest('[data-hydration-gate]:not([data-hydrated])')) return
         tracked.add(element)
         // Do not hide visible content on hydration, fragment navigation or filter updates.
         if (element.getBoundingClientRect().top < window.innerHeight * 0.95)
@@ -98,7 +100,7 @@ export function PublicMotion() {
       )
       scheduleCollect()
       mutation = new MutationObserver(scheduleCollect)
-      mutation.observe(main, { childList: true, subtree: true })
+      mutation.observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-hydrated'] })
       update()
     }
     configure()

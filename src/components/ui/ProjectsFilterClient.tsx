@@ -105,6 +105,12 @@ export function ProjectsDirectory({
         ? (requestedCategory as string)
         : 'all'
   const filterRef = useRef<HTMLDivElement>(null)
+
+  // This list hydrates late (it sits in a Suspense boundary). Until it has, PublicMotion must not
+  // touch its DOM, or React reports a hydration mismatch. Effects only run after hydration.
+  useEffect(() => {
+    filterRef.current?.setAttribute('data-hydrated', '')
+  }, [])
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; projectName: string; projectSlug?: string; documentType: string } | null>(null)
 
   // Follow the param when it changes (clicking a second homepage card, or
@@ -162,7 +168,7 @@ export function ProjectsDirectory({
     : filterCategories.filter(c => c.id === activeFilter)
 
   return (
-    <div ref={filterRef} className="project-directory">
+    <div ref={filterRef} className="project-directory" data-hydration-gate>
       <div className="bg-white border-b border-brand-border py-4 shadow-sm z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="area-filters flex flex-wrap lg:flex-nowrap items-center justify-center gap-2.5 w-full">
