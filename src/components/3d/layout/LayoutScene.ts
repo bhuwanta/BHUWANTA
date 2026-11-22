@@ -5,6 +5,7 @@ import { latLonToWorld, type LayoutDataset, type LayoutPlot, type LandUseKind, t
 import { RegionLayers } from './region'
 import { buildVegetation } from './vegetation'
 import { Traffic } from './traffic'
+import { TouchGestures } from './touch'
 
 /**
  * Framework-free three.js engine for the layout twin.
@@ -107,6 +108,8 @@ export class LayoutScene {
   private overlay: OverlayItem[] = []
   private overlaySizes = new WeakMap<HTMLElement, { w: number; h: number }>()
   private far = false
+  /** last stacking slot of each sticky pin, so crowded pins don't reshuffle while the map moves */
+  private slotMemory = new WeakMap<HTMLElement, number[]>()
   private idIndex = new Map<string, number>()
   private tmpV = new THREE.Vector3()
   private traffic: Traffic | null = null
@@ -118,8 +121,13 @@ export class LayoutScene {
   private siteFog!: THREE.Fog
   private rotateAfterFly = false
   private groundMesh: THREE.Mesh | null = null
+  private touch!: TouchGestures
   /** screen space covered by UI (px); the 3D view is centred in what remains */
   private insets = { top: 0, right: 0, bottom: 0, left: 0 }
+  /** what the projection uses right now: eases towards `insets` so the view glides when a card opens */
+  private viewInsets = { top: 0, right: 0, bottom: 0, left: 0 }
+  private insetsMeasured = false
+  private reducedMotion = false
 
   constructor(
     private container: HTMLElement,
@@ -129,6 +137,7 @@ export class LayoutScene {
     opts: { quality?: Quality; reducedMotion?: boolean } = {}
   ) {
     this.quality = opts.quality ?? 'high'
+    this.reducedMotion = opts.reducedMotion ?? false
     const low = this.quality === 'low'
     // Origin = centre of all plots, so the camera orbits the ventures
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
@@ -183,6 +192,23 @@ export class LayoutScene {
       this.controls.autoRotate = false
     })
     this.controls.autoRotateSpeed = 0.55
+    // Phones & tablets: map-style touch gestures (MapControls keeps mouse / trackpad)
+    this.touch = new TouchGestures(container, canvas, this.camera, this.controls, {
+      onStart: () => {
+        this.fly = null
+        this.rotateAfterFly = false
+        this.controls.autoRotate = false
+      },
+      onTap: (x, y) => {
+        const i = this.pickAt(x, y)
+        this.cb.onSelect(i >= 0 ? this.data.plots[i].id : null)
+      },
+      onDoubleTap: (x, y) => this.zoomTowards(x, y, 0.5),
+      minPolar: 0.001,
+      maxPolar: () => this.controls.maxPolarAngle,
+      minDistance: this.controls.minDistance,
+      maxDistance: () => this.controls.maxDistance,
+    })
 
     this.buildLights(maxX - minX, maxY - minY, low)
     this.buildGround(bounds)
@@ -648,20 +674,44 @@ export class LayoutScene {
     const next = { top: r(insets.top), right: r(insets.right), bottom: r(insets.bottom), left: r(insets.left) }
     if (JSON.stringify(next) === JSON.stringify(this.insets)) return
     this.insets = next
+    // first measurement (and reduced motion): apply at once; afterwards the loop eases the shift
+    if (!this.insetsMeasured || this.reducedMotion) {
+      this.insetsMeasured = true
+      this.viewInsets = { ...next }
+      this.applyView()
+    }
+  }
+
+  /** Ease the projection offset towards the measured insets (called every frame). */
+  private animateInsets(dt: number) {
+    const v = this.viewInsets, t = this.insets
+    if (v.top === t.top && v.right === t.right && v.bottom === t.bottom && v.left === t.left) return
+    const k = 1 - Math.exp(-dt * 11)
+    let done = true
+    for (const side of ['top', 'right', 'bottom', 'left'] as const) {
+      v[side] += (t[side] - v[side]) * k
+      if (Math.abs(t[side] - v[side]) < 0.5) v[side] = t[side]
+      else done = false
+    }
+    if (done) this.viewInsets = { ...t }
     this.applyView()
   }
 
-  /** Off-centre projection: the virtual frame is widened so its centre lands in the free area. */
   private applyView() {
+    this.applyViewTo(this.camera, this.viewInsets)
+  }
+
+  /** Off-centre projection: the virtual frame is widened so its centre lands in the free area. */
+  private applyViewTo(cam: THREE.PerspectiveCamera, insets: { top: number; right: number; bottom: number; left: number }) {
     const w = this.container.clientWidth, h = this.container.clientHeight
     if (!w || !h) return
-    const { top, right, bottom, left } = this.insets
+    const { top, right, bottom, left } = insets
     const dx = right - left, dy = bottom - top
     const fullW = w + Math.abs(dx), fullH = h + Math.abs(dy)
-    this.camera.aspect = fullW / fullH
-    if (dx || dy) this.camera.setViewOffset(fullW, fullH, Math.max(dx, 0), Math.max(dy, 0), w, h)
-    else this.camera.clearViewOffset()
-    this.camera.updateProjectionMatrix()
+    cam.aspect = fullW / fullH
+    if (dx || dy) cam.setViewOffset(fullW, fullH, Math.max(dx, 0), Math.max(dy, 0), w, h)
+    else cam.clearViewOffset()
+    cam.updateProjectionMatrix()
   }
 
   /** Fly to frame a dataset-space rectangle. */
@@ -686,6 +736,8 @@ export class LayoutScene {
     const nx0 = -1 + (2 * left) / w, nx1 = 1 - (2 * right) / w
     const ny0 = -1 + (2 * bottom) / h, ny1 = 1 - (2 * top) / h
     const cam = this.camera.clone()
+    // fit against the final layout, even while the view is still easing towards it
+    this.applyViewTo(cam, this.insets)
     const v = new THREE.Vector3()
     const fits = (d: number) => {
       cam.position.set(
@@ -715,9 +767,19 @@ export class LayoutScene {
   flyToPlot(id: string) {
     const i = this.idIndex.get(id)
     if (i === undefined) return
-    const c = this.plotCentre(this.data.plots[i])
+    const plot = this.data.plots[i]
+    const c = this.plotCentre(plot)
     const w = this.world(c.x, c.y)
-    this.flyTo(new THREE.Vector3(w.X, 0, w.Z), 95, 0.62, this.controls.getAzimuthalAngle(), 1.4)
+    const target = new THREE.Vector3(w.X, 0, w.Z)
+    const azimuth = this.controls.getAzimuthalAngle()
+    // fit the plot (with its neighbours around it) into the screen area left free by the UI
+    const pts: THREE.Vector3[] = []
+    for (let k = 0; k < plot.p.length; k += 2) {
+      const q = this.world(plot.p[k], plot.p[k + 1])
+      pts.push(new THREE.Vector3(q.X, SLAB, q.Z))
+    }
+    const dist = THREE.MathUtils.clamp(this.fitPoints(pts, target, 0.62, azimuth, 2.6), 70, 420)
+    this.flyTo(target, dist, 0.62, azimuth, 1.4)
   }
 
   /** Jump high above the layout, then glide into the aerial view. */
@@ -780,6 +842,24 @@ export class LayoutScene {
     this.cb.onContextLost?.()
   }
 
+  /** Plot index under a client point, or -1. */
+  private pickAt(clientX: number, clientY: number) {
+    const r = this.renderer.domElement.getBoundingClientRect()
+    this.pointer.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1)
+    return this.pick()
+  }
+
+  /** Glide closer, keeping the tapped ground point in view (double-tap). */
+  private zoomTowards(clientX: number, clientY: number, factor: number) {
+    const r = this.renderer.domElement.getBoundingClientRect()
+    this.raycaster.setFromCamera(new THREE.Vector2(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1), this.camera)
+    const hit = this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), new THREE.Vector3())
+    const t = this.controls.target.clone()
+    const target = hit ? t.lerp(hit, 1 - factor) : t
+    const dist = THREE.MathUtils.clamp(this.camera.position.distanceTo(this.controls.target) * factor, this.controls.minDistance, this.controls.maxDistance)
+    this.flyTo(target, dist, this.controls.getPolarAngle(), this.controls.getAzimuthalAngle(), 0.45)
+  }
+
   private pick() {
     this.raycaster.setFromCamera(this.pointer, this.camera)
     const hit = this.raycaster.intersectObject(this.plotMesh, false)[0]
@@ -835,6 +915,8 @@ export class LayoutScene {
         }
       }
     }
+    this.touch.update(dt)
+    this.animateInsets(flyDt)
     this.controls.update()
     this.traffic?.update(dt)
     this.region?.update(dt)
@@ -923,7 +1005,18 @@ export class LayoutScene {
           ...[1, 2, 3, 4].flatMap((k) => [[k * sw, 0], [-k * sw, 0], [k * sw, -sh], [-k * sw, -sh], [k * sw, sh], [-k * sw, sh]]),
         ]
         const at = (ox: number, oy: number): [number, number, number, number] => [sx + ox - size.w / 2 - 3, sy + oy - size.h - 3, sx + ox + size.w / 2 + 3, sy + oy + 3]
-        const slot = slots.find(([ox, oy]) => !hits(at(ox, oy), placed) && inside(at(ox, oy))) ?? slots.find(([ox, oy]) => !hits(at(ox, oy), placed)) ?? [0, 0]
+        // a pin whose plot is in the visible area stacks within it; a pin whose plot has slid under
+        // the UI or the screen edge simply follows its plot there (it never drifts away from it)
+        const homeInside = inside(at(0, 0))
+        const ok = ([ox, oy]: number[]) => !hits(at(ox, oy), placed) && (!homeInside || inside(at(ox, oy)))
+        const prevSlot = this.slotMemory.get(item.el)
+        // home if there is room, else the slot it already had, else the nearest free one
+        const slot =
+          (ok([0, 0]) ? [0, 0] : null) ??
+          (prevSlot && ok(prevSlot) ? prevSlot : null) ??
+          slots.find(ok) ??
+          [0, 0]
+        this.slotMemory.set(item.el, slot)
         x = sx + slot[0]
         y = sy + slot[1]
         rect = at(slot[0], slot[1])
@@ -948,6 +1041,7 @@ export class LayoutScene {
     c.removeEventListener('pointerup', this.onPointerUp)
     c.removeEventListener('pointerleave', this.onPointerLeave)
     c.removeEventListener('webglcontextlost', this.onContextLost)
+    this.touch.dispose()
     this.controls.dispose()
     this.traffic?.dispose()
     this.region?.dispose()
