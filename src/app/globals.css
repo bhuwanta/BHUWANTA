@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Roomy screens (desktop / tablet): used by the 3D layout viewer to switch from the phone layout */
+@custom-variant desk (@media (min-width: 640px) and (min-height: 600px));
 
 @variant dark (&:is(.dark *));
 

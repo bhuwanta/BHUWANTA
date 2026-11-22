@@ -1,0 +1,5 @@
+pymupdf>=1.24
+opencv-python-headless>=4.9
+shapely>=2.0
+numpy>=1.26
+scikit-image>=0.22

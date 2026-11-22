@@ -3,7 +3,7 @@
 import { enquiryHref } from '@/lib/project-links'
 import { useState } from 'react'
 import Link from 'next/link'
-import { MapPin, Download, ClipboardList, Play } from 'lucide-react'
+import { MapPin, Download, ClipboardList, Play, Box } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import dynamic from 'next/dynamic'
 import { trackWhatsAppClick } from '@/lib/gtag'
@@ -52,9 +52,10 @@ export function ProjectDetailActions({
 }: ProjectDetailActionsProps) {
   const [downloadQueue, setDownloadQueue] = useState<{ urls: string[]; documentType: string } | null>(null)
   const showHighlights = (highlightCount ?? videoCount ?? 0) > 0 && Boolean(slug)
-  // Mobile grid is 2 columns; two buttons here are conditional, so whether the
+  const isShabadProject = slug === 'vian-vally' || slug === 'vian-valley' || name.toLowerCase().includes('vian')
+  // Mobile grid is 2 columns; three buttons here are conditional, so whether the
   // last one must span both columns to sit flush depends on the count.
-  const buttonCount = 6 + (googleMapsUrl ? 1 : 0) + (showHighlights ? 1 : 0)
+  const buttonCount = 6 + (isShabadProject ? 1 : 0) + (googleMapsUrl ? 1 : 0) + (showHighlights ? 1 : 0)
   const lastButtonSpan = buttonCount % 2 === 0 ? 'col-span-1' : 'col-span-2'
 
   return (
@@ -79,6 +80,17 @@ export function ProjectDetailActions({
         >
           WhatsApp
         </a>
+        {isShabadProject && (
+          <Link
+            href="/projects/vian-vally/3d"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full col-span-1 px-2 py-2.5 min-h-11 md:px-5 md:w-auto bg-brand-primary text-white font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer border border-brand-gold/60 shadow-sm"
+          >
+            <Box className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-gold animate-pulse flex-shrink-0" />
+            <span className="truncate">View 3D</span>
+          </Link>
+        )}
         {googleMapsUrl && (
           <a
             href={googleMapsUrl}

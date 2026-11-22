@@ -4,7 +4,7 @@ import { projectEnquiryHref, displayProjectName, displayProjectPlace } from '@/l
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Crown, Check, Download, Play } from 'lucide-react'
+import { MapPin, Crown, Check, Download, Play, Box } from 'lucide-react'
 import { ProjectImageCarousel } from '@/components/ui/ProjectImageCarousel'
 import dynamic from 'next/dynamic'
 import { canonicalProjectSlug } from '@/lib/project-links'
@@ -266,6 +266,17 @@ export function ProjectsDirectory({
                               <button type="button" disabled={!project.googleMapsUrl} onClick={() => project.googleMapsUrl && window.open(project.googleMapsUrl, '_blank')} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer">
                                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" /> <span className="truncate">View Location</span>
                               </button>
+                              {projectSlug && canonicalProjectSlug(projectSlug) === 'vian-vally' && (
+                                <Link
+                                  href="/projects/vian-vally/3d"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-brand-primary text-white font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2 cursor-pointer border border-brand-gold/60 shadow-sm"
+                                >
+                                  <Box className="w-3 h-3 sm:w-4 sm:h-4 text-brand-gold animate-pulse flex-shrink-0" />
+                                  <span className="truncate">View 3D</span>
+                                </Link>
+                              )}
                               {showHighlights && (
                                 <Link href={`/projects/${projectSlug}/videos`} className="w-full col-span-1 px-2 py-2 min-h-11 md:px-5 md:w-auto bg-white border border-brand-border text-brand-primary font-semibold rounded-lg hover:border-brand-gold hover:shadow-md transition-all text-xs sm:text-sm text-center flex items-center justify-center md:justify-start gap-1 md:gap-2">
                                   <Play className="w-3 h-3 sm:w-4 sm:h-4 text-brand-accent flex-shrink-0" />{' '}
